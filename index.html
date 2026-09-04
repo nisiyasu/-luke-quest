@@ -9,7 +9,38 @@
 <title>LUKE QUEST</title>
 <style>
 :root{--bg:#07111f;--panel:#101d31;--text:#fff7dd;--sub:#a9b9cc;--gold:#f6d35b;--blue:#347cff}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}html,body{margin:0;min-height:100%;background:#07111f;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;overflow-x:hidden}body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}button{font:inherit;color:inherit}#app{max-width:720px;margin:auto;min-height:100vh;padding:10px}.card{background:#101d31;border:1px solid #ffffff18;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 10px 30px #0007}.title{font-size:30px;font-weight:950}.sub{color:var(--sub);line-height:1.6;font-size:14px}.btn{width:100%;border:0;border-radius:13px;padding:14px;margin:5px 0;background:var(--blue);font-weight:900}.btn.gold{background:linear-gradient(135deg,#d99d23,#f3cf55);color:#241900}.btn.gray{background:#2b405a}.row{display:flex;gap:8px}.row>*{flex:1}.status{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.stat{background:#091525;border-radius:10px;padding:8px;text-align:center}.stat small{display:block;color:var(--sub);font-size:11px}.stat b{font-size:16px}.gameShell{position:relative;width:100%;aspect-ratio:4/5;max-height:68vh;overflow:hidden;border-radius:16px;background:#000;border:2px solid #ffffff22;box-shadow:0 12px 30px #0008}.world{position:absolute;left:0;top:0;will-change:transform}.tile{position:absolute;width:48px;height:48px;font-size:28px;display:flex;align-items:center;justify-content:center;user-select:none}.grass{background:#5b9b45}.path{background:#c5a86c}.water{background:#3f78a8}.wall{background:#7f715f}.floor{background:#d1bf8d}.roof{background:#a5483e}.tree{background:#3b7537}.flower{background:#5b9b45}.gate{background:#9a8157}.player,.npc{position:absolute;width:38px;height:42px;display:flex;align-items:center;justify-content:center;font-size:29px;z-index:8;filter:drop-shadow(0 4px 3px #0008);transition:left .08s linear,top .08s linear;pointer-events:none}.npc{z-index:7}.hud{position:absolute;left:8px;right:8px;top:8px;display:flex;justify-content:space-between;z-index:20;pointer-events:none}.chip{background:#07111fcc;border:1px solid #ffffff22;border-radius:999px;padding:6px 9px;font-weight:900;font-size:12px}.dialogBox{position:absolute;left:8px;right:8px;bottom:8px;z-index:30;background:#07111ff2;border:2px solid #fff;border-radius:12px;padding:12px;min-height:96px;box-shadow:0 8px 20px #000a}.speaker{color:var(--gold);font-weight:950;margin-bottom:5px}.dialog{line-height:1.55}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.dpad{display:grid;grid-template-columns:58px 58px 58px;grid-template-rows:58px 58px 58px;justify-content:center}.dpad button,.actionPad button{border:1px solid #ffffff25;background:#203652;border-radius:16px;font-size:25px;font-weight:950;box-shadow:0 5px 12px #0006}.dpad button:active,.actionPad button:active{transform:translateY(2px);background:#31557d}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}.actionPad{display:flex;align-items:center;justify-content:center;gap:9px}.actionPad button{width:68px;height:68px}.actionPad .a{background:#6f4a9b}.notice{background:#172841;border-left:4px solid var(--gold);border-radius:8px;padding:10px;line-height:1.55}.enemy{text-align:center;font-size:58px}.enemyName{text-align:center;font-weight:950;font-size:22px}.bar{height:10px;background:#26394f;border-radius:99px;overflow:hidden;margin:7px 0}.fill{height:100%;background:#70dc8c}.enemyFill{background:#ff836f}.log{background:#081321;border-radius:10px;padding:10px;line-height:1.5;min-height:78px}.foot{text-align:center;color:#72849a;font-size:11px;padding:4px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{margin:0;min-height:100%;background:#07111f;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;overflow-x:hidden}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button{font:inherit;color:inherit}
+#app{max-width:720px;margin:auto;min-height:100vh;padding:10px}
+.card{background:#101d31;border:1px solid #ffffff18;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 10px 30px #0007}
+.title{font-size:30px;font-weight:950}.sub{color:var(--sub);line-height:1.6;font-size:14px}
+.btn{width:100%;border:0;border-radius:13px;padding:14px;margin:5px 0;background:var(--blue);font-weight:900}
+.btn.gold{background:linear-gradient(135deg,#d99d23,#f3cf55);color:#241900}.btn.gray{background:#2b405a}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.status{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stat{background:#091525;border-radius:10px;padding:8px;text-align:center}.stat small{display:block;color:var(--sub);font-size:11px}.stat b{font-size:16px}
+.gameShell{position:relative;width:100%;aspect-ratio:4/5;max-height:68vh;overflow:hidden;border-radius:16px;background:#000;border:2px solid #ffffff22;box-shadow:0 12px 30px #0008}
+.world{position:absolute;left:0;top:0;will-change:transform}
+.tile{position:absolute;width:48px;height:48px;font-size:28px;display:flex;align-items:center;justify-content:center;user-select:none}
+.grass{background:#5b9b45}.path{background:#c5a86c}.water{background:#3f78a8}.wall{background:#7f715f}.floor{background:#d1bf8d}.roof{background:#a5483e}.tree{background:#3b7537}.flower{background:#5b9b45}.gate{background:#9a8157}
+.player,.npc{position:absolute;width:38px;height:42px;display:flex;align-items:center;justify-content:center;font-size:29px;z-index:8;filter:drop-shadow(0 4px 3px #0008);transition:left .08s linear,top .08s linear;pointer-events:none}.npc{z-index:7}
+.hud{position:absolute;left:8px;right:8px;top:8px;display:flex;justify-content:space-between;z-index:20;pointer-events:none}
+.chip{background:#07111fcc;border:1px solid #ffffff22;border-radius:999px;padding:6px 9px;font-weight:900;font-size:12px}
+.dialogBox{position:absolute;left:8px;right:8px;bottom:8px;z-index:30;background:#07111ff2;border:2px solid #fff;border-radius:12px;padding:12px;min-height:96px;box-shadow:0 8px 20px #000a}
+.speaker{color:var(--gold);font-weight:950;margin-bottom:5px}.dialog{line-height:1.55}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.dpad{display:grid;grid-template-columns:58px 58px 58px;grid-template-rows:58px 58px 58px;justify-content:center}
+.dpad button,.actionPad button{border:1px solid #ffffff25;background:#203652;border-radius:16px;font-size:25px;font-weight:950;box-shadow:0 5px 12px #0006}
+.dpad button:active,.actionPad button:active{transform:translateY(2px);background:#31557d}
+.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+.actionPad{display:flex;align-items:center;justify-content:center;gap:9px}.actionPad button{width:68px;height:68px}.actionPad .a{background:#6f4a9b}
+.notice{background:#172841;border-left:4px solid var(--gold);border-radius:8px;padding:10px;line-height:1.55}
+.enemy{text-align:center;font-size:58px}.enemyName{text-align:center;font-weight:950;font-size:22px}
+.bar{height:10px;background:#26394f;border-radius:99px;overflow:hidden;margin:7px 0}.fill{height:100%;background:#70dc8c}.enemyFill{background:#ff836f}
+.log{background:#081321;border-radius:10px;padding:10px;line-height:1.5;min-height:78px}
+.foot{text-align:center;color:#72849a;font-size:11px;padding:4px}
 @media(max-height:700px){.gameShell{max-height:57vh}.dpad{grid-template-columns:48px 48px 48px;grid-template-rows:48px 48px 48px}.actionPad button{width:58px;height:58px}}
 </style>
 </head>
@@ -17,33 +48,91 @@
 <script>
 const TS=48;
 const MAPS={
- town:{name:'王都アルディア',w:18,h:16,spawn:{x:9,y:12},tiles:[
-'##################','#................#','#..HHH.....HHH...#','#..HHH.....HHH...#','#..HHH.....HHH...#','#................#','#.....TTTT.......#','#.....T..T.......#','#.....T..T.......#','#.....TTTT.......#','#................#','#..***....***....#','#................#','#................#','#.......GG.......#','########..########'],npcs:[{x:4,y:6,e:'👴',name:'旅好きの老人',text:'北の神殿には近づきすぎるなよ。最近、偉い人ほど笑顔が怖い。'},{x:13,y:11,e:'👩',name:'道具屋のミナ',text:'勇者さま？ 薬草ならありますけど、勇気は仕入れてません。'},{x:8,y:5,e:'🧑‍⚕️',name:'神殿の見習い',text:'水晶があんな光り方をしたの、初めて見ました。エレノア様も驚いていたような…'}]},
- field:{name:'王都近郊',w:22,h:18,spawn:{x:10,y:15},tiles:[
-'######################','#....***..............#','#..******....~~~~.....#','#...*****....~~~~.....#','#............~~~~.....#','#..###.................#','#..#.#.....******......#','#..#.#....********.....#','#..###....********.....#','#..........******......#','#......................#','#.....~~~~.............#','#.....~~~~.....***.....#','#.....~~~~....*****....#','#.............***......#','#......................#','#.........GG...........#','##########..##########'],npcs:[{x:6,y:10,e:'🧑‍🌾',name:'畑仕事の青年',text:'森の方で魔物が増えてる。金髪の男が走っていったけど、あれ勇者候補じゃないか？'}]}
+ town:{name:'王都アルディア',w:18,h:16,tiles:[
+'##################','#................#','#..HHH.....HHH...#','#..HHH.....HHH...#','#..HHH.....HHH...#','#................#','#.....TTTT.......#','#.....T..T.......#','#.....T..T.......#','#.....TTTT.......#','#................#','#..***....***....#','#................#','#................#','#.......GG.......#','########..########'],
+ npcs:[{x:4,y:6,e:'👴',name:'旅好きの老人',text:'北の神殿には近づきすぎるなよ。最近、偉い人ほど笑顔が怖い。'},{x:13,y:11,e:'👩',name:'道具屋のミナ',text:'勇者さま？ 薬草ならありますけど、勇気は仕入れてません。'},{x:8,y:5,e:'🧑‍⚕️',name:'神殿の見習い',text:'水晶があんな光り方をしたの、初めて見ました。エレノア様も驚いていたような…'}]},
+ field:{name:'王都近郊',w:22,h:18,tiles:[
+'######################','#....***..............#','#..******....~~~~.....#','#...*****....~~~~.....#','#............~~~~.....#','#..###.................#','#..#.#.....******......#','#..#.#....********.....#','#..###....********.....#','#..........******......#','#......................#','#.....~~~~.............#','#.....~~~~.....***.....#','#.....~~~~....*****....#','#.............***......#','#......................#','#.........GG...........#','##########..##########'],
+ npcs:[{x:6,y:10,e:'🧑‍🌾',name:'畑仕事の青年',text:'森の方で魔物が増えてる。金髪の男が走っていったけど、あれ勇者候補じゃないか？'}]}
 };
 const ENEMIES=[{n:'ぷるぷるスライム',e:'🟦',hp:18,a:[3,5],xp:7,g:4},{n:'ツノウサギ',e:'🐇',hp:25,a:[4,7],xp:10,g:7},{n:'闇カラス',e:'🐦‍⬛',hp:30,a:[5,8],xp:13,g:9}];
 const intro=[['ナレーション','王都の大神殿。勇者選定の日、本命候補レオンが消えた。'],['神官','宿の窓から荷物ごと逃げたそうです。'],['ルーク','それ、深くない逃げ方ですね。'],['ナレーション','見物人だったルークが水晶に触れた瞬間、神殿は昼のような光に包まれた。'],['神官','千年に一度の輝き……勇者だ！'],['ルーク','これ壊れたんじゃないですか？'],['エレノア','……その光……。まさか、あの子の血が……？'],['王の使者','勇者ルークよ。魔物の森へ逃げたレオンを連れ戻せ！'],['ルーク','連れ戻したら僕、勇者やめられますよね？'],['王の使者','……話はそれからだ。']];
-let s=Object.assign({screen:'title',lv:1,hp:42,mh:42,atk:7,xp:0,nx:20,gold:10,potions:2,map:'town',x:9,y:12,dir:'up',step:0,wins:0,enemy:null,ehp:0,log:[],dialog:null},JSON.parse(localStorage.getItem('lukeQuestV2')||'{}'));
-const app=document.querySelector('#app');let moving=false;
-function save(){localStorage.setItem('lukeQuestV2',JSON.stringify(s))}function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+const DEFAULT={screen:'title',lv:1,hp:42,mh:42,atk:7,xp:0,nx:20,gold:10,potions:2,map:'town',x:9,y:12,dir:'up',step:0,wins:0,enemy:null,ehp:0,log:[],dialog:null};
+let s=Object.assign({},DEFAULT,JSON.parse(localStorage.getItem('lukeQuestV2')||'{}'));
+const app=document.querySelector('#app');
+let moveTimer=null;
+let encounterGrace=0;
+
+function save(){localStorage.setItem('lukeQuestV2',JSON.stringify(s))}
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function stopMoving(){if(moveTimer!==null){clearInterval(moveTimer);moveTimer=null}}
 function status(){return `<div class=card><div class=status><div class=stat><small>LV</small><b>${s.lv}</b></div><div class=stat><small>HP</small><b>${s.hp}/${s.mh}</b></div><div class=stat><small>G</small><b>${s.gold}</b></div><div class=stat><small>薬草</small><b>${s.potions}</b></div></div></div>`}
-function render(){save();if(s.screen==='title')return title();if(s.screen==='intro')return story();if(s.screen==='battle')return battle();return world()}
+function render(){if(s.screen!=='world')stopMoving();save();if(s.screen==='title')return title();if(s.screen==='intro')return story();if(s.screen==='battle')return battle();return world()}
 function title(){app.innerHTML=`<div class=card><div style="font-size:72px;text-align:center">🛡️⚔️</div><div class=title>LUKE QUEST</div><div class=sub>ルークと逃げた勇者<br>歩いて、話して、戦うオリジナル王道JRPG。</div><button class="btn gold" onclick="newGame()">冒険をはじめる</button>${localStorage.getItem('lukeQuestV2')?'<button class="btn gray" onclick="continueGame()">つづきから</button>':''}</div><div class=card><div class=notice>第一章：逃げた本命勇者レオンを探し、魔物の森へ向かえ。</div></div>`}
-function newGame(){localStorage.removeItem('lukeQuestV2');s={screen:'intro',lv:1,hp:42,mh:42,atk:7,xp:0,nx:20,gold:10,potions:2,map:'town',x:9,y:12,dir:'up',step:0,wins:0,enemy:null,ehp:0,log:[],dialog:null};render()}function continueGame(){s.screen=s.screen==='title'?'world':s.screen;render()}
-function story(){let [sp,tx]=intro[s.step];app.innerHTML=status()+`<div class=card><div class=speaker>${sp}</div><div class=dialog>${tx}</div><button class="btn gold" onclick="nextIntro()">${s.step===intro.length-1?'王都へ':'つづける'}</button></div>`}function nextIntro(){s.step++;if(s.step>=intro.length){s.screen='world';s.step=0;s.map='town';s.x=9;s.y=12}render()}
-function tileClass(c){return c==='#'?'wall':c==='H'?'roof':c==='T'?'floor':c==='~'?'water':c==='*'?'tree':c==='G'?'gate':'grass'}function tileEmoji(c){return c==='H'?'🏠':c==='T'?'':c==='~'?'≈':c==='*'?'🌲':c==='G'?'':c==='#'?'':''}
-function world(){let m=MAPS[s.map],vw=Math.min(640,window.innerWidth-24),vh=Math.min(Math.round(vw*1.25),window.innerHeight*.68),px=s.x*TS+5,py=s.y*TS+3,cx=vw/2-px-19,cy=vh/2-py-21;cx=Math.min(0,Math.max(vw-m.w*TS,cx));cy=Math.min(0,Math.max(vh-m.h*TS,cy));let tiles='';for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){let c=m.tiles[y][x];tiles+=`<div class="tile ${tileClass(c)}" style="left:${x*TS}px;top:${y*TS}px">${tileEmoji(c)}</div>`}let npcs=m.npcs.map(n=>`<div class=npc style="left:${n.x*TS+5}px;top:${n.y*TS+3}px">${n.e}</div>`).join('');app.innerHTML=status()+`<div class=gameShell style="height:${vh}px"><div class=world style="width:${m.w*TS}px;height:${m.h*TS}px;transform:translate(${cx}px,${cy}px)">${tiles}${npcs}<div class=player style="left:${px}px;top:${py}px">🧑‍🦱</div></div><div class=hud><div class=chip>📍 ${m.name}</div><div class=chip>勝利 ${s.wins}/2</div></div>${s.dialog?`<div class=dialogBox><div class=speaker>${s.dialog.name}</div><div class=dialog>${s.dialog.text}</div><div class=sub style="text-align:right">Aで閉じる</div></div>`:''}</div><div class=controls><div class=dpad><button class=up data-d=up>▲</button><button class=left data-d=left>◀</button><button class=down data-d=down>▼</button><button class=right data-d=right>▶</button></div><div class=actionPad><button class=a onclick=action()>A</button><button onclick="openMenu()">☰</button></div></div><div class=foot>LUKE QUEST v0.2 • autosave</div>`;bindControls()}
+function newGame(){stopMoving();localStorage.removeItem('lukeQuestV2');s=Object.assign({},DEFAULT,{screen:'intro'});encounterGrace=0;render()}
+function continueGame(){stopMoving();s.screen=s.screen==='title'?'world':s.screen;render()}
+function story(){let [sp,tx]=intro[s.step];app.innerHTML=status()+`<div class=card><div class=speaker>${sp}</div><div class=dialog>${tx}</div><button class="btn gold" onclick="nextIntro()">${s.step===intro.length-1?'王都へ':'つづける'}</button></div>`}
+function nextIntro(){s.step++;if(s.step>=intro.length){s.screen='world';s.step=0;s.map='town';s.x=9;s.y=12}render()}
+function tileClass(c){return c==='#'?'wall':c==='H'?'roof':c==='T'?'floor':c==='~'?'water':c==='*'?'tree':c==='G'?'gate':'grass'}
+function tileEmoji(c){return c==='H'?'🏠':c==='~'?'≈':c==='*'?'🌲':''}
+function world(){
+ let m=MAPS[s.map],vw=Math.min(640,window.innerWidth-24),vh=Math.min(Math.round(vw*1.25),window.innerHeight*.68);
+ let px=s.x*TS+5,py=s.y*TS+3,cx=vw/2-px-19,cy=vh/2-py-21;
+ cx=Math.min(0,Math.max(vw-m.w*TS,cx));cy=Math.min(0,Math.max(vh-m.h*TS,cy));
+ let tiles='';for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){let c=m.tiles[y][x];tiles+=`<div class="tile ${tileClass(c)}" style="left:${x*TS}px;top:${y*TS}px">${tileEmoji(c)}</div>`}
+ let npcs=m.npcs.map(n=>`<div class=npc style="left:${n.x*TS+5}px;top:${n.y*TS+3}px">${n.e}</div>`).join('');
+ app.innerHTML=status()+`<div class=gameShell style="height:${vh}px"><div class=world style="width:${m.w*TS}px;height:${m.h*TS}px;transform:translate(${cx}px,${cy}px)">${tiles}${npcs}<div class=player style="left:${px}px;top:${py}px">🧑‍🦱</div></div><div class=hud><div class=chip>📍 ${m.name}</div><div class=chip>勝利 ${s.wins}/2</div></div>${s.dialog?`<div class=dialogBox><div class=speaker>${s.dialog.name}</div><div class=dialog>${s.dialog.text}</div><div class=sub style="text-align:right">Aで閉じる</div></div>`:''}</div><div class=controls><div class=dpad><button class=up data-d=up>▲</button><button class=left data-d=left>◀</button><button class=down data-d=down>▼</button><button class=right data-d=right>▶</button></div><div class=actionPad><button class=a onclick=action()>A</button><button onclick="openMenu()">☰</button></div></div><div class=foot>LUKE QUEST v0.2.1 • autosave</div>`;
+ bindControls();
+}
 function blocked(x,y){let m=MAPS[s.map];if(x<0||y<0||x>=m.w||y>=m.h)return true;if(m.npcs.some(n=>n.x===x&&n.y===y))return true;return ['#','H','~','*'].includes(m.tiles[y][x])}
-function move(d){if(s.dialog){s.dialog=null;return render()}s.dir=d;let dx=d==='left'?-1:d==='right'?1:0,dy=d==='up'?-1:d==='down'?1:0,nx=s.x+dx,ny=s.y+dy;if(!blocked(nx,ny)){s.x=nx;s.y=ny;checkGate();if(s.screen!=='world')return render();if(s.map==='field'&&Math.random()<.105)return startBattle()}render()}
-function checkGate(){let m=MAPS[s.map],c=m.tiles[s.y][s.x];if(c!=='G')return;if(s.map==='town'){s.map='field';s.x=10;s.y=15}else{s.map='town';s.x=9;s.y=13}}
+function move(d){
+ if(s.screen!=='world'){stopMoving();return}
+ if(s.dialog){s.dialog=null;stopMoving();return render()}
+ s.dir=d;
+ let dx=d==='left'?-1:d==='right'?1:0,dy=d==='up'?-1:d==='down'?1:0,nx=s.x+dx,ny=s.y+dy;
+ if(!blocked(nx,ny)){
+   s.x=nx;s.y=ny;checkGate();
+   if(s.screen!=='world'){stopMoving();return render()}
+   if(s.map==='field'){
+     if(encounterGrace>0)encounterGrace--;
+     else if(Math.random()<.105)return startBattle();
+   }
+ }
+ render();
+}
+function checkGate(){let m=MAPS[s.map],c=m.tiles[s.y][s.x];if(c!=='G')return;if(s.map==='town'){s.map='field';s.x=10;s.y=15;encounterGrace=3}else{s.map='town';s.x=9;s.y=13}}
 function front(){let dx=s.dir==='left'?-1:s.dir==='right'?1:0,dy=s.dir==='up'?-1:s.dir==='down'?1:0;return{x:s.x+dx,y:s.y+dy}}
-function action(){if(s.dialog){s.dialog=null;return render()}let p=front(),m=MAPS[s.map],n=m.npcs.find(q=>q.x===p.x&&q.y===p.y);if(n){s.dialog=n;return render()}if(s.map==='town'&&p.x>=6&&p.x<=9&&p.y>=6&&p.y<=9){s.dialog={name:'大神殿',text:'扉は固く閉ざされている。ルーク「僕の勇者証、顔パスにはならないんですね…」'};return render()}s.dialog={name:'ルーク',text:'特に何もなさそうです。たぶん。'};render()}
-function bindControls(){document.querySelectorAll('[data-d]').forEach(b=>{let d=b.dataset.d;b.onpointerdown=e=>{e.preventDefault();move(d);moving=setInterval(()=>move(d),150)};b.onpointerup=b.onpointercancel=b.onpointerleave=()=>{clearInterval(moving);moving=false}})}
-window.addEventListener('keydown',e=>{let k={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'}[e.key];if(k&&s.screen==='world'){e.preventDefault();move(k)}if((e.key==='Enter'||e.key===' ')&&s.screen==='world')action()})
-function startBattle(){let e=ENEMIES[rnd(0,ENEMIES.length-1)];s.enemy=e;s.ehp=e.hp;s.log=[`${e.n}が現れた！`];s.screen='battle';render()}
+function action(){stopMoving();if(s.dialog){s.dialog=null;return render()}let p=front(),m=MAPS[s.map],n=m.npcs.find(q=>q.x===p.x&&q.y===p.y);if(n){s.dialog=n;return render()}if(s.map==='town'&&p.x>=6&&p.x<=9&&p.y>=6&&p.y<=9){s.dialog={name:'大神殿',text:'扉は固く閉ざされている。ルーク「僕の勇者証、顔パスにはならないんですね…」'};return render()}s.dialog={name:'ルーク',text:'特に何もなさそうです。たぶん。'};render()}
+function bindControls(){
+ document.querySelectorAll('[data-d]').forEach(b=>{
+   const d=b.dataset.d;
+   b.onpointerdown=e=>{
+     e.preventDefault();
+     stopMoving();
+     move(d);
+     if(s.screen==='world'&&!s.dialog){
+       moveTimer=setInterval(()=>{if(s.screen!=='world'){stopMoving();return}move(d)},150);
+     }
+   };
+ });
+}
+window.addEventListener('pointerup',stopMoving,{passive:true});
+window.addEventListener('pointercancel',stopMoving,{passive:true});
+window.addEventListener('blur',stopMoving);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMoving()});
+window.addEventListener('keydown',e=>{let k={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'}[e.key];if(k&&s.screen==='world'){e.preventDefault();move(k)}if((e.key==='Enter'||e.key===' ')&&s.screen==='world')action()});
+
+function startBattle(){stopMoving();let e=ENEMIES[rnd(0,ENEMIES.length-1)];s.enemy=e;s.ehp=e.hp;s.log=[`${e.n}が現れた！`];s.screen='battle';render()}
 function battle(){let e=s.enemy;app.innerHTML=status()+`<div class=card><div class=enemy>${e.e}</div><div class=enemyName>${e.n}</div><div class=bar><div class="fill enemyFill" style="width:${100*s.ehp/e.hp}%"></div></div></div><div class=card><div class=row><button class=btn onclick=attack()>こうげき</button><button class="btn gray" onclick=guard()>ぼうぎょ</button></div><div class=row><button class="btn gold" onclick=potion()>やくそう</button><button class="btn gray" onclick=runAway()>にげる</button></div><div class=log>${s.log.slice(-5).join('<br>')}</div></div>`}
-function attack(){let d=rnd(s.atk,s.atk+5)+s.lv;s.ehp=Math.max(0,s.ehp-d);s.log.push(`ルークの攻撃！ ${d}ダメージ！`);if(s.ehp<=0)return win();enemyTurn()}function guard(){s.log.push('ルークは盾の後ろに隠れた。本人は戦術と言っている。');enemyTurn(true)}function potion(){if(!s.potions){s.log.push('薬草がない！');return battle()}s.potions--;let h=Math.min(22,s.mh-s.hp);s.hp+=h;s.log.push(`HPが${h}回復！`);enemyTurn()}function enemyTurn(g=false){let d=rnd(s.enemy.a[0],s.enemy.a[1]);if(g)d=Math.max(1,Math.floor(d/2));s.hp=Math.max(0,s.hp-d);s.log.push(`${s.enemy.n}の攻撃！ ${d}ダメージ！`);if(!s.hp){s.hp=s.mh;s.screen='world';s.map='town';s.x=9;s.y=12;s.dialog={name:'宿屋の主人',text:'また倒れて運ばれてきたぞ。勇者って大変だな。'};return render()}battle()}function win(){let e=s.enemy;s.gold+=e.g;s.xp+=e.xp;s.wins++;s.log.push(`${e.n}を倒した！ EXP${e.xp} / ${e.g}G`);if(s.xp>=s.nx){s.xp-=s.nx;s.lv++;s.nx=Math.floor(s.nx*1.5);s.mh+=9;s.hp=s.mh;s.atk+=3}s.screen='world';s.enemy=null;s.dialog=s.wins>=2?{name:'ナレーション',text:'魔物の森へ進めるだけの経験を積んだ。北東の森へ向かう道は、次の更新で開通予定。'}:{name:'ルーク',text:'勝てました……。毎回これやるんですか？'};render()}function runAway(){if(Math.random()<.7){s.screen='world';s.enemy=null;s.dialog={name:'ルーク',text:'逃げ足だけは勇者級です。'};render()}else{s.log.push('逃げ道を間違えた！');enemyTurn()}}
-function openMenu(){s.dialog={name:'冒険メモ',text:`目的：逃げたレオンを探す。\n現在地：${MAPS[s.map].name}\n草原での勝利：${s.wins}/2\n操作：十字キーで移動、Aで会話。`};render()}
+function attack(){let d=rnd(s.atk,s.atk+5)+s.lv;s.ehp=Math.max(0,s.ehp-d);s.log.push(`ルークの攻撃！ ${d}ダメージ！`);if(s.ehp<=0)return win();enemyTurn()}
+function guard(){s.log.push('ルークは盾の後ろに隠れた。本人は戦術と言っている。');enemyTurn(true)}
+function potion(){if(!s.potions){s.log.push('薬草がない！');return battle()}s.potions--;let h=Math.min(22,s.mh-s.hp);s.hp+=h;s.log.push(`HPが${h}回復！`);enemyTurn()}
+function enemyTurn(g=false){let d=rnd(s.enemy.a[0],s.enemy.a[1]);if(g)d=Math.max(1,Math.floor(d/2));s.hp=Math.max(0,s.hp-d);s.log.push(`${s.enemy.n}の攻撃！ ${d}ダメージ！`);if(!s.hp){s.hp=s.mh;s.screen='world';s.map='town';s.x=9;s.y=12;encounterGrace=3;s.dialog={name:'宿屋の主人',text:'また倒れて運ばれてきたぞ。勇者って大変だな。'};return render()}battle()}
+function win(){let e=s.enemy;s.gold+=e.g;s.xp+=e.xp;s.wins++;s.log.push(`${e.n}を倒した！ EXP${e.xp} / ${e.g}G`);if(s.xp>=s.nx){s.xp-=s.nx;s.lv++;s.nx=Math.floor(s.nx*1.5);s.mh+=9;s.hp=s.mh;s.atk+=3}s.screen='world';s.enemy=null;encounterGrace=3;s.dialog=s.wins>=2?{name:'ナレーション',text:'魔物の森へ進めるだけの経験を積んだ。北東の森へ向かう道は、次の更新で開通予定。'}:{name:'ルーク',text:'勝てました……。毎回これやるんですか？'};render()}
+function runAway(){if(Math.random()<.7){s.screen='world';s.enemy=null;encounterGrace=3;s.dialog={name:'ルーク',text:'逃げ足だけは勇者級です。'};render()}else{s.log.push('逃げ道を間違えた！');enemyTurn()}}
+function openMenu(){stopMoving();s.dialog={name:'冒険メモ',text:`目的：逃げたレオンを探す。
+現在地：${MAPS[s.map].name}
+草原での勝利：${s.wins}/2
+操作：十字キーで移動、Aで会話。`};render()}
 render();
 </script></body></html>
