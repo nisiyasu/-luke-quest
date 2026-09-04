@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07111f">
+<title>ルークと逃げた勇者</title>
+<style>
+:root{--bg:#07111f;--panel:#101d31;--panel2:#172841;--text:#fff7dd;--sub:#a9b9cc;--gold:#f6d35b;--blue:#347cff;--red:#a74355}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -10%,#234875 0,#0b1a2e 34%,#07111f 70%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}button{font:inherit}
+#app{max-width:720px;margin:auto;min-height:100vh;padding:14px}
+.card{background:rgba(16,29,49,.96);border:1px solid rgba(255,255,255,.1);border-radius:19px;padding:16px;margin-bottom:12px;box-shadow:0 14px 36px #0007}
+.title{font-size:31px;font-weight:950;line-height:1.1}.sub{color:var(--sub);font-size:14px;line-height:1.7}.logo{font-size:72px;text-align:center;padding:18px 0 8px;filter:drop-shadow(0 10px 16px #0008)}
+.btn{width:100%;border:0;border-radius:14px;padding:15px;margin:6px 0;background:var(--blue);color:white;font-weight:900;font-size:17px}.btn:active{transform:translateY(1px)}.btn.gold{background:linear-gradient(135deg,#d99d23,#f3cf55);color:#251900}.btn.gray{background:#2b405a}.btn.red{background:var(--red)}.btn:disabled{opacity:.4}
+.status{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.stat{background:#091525;border-radius:12px;padding:9px;text-align:center}.stat b{display:block;font-size:17px}.stat small{color:var(--sub)}
+.bar{height:10px;background:#26394f;border-radius:99px;overflow:hidden;margin-top:6px}.fill{height:100%;background:linear-gradient(90deg,#54ca7b,#9bf0af)}.enemyFill{background:linear-gradient(90deg,#ff7474,#ffb368)}
+.scene{font-size:21px;font-weight:950;margin-bottom:10px}.speaker{font-weight:950;color:var(--gold);margin-bottom:6px}.dialog{font-size:17px;line-height:1.75;white-space:pre-wrap}.notice{background:#172841;border-left:4px solid var(--gold);border-radius:9px;padding:11px;line-height:1.6}
+.node{background:#15253c;border:1px solid #ffffff17;border-radius:15px;padding:14px;margin:9px 0}.node.lock{opacity:.4}.badge{display:inline-block;background:#2b405a;color:#d7e6f8;border-radius:999px;padding:3px 8px;font-size:12px;margin-left:5px}
+.enemy{text-align:center}.enemyIcon{font-size:68px}.enemyName{font-size:23px;font-weight:950}.row{display:flex;gap:8px}.row .btn{flex:1}.log{max-height:170px;overflow:auto;background:#081321;border-radius:12px;padding:11px;font-size:14px;line-height:1.55;color:#dbe6f2}.foot{text-align:center;color:#72849a;font-size:11px;padding:7px}
+hr{border:0;border-top:1px solid #ffffff16;margin:14px 0}
+</style>
+</head>
+<body><div id="app"></div>
+<script>
+const E={
+ slime:{n:"ぷるぷるスライム",i:"🟦",hp:18,a:[3,5],xp:7,g:4,l:["ぷるぷるしている。本人はたぶん威嚇している。","ルーク「見た目はかわいいのに殴ってくるんですね…」"]},
+ rabbit:{n:"ツノウサギ",i:"🐇",hp:25,a:[4,7],xp:10,g:7,l:["やたら目つきの悪いウサギが現れた。","ルーク「ウサギってもっと平和な生き物じゃ…」"]},
+ crow:{n:"闇カラス",i:"🐦‍⬛",hp:30,a:[5,8],xp:13,g:9,l:["不吉な鳴き声が森に響いた。","ルーク「帰りたい気持ちが8割くらいです」"]},
+ glenn:{n:"魔王軍 森林制圧隊長グレン",i:"⚔️",hp:80,a:[7,11],xp:40,g:0,l:["グレン「森の占領計画に勇者の来訪予定は入っていないぞ…！」","レオン「予定表の問題なのか？」"]}
+};
+let s={scr:"title",lv:1,xp:0,nx:20,hp:42,mh:42,atk:7,g:10,p:2,grass:0,forest:0,guard:false,cur:null,ehp:0,log:[],step:0};
+const intro=[
+["ナレーション","千年に一度、世界の均衡が大きく揺らぐ時代。\n王都の大神殿では、新たな勇者を選ぶ儀式が開かれていた。"],
+["神官","本命候補レオン殿が……消えました。"],["エレノア","まあ。きっと何か深いお考えがあるのでしょう。"],["神官","宿の窓から荷物ごと逃げたそうです。"],["ルーク","それ、深くない逃げ方ですね。"],
+["ナレーション","勇者候補が消えたため、なぜか見物人まで水晶へ触れることになった。"],["ルーク","僕もですか？ 見に来ただけなんですけど。"],["神官","形式です。何も起きません。"],
+["ナレーション","ルークが水晶に触れた瞬間、神殿が昼のような光に包まれた。"],["神官","せ、千年に一度の輝き……！ 勇者だ！！！"],["ルーク","これ壊れたんじゃないですか？ 弁償しなくていいやつですか？"],
+["エレノア","……その光……。\n（まさか……あの子の血が、生きている……？）"],["王の使者","勇者ルークよ。最初の使命だ！\n逃亡した勇者候補レオンを魔物の森から連れ戻せ！"],
+["ルーク","その人を連れ戻したら、僕は勇者を辞められますよね？"],["王の使者","……まずは連れ戻せ。話はそれからだ。"]
+];
+const leon=[["ナレーション","森の奥。焚き火の前で金髪の青年が堂々と座っていた。\n堂々としているが、荷物は完全に逃亡者の量だった。"],["レオン","遅かったな。俺はここで魔王軍の動向を調査していた。"],["ルーク","宿の窓から荷物ごと出たって聞きました。"],["レオン","……高度な潜入経路だ。"],["ルーク","帰りましょうよ。あなたが戻れば僕、勇者やめられるんで。"],["レオン","お前……勇者になりたくないのか？"],["ルーク","なりたい人、いるんですか？"],["レオン","…………。"],["ナレーション","その時、森の木々が大きく揺れた。重い足音が近づいてくる。"]];
+const glenn=[["グレン","ここは魔王軍森林制圧部隊の管轄だ。無断侵入は報告書が増える。帰れ。"],["レオン","魔王軍の隊長……！"],["グレン","勇者候補が二人？ 聞いていないぞ。今月の勇者対応件数はもう上限だ。"],["ルーク","僕は仮なので一人扱いになりませんか？"],["グレン","そういう問題ではない。"],["ナレーション","グレンの目がルークを捉えた瞬間、ほんの一瞬だけ鋭さを失った。"],["グレン","……その目……。"],["ルーク","目に何かついてます？"],["グレン","……いや。何でもない。"],["グレン","立場上、通すわけにはいかん。来い、勇者。"]];
+const ending=[["ナレーション","激戦の末、グレンが片膝をついた。"],["レオン","終わりだ、魔族！"],["グレン","……そうか。あの人の……。"],["ルーク","何か言いました？"],["グレン","いや。今日の任務はここまでだ。"],["レオン","待て！ なぜ俺たちを見逃す？"],["グレン","残業申請が通らん。"],["ルーク","それは大変ですね。"],["レオン","納得するな！！"],["ナレーション","グレンは森の闇へ消えた。\nその背中を、ルークだけが妙に懐かしいと感じていた。"],["レオン","……王都へ戻る。"],["ルーク","よかった。じゃあ僕の勇者も返却ですね。"],["レオン","たぶん無理だと思うぞ。"],["ルーク","えっ。"],["ナレーション","こうして、勇者になりたくなかった少年ルークの冒険は、本当に始まってしまった。\n\nそして遠い魔王城では、一人の女性が静かに空を見上げていた。\n\nエリシア「……ルーク……？」"]];
+function q(x){return document.querySelector(x)}function sv(){localStorage.setItem("lukeQuestSave",JSON.stringify(s))}
+function ld(){let x=localStorage.getItem("lukeQuestSave");if(x){s=JSON.parse(x);r()}}
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function head(){return `<div class=card><div class=status><div class=stat><small>LV</small><b>${s.lv}</b></div><div class=stat><small>HP</small><b>${s.hp}/${s.mh}</b></div><div class=stat><small>G</small><b>${s.g}</b></div><div class=stat><small>薬草</small><b>${s.p}</b></div></div><div class=bar><div class=fill style="width:${100*s.hp/s.mh}%"></div></div></div>`}
+function out(x){q("#app").innerHTML=x+`<div class=foot>LUKE QUEST v0.1 • autosave</div>`}
+function r(){sv();({title,story,map,battle,leonS,glennS,endS,over}[s.scr]||title)()}
+function title(){let has=!!localStorage.getItem("lukeQuestSave");out(`<div class=card><div class=logo>🛡️⚔️</div><div class=title>ルークと逃げた勇者</div><div class=sub>王道ファンタジーなのに、勇者本人がいちばん帰りたがっている。</div><hr><button class="btn gold" onclick=start()>冒険をはじめる</button>${has?`<button class="btn gray" onclick=ld()>つづきから</button>`:""}</div><div class=card><div class=scene>第一章</div><div class=notice>逃げた本命勇者レオンを探し、魔物の森へ向かえ。</div></div>`)}
+function start(){s={scr:"story",lv:1,xp:0,nx:20,hp:42,mh:42,atk:7,g:10,p:2,grass:0,forest:0,guard:false,cur:null,ehp:0,log:[],step:0};r()}
+function scene(arr,next,titleText){let [sp,tx]=arr[s.step];out(head()+`<div class=card><div class=scene>${titleText}</div><div class=speaker>${sp}</div><div class=dialog>${tx}</div><button class="btn gold" onclick="${next}()">${s.step===arr.length-1?"進む":"つづける"}</button></div>`)}
+function story(){scene(intro,"nextIntro","王都大神殿")}function nextIntro(){if(++s.step>=intro.length){s.scr="map";s.step=0}r()}
+function map(){let open=s.grass>=2;out(head()+`<div class=card><div class=scene>旅の地図</div><div class=notice>目的：魔物の森へ逃げたレオンを連れ戻す。<br>ルークの本音：なるべく早く勇者を返上する。</div></div><div class=node><b>🏰 王都</b><span class=badge>安全</span><div class=sub>宿屋で無料回復できます。王国予算です。</div><button class="btn gray" onclick=rest()>宿屋で休む</button></div><div class=node><b>🌾 王都近郊の草原</b><span class=badge>${s.grass} / 2</span><div class=sub>森へ向かう前に最低限の戦闘経験を積みます。</div><button class=btn onclick="randBattle('grass')">草原を進む</button></div><div class="node ${open?"":"lock"}"><b>🌲 魔物の森</b><span class=badge>${open?"解放":"未解放"}</span><div class=sub>${open?"レオンの足跡が森の奥へ続いています。":"草原で2勝すると進めます。"}</div><button class="btn gold" ${open?"":"disabled"} onclick=forest()>森へ入る</button></div>`)}
+function rest(){s.hp=s.mh;r()}function randBattle(area){let k;if(area==="grass")k=Math.random()<.62?"slime":"rabbit";else{let x=Math.random();k=x<.34?"slime":x<.67?"rabbit":"crow"}fight(k,area)}
+function fight(k,area){s.cur={k,area};s.ehp=E[k].hp+(k==="glenn"?5*(s.lv-1):0);s.log=[...E[k].l];s.guard=false;s.scr="battle";r()}
+function battle(){let e=E[s.cur.k],m=e.hp+(s.cur.k==="glenn"?5*(s.lv-1):0);out(head()+`<div class="card enemy"><div class=enemyIcon>${e.i}</div><div class=enemyName>${e.n}</div><div class=bar><div class="fill enemyFill" style="width:${100*s.ehp/m}%"></div></div></div><div class=card><div class=row><button class=btn onclick=atk()>こうげき</button><button class="btn gray" onclick=guard()>ぼうぎょ</button></div><div class=row><button class="btn gold" onclick=pot()>やくそう (${s.p})</button><button class="btn red" onclick=run() ${s.cur.k==="glenn"?"disabled":""}>にげる</button></div></div><div class=card><div class=log>${s.log.slice(-8).join("<br>")}</div></div>`)}
+function atk(){let d=rnd(s.atk,s.atk+5)+s.lv;s.ehp=Math.max(0,s.ehp-d);s.log.push(`ルークの攻撃！ ${d}ダメージ！`);if(s.ehp<=0)return win();enemy()}function guard(){s.guard=true;s.log.push("ルークは盾の後ろに隠れた。本人は『戦術です』と言っている。");enemy()}
+function pot(){if(s.p<=0){s.log.push("薬草がない！");return r()}s.p--;let b=s.hp;s.hp=Math.min(s.mh,s.hp+22);s.log.push(`HPが ${s.hp-b} 回復！`);enemy()}function run(){if(Math.random()<.72){s.log.push("ルークは全力で逃げた。勇者としての評価はともかく脚は速い。");s.scr="map";return r()}s.log.push("逃げ道を間違えた！敵の方へ走ってしまった！");enemy()}
+function enemy(){let e=E[s.cur.k],d=rnd(e.a[0],e.a[1]);if(s.guard){d=Math.max(1,Math.floor(d/2));s.guard=false}s.hp=Math.max(0,s.hp-d);s.log.push(`${e.n}の攻撃！ ${d}ダメージ！`);if(s.hp<=0)s.scr="over";r()}
+function win(){let k=s.cur.k,e=E[k];if(k==="glenn"){s.scr="endS";s.step=0;return r()}s.xp+=e.xp;s.g+=e.g;s.log.push(`${e.n}を倒した！ EXP ${e.xp} / ${e.g}G`);if(Math.random()<.22){s.p++;s.log.push("薬草を1個拾った！")}level();if(s.cur.area==="grass")s.grass++;else if(s.cur.area==="forest")s.forest++;s.scr="map";r()}
+function level(){while(s.xp>=s.nx){s.xp-=s.nx;s.lv++;s.nx=Math.floor(s.nx*1.5);s.mh+=10;s.hp=s.mh;s.atk+=3;s.log.push(`★ LV${s.lv}になった！`)}}
+function forest(){if(s.forest>=3){s.scr="leonS";s.step=0;return r()}randBattle("forest");s.cur.area="forest"}
+function leonS(){scene(leon,"nextLeon","魔物の森・最深部")}function nextLeon(){if(++s.step>=leon.length){s.scr="glennS";s.step=0}r()}
+function glennS(){scene(glenn,"nextGlenn","魔王軍隊長 グレン")}function nextGlenn(){if(++s.step>=glenn.length)return fight("glenn","boss");r()}
+function endS(){let [sp,tx]=ending[s.step],last=s.step===ending.length-1;out(head()+`<div class=card><div class=scene>${last?"第一章 完":"戦いのあと"}</div><div class=speaker>${sp}</div><div class=dialog>${tx}</div>${last?`<button class="btn gold" onclick=clearGame()>クリア！</button>`:`<button class="btn gold" onclick=nextEnd()>つづける</button>`}</div>`)}function nextEnd(){s.step++;r()}
+function clearGame(){out(`<div class=card><div class=logo>🏆</div><div class=title>第一章 クリア！</div><div class=dialog>ルークは勇者返上に失敗した。<br><br>LV ${s.lv} / ${s.g}G<br><br>次章では、グレンの謎、エレノアの監視、そしてエリシアへつながる物語が動き始めます。</div><button class="btn gray" onclick="localStorage.removeItem('lukeQuestSave');location.reload()">最初から遊ぶ</button></div>`)}
+function over(){out(`<div class=card><div class=title>全滅しました</div><div class=dialog>ルーク「だから森は嫌だって言ったんです……」</div><button class="btn gold" onclick=retry()>王都から再開</button></div>`)}function retry(){s.hp=s.mh;s.scr="map";r()}r()
+</script></body></html>
