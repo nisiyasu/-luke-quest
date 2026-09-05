@@ -33,6 +33,7 @@ window.lqFocusSlash=function(){
  const damage=rnd(s.atk+4,s.atk+8)+s.lv;
  s.ehp=Math.max(0,s.ehp-damage);
  s.log.push(`ルークの集中斬り！ ${damage}ダメージ！`);
+ save();
  if(s.ehp<=0)return win();
  enemyTurn(false);
  if(s.screen==='battle'){addSkillButton();showSkillFeedback(damage);}
