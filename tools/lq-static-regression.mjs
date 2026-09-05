@@ -149,4 +149,23 @@ for(const [label,needle] of dropContracts)if(!enemyDrop.includes(needle))throw n
 if(/s\.gold\s*[+\-*/]?=/.test(enemyDrop))throw new Error('REQ-017 must not mutate Gold');
 if(/s\.(?!potions\b|smokeBombs\b|enemy\b|dialog\b|screen\b)[A-Za-z_$][\w$]*\s*=/.test(enemyDrop))throw new Error('REQ-017 introduced an unexpected state authority');
 
-console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill + REQ-017 enemy-drop contracts intact`);
+const azureFx=fs.readFileSync('addons/skill-visual-feedback.js','utf8');
+const azureContracts=[
+ ['base skill capture','const azureFeedbackBase=window.lqUseAzureSlash'],
+ ['base skill delegation','azureFeedbackBase.apply(this,arguments)'],
+ ['success from canonical battle log',"includes('ルークの蒼閃！')"],
+ ['insufficient MP feedback',"includes('MPが足りない！')"],
+ ['slash effect class','lqAzureSlashFx'],
+ ['enemy hit class','lqAzureEnemyHit'],
+ ['MP spent pulse','lqMpSpentPulse'],
+ ['MP denied pulse','lqMpDeniedPulse'],
+ ['pointer passthrough','pointer-events:none'],
+ ['reduced motion','prefers-reduced-motion:reduce'],
+ ['transient cleanup','setTimeout(()=>fx.remove(),650)'],
+ ['runtime status','LQ_AZURE_SLASH_FEEDBACK_STATUS'],
+ ['presentation-only marker','combatStateMutation:false']
+];
+for(const [label,needle] of azureContracts)if(!azureFx.includes(needle))throw new Error(`REQ-018 Azure Slash feedback guard missing: ${label}`);
+if(/s\.(?:hp|mh|atk|xp|nx|gold|potions|smokeBombs|mp|mmp|ehp)\s*[+\-*/]?=/.test(azureFx))throw new Error('REQ-018 presentation add-on must not mutate combat numeric state');
+
+console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill + REQ-017 enemy-drop + REQ-018 Azure Slash feedback contracts intact`);
