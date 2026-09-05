@@ -2,7 +2,7 @@
 'use strict';
 
 /* Collision-safe add-on: layered window light and dust for physical interiors. */
-const INTERIORS=new Set(['innInterior','innGuestRoom','shopInterior','templeInterior','residenceInterior']);
+const INTERIORS=new Set(['innInterior','innGuestRoom','shopInterior','shopStockRoom','templeInterior','residenceInterior']);
 const style=document.createElement('style');
 style.textContent=`
 .lqInteriorLightLayer{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
@@ -20,7 +20,7 @@ function addInteriorLight(){
  if(s.screen!=='world'||!INTERIORS.has(s.map))return;
  const worldEl=app.querySelector('.world');if(!worldEl||worldEl.querySelector('.lqInteriorLightLayer'))return;
  const layer=document.createElement('div');
- layer.className=`lqInteriorLightLayer ${s.map==='templeInterior'?'temple':s.map==='shopInterior'?'shop':''}`;
+ layer.className=`lqInteriorLightLayer ${s.map==='templeInterior'?'temple':(s.map==='shopInterior'||s.map==='shopStockRoom')?'shop':''}`;
  layer.innerHTML='<i class="lqInteriorShaft one"></i><i class="lqInteriorShaft two"></i><i class="lqInteriorDust d1"></i><i class="lqInteriorDust d2"></i><i class="lqInteriorDust d3"></i><i class="lqInteriorDust d4"></i>';
  worldEl.appendChild(layer);
 }
