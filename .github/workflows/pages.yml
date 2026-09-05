@@ -32,6 +32,9 @@ jobs:
       - name: Inject v0.8 UX/world patch
         run: sed -i 's#</body>#<script src="ux-v08.js"></script></body>#' index.html
 
+      - name: Inject v0.9 portrait dialogue patch
+        run: sed -i 's#</body>#<script src="ux-v09.js"></script></body>#' index.html
+
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
