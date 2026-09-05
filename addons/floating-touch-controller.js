@@ -59,7 +59,12 @@ function setVisual(dir){
   pad.querySelectorAll('.lqFloatArrow').forEach(el=>el.classList.toggle('active',el.dataset.dir===dir));
 }
 
+function clearFallback(){
+  if(window.__lqFloatFallbackTimer){clearInterval(window.__lqFloatFallbackTimer);window.__lqFloatFallbackTimer=null;}
+}
+
 function stop(){
+  clearFallback();
   if(typeof stopMoving==='function')stopMoving();
   activeDir=null;
   pointerId=null;
@@ -69,6 +74,7 @@ function stop(){
 
 function beginDirection(dir){
   if(!dir||dir===activeDir)return;
+  clearFallback();
   if(typeof stopMoving==='function')stopMoving();
   activeDir=dir;
   setVisual(dir);
@@ -77,10 +83,6 @@ function beginDirection(dir){
     move(dir);
     window.__lqFloatFallbackTimer=setInterval(()=>move(dir),115);
   }
-}
-
-function clearFallback(){
-  if(window.__lqFloatFallbackTimer){clearInterval(window.__lqFloatFallbackTimer);window.__lqFloatFallbackTimer=null;}
 }
 
 function directionFromDelta(dx,dy){
@@ -117,7 +119,7 @@ function onPointerMove(event){
 
 function onPointerEnd(event){
   if(pointerId!==null&&event.pointerId!==undefined&&event.pointerId!==pointerId)return;
-  clearFallback();stop();
+  stop();
 }
 
 function armShell(){
@@ -136,12 +138,12 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)onPointerEn
 if(typeof render==='function'){
   const renderBeforeFloatingTouch=render;
   render=function(){
-    clearFallback();stop();
+    stop();
     const result=renderBeforeFloatingTouch();
     armShell();
     return result;
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.0',anywhereOnGameShell:true,slideAndHold:true,mouseExcluded:true,releaseSafety:true};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.1',anywhereOnGameShell:true,slideAndHold:true,mouseExcluded:true,releaseSafety:true,directionSwitchTimerCleanup:true};
 })();
