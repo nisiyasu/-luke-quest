@@ -21,7 +21,14 @@ try{
  battle();const beforeEnemyHp=s.ehp;attack();
  const battled=s.screen==='battle'&&s.enemy?.n==='訓練用スモーク標的'&&s.ehp<beforeEnemyHp&&s.hp<99&&s.hp>0;
  const battleMarker=document.createElement('div');battleMarker.id='lqRuntimeBattleSmokeMarker';battleMarker.dataset.battled=String(battled);battleMarker.dataset.enemy=String(s.enemy?.n||'');battleMarker.dataset.enemyHp=String(s.ehp);battleMarker.dataset.playerHp=String(s.hp);battleMarker.style.display='none';document.body.appendChild(battleMarker);
- window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,worldRendered:!!shell,playerRendered:!!player,movement:moved,interaction:interacted,battleAction:battled,map:'town'};
+
+ const beforeStorage=localStorage.length;
+ s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='down';s.dialog=null;s.enemy=null;s.ehp=0;
+ save();
+ const saved=localStorage.length>beforeStorage;
+ const saveMarker=document.createElement('div');saveMarker.id='lqRuntimeSaveSmokeMarker';saveMarker.dataset.saved=String(saved);saveMarker.dataset.storageCount=String(localStorage.length);saveMarker.style.display='none';document.body.appendChild(saveMarker);
+
+ window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,worldRendered:!!shell,playerRendered:!!player,movement:moved,interaction:interacted,battleAction:battled,savePersistence:saved,map:'town'};
 }catch(err){
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeFailure';marker.textContent=String(err&&err.stack||err);document.body.appendChild(marker);throw err;
 }
