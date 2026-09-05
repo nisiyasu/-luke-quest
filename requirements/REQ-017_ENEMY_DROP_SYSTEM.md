@@ -1,7 +1,7 @@
 # REQ-017 — ENEMY DROP / BATTLE LOOT SYSTEM
 
 - PRIORITY: P1
-- STATUS: IN_PROGRESS
+- STATUS: VERIFY
 - OWNER_SOURCE: AUTONOMOUS_DEV_DIRECTIVE §§28, 35, 48 / queue selection rule 8
 - TYPE: core gameplay / battle rewards / inventory loop
 
@@ -61,11 +61,27 @@
 10. victory dialogue receives loot line only on success
 11. existing static/addon/browser/touch/Pages pipeline remains green
 
+## IMPLEMENTATION CHECKPOINTS
+- Requirement definition: `0cc3f5b89fecb6de25132e18c69393fb04220baa`
+- Queue registration: `0a271f16add8cfafa4fb0d110f6aac3c7dfd4886`
+- Runtime implementation: `6ebd89af5d291888e846abb33e3e62762fe3c058`
+- Explicit regression-contract checkpoint: `9df98dd25bb55da81780e0a1c8d18ec133fe3526`
+
+## AUTOMATED VERIFICATION RESULT
+- GitHub Pages workflow run `33993065410`: SUCCESS.
+- 18 normal enemies explicitly covered by regression guard: PASS.
+- canonical potion/smoke inventory only: PASS.
+- unknown enemy fallback / base win delegation / +1 cap / no Gold mutation contracts: PASS.
+- sequential syntax, all add-on syntax, static/add-on contracts: PASS.
+- assembled browser smoke and floating-touch smoke: PASS.
+- artifact upload and Pages deployment: PASS.
+- subjective drop frequency/economy feel and physical iPhone feel remain Owner-side and are not claimed.
+
 ## COMPLETION
-- implementation checkpoint committed
-- explicit regression contract added
-- latest Pages workflow SUCCESS
-- move to VERIFY pending Owner subjective balance/feel confirmation
+- implementation checkpoint committed: SATISFIED
+- explicit regression contract added: SATISFIED
+- latest Pages workflow SUCCESS: SATISFIED
+- state: VERIFY pending Owner subjective balance/feel confirmation
 
 ## DO NOT CLAIM
 - final economy balance complete
