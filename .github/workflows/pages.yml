@@ -29,7 +29,7 @@ jobs:
           enablement: true
       - name: Validate presentation patches
         run: |
-          for f in ux-v08.js ux-v09.js ux-v10.js ux-v11.js ux-v12.js ux-v13.js ux-v14.js ux-v15.js ux-v16.js ux-v17.js ux-v18.js ux-v19.js ux-v20.js ux-v21.js ux-v22.js ux-v23.js ux-v24.js ux-v25.js ux-v26.js ux-v27.js ux-v28.js ux-v29.js ux-v30.js ux-v31.js ux-v32.js ux-v33.js ux-v34.js ux-v35.js ux-v36.js ux-v37.js ux-v38.js ux-v39.js ux-v40.js ux-v41.js; do node --check "$f"; done
+          for f in ux-v08.js ux-v09.js ux-v10.js ux-v11.js ux-v12.js ux-v13.js ux-v14.js ux-v15.js ux-v16.js ux-v17.js ux-v18.js ux-v19.js ux-v20.js ux-v21.js ux-v22.js ux-v23.js ux-v24.js ux-v25.js ux-v26.js ux-v27.js ux-v28.js ux-v29.js ux-v30.js ux-v31.js ux-v32.js ux-v33.js ux-v34.js ux-v35.js ux-v36.js ux-v37.js ux-v38.js ux-v39.js ux-v40.js ux-v41.js ux-v42.js; do node --check "$f"; done
           node --check sw.js
       - name: Validate PWA files
         run: |
@@ -43,7 +43,7 @@ jobs:
           node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/luke/dialogue-neutral.webp.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<16||b.slice(0,4).toString()!=='RIFF'||b.slice(8,12).toString()!=='WEBP')throw new Error('Luke dialogue asset is not a WebP payload')"
       - name: Inject presentation patches
         run: |
-          for f in ux-v08.js ux-v09.js ux-v10.js ux-v11.js ux-v12.js ux-v13.js ux-v14.js ux-v15.js ux-v16.js ux-v17.js ux-v18.js ux-v19.js ux-v20.js ux-v21.js ux-v22.js ux-v23.js ux-v24.js ux-v25.js ux-v26.js ux-v27.js ux-v28.js ux-v29.js ux-v30.js ux-v31.js ux-v32.js ux-v33.js ux-v34.js ux-v35.js ux-v36.js ux-v37.js ux-v38.js ux-v39.js ux-v40.js ux-v41.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in ux-v08.js ux-v09.js ux-v10.js ux-v11.js ux-v12.js ux-v13.js ux-v14.js ux-v15.js ux-v16.js ux-v17.js ux-v18.js ux-v19.js ux-v20.js ux-v21.js ux-v22.js ux-v23.js ux-v24.js ux-v25.js ux-v26.js ux-v27.js ux-v28.js ux-v29.js ux-v30.js ux-v31.js ux-v32.js ux-v33.js ux-v34.js ux-v35.js ux-v36.js ux-v37.js ux-v38.js ux-v39.js ux-v40.js ux-v41.js ux-v42.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
