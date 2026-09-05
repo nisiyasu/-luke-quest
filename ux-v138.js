@@ -1,0 +1,7 @@
+(() => {
+'use strict';
+
+/* LUKE QUEST v0.138 original exploration interaction SFX. No sampled/external audio. */
+let C=null;function ctx(){if(s.settings?.sfx===false)return null;const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;if(!C)C=new A();if(C.state==='suspended')void C.resume();return C;}function tone(f,d,type='sine',g=.012,delay=0){const c=ctx();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),a=c.createGain();o.type=type;o.frequency.value=f;a.gain.setValueAtTime(.0001,t);a.gain.exponentialRampToValueAtTime(g,t+.01);a.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(a).connect(c.destination);o.start(t);o.stop(t+d+.02);}function sound(kind){if(['lqInnDoor','lqShopDoor','lqTempleDoor'].includes(kind)){tone(155,.12,'triangle',.014);tone(116,.16,'sine',.008,.07);return;}if(['lqFieldChest','lqForestChest'].includes(kind)){[523.25,659.25,783.99].forEach((f,i)=>tone(f,.13,'triangle',.013,i*.055));return;}if(kind==='lqInnInteriorKeeper'){tone(392,.09,'sine',.01);tone(523.25,.12,'sine',.009,.06);return;}tone(330,.055,'sine',.008);}
+const actionV137=action;action=function(){if(s.screen==='world'&&!s.dialog&&!s.pauseOpen&&!s.shopOpen){const p=front(),n=currentNpcs().find(x=>x.x===p.x&&x.y===p.y);if(n)sound(n.kind);}return actionV137();};window.LQ_EXPLORATION_SFX_STATUS={doors:true,treasure:true,interaction:true,externalAudio:false};
+})();
