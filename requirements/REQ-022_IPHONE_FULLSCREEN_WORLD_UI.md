@@ -1,9 +1,10 @@
 # REQ-022 — iPhone Fullscreen World UI
 
-STATUS: READY
+STATUS: IN_PROGRESS
 PRIORITY: P0
 TYPE: UX / LAYOUT / IPHONE
 OWNER_REQUEST: CONFIRMED
+IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## PURPOSE
 
@@ -156,6 +157,19 @@ PWA / ホーム画面起動時は `display: standalone` 等を活用し、より
 10. battle/menu screenは必要に応じ別layoutを保持し壊れない
 11. orientation/viewport resizeで致命的崩れなし
 12. Pages public buildで適用
+
+## IMPLEMENTATION CHECKPOINT
+
+- `addons/zzzz-iphone-fullscreen-world-ui.js` reflows the existing world DOM after render without changing map/game state.
+- `gameShell` becomes the viewport-height world surface using `100dvh` with `100vh` fallback.
+- Existing status card and controls are moved inside `gameShell` as overlays rather than occupying document-flow height.
+- Status/location/objective are compact translucent overlays.
+- Fixed D-pad remains as a compact translucent lower-left fallback while Dynamic Touch Controller is still pending Owner physical verification.
+- A and MENU remain touchable lower-right overlays with safe-area offsets.
+- Dialogue remains a bottom safe-area overlay and temporarily hides movement/control overlays to reduce obstruction.
+- Camera transform is recalculated against the expanded shell on render and viewport resize/orientation changes.
+- A `?lqTouchSmoke=1` structural runtime assertion verifies fullscreen height, overlay parentage/position and hidden footer; failure feeds the existing CI failure marker.
+- Automated Pages result is pending while this requirement remains IN_PROGRESS.
 
 ## COMPLETION CONDITION
 
