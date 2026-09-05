@@ -29,11 +29,20 @@ jobs:
         with:
           enablement: true
 
+      - name: Validate presentation patches
+        run: |
+          node --check ux-v08.js
+          node --check ux-v09.js
+          node --check ux-v10.js
+
       - name: Inject v0.8 UX/world patch
         run: sed -i 's#</body>#<script src="ux-v08.js"></script></body>#' index.html
 
       - name: Inject v0.9 portrait dialogue patch
         run: sed -i 's#</body>#<script src="ux-v09.js"></script></body>#' index.html
+
+      - name: Inject v0.10 battle presentation patch
+        run: sed -i 's#</body>#<script src="ux-v10.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
