@@ -1,6 +1,6 @@
 # REQ-007 — Original Regional Battle Backgrounds
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: VISUAL / BATTLE / ORIGINAL_ASSET
 OWNER_REQUEST: PRESERVED
@@ -75,6 +75,16 @@ B. Integrate behind current battle enemy stage without duplicate DOM.
 C. Add contract regression for six maps, status marker, unknown-map fallback and original-image layer.
 D. Pass static/add-on/browser/Pages workflow.
 
+## IMPLEMENTATION EVIDENCE
+- `addons/original-battle-backgrounds.js` registers six distinct regional inline-SVG image scenes: `field`, `forest`, `deepForest`, `mistTrail`, `observation`, `evacRoute`.
+- The artwork layer is inserted once as `.lqOriginalBattleBackdrop`, reused on repeated renders, and marked `original-vector-regional-battle-background`.
+- Artwork is attached only during battle and only for a registered canonical map; unknown maps return to the existing fallback unchanged.
+- The layer is positioned behind enemy/focus/foreground presentation and does not modify battle mechanics, encounter rates, rewards or commands.
+- `tools/lq-addon-contract.mjs` now verifies all six scene registrations, runtime status marker, SVG-image layer, formal-stage marker, unknown-map fallback and duplicate-layer reuse guard.
+- Implementation checkpoint commit: `9f9c93fa69a71b2626b871e5650598cc1b0d1eb1`.
+- Contract checkpoint commit: `376c6e051baf46900d954325f11968a34da48fb4`.
+- GitHub Pages workflow run `33982352056` completed SUCCESS. Add-on syntax, static regression, add-on contracts, assembled browser smoke, floating touch regression, upload and Pages deployment all succeeded.
+
 ## COMPLETION CONDITION
 Move to VERIFY when:
 - all six listed encounter maps have registered distinct original background images/illustrations;
@@ -85,7 +95,7 @@ Move to VERIFY when:
 - GitHub Pages deploy succeeds;
 - fresh HEAD confirms integration.
 
-Owner subjective/iPhone visual approval may remain pending in VERIFY and must not block independent work.
+Owner subjective/iPhone visual approval remains pending in VERIFY and does not block independent work.
 
 ## DO NOT REPEAT
 - Do not call a plain CSS gradient a finished battle background.
