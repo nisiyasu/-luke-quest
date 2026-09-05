@@ -1,0 +1,16 @@
+(() => {
+'use strict';
+
+/* Presentation-only forest-density pass: logs, mushrooms, stones and leaf clusters. */
+const style=document.createElement('style');style.textContent=`
+.lqFallenLog{position:absolute;z-index:2;width:86px;height:24px;border-radius:14px;background:linear-gradient(#76563b,#4f392a 55%,#3d2d23);border:3px solid #34271f;box-shadow:0 5px 5px #0006;transform:rotate(-7deg);pointer-events:none}.lqFallenLog:before{content:'';position:absolute;left:7px;top:5px;width:11px;height:11px;border-radius:50%;border:2px solid #9d7a53}.lqFallenLog:after{content:'';position:absolute;right:13px;top:-5px;width:30px;height:12px;background:radial-gradient(ellipse at 25% 60%,#53764a 0 8px,transparent 9px),radial-gradient(ellipse at 68% 50%,#466943 0 9px,transparent 10px)}
+.lqMushroomPatch{position:absolute;z-index:3;width:46px;height:28px;pointer-events:none;background:radial-gradient(ellipse at 18% 35%,#c98967 0 6px,transparent 7px),radial-gradient(ellipse at 52% 55%,#e6d4a4 0 5px,transparent 6px),radial-gradient(ellipse at 82% 28%,#a95f5a 0 6px,transparent 7px),linear-gradient(transparent 0 55%,#5d7049 56% 68%,transparent 69%);filter:drop-shadow(0 2px 2px #0005)}
+.lqForestStone{position:absolute;z-index:2;width:34px;height:20px;border-radius:50% 45% 35% 50%;background:linear-gradient(145deg,#84877b,#56594f);box-shadow:0 4px 4px #0005;pointer-events:none}.lqForestStone:after{content:'';position:absolute;left:4px;right:4px;top:2px;height:5px;border-radius:50%;background:#a4aa9555}
+.lqLeafCluster{position:absolute;z-index:2;width:52px;height:28px;pointer-events:none;background:radial-gradient(ellipse at 20% 58%,#8b6d3f 0 7px,transparent 8px),radial-gradient(ellipse at 48% 32%,#a27d45 0 7px,transparent 8px),radial-gradient(ellipse at 75% 65%,#6d5b39 0 7px,transparent 8px);opacity:.72}
+`;
+document.head.appendChild(style);
+function add(w,cls,x,y,rot=''){const e=document.createElement('i');e.className=cls;e.style.left=`${x*TS}px`;e.style.top=`${y*TS}px`;if(rot)e.style.transform=`rotate(${rot}deg)`;w.appendChild(e)}
+const layout={forest:{logs:[[5.2,4.7,-9],[16.0,10.2,8]],mush:[[8.4,14.1],[18.2,5.8]],stone:[[3.4,10.7],[14.4,16.1]],leaf:[[10.2,7.2],[5.8,17.0],[19.0,13.6]]},deepForest:{logs:[[4.1,8.9,7],[17.8,14.4,-10]],mush:[[10.6,4.8],[20.4,9.1],[7.8,17.6]],stone:[[13.5,11.4],[4.8,15.2]],leaf:[[8.2,6.3],[18.1,5.8],[15.7,18.0]]}};
+function decorate(){const cfg=layout[s.map];if(s.screen!=='world'||!cfg)return;const w=app.querySelector('.world');if(!w||w.querySelector('.lqForestDetailAnchor'))return;const a=document.createElement('i');a.className='lqForestDetailAnchor';a.style.display='none';w.appendChild(a);cfg.logs.forEach(([x,y,r])=>add(w,'lqFallenLog',x,y,r));cfg.mush.forEach(([x,y])=>add(w,'lqMushroomPatch',x,y));cfg.stone.forEach(([x,y])=>add(w,'lqForestStone',x,y));cfg.leaf.forEach(([x,y])=>add(w,'lqLeafCluster',x,y));}
+const worldBase=world;world=function(){const r=worldBase();decorate();return r;};const renderBase=render;render=function(){const r=renderBase();decorate();return r;};if(s.screen==='world')decorate();window.LQ_FOREST_GROUND_DETAIL_STATUS={maps:['forest','deepForest'],presentationOnly:true};
+})();
