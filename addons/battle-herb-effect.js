@@ -1,0 +1,12 @@
+(() => {
+'use strict';
+
+/* Presentation-only battle feedback: successful herb use now has a brief restorative effect. */
+const style=document.createElement('style');style.textContent=`
+.lqHerbHealBurst{position:absolute;z-index:36;left:50%;bottom:16%;width:120px;height:120px;transform:translateX(-50%);pointer-events:none}.lqHerbHealBurst i{position:absolute;left:56px;top:57px;width:9px;height:18px;border-radius:80% 0 80% 0;background:linear-gradient(#b8ed8c,#57995b);box-shadow:0 0 9px #8ddd7e88;animation:lqHerbLeaf .72s ease-out forwards}.lqHerbHealBurst i:nth-child(2){rotate:60deg;animation-delay:.04s}.lqHerbHealBurst i:nth-child(3){rotate:120deg;animation-delay:.08s}.lqHerbHealBurst i:nth-child(4){rotate:180deg;animation-delay:.12s}.lqHerbHealBurst i:nth-child(5){rotate:240deg;animation-delay:.16s}.lqHerbHealBurst i:nth-child(6){rotate:300deg;animation-delay:.2s}.lqHerbHealBurst:after{content:'+';position:absolute;left:43px;top:28px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#244f36cc;border:2px solid #a7e79f;color:#d8ffd2;font-size:26px;font-weight:950;box-shadow:0 0 17px #72d37b88;animation:lqHealPlus .65s ease-out forwards}@keyframes lqHerbLeaf{0%{opacity:0;transform:translate(0,0) scale(.5)}25%{opacity:1}100%{opacity:0;transform:translate(0,-48px) scale(1.2)}}@keyframes lqHealPlus{0%{opacity:0;transform:scale(.5)}30%{opacity:1;transform:scale(1.08)}100%{opacity:0;transform:translateY(-15px) scale(.95)}}@media(prefers-reduced-motion:reduce){.lqHerbHealBurst i{display:none}.lqHerbHealBurst:after{animation:none;opacity:.7}}
+`;
+document.head.appendChild(style);
+function burst(){if(s.screen!=='battle')return;const shell=app.querySelector('.gameShell')||app.querySelector('.card');if(!shell)return;const e=document.createElement('div');e.className='lqHerbHealBurst';e.innerHTML='<i></i><i></i><i></i><i></i><i></i><i></i>';shell.appendChild(e);setTimeout(()=>e.remove(),850);}
+const potionBase=potion;potion=function(){const before=Number(s.potions)||0,r=potionBase();if(before>0&&s.screen==='battle'&&(Number(s.potions)||0)<before)setTimeout(burst,0);return r;};
+window.LQ_HERB_EFFECT_STATUS={active:true,presentationOnly:true,reducedMotion:true};
+})();
