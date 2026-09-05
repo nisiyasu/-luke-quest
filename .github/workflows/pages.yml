@@ -23,113 +23,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-
       - name: Validate presentation patches
         run: |
-          node --check ux-v08.js
-          node --check ux-v09.js
-          node --check ux-v10.js
-          node --check ux-v11.js
-          node --check ux-v12.js
-          node --check ux-v13.js
-          node --check ux-v14.js
-          node --check ux-v15.js
-          node --check ux-v16.js
-          node --check ux-v17.js
-          node --check ux-v18.js
-          node --check ux-v19.js
-          node --check ux-v20.js
-          node --check ux-v21.js
-          node --check ux-v22.js
-          node --check ux-v23.js
-          node --check ux-v24.js
-          node --check ux-v25.js
-          node --check ux-v26.js
-          node --check ux-v27.js
-          node --check ux-v28.js
-          node --check ux-v29.js
-          node --check ux-v30.js
-          node --check ux-v31.js
-          node --check ux-v32.js
-          node --check ux-v33.js
+          for f in ux-v08.js ux-v09.js ux-v10.js ux-v11.js ux-v12.js ux-v13.js ux-v14.js ux-v15.js ux-v16.js ux-v17.js ux-v18.js ux-v19.js ux-v20.js ux-v21.js ux-v22.js ux-v23.js ux-v24.js ux-v25.js ux-v26.js ux-v27.js ux-v28.js ux-v29.js ux-v30.js ux-v31.js ux-v32.js ux-v33.js ux-v34.js ux-v35.js ux-v36.js; do node --check "$f"; done
           node --check sw.js
-
       - name: Validate PWA files
         run: |
           node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'));console.log('manifest valid')"
           test -f assets/app-icon.svg
-
       - name: Validate base64 raster transport probe
         run: |
-          node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/transport-test.png.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<8||b[0]!==0x89||b.slice(1,4).toString()!=='PNG')throw new Error('transport probe is not a PNG payload');console.log('base64 raster transport probe decoded:',b.length,'bytes')"
-
+          node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/transport-test.png.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<8||b[0]!==0x89||b.slice(1,4).toString()!=='PNG')throw new Error('transport probe is not a PNG payload')"
       - name: Validate approved Luke dialogue asset
         run: |
-          node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/luke/dialogue-neutral.webp.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<16||b.slice(0,4).toString()!=='RIFF'||b.slice(8,12).toString()!=='WEBP')throw new Error('Luke dialogue asset is not a WebP payload');console.log('Luke dialogue WebP decoded:',b.length,'bytes')"
-
-      - name: Inject v0.8 UX/world patch
-        run: sed -i 's#</body>#<script src="ux-v08.js"></script></body>#' index.html
-      - name: Inject v0.9 portrait dialogue patch
-        run: sed -i 's#</body>#<script src="ux-v09.js"></script></body>#' index.html
-      - name: Inject v0.10 battle presentation patch
-        run: sed -i 's#</body>#<script src="ux-v10.js"></script></body>#' index.html
-      - name: Inject v0.11 direction and victory-variety patch
-        run: sed -i 's#</body>#<script src="ux-v11.js"></script></body>#' index.html
-      - name: Inject v0.12 character asset transport patch
-        run: sed -i 's#</body>#<script src="ux-v12.js"></script></body>#' index.html
-      - name: Inject v0.13 map readability patch
-        run: sed -i 's#</body>#<script src="ux-v13.js"></script></body>#' index.html
-      - name: Inject v0.14 town services patch
-        run: sed -i 's#</body>#<script src="ux-v14.js"></script></body>#' index.html
-      - name: Inject v0.15 treasure chest patch
-        run: sed -i 's#</body>#<script src="ux-v15.js"></script></body>#' index.html
-      - name: Inject v0.16 inn interior patch
-        run: sed -i 's#</body>#<script src="ux-v16.js"></script></body>#' index.html
-      - name: Inject v0.17 item shop interior patch
-        run: sed -i 's#</body>#<script src="ux-v17.js"></script></body>#' index.html
-      - name: Inject v0.18 Royal Capital visual density patch
-        run: sed -i 's#</body>#<script src="ux-v18.js"></script></body>#' index.html
-      - name: Inject v0.19 field visual density patch
-        run: sed -i 's#</body>#<script src="ux-v19.js"></script></body>#' index.html
-      - name: Inject v0.20 forest atmosphere patch
-        run: sed -i 's#</body>#<script src="ux-v20.js"></script></body>#' index.html
-      - name: Inject v0.21 battle depth and impact patch
-        run: sed -i 's#</body>#<script src="ux-v21.js"></script></body>#' index.html
-      - name: Inject v0.22 treasure visual patch
-        run: sed -i 's#</body>#<script src="ux-v22.js"></script></body>#' index.html
-      - name: Inject v0.23 temple lobby patch
-        run: sed -i 's#</body>#<script src="ux-v23.js"></script></body>#' index.html
-      - name: Inject v0.24 contextual guidance patch
-        run: sed -i 's#</body>#<script src="ux-v24.js"></script></body>#' index.html
-      - name: Inject v0.25 original early-enemy vector art
-        run: sed -i 's#</body>#<script src="ux-v25.js"></script></body>#' index.html
-      - name: Inject v0.26 original forest-enemy vector art
-        run: sed -i 's#</body>#<script src="ux-v26.js"></script></body>#' index.html
-      - name: Inject v0.27 original deep-forest enemy vector art
-        run: sed -i 's#</body>#<script src="ux-v27.js"></script></body>#' index.html
-      - name: Inject v0.28 title and intro presentation
-        run: sed -i 's#</body>#<script src="ux-v28.js"></script></body>#' index.html
-      - name: Inject v0.29 map arrival polish
-        run: sed -i 's#</body>#<script src="ux-v29.js"></script></body>#' index.html
-      - name: Inject v0.30 iPhone PWA shell
-        run: sed -i 's#</body>#<script src="ux-v30.js"></script></body>#' index.html
-      - name: Inject v0.31 equipment shop and DEF system
-        run: sed -i 's#</body>#<script src="ux-v31.js"></script></body>#' index.html
-      - name: Inject v0.32 full JRPG adventure menu
-        run: sed -i 's#</body>#<script src="ux-v32.js"></script></body>#' index.html
-      - name: Inject v0.33 original mist-trail enemy vector art
-        run: sed -i 's#</body>#<script src="ux-v33.js"></script></body>#' index.html
-
+          node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/luke/dialogue-neutral.webp.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<16||b.slice(0,4).toString()!=='RIFF'||b.slice(8,12).toString()!=='WEBP')throw new Error('Luke dialogue asset is not a WebP payload')"
+      - name: Inject presentation patches
+        run: |
+          for f in ux-v08.js ux-v09.js ux-v10.js ux-v11.js ux-v12.js ux-v13.js ux-v14.js ux-v15.js ux-v16.js ux-v17.js ux-v18.js ux-v19.js ux-v20.js ux-v21.js ux-v22.js ux-v23.js ux-v24.js ux-v25.js ux-v26.js ux-v27.js ux-v28.js ux-v29.js ux-v30.js ux-v31.js ux-v32.js ux-v33.js ux-v34.js ux-v35.js ux-v36.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
           path: "."
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
