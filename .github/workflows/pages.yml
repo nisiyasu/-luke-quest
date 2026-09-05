@@ -70,6 +70,24 @@ jobs:
               sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html
             done
           fi
+      - name: Browser smoke test assembled game
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8123 >/tmp/lq-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 25 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --dump-dom http://127.0.0.1:8123/ >/tmp/lq-dom.html 2>/tmp/lq-chrome.log
+          grep -q 'LUKE QUEST' /tmp/lq-dom.html
+          grep -q 'lqTitleStage' /tmp/lq-dom.html
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-chrome.log; then
+            echo 'Browser runtime error detected'
+            cat /tmp/lq-chrome.log
+            exit 1
+          fi
+          echo 'LUKE QUEST headless title smoke PASS'
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
