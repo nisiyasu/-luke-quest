@@ -190,4 +190,7 @@ for(const [label,text] of [['campfire',campRest],['shrine',shrineRest]]){
  if(/s\.(?:gold|potions|smokeBombs)\s*[+\-*/]?=/.test(text))throw new Error(`REQ-019 ${label} must not mutate Gold/inventory`);
 }
 
-console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill + REQ-017 enemy-drop + REQ-018 Azure Slash feedback + REQ-019 MP recovery contracts intact`);
+const extraRegressionFiles=fs.readdirSync('tools').filter(f=>/^lq-extra-regression-.*\.mjs$/.test(f)).sort();
+for(const extra of extraRegressionFiles)await import(`./${extra}`);
+
+console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill + REQ-017 enemy-drop + REQ-018 Azure Slash feedback + REQ-019 MP recovery + ${extraRegressionFiles.length} modular extra regression guard(s) intact`);
