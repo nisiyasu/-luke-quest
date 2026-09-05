@@ -1,6 +1,6 @@
 # REQ-022 — iPhone Fullscreen World UI
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P0
 TYPE: UX / LAYOUT / IPHONE
 OWNER_REQUEST: CONFIRMED
@@ -168,8 +168,10 @@ PWA / ホーム画面起動時は `display: standalone` 等を活用し、より
 - A and MENU remain touchable lower-right overlays with safe-area offsets.
 - Dialogue remains a bottom safe-area overlay and temporarily hides movement/control overlays to reduce obstruction.
 - Camera transform is recalculated against the expanded shell on render and viewport resize/orientation changes.
-- A `?lqTouchSmoke=1` structural runtime assertion verifies fullscreen height, overlay parentage/position and hidden footer; failure feeds the existing CI failure marker.
-- Automated Pages result is pending while this requirement remains IN_PROGRESS.
+- A `?lqTouchSmoke=1` structural runtime assertion verifies fullscreen height, overlay parentage/position and hidden footer; failure feeds the existing CI failure path.
+- Pages workflow run `33996056265` on implementation checkpoint `c1928d8557b7c213f749cc299575b6a28689a186`: SUCCESS through browser smoke, floating-touch smoke, upload and Pages deploy.
+- Later combined input/guidance run `33996304585` also passed with this fullscreen layout included.
+- Owner physical iPhone verification remains pending.
 
 ## COMPLETION CONDITION
 
