@@ -47,6 +47,7 @@ jobs:
           node --check ux-v21.js
           node --check ux-v22.js
           node --check ux-v23.js
+          node --check ux-v24.js
 
       - name: Validate base64 raster transport probe
         run: |
@@ -103,6 +104,9 @@ jobs:
 
       - name: Inject v0.23 temple lobby patch
         run: sed -i 's#</body>#<script src="ux-v23.js"></script></body>#' index.html
+
+      - name: Inject v0.24 contextual guidance patch
+        run: sed -i 's#</body>#<script src="ux-v24.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
