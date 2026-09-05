@@ -10,9 +10,9 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | ORDER | ID | PRIORITY | STATUS | TITLE | REQUIREMENT | NOTE |
 |---:|---|---|---|---|---|---|
-| 1 | REQ-021 | P0 | IN_PROGRESS | 画面のどこを短くタップしてもAアクション | `requirements/REQ-021_TAP_ANYWHERE_ACTION.md` | Owner最新最優先。short tap=canonical action、drag=movementを厳密分離。公開版で実動まで確認する |
-| 2 | REQ-022 | P0 | READY | iPhone全画面World UI / 操作UIをマップ上へ同居 | `requirements/REQ-022_IPHONE_FULLSCREEN_WORLD_UI.md` | worldをviewport主体化。status/MENU/A/controller/dialogueをoverlay化し、controls専用大枠を廃止 |
-| 3 | REQ-001 | P0 | READY | 画面任意位置Dynamic Touch Controller | `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md` | Owner実機スクショ上で期待挙動を確認できないためVERIFYを解除。REQ-021/022後にpublic buildを再監査し、本当に任意位置drag/hold移動できる状態へ直す |
+| 1 | REQ-021 | P0 | VERIFY | 画面のどこを短くタップしてもAアクション | `requirements/REQ-021_TAP_ANYWHERE_ACTION.md` | short tap=final canonical action、drag=movementをsingle pointer surfaceで分離。Pages run 33995782229 SUCCESS。Owner iPhone実機確認待ち |
+| 2 | REQ-022 | P0 | VERIFY | iPhone全画面World UI / 操作UIをマップ上へ同居 | `requirements/REQ-022_IPHONE_FULLSCREEN_WORLD_UI.md` | 100dvh world + status/controls/A/MENU/dialogue overlay + camera recenter。Pages run 33996056265 SUCCESS。Owner iPhone実機確認待ち |
+| 3 | REQ-001 | P0 | VERIFY | 画面任意位置Dynamic Touch Controller | `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md` | v1.4。任意位置drag/hold、dead zone、方向切替、release safetyに加え、dialogue中movement完全禁止＋tap-anywhere Action共存をbrowser regressionで確認。Owner iPhone実機操作感確認待ち |
 | 4 | REQ-002 | P0 | VERIFY | ルーク会話グラフィックを承認済み生成画像へ正式化 | `requirements/REQ-002_LUKE_DIALOGUE_ART.md` | 正式WebP transport + dialogue guard + Pages CI成功を確認。Owner実機/見た目確認待ち |
 | 5 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
 | 6 | REQ-016 | P1 | VERIFY | MP / 戦闘技システム | `requirements/REQ-016_MP_SKILL_SYSTEM.md` | 永続MP 10/10 + 初期技「蒼閃」4MP。旧save migration、level-up/敗北回復、static/browser/touch/Pages run 33992924664 SUCCESS。Owner iPhone戦闘感確認待ち |
