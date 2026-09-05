@@ -36,22 +36,30 @@ try{
  s.dialog=null;s.x=4;s.y=8;s.dir='down';checkGate();
  const exitedRecordRoom=s.screen==='world'&&s.map==='templeInterior';
 
+ s.flags=s.flags||{};s.flags.wayfarerShrineBlessingUsed=false;
  s.map='field';s.x=4;s.y=4;s.dir='down';s.dialog=null;render();action();
  const enteredShrine=s.screen==='world'&&s.map==='wayfarerShrine'&&!!MAPS.wayfarerShrine;
+ s.dialog=null;s.hp=40;s.mh=100;s.x=4;s.y=6;s.dir='up';render();action();
+ const shrineBlessed=s.flags.wayfarerShrineBlessingUsed===true&&s.hp>40;
  s.dialog=null;s.x=4;s.y=7;s.dir='down';checkGate();
  const exitedShrine=s.screen==='world'&&s.map==='field';
 
+ s.flags.forestClearingHerbHarvested=false;s.potions=2;
  s.map='forest';s.x=2;s.y=7;s.dir='up';s.dialog=null;render();action();
  const enteredClearing=s.screen==='world'&&s.map==='forestClearing'&&!!MAPS.forestClearing;
+ s.dialog=null;s.x=7;s.y=6;s.dir='up';render();action();
+ const clearingHarvested=s.flags.forestClearingHerbHarvested===true&&s.potions===3;
  s.dialog=null;s.x=5;s.y=8;s.dir='down';checkGate();
  const exitedClearing=s.screen==='world'&&s.map==='forest';
 
  s.map='town';s.x=15;s.y=7;s.dir='up';s.dialog=null;render();action();
  const enteredTraining=s.screen==='world'&&s.map==='trainingYard'&&!!MAPS.trainingYard;
+ s.dialog=null;s.hp=s.mh;s.potions=2;s.x=6;s.y=5;s.dir='up';render();action();
+ const trainingLesson=!!s.dialog&&s.dialog.name==='訓練教官ベルド';
  s.dialog=null;s.x=6;s.y=9;s.dir='down';checkGate();
  const exitedTraining=s.screen==='world'&&s.map==='town';
 
- const buildingMarker=document.createElement('div');buildingMarker.id='lqRuntimeBuildingSmokeMarker';buildingMarker.dataset.entered=String(enteredGuestRoom);buildingMarker.dataset.exited=String(exitedGuestRoom);buildingMarker.dataset.room=String(!!MAPS.innGuestRoom);buildingMarker.dataset.stockEntered=String(enteredStockRoom);buildingMarker.dataset.stockExited=String(exitedStockRoom);buildingMarker.dataset.stockRoom=String(!!MAPS.shopStockRoom);buildingMarker.dataset.recordEntered=String(enteredRecordRoom);buildingMarker.dataset.recordExited=String(exitedRecordRoom);buildingMarker.dataset.recordRoom=String(!!MAPS.templeRecordRoom);buildingMarker.dataset.shrineEntered=String(enteredShrine);buildingMarker.dataset.shrineExited=String(exitedShrine);buildingMarker.dataset.shrineRoom=String(!!MAPS.wayfarerShrine);buildingMarker.dataset.clearingEntered=String(enteredClearing);buildingMarker.dataset.clearingExited=String(exitedClearing);buildingMarker.dataset.clearingRoom=String(!!MAPS.forestClearing);buildingMarker.dataset.trainingEntered=String(enteredTraining);buildingMarker.dataset.trainingExited=String(exitedTraining);buildingMarker.dataset.trainingRoom=String(!!MAPS.trainingYard);buildingMarker.style.display='none';document.body.appendChild(buildingMarker);
+ const buildingMarker=document.createElement('div');buildingMarker.id='lqRuntimeBuildingSmokeMarker';buildingMarker.dataset.entered=String(enteredGuestRoom);buildingMarker.dataset.exited=String(exitedGuestRoom);buildingMarker.dataset.room=String(!!MAPS.innGuestRoom);buildingMarker.dataset.stockEntered=String(enteredStockRoom);buildingMarker.dataset.stockExited=String(exitedStockRoom);buildingMarker.dataset.stockRoom=String(!!MAPS.shopStockRoom);buildingMarker.dataset.recordEntered=String(enteredRecordRoom);buildingMarker.dataset.recordExited=String(exitedRecordRoom);buildingMarker.dataset.recordRoom=String(!!MAPS.templeRecordRoom);buildingMarker.dataset.shrineEntered=String(enteredShrine);buildingMarker.dataset.shrineBlessed=String(shrineBlessed);buildingMarker.dataset.shrineExited=String(exitedShrine);buildingMarker.dataset.shrineRoom=String(!!MAPS.wayfarerShrine);buildingMarker.dataset.clearingEntered=String(enteredClearing);buildingMarker.dataset.clearingHarvested=String(clearingHarvested);buildingMarker.dataset.clearingExited=String(exitedClearing);buildingMarker.dataset.clearingRoom=String(!!MAPS.forestClearing);buildingMarker.dataset.trainingEntered=String(enteredTraining);buildingMarker.dataset.trainingLesson=String(trainingLesson);buildingMarker.dataset.trainingExited=String(exitedTraining);buildingMarker.dataset.trainingRoom=String(!!MAPS.trainingYard);buildingMarker.style.display='none';document.body.appendChild(buildingMarker);
 
  s.dialog=null;s.hp=99;s.mh=99;s.enemy={n:'訓練用スモーク標的',e:'',hp:999,a:[1,1],xp:0,g:0};s.ehp=999;s.log=['CI battle smoke'];s.screen='battle';s.lqFocusSlashUsed=false;s.lqBattleMeta={turns:0,herbUsed:false};
  battle();const beforeEnemyHp=s.ehp;attack();
@@ -67,7 +75,7 @@ try{
  const saved=changed&&sentinel;
  const saveMarker=document.createElement('div');saveMarker.id='lqRuntimeSaveSmokeMarker';saveMarker.dataset.saved=String(saved);saveMarker.dataset.changed=String(changed);saveMarker.dataset.sentinel=String(sentinel);saveMarker.dataset.storageCount=String(localStorage.length);saveMarker.style.display='none';document.body.appendChild(saveMarker);
 
- window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:false,worldRendered:!!shell,playerRendered:!!player,movement:moved,facingInteractionCue:facingCue,interaction:interacted,buildingTransition:enteredGuestRoom&&exitedGuestRoom,stockRoomTransition:enteredStockRoom&&exitedStockRoom,recordRoomTransition:enteredRecordRoom&&exitedRecordRoom,shrineTransition:enteredShrine&&exitedShrine,clearingTransition:enteredClearing&&exitedClearing,trainingTransition:enteredTraining&&exitedTraining,battleAction:battled,savePersistence:saved,map:'town'};
+ window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:false,worldRendered:!!shell,playerRendered:!!player,movement:moved,facingInteractionCue:facingCue,interaction:interacted,buildingTransition:enteredGuestRoom&&exitedGuestRoom,stockRoomTransition:enteredStockRoom&&exitedStockRoom,recordRoomTransition:enteredRecordRoom&&exitedRecordRoom,shrineTransition:enteredShrine&&shrineBlessed&&exitedShrine,clearingTransition:enteredClearing&&clearingHarvested&&exitedClearing,trainingTransition:enteredTraining&&trainingLesson&&exitedTraining,battleAction:battled,savePersistence:saved,map:'town'};
 }catch(err){
  window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:false,error:String(err&&err.stack||err)};
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeFailure';marker.textContent=String(err&&err.stack||err);document.body.appendChild(marker);throw err;
