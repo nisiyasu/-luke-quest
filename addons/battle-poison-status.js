@@ -26,8 +26,8 @@ const enemyTurnPoisonBase=enemyTurn;enemyTurn=function(g=false){
  if(s.screen==='battle'&&attacker&&POISON_ENEMIES.has(attacker)&&s.status.poison<=0&&Math.random()<POISON_CHANCE){s.status.poison=POISON_TURNS;s.log.push(`${attacker}の攻撃で毒を受けた！ 薬草で治療できる。`);save();battle();}
  if(ticked)requestAnimationFrame(showTick);addPoisonUi();return r;
 };
-const potionPoisonBase=potion;potion=function(){const cured=s.status?.poison>0;if(cured)clearPoison();const r=potionPoisonBase();if(cured&&s.screen==='battle'){s.log.push('薬草で毒も消えた。');battle();}return r;};
-if(window.lqUseFieldHerb){const herbFieldBase=window.lqUseFieldHerb;window.lqUseFieldHerb=function(){const cured=s.status?.poison>0;if(cured)clearPoison();return herbFieldBase();};}
+const potionPoisonBase=potion;potion=function(){const cured=s.status?.poison>0&&(s.potions||0)>0;if(cured)clearPoison();const r=potionPoisonBase();if(cured&&s.screen==='battle'){s.log.push('薬草で毒も消えた。');battle();}return r;};
+if(window.lqUseFieldHerb){const herbFieldBase=window.lqUseFieldHerb;window.lqUseFieldHerb=function(){const cured=s.status?.poison>0&&(s.potions||0)>0;if(cured)clearPoison();return herbFieldBase();};}
 const winPoisonBase=win;win=function(){clearPoison();return winPoisonBase();};
 const runPoisonBase=runAway;runAway=function(){const before=s.screen,r=runPoisonBase();if(before==='battle'&&s.screen==='world')clearPoison();return r;};
 if(window.lqUseSmokeBomb){const smokeBase=window.lqUseSmokeBomb;window.lqUseSmokeBomb=function(){const r=smokeBase();if(s.screen==='world')clearPoison();return r;};}
