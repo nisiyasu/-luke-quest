@@ -10,6 +10,7 @@ const STYLE_ID='lq-iphone-fullscreen-world-style';
 const WORLD_CLASS='lqWorldFullscreen';
 const DIALOGUE_CLASS='lqWorldDialogueOpen';
 let resizeRaf=0;
+let smokeFailureRaised=false;
 
 function injectStyle(){
   if(document.getElementById(STYLE_ID))return;
@@ -81,9 +82,11 @@ function smokeMarker(shell,statusCard,controls){
   const heightRatio=(shell.getBoundingClientRect().height||0)/Math.max(1,innerHeight);
   const data={worldClass:document.body.classList.contains(WORLD_CLASS),statusOverlay:!!statusCard&&statusCard.parentElement===shell,controlsOverlay:!!controls&&controls.parentElement===shell,fullscreenHeight:heightRatio>.8,footHidden:!document.querySelector('.foot')||getComputedStyle(document.querySelector('.foot')).display==='none',controlsAbsolute:!!controls&&getComputedStyle(controls).position==='absolute',statusAbsolute:!!statusCard&&getComputedStyle(statusCard).position==='absolute'};
   Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(!!v));
-  if(Object.values(data).some(v=>!v)&&!document.getElementById('lqFloatingTouchSmokeFailure')){
-    console.error('lqFullscreenSmokeFailure',JSON.stringify(data));
-    const f=document.createElement('i');f.id='lqFloatingTouchSmokeFailure';f.dataset.reason='REQ-022 fullscreen structural assertion false';f.hidden=true;document.body.appendChild(f);
+  const failed=Object.entries(data).find(([,v])=>!v);
+  if(failed&&!smokeFailureRaised){
+    smokeFailureRaised=true;
+    const key=failed[0].replace(/[^A-Za-z0-9_$]/g,'_');
+    setTimeout(()=>{eval(`LQ_REQ022_FAIL_${key}()`);},0);
   }
 }
 
@@ -126,5 +129,5 @@ window.addEventListener('orientationchange',scheduleRecenter,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleRecenter,{passive:true});
 applyWorldLayout();
 
-window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.1',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,controlsOverlay:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
+window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.2',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,controlsOverlay:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
 })();
