@@ -25,12 +25,13 @@ function run(){
     const marker=document.createElement('i');marker.id='lqCivilianHomeRuntimeSmokeMarker';marker.hidden=true;
     marker.dataset.entered=String(entered);marker.dataset.talked=String(talked);marker.dataset.exited=String(exited);marker.dataset.registered=String(registered);marker.dataset.noReward=String(noReward);marker.dataset.canonSafe=String(canonSafe);document.body.appendChild(marker);
     if(!(entered&&talked&&exited&&registered&&noReward&&canonSafe)){
-      console.error('REQ024_SMOKE_STATE',JSON.stringify({entered,talked,exited,registered,noReward,canonSafe,map:s.map,x:s.x,y:s.y,dialog:s.dialog?.name||null}));
-      throw new Error('REQ-024 civilian home assertion false');
+      // Make the existing workflow's missing-marker diagnostic print this state via data-map.
+      const diag=document.createElement('i');diag.hidden=true;diag.dataset.map=`REQ024_e${+entered}_t${+talked}_x${+exited}_r${+registered}_n${+noReward}_c${+canonSafe}`;document.body.appendChild(diag);
+      document.getElementById('lqRuntimeSmokeMarker')?.remove();
     }
   }catch(err){
-    console.error('REQ024_SMOKE_EXCEPTION',String(err&&err.stack||err),JSON.stringify({entered,talked,exited,registered,noReward,canonSafe,map:s.map,x:s.x,y:s.y,dialog:s.dialog?.name||null}));
-    const fail=document.createElement('div');fail.id='lqRuntimeSmokeFailure';fail.textContent=String(err&&err.stack||err);document.body.appendChild(fail);
+    const diag=document.createElement('i');diag.hidden=true;diag.dataset.map='REQ024_EXCEPTION';document.body.appendChild(diag);
+    document.getElementById('lqRuntimeSmokeMarker')?.remove();
   }finally{
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
   }
