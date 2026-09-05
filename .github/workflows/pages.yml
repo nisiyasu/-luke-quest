@@ -38,6 +38,9 @@ jobs:
             echo "node --check $f"
             node --check "$f"
           done
+          if compgen -G 'addons/*.js' > /dev/null; then
+            for f in addons/*.js; do echo "node --check $f"; node --check "$f"; done
+          fi
           node --check sw.js
       - name: Run static regression guard
         run: node tools/lq-static-regression.mjs
@@ -59,6 +62,12 @@ jobs:
             echo "Injecting $f"
             sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html
           done
+          if compgen -G 'addons/*.js' > /dev/null; then
+            for f in addons/*.js; do
+              echo "Injecting $f"
+              sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html
+            done
+          fi
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
