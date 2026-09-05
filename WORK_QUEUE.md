@@ -11,7 +11,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | ORDER | ID | PRIORITY | STATUS | TITLE | REQUIREMENT | NOTE |
 |---:|---|---|---|---|---|---|
 | 1 | REQ-002 | P0 | VERIFY | ルーク会話グラフィックを承認済み生成画像へ正式化 | `requirements/REQ-002_LUKE_DIALOGUE_ART.md` | 正式WebP transport + dialogue guard + Pages CI成功を確認。Owner実機/見た目確認待ち |
-| 2 | REQ-001 | P0 | VERIFY | 画面任意位置Dynamic Touch Controller | `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md` | v1.2。方向切替timer残留に加え、通常walk renderでhold入力が解除される不具合を修正。static/addon/browser/Pages PASS。Owner iPhone操作感確認待ち |
+| 2 | REQ-001 | P0 | VERIFY | 画面任意位置Dynamic Touch Controller | `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md` | v1.2。専用pointer-drag browser regressionで表示、dead zone、右移動、方向切替、release停止、timer cleanupまでPASS。Pages workflow run 33981782391 SUCCESS。残りはOwner iPhone実機操作感確認 |
 | 3 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
 | 4 | REQ-004 | P1 | BACKLOG | レオン正式全身会話立ち絵 | TBD | 正式アート要件/素材確定待ち。仮SVGを最終品質扱いしない |
 | 5 | REQ-005 | P1 | BACKLOG | グレン正式全身会話立ち絵 | TBD | ルーク/レオンとの世界観統一 |
