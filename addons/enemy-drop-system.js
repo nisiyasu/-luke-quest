@@ -47,11 +47,14 @@ win=function(){
  return result;
 };
 
+const dropLabels=Object.freeze(Object.fromEntries(Object.entries(DROP_TABLE).map(([name,drop])=>[name,drop.label])));
 window.LQ_ENEMY_DROP_STATUS={
  stage:'canonical-consumable-battle-drops',
  registeredEnemies:Object.keys(DROP_TABLE).length,
  enemyNames:Object.keys(DROP_TABLE),
  rewardTypes:[...new Set(Object.values(DROP_TABLE).map(d=>d.type))],
+ dropLabels,
+ dropIntelProjection:'labels-only-no-probabilities',
  maxUnitsPerVictory:1,
  mutatesGold:false,
  canonicalPotionField:'potions',
