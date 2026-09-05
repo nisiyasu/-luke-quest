@@ -15,6 +15,7 @@ let pointerId=null;
 let originX=0,originY=0;
 let activeDir=null;
 let pad=null;
+let lastRenderedMap=(typeof s!=='undefined'&&s)?s.map:null;
 
 function injectStyle(){
   if(document.getElementById(STYLE_ID))return;
@@ -127,6 +128,12 @@ function armShell(){
   if(shell)shell.classList.add('lqTouchSurface');
 }
 
+function mustStopForRender(){
+  if(typeof s==='undefined'||!s)return false;
+  if(s.screen!=='world'||s.dialog)return true;
+  return pointerId!==null&&lastRenderedMap!==null&&s.map!==lastRenderedMap;
+}
+
 injectStyle();ensurePad();
 window.addEventListener('pointerdown',onPointerDown,{capture:true,passive:false});
 window.addEventListener('pointermove',onPointerMove,{capture:true,passive:false});
@@ -138,12 +145,13 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)onPointerEn
 if(typeof render==='function'){
   const renderBeforeFloatingTouch=render;
   render=function(){
-    stop();
+    if(mustStopForRender())stop();
     const result=renderBeforeFloatingTouch();
+    if(typeof s!=='undefined'&&s)lastRenderedMap=s.map;
     armShell();
     return result;
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.1',anywhereOnGameShell:true,slideAndHold:true,mouseExcluded:true,releaseSafety:true,directionSwitchTimerCleanup:true};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.2',anywhereOnGameShell:true,slideAndHold:true,mouseExcluded:true,releaseSafety:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true};
 })();
