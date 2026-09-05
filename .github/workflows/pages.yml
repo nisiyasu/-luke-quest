@@ -96,7 +96,7 @@ jobs:
             local needle="$1" file="$2" label="$3"
             if ! grep -q "$needle" "$file"; then
               echo "Missing smoke assertion: $label ($needle)"
-              grep -o 'lqRuntimeSmoke[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -30 || true
+              grep -o 'lqRuntimeSmoke[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -30 || true
               exit 1
             fi
           }
@@ -133,12 +133,14 @@ jobs:
           assert_dom 'data-shell="true"' /tmp/lq-world-dom.html world-shell
           assert_dom 'data-player="true"' /tmp/lq-world-dom.html world-player
           assert_dom 'data-moved="true"' /tmp/lq-world-dom.html player-movement
+          assert_dom 'data-interacted="true"' /tmp/lq-world-dom.html npc-interaction
+          assert_dom 'data-dialog="旅好きの老人"' /tmp/lq-world-dom.html npc-dialogue
           if grep -q 'lqRuntimeSmokeFailure' /tmp/lq-world-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-world-chrome.log; then
             echo 'Browser world runtime error detected'
             cat /tmp/lq-world-chrome.log
             exit 1
           fi
-          echo "LUKE QUEST headless world + movement smoke PASS (chrome status $world_status)"
+          echo "LUKE QUEST headless world + movement + interaction smoke PASS (chrome status $world_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
