@@ -27,21 +27,30 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Validate presentation patches in version order
+      - name: Validate sequential presentation patches
         shell: bash
         run: |
           mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
           test "${#patches[@]}" -gt 0
           test "${patches[0]}" = "ux-v08.js"
-          printf 'Validating %s presentation patches\n' "${#patches[@]}"
+          printf 'Validating %s sequential presentation patches\n' "${#patches[@]}"
           for f in "${patches[@]}"; do
             echo "node --check $f"
             node --check "$f"
           done
-          if compgen -G 'addons/*.js' > /dev/null; then
-            for f in addons/*.js; do echo "node --check $f"; node --check "$f"; done
-          fi
           node --check sw.js
+      - name: Validate collision-safe add-ons
+        shell: bash
+        run: |
+          if compgen -G 'addons/*.js' > /dev/null; then
+            count=0
+            for f in addons/*.js; do
+              count=$((count+1))
+              echo "node --check $f"
+              node --check "$f"
+            done
+            echo "Validated $count add-ons"
+          fi
       - name: Run static regression guard
         run: node tools/lq-static-regression.mjs
       - name: Run add-on contract guard
