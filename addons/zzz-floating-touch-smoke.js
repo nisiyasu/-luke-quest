@@ -24,10 +24,7 @@ function failure(reason){
 }
 function pointInShell(shell){
   const r=shell.getBoundingClientRect();
-  return {
-    x:r.left+Math.min(Math.max(r.width*.5,90),Math.max(90,r.width-90)),
-    y:r.top+Math.min(Math.max(r.height*.58,90),Math.max(90,r.height-90))
-  };
+  return {x:r.left+Math.min(Math.max(r.width*.5,90),Math.max(90,r.width-90)),y:r.top+Math.min(Math.max(r.height*.58,90),Math.max(90,r.height-90))};
 }
 
 setTimeout(()=>{
@@ -35,12 +32,12 @@ setTimeout(()=>{
   const originalAction=action;
   let actionCalls=0;
   let visible=false,deadZone=false,rightActive=false,movedRight=false,upActive=false,releasedHidden=false,stoppedAfterRelease=false,fallbackCleared=false;
-  let tapAction=false,dialogClose=false,dragNoAction=false,cancelNoAction=false,singleFire=false;
+  let tapAction=false,dialogClose=false,dialogPadHidden=false,dialogDragBlocked=false,dialogDragNoAction=false,dragNoAction=false,cancelNoAction=false,singleFire=false;
   action=function(){actionCalls++;return originalAction.apply(this,arguments);};
   try{
     stopMoving();
 
-    // REQ-021: a stationary short tap anywhere on the world shell must call the final canonical action once.
+    // REQ-021: stationary short tap anywhere on world shell calls final canonical action exactly once.
     s.screen='world';s.map='town';s.x=4;s.y=7;s.dir='up';s.dialog=null;
     render();
     let shell=document.querySelector('.gameShell');
@@ -49,19 +46,31 @@ setTimeout(()=>{
     pointer('pointerup',window,700,p.x,p.y);
     tapAction=actionCalls===1&&!!s.dialog&&s.dialog.name==='旅好きの老人';
 
-    // Dialogue itself remains part of the world touch surface: another short tap closes it like A.
+    // REQ-001 dialogue exclusion + REQ-021 dialogue Action compatibility:
+    // movement pad remains hidden and a drag neither moves nor closes dialogue.
+    shell=document.querySelector('.gameShell');
+    const pad=document.getElementById('lq-floating-touch-controller');
+    if(!shell||!pad)throw new Error('floating touch shell/pad missing');
+    p=pointInShell(shell);
+    const dialogX=s.x,dialogY=s.y;
+    pointer('pointerdown',shell,701,p.x,p.y);
+    dialogPadHidden=!pad.classList.contains('visible');
+    pointer('pointermove',window,701,p.x+70,p.y);
+    pointer('pointerup',window,701,p.x+70,p.y);
+    dialogDragBlocked=s.x===dialogX&&s.y===dialogY;
+    dialogDragNoAction=actionCalls===1&&!!s.dialog;
+
+    // A clean stationary dialogue tap still closes like A.
     shell=document.querySelector('.gameShell');
     p=pointInShell(shell);
-    pointer('pointerdown',shell,701,p.x,p.y);
-    pointer('pointerup',window,701,p.x,p.y);
+    pointer('pointerdown',shell,704,p.x,p.y);
+    pointer('pointerup',window,704,p.x,p.y);
     dialogClose=actionCalls===2&&!s.dialog;
 
     // REQ-001: dead zone then drag/hold/direction-switch. Drag release must not also fire Action.
     s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;
     render();
     shell=document.querySelector('.gameShell');
-    const pad=document.getElementById('lq-floating-touch-controller');
-    if(!shell||!pad)throw new Error('floating touch shell/pad missing');
     p=pointInShell(shell);
     const ox=p.x,oy=p.y;
     const startX=s.x,startY=s.y;
@@ -92,13 +101,13 @@ setTimeout(()=>{
           pointer('pointerdown',shell,703,p.x,p.y);
           pointer('pointercancel',window,703,p.x,p.y);
           cancelNoAction=actionCalls===2&&!pad.classList.contains('visible');
-          singleFire=tapAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
+          singleFire=tapAction&&dialogPadHidden&&dialogDragBlocked&&dialogDragNoAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
           const allPass=visible&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire;
           if(!allPass)failure('REQ-001/021 assertion false');
 
           action=originalAction;
           Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-          marker({visible,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogClose,dragNoAction,cancelNoAction,singleFire});
+          marker({visible,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire});
         },280);
       },170);
     },300);
@@ -107,7 +116,7 @@ setTimeout(()=>{
     failure(err&&err.message);
     action=originalAction;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-    marker({visible,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogClose,dragNoAction,cancelNoAction,singleFire,error:true});
+    marker({visible,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,error:true});
   }
 },350);
 })();
