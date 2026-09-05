@@ -51,6 +51,7 @@ jobs:
           node --check ux-v25.js
           node --check ux-v26.js
           node --check ux-v27.js
+          node --check ux-v28.js
 
       - name: Validate base64 raster transport probe
         run: |
@@ -119,6 +120,9 @@ jobs:
 
       - name: Inject v0.27 original deep-forest enemy vector art
         run: sed -i 's#</body>#<script src="ux-v27.js"></script></body>#' index.html
+
+      - name: Inject v0.28 title and intro presentation
+        run: sed -i 's#</body>#<script src="ux-v28.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
