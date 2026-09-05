@@ -168,4 +168,26 @@ const azureContracts=[
 for(const [label,needle] of azureContracts)if(!azureFx.includes(needle))throw new Error(`REQ-018 Azure Slash feedback guard missing: ${label}`);
 if(/s\.(?:hp|mh|atk|xp|nx|gold|potions|smokeBombs|mp|mmp|ehp)\s*[+\-*/]?=/.test(azureFx))throw new Error('REQ-018 presentation add-on must not mutate combat numeric state');
 
-console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill + REQ-017 enemy-drop + REQ-018 Azure Slash feedback contracts intact`);
+const campRest=fs.readFileSync('addons/campfire-rest.js','utf8');
+const shrineRest=fs.readFileSync('addons/wayfarer-shrine-blessing.js','utf8');
+const recoveryContracts=[
+ [campRest,'campfire full HP','s.hp=s.mh'],
+ [campRest,'campfire full MP','s.mp=s.mmp'],
+ [campRest,'campfire MP safety','Number.isFinite(s.mmp)&&s.mmp>0'],
+ [campRest,'campfire MP positive dialogue','mpHealed>0'],
+ [campRest,'campfire persistent flag',"const FLAG='forestCampRested'"],
+ [campRest,'campfire status','fullMpRecovery:true'],
+ [shrineRest,'shrine HP ratio','Math.ceil(s.mh*.35)'],
+ [shrineRest,'shrine MP ratio','Math.ceil(s.mmp*.35)'],
+ [shrineRest,'shrine MP clamp','Math.min(s.mmp,s.mp+mpAmount)'],
+ [shrineRest,'shrine MP safety','Number.isFinite(s.mmp)&&s.mmp>0&&Number.isFinite(s.mp)'],
+ [shrineRest,'shrine MP positive dialogue','mpHealed>0'],
+ [shrineRest,'shrine persistent flag',"const FLAG='wayfarerShrineBlessingUsed'"],
+ [shrineRest,'shrine status','mpRecoveryRatio:.35']
+];
+for(const [haystack,label,needle] of recoveryContracts)if(!haystack.includes(needle))throw new Error(`REQ-019 recovery regression guard missing: ${label}`);
+for(const [label,text] of [['campfire',campRest],['shrine',shrineRest]]){
+ if(/s\.(?:gold|potions|smokeBombs)\s*[+\-*/]?=/.test(text))throw new Error(`REQ-019 ${label} must not mutate Gold/inventory`);
+}
+
+console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill + REQ-017 enemy-drop + REQ-018 Azure Slash feedback + REQ-019 MP recovery contracts intact`);
