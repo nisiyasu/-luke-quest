@@ -39,6 +39,7 @@ jobs:
           node --check ux-v13.js
           node --check ux-v14.js
           node --check ux-v15.js
+          node --check ux-v16.js
 
       - name: Validate base64 raster transport probe
         run: |
@@ -71,6 +72,9 @@ jobs:
 
       - name: Inject v0.15 treasure chest patch
         run: sed -i 's#</body>#<script src="ux-v15.js"></script></body>#' index.html
+
+      - name: Inject v0.16 inn interior patch
+        run: sed -i 's#</body>#<script src="ux-v16.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
