@@ -89,9 +89,8 @@ if(new URLSearchParams(location.search).has('lqSmoke')){
  setTimeout(()=>{
   const snapshot=structuredClone(s);let entered=false,exited=false,roomDefined=!!MAPS.innAtticLounge;
   try{
-   stopMoving();s.screen='world';s.map='innGuestRoom';s.x=8;s.y=5;s.dir='up';s.dialog=null;render();
-   /* Several room add-ons may surface an arrival/ambient dialog during render. Real play requires dismissing it before interacting; mirror that state here. */
-   s.dialog=null;
+   /* action() depends only on canonical game state, not on a prerendered DOM. Avoid triggering unrelated room-arrival render hooks before the interaction under test. */
+   stopMoving();s.screen='world';s.map='innGuestRoom';s.x=8;s.y=5;s.dir='up';s.dialog=null;
    action();entered=s.map==='innAtticLounge';
    s.dialog=null;s.x=5;s.y=8;s.dir='down';checkGate();exited=s.map==='innGuestRoom';
   }catch(err){console.error('lqAtticRuntimeSmokeFailure',err);}
