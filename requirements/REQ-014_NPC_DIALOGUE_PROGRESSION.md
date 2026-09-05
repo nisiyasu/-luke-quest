@@ -38,8 +38,13 @@ DIRECTIVEの最終完成像にある「ゲーム進行による町人会話変�
 - [x] unknown/future NPCを変更しない。
 - [x] runtime status marker。
 - [x] add-on contract guardを追加。
-- [ ] Pages workflow / assembled browser regression確認。
+- [x] Pages workflow / assembled browser regression確認。
 - [ ] Owner subjective iPhone verification。未主張。
+
+## AUTOMATED VERIFICATION
+Implementation checkpoint: `553eabc6c74fb6a8b363db20172bafe831023d9b`.
+Pages workflow run `33989872020`: SUCCESS.
+Passed sequential patch syntax, collision-safe add-on syntax, static regression, add-on contract, PWA/asset validation, assembled browser smoke, floating-touch pointer-drag smoke, upload and GitHub Pages deployment.
 
 ## DO NOT
 - グレンとルークの血縁、ルークの父、エリシアの全過去、エレノアの誘拐関与、水晶反応の完全理由を台詞で明かさない。
