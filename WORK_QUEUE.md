@@ -15,7 +15,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 3 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
 | 4 | REQ-004 | P1 | BACKLOG | レオン正式全身会話立ち絵 | TBD | 正式アート要件/素材確定待ち。仮SVGを最終品質扱いしない |
 | 5 | REQ-005 | P1 | BACKLOG | グレン正式全身会話立ち絵 | TBD | ルーク/レオンとの世界観統一 |
-| 6 | REQ-006 | P1 | BACKLOG | 敵絵文字を完全オリジナル敵画像へ置換 | TBD | 地域別3〜5種＋将来ボス専用画像 |
+| 6 | REQ-006 | P1 | IN_PROGRESS | 敵絵文字を完全オリジナル敵画像へ置換 | `requirements/REQ-006_ORIGINAL_ENEMY_ART.md` | 通常敵18種を対象に、既存battle mechanicsと専用boss artを壊さないoriginal battle-art registryを実装中 |
 | 7 | REQ-007 | P1 | BACKLOG | 地域別戦闘背景画像の正式化 | TBD | CSS背景を最終品質扱いしない |
 | 8 | REQ-008 | P1 | VERIFY | 王都アルディアをPS1初期級の視覚密度へ強化 | `requirements/REQ-008_ALDIA_VISUAL_DENSITY.md` | Checkpoint A-C実装、最新CのPages workflow run 33980792050 SUCCESS。Owner主観/iPhone見た目確認待ち |
 | 9 | REQ-009 | P2 | VERIFY | フィールド/森をPS1初期級の視覚密度へ強化 | `requirements/REQ-009_FIELD_FOREST_VISUAL_DENSITY.md` | 王都近郊→森入口→深部のA-C実装。Pages workflow run 33981010791全工程SUCCESS。Owner主観/iPhone見た目確認待ち |
