@@ -1,20 +1,20 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 05:26 JST
+- UPDATED_AT: 2026-09-06 06:39 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- FRESH_HEAD_AT_AUTOSAVE_START: `f21a978152fe74de2817325ef2260e3d2a3e7436`
-- LATEST_IMPLEMENTATION_CHECKPOINT: `6788d4e6c43113c7b863d154759acd76c382ac58`
-- LATEST_QUEUE_CHECKPOINT_BEFORE_THIS_AUTOSAVE: `f21a978152fe74de2817325ef2260e3d2a3e7436`
+- FRESH_HEAD_AT_AUTOSAVE_START: `2d99c2f76d7ea4ac2a8f48522b673509404299f4`
+- LATEST_IMPLEMENTATION_CHECKPOINT: `08f762972dd3de896a92eae203be69577bbf2edc`
+- LATEST_QUEUE_CHECKPOINT_BEFORE_THIS_AUTOSAVE: `2d99c2f76d7ea4ac2a8f48522b673509404299f4`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - CURRENT_PHASE: Phase 2 WORLD + Phase 3 BATTLE + Phase 4 CONTENT + Phase 5 VISUAL QUALITY + Phase 6 POLISH
-- CURRENT_BUILD_STATUS: PLAYABLE. Queue-controlled autonomous development is active. Fresh implementation includes formal Luke dialogue art, floating touch controller, 4-direction × 3-frame Luke field sprites, Aldia/field/forest visual-density upgrades, expanded interiors, original normal-enemy battle art, original regional battle background art, Adventure Journal, persistent Gold treasure chests, hidden sparkle finds, story-reactive NPC dialogue, and item-bearing exploration caches. Fresh HEAD always outranks this autosave.
+- CURRENT_BUILD_STATUS: PLAYABLE. Queue-controlled autonomous development is active. Fresh implementation now additionally includes persistent MP, the first MP battle skill `蒼閃`, dedicated Azure Slash battle feedback, canonical enemy consumable drops, MP-aware recovery points, and bestiary drop intel. Fresh HEAD always outranks this autosave.
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED`
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
-- VERIFY_REQUIREMENTS: `REQ-001, REQ-002, REQ-003, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-014, REQ-015`
+- VERIFY_REQUIREMENTS: `REQ-001, REQ-002, REQ-003, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-014, REQ-015, REQ-016, REQ-017, REQ-018, REQ-019, REQ-020`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005`
 - NEXT_QUEUE_SELECTION: follow fresh `WORK_MANAGER.md` + `WORK_QUEUE.md`; do not guess from CURRENT.
 
@@ -45,13 +45,77 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Queue-controlled work management remains authoritative.
 - `WORK_MANAGER.md` defines recovery, WIP=1, priority selection, blocker handling, VERIFY handling, checkpoint behavior, and request registration.
 - `WORK_QUEUE.md` is authoritative for ORDER / PRIORITY / STATUS.
-- No requirement is IN_PROGRESS at this autosave checkpoint. REQ-014 and REQ-015 were implemented, automatically validated and moved to VERIFY.
+- No requirement is IN_PROGRESS at this autosave checkpoint. REQ-016 through REQ-020 were implemented, automatically validated and moved to VERIFY in this run.
 - REQ-004 Leon formal full-body dialogue art and REQ-005 Glenn formal full-body dialogue art remain BACKLOG. Do not fabricate final approved character art or silently promote placeholder SVGs to formal status.
 - VERIFY does not consume WIP and does not block independent safe development.
 - If only Owner-only formal-art BACKLOG remains, selection rule permits registering another directive-authorized player-visible requirement that advances an explicitly unfinished final-game capability without protected-canon changes.
 - CURRENT updates, queue updates, commits and Pages success are checkpoints, not execution-stop conditions.
 
 ## WHAT_CHANGED_RECENTLY
+
+### REQ-020 — Bestiary Drop Intel
+- `requirements/REQ-020_BESTIARY_DROP_INTEL.md` created and moved to VERIFY.
+- `addons/enemy-drop-system.js` now exports a frozen read-only `dropLabels` projection from the canonical drop registry. Drop probabilities remain private to battle logic.
+- `addons/bestiary-details.js` reads `window.LQ_ENEMY_DROP_STATUS.dropLabels` instead of maintaining a duplicate drop table.
+- Discovered bestiary entries retain HP / ATK / EXP / G / area and now show `DROP 薬草` or `DROP 煙玉`; unknown/unregistered entries safely use `DROP —`.
+- Drop probabilities are deliberately not rendered while balance remains subject to Owner feel verification.
+- `tools/lq-extra-regression-req20.mjs` added as a modular regression guard.
+- `tools/lq-static-regression.mjs` now auto-loads `tools/lq-extra-regression-*.mjs`, allowing future focused regression contracts without repeatedly inflating the central file.
+- Requirement definition: `6b92dafd97277c884a3986d032a00c9fab8e6546`.
+- Drop projection: `a8d24c072c095cda428fac359c6a13c86e318188`.
+- Bestiary integration: `0a6d466698a6717bfd88459408054fc8b4de19b3`.
+- Modular regression loader checkpoint: `08f762972dd3de896a92eae203be69577bbf2edc`.
+- Pages workflow run `33993594188`: SUCCESS through syntax, static/add-on contracts, assembled browser smoke, floating-touch smoke, upload and deploy.
+- Owner physical iPhone/readability usefulness verification remains pending, therefore VERIFY rather than DONE.
+
+### REQ-019 — MP Recovery Point Consistency
+- `requirements/REQ-019_MP_RECOVERY_POINTS.md` created and moved to VERIFY.
+- `addons/campfire-rest.js` preserves its one-time forest rest and full HP recovery, and now also restores MP to `s.mmp` when MP is available.
+- `addons/wayfarer-shrine-blessing.js` preserves its one-time 35% HP blessing and now restores up to 35% of max MP with `s.mmp` clamp.
+- Both integrations tolerate undefined/non-finite MP so old saves do not crash.
+- MP recovery text is only appended when positive recovery occurs.
+- `addons/inn-guest-room.js` was inspected and deliberately left without invented rest/fee mechanics because it currently provides a walkable room, not a formal lodging transaction.
+- Campfire checkpoint: `66c214c125a9152954bd2529a835f2b99688325b`.
+- Shrine checkpoint: `d32360b6d90512e1d3fb5c221295c791f25ce343`.
+- Explicit regression checkpoint: `7c4a12f22f3f4451ded0f00c7b1398847bc15f8b`.
+- Pages workflow run `33993422174`: SUCCESS through syntax, static/add-on contracts, assembled browser smoke, floating-touch smoke, upload and deploy.
+- Owner physical iPhone/recovery feel verification remains pending, therefore VERIFY rather than DONE.
+
+### REQ-018 — Azure Slash Visual Feedback
+- `requirements/REQ-018_AZURE_SLASH_FEEDBACK.md` created and moved to VERIFY.
+- `addons/skill-visual-feedback.js` adds a short blue slash overlay, enemy hit flash/shake, MP-spent pulse and insufficient-MP denied pulse.
+- The add-on delegates the canonical `window.lqUseAzureSlash` and detects success/denial from battle-log output after base execution.
+- It is presentation-only and regression forbids mutation of HP/MP/ATK/EXP/Gold/inventory/enemy HP.
+- Effect layer uses `pointer-events:none`, transient cleanup and `prefers-reduced-motion` handling.
+- Implementation checkpoint: `7297bbdd01e712cd7123c9c1fe3d1822bcfaad94`.
+- Regression checkpoint: `37e447e38b951b1817cc9bdc5bdb9353e5cdb361`.
+- Pages workflow run `33993208928`: SUCCESS.
+- Owner physical iPhone/subjective visual verification remains pending, therefore VERIFY rather than DONE.
+
+### REQ-017 — Enemy Drop / Battle Loot System
+- `requirements/REQ-017_ENEMY_DROP_SYSTEM.md` created and moved to VERIFY.
+- `addons/enemy-drop-system.js` adds bounded +1 consumable drops for all 18 normal encounter enemies across field / forest / deepForest / mistTrail / observation / evacRoute.
+- Rewards use only canonical `s.potions` and `s.smokeBombs`. No parallel inventory is created and no extra Gold is awarded.
+- Unknown enemies and optional bosses safely fall back to no drop.
+- Existing `win()` remains authoritative for EXP/G/level/victory flow; drop logic wraps it and appends `戦利品：... ×1` only on success.
+- Implementation checkpoint: `6ebd89af5d291888e846abb33e3e62762fe3c058`.
+- Explicit regression checkpoint: `9df98dd25bb55da81780e0a1c8d18ec133fe3526`.
+- Pages workflow run `33993065410`: SUCCESS.
+- Owner physical iPhone/drop-frequency/economy feel verification remains pending, therefore VERIFY rather than DONE.
+
+### REQ-016 — MP / Battle Skill System
+- `requirements/REQ-016_MP_SKILL_SYSTEM.md` created and moved to VERIFY.
+- `addons/mp-skill-system.js` introduces persistent `s.mp` / `s.mmp`, initial 10/10, old-save migration and clamping.
+- First MP technique is `蒼閃`, cost 4 MP. Damage derives from existing `s.atk` / `s.lv`, mutates canonical enemy HP `s.ehp`, delegates to existing `win()` or `enemyTurn()`.
+- Insufficient MP spends nothing and does not advance to the enemy turn.
+- Status HUD and battle command panel expose MP.
+- Level-up increases max MP by 2 and fully restores MP; defeat return to town restores MP to avoid a resource dead-end.
+- Existing attack / guard / herb / escape commands remain intact.
+- Implementation checkpoint: `8a18bb5143eea8e71853ba0cf45da8b3f5f68b6b`.
+- Explicit regression checkpoint: `6240b4e72fa2dbc503f1354715db0d25a3c7d533`.
+- Pages workflow run `33992924664`: SUCCESS.
+- This is the first MP skill, not a claim that a final/full magic system or final combat balance is complete.
+- Owner physical iPhone/combat-feel verification remains pending, therefore VERIFY rather than DONE.
 
 ### REQ-015 — Item Treasure Caches
 - `requirements/REQ-015_ITEM_TREASURE_CACHES.md` created and moved to VERIFY after implementation and automated deployment validation.
@@ -131,24 +195,40 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - REQ-013 Hidden finds: VERIFY. 3 sparkle finds; Owner iPhone visual pending.
 - REQ-014 NPC dialogue progression: VERIFY. 4 NPCs × 6 canonical stages; Owner subjective/iPhone pending.
 - REQ-015 Item treasure caches: VERIFY. 3 caches with herbs/smoke/Gold; Owner subjective/iPhone pending.
+- REQ-016 MP / battle skill: VERIFY. MP + 蒼閃 + migration/recovery; Owner combat feel pending.
+- REQ-017 Enemy battle drops: VERIFY. 18 normal enemies with bounded canonical consumable drops; Owner drop/economy feel pending.
+- REQ-018 Azure Slash feedback: VERIFY. Dedicated presentation feedback; Owner visual feel pending.
+- REQ-019 MP recovery points: VERIFY. Campfire/shrine resource consistency; Owner recovery feel pending.
+- REQ-020 Bestiary drop intel: VERIFY. Single-source drop labels in discovered bestiary; Owner iPhone readability pending.
 
 ## FILES_CHANGED_IN_LATEST_RUN
-- `requirements/REQ-014_NPC_DIALOGUE_PROGRESSION.md`
-- `addons/npc-dialogue-progression.js`
-- `tools/lq-addon-contract.mjs`
-- `requirements/REQ-015_ITEM_TREASURE_CACHES.md`
-- `addons/item-treasure-caches.js`
+- `requirements/REQ-016_MP_SKILL_SYSTEM.md`
+- `addons/mp-skill-system.js`
+- `requirements/REQ-017_ENEMY_DROP_SYSTEM.md`
+- `addons/enemy-drop-system.js`
+- `requirements/REQ-018_AZURE_SLASH_FEEDBACK.md`
+- `addons/skill-visual-feedback.js`
+- `requirements/REQ-019_MP_RECOVERY_POINTS.md`
+- `addons/campfire-rest.js`
+- `addons/wayfarer-shrine-blessing.js`
+- `requirements/REQ-020_BESTIARY_DROP_INTEL.md`
+- `addons/bestiary-details.js`
+- `tools/lq-extra-regression-req20.mjs`
+- `tools/lq-static-regression.mjs`
 - `WORK_QUEUE.md`
 - `CURRENT.md`
 
 ## TESTS_AND_VERIFICATION
 - Run-start repository metadata/default branch/HEAD were fetched fresh; actual default branch was `main`.
-- Run-start HEAD was `4ca9255da85efb760d17f21dde11257f0872061f`. CURRENT was behind and fresh HEAD was treated as implementation truth.
-- REQ-014 implementation workflow `33989872020`: SUCCESS.
-- REQ-015 implementation workflow `33990010600`: SUCCESS.
-- Both successful implementation workflows passed sequential-patch syntax, collision-safe addon syntax, static regression, add-on contract, PWA validation, asset validation, assembled browser smoke, floating touch pointer-drag smoke, artifact upload and Pages deployment.
-- Fresh queue-sync HEAD before this autosave: `f21a978152fe74de2817325ef2260e3d2a3e7436`.
-- Real-device iPhone touch/visual/readability feel remains NOT CLAIMED unless Owner physically checks it.
+- Run-start HEAD was `348a00c6c588b59a3bf564b73c36f414e62df79c`. Run-start CURRENT recorded the same implementation reality, so no unrecorded prior work needed recovery.
+- REQ-016 implementation/regression workflow `33992924664`: SUCCESS.
+- REQ-017 implementation/regression workflow `33993065410`: SUCCESS.
+- REQ-018 implementation/regression workflow `33993208928`: SUCCESS.
+- REQ-019 implementation/regression workflow `33993422174`: SUCCESS.
+- REQ-020 implementation/regression workflow `33993594188`: SUCCESS.
+- Successful workflows passed sequential-patch syntax, collision-safe addon syntax, static regression, add-on contract, PWA validation, asset validation, assembled browser smoke, floating touch pointer-drag smoke, artifact upload and Pages deployment.
+- Fresh queue-sync HEAD before this autosave: `2d99c2f76d7ea4ac2a8f48522b673509404299f4`.
+- Real-device iPhone touch/visual/readability/combat feel remains NOT CLAIMED unless Owner physically checks it.
 
 ## KNOWN_ISSUES / PENDING OWNER-SIDE VERIFICATION
 - Dynamic touch controller needs Owner iPhone feel confirmation for dead zone, controller radius, hold speed and possible fixed-D-pad hiding on coarse-pointer devices.
@@ -157,6 +237,10 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - REQ-011 needs iPhone journal readability confirmation.
 - REQ-012/013/015 need exploration reward/visual confirmation on iPhone.
 - REQ-014 needs subjective confirmation that changing town dialogue feels natural across progress stages.
+- REQ-016/018 need combat skill/visual feel confirmation on iPhone.
+- REQ-017 needs subjective drop-frequency/economy feel confirmation.
+- REQ-019 needs recovery-flow feel confirmation.
+- REQ-020 needs bestiary drop-intel readability/usefulness confirmation.
 - Leon, Glenn, Eleanor and Elisia still lack final integrated approved major-character artwork. REQ-004 and REQ-005 preserve Leon/Glenn requests without pretending placeholder SVGs are final art.
 
 ## BLOCKERS
@@ -192,6 +276,8 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Do not make Adventure Journal preview undiscovered future clues or protected secrets.
 - Do not overwrite REQ-012 Gold chests when extending treasure; REQ-015 is additive.
 - Do not create parallel consumable inventory fields; use canonical `s.potions` / `s.smokeBombs`.
+- Do not duplicate the enemy drop table in bestiary or other UI; read `LQ_ENEMY_DROP_STATUS.dropLabels`.
+- Do not expose drop probability as a stable player-facing contract before balance verification.
 - Do not append every new Owner request to the giant global directive; create/register a requirement under queue control.
 - Do not run multiple IN_PROGRESS requirements without explicit WIP-policy change.
 - Do not let VERIFY items block safe independent work.
@@ -202,11 +288,17 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Adventure Journal is a projection of already-known canonical state, not an alternate story authority.
 - REQ-014 NPC dialogue is also a projection of canonical state. It may react to known events but does not create story authority.
 - REQ-015 treasure uses the canonical consumable/gold fields already used by shop and combat; no parallel inventory authority.
+- REQ-016 adds the first canonical MP resource and MP technique while preserving existing battle commands.
+- REQ-017 battle loot uses canonical consumables only and wraps canonical `win()` rather than replacing victory authority.
+- REQ-018 is presentation-only and reads canonical battle-log results after the skill executes.
+- REQ-019 extends only verified existing recovery interactions; a decorative/walkable inn room is not silently promoted into a lodging transaction.
+- REQ-020 bestiary drop intel is a read-only projection of REQ-017 authority, not a second drop table.
+- Static regression now supports modular `tools/lq-extra-regression-*.mjs` guards for future focused requirements.
 - Unknown enemy/map fallback is deliberately preserved.
 - PS1-early target means layered readable 2D presentation, not copied existing-game art.
 
 ## STORY_CANON_ADDED_OR_CHANGED
-- None. REQ-014 adds reactive wording only and reveals no protected secrets. REQ-015 adds only non-story exploration supplies.
+- None. REQ-016 through REQ-020 add gameplay resources, battle reward/feedback and read-only knowledge projection without changing protected story canon.
 
 ## CHARACTER_CANON_STATUS
 - Luke formal large-image canon: blue hair / blue clothing and cloak / silver armor / gold accents. Owner-approved generated artwork remains authoritative.
@@ -228,6 +320,14 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Regional normal-encounter background art: 6/6 registered, VERIFY.
 - Optional forest boss retains independent dedicated SVG art.
 - Existing wound/critical state, focus-frame, foreground-depth and battle runtime smoke remain protected by regression.
+- `蒼閃` dedicated blue slash/enemy-hit/MP feedback: LIVE, VERIFY.
+
+## BATTLE_SYSTEM_PROGRESS
+- Persistent MP resource: LIVE, VERIFY.
+- Initial MP technique `蒼閃` 4MP: LIVE, VERIFY.
+- Normal-enemy consumable drops: 18/18 registered, LIVE, VERIFY.
+- Forest campfire and wayfarer shrine are MP-aware while preserving their original recovery semantics.
+- Bestiary discovered entries show possible drop labels without exposing probabilities.
 
 ## EXPLORATION_PROGRESS
 - Gold treasure chests: 3, persistent/opened/collision, VERIFY.
@@ -237,12 +337,20 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Story-reactive town/field NPC dialogue: LIVE, VERIFY.
 
 ## CHECKPOINT_HISTORY_RECENT
-- `4ca9255da85efb760d17f21dde11257f0872061f` fresh run-start HEAD with REQ-012/013 already ahead of stale CURRENT.
-- `553eabc6c74fb6a8b363db20172bafe831023d9b` implement REQ-014 NPC dialogue progression + contract; Pages run `33989872020` SUCCESS.
-- `47b775efae1c583ab171885c8b3dc258b289b88a` define REQ-015 item treasure caches.
-- `6788d4e6c43113c7b863d154759acd76c382ac58` implement REQ-015; Pages run `33990010600` SUCCESS.
-- `0e8ba897710682d29658181021c488800e57f9ba` record REQ-015 VERIFY evidence.
-- `3f7723e973efa90f59ea6398fcd9969dc73cafde` record REQ-014 verification evidence.
-- `f21a978152fe74de2817325ef2260e3d2a3e7436` synchronize WORK_QUEUE through REQ-015.
+- `348a00c6c588b59a3bf564b73c36f414e62df79c` run-start fresh HEAD; CURRENT matched it.
+- `8a18bb5143eea8e71853ba0cf45da8b3f5f68b6b` implement REQ-016 MP / 蒼閃.
+- `6240b4e72fa2dbc503f1354715db0d25a3c7d533` explicit REQ-016 regression; Pages run `33992924664` SUCCESS.
+- `6ebd89af5d291888e846abb33e3e62762fe3c058` implement REQ-017 enemy drops.
+- `9df98dd25bb55da81780e0a1c8d18ec133fe3526` explicit REQ-017 regression; Pages run `33993065410` SUCCESS.
+- `7297bbdd01e712cd7123c9c1fe3d1822bcfaad94` implement REQ-018 Azure Slash feedback.
+- `37e447e38b951b1817cc9bdc5bdb9353e5cdb361` explicit REQ-018 regression; Pages run `33993208928` SUCCESS.
+- `66c214c125a9152954bd2529a835f2b99688325b` campfire MP recovery.
+- `d32360b6d90512e1d3fb5c221295c791f25ce343` shrine proportional MP recovery.
+- `7c4a12f22f3f4451ded0f00c7b1398847bc15f8b` explicit REQ-019 regression; Pages run `33993422174` SUCCESS.
+- `a8d24c072c095cda428fac359c6a13c86e318188` expose frozen drop labels from REQ-017 authority.
+- `0a6d466698a6717bfd88459408054fc8b4de19b3` integrate drop intel into bestiary.
+- `1709144b734bcea0fb644c0177ff1bc8e45dfa84` add modular REQ-020 regression.
+- `08f762972dd3de896a92eae203be69577bbf2edc` auto-load modular regression guards; Pages run `33993594188` SUCCESS.
+- `2d99c2f76d7ea4ac2a8f48522b673509404299f4` synchronize WORK_QUEUE through REQ-020 VERIFY.
 
 CURRENT is an autosave, not a stop condition. Continue from fresh HEAD under WORK_MANAGER and WORK_QUEUE control.
