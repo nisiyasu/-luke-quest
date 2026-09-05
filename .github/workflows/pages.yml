@@ -53,6 +53,13 @@ jobs:
           node --check ux-v27.js
           node --check ux-v28.js
           node --check ux-v29.js
+          node --check ux-v30.js
+          node --check sw.js
+
+      - name: Validate PWA files
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'));console.log('manifest valid')"
+          test -f assets/app-icon.svg
 
       - name: Validate base64 raster transport probe
         run: |
@@ -127,6 +134,9 @@ jobs:
 
       - name: Inject v0.29 map arrival polish
         run: sed -i 's#</body>#<script src="ux-v29.js"></script></body>#' index.html
+
+      - name: Inject v0.30 iPhone PWA shell
+        run: sed -i 's#</body>#<script src="ux-v30.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
