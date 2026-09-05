@@ -1,0 +1,20 @@
+{
+  "name": "LUKE QUEST - ルークと逃げた勇者",
+  "short_name": "LUKE QUEST",
+  "description": "歩いて、話して、戦うオリジナル2D JRPG",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07121e",
+  "theme_color": "#102f54",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
