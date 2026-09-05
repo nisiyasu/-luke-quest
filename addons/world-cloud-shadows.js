@@ -2,7 +2,7 @@
 'use strict';
 
 /* Collision-safe add-on: broad slow cloud shadows make outdoor maps feel less flat without adding DOM-heavy particles. */
-const OUTDOOR=new Set(['town','field','forest','deepForest','mistTrail','observation','evacuation','cliff']);
+const OUTDOOR=new Set(['town','field','forest','deepForest','mistTrail','observation','evacuation','evacRoute','cliff','cliffRoad']);
 const style=document.createElement('style');
 style.textContent=`
 .lqCloudShadowLayer{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none;mix-blend-mode:multiply;opacity:.32}
@@ -13,7 +13,7 @@ style.textContent=`
 @media(prefers-reduced-motion:reduce){.lqCloudShadow{animation:none;opacity:.18;left:22%}.lqCloudShadow.s2{left:55%}}
 `;
 document.head.appendChild(style);
-function cloudClass(){if(['forest','deepForest'].includes(s.map))return'forest';if(['mistTrail','cliff'].includes(s.map))return'mist';if(['observation','evacuation'].includes(s.map))return'hostile';return'';}
+function cloudClass(){if(['forest','deepForest'].includes(s.map))return'forest';if(['mistTrail','cliff','cliffRoad'].includes(s.map))return'mist';if(['observation','evacuation','evacRoute'].includes(s.map))return'hostile';return'';}
 function addClouds(){
  if(s.screen!=='world'||!OUTDOOR.has(s.map))return;
  const w=app.querySelector('.world');if(!w||w.querySelector('.lqCloudShadowLayer'))return;
