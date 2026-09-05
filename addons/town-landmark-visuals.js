@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-/* Collision-safe add-on: physical fountain water and readable market canopies for Royal Capital scene density. */
+/* Collision-safe add-on: readable market canopies plus legacy fountain fallback for Royal Capital scene density. */
 const style=document.createElement('style');
 style.textContent=`
 .lqTownFountainVisual{position:absolute;z-index:3;width:78px;height:78px;transform:translate(-50%,-50%);border-radius:50%;border:8px solid #9ca8aa;background:radial-gradient(circle,#d8f3f4 0 10%,#78c5cf 12% 34%,#3c8ea0 36% 58%,#b5c3c0 60% 69%,#6c7777 71%);box-shadow:0 7px 11px #0007,inset 0 0 12px #e9ffff77;pointer-events:none}
@@ -19,12 +19,13 @@ style.textContent=`
 document.head.appendChild(style);
 function addLandmarks(){
  if(s.screen!=='world'||s.map!=='town')return;const w=app.querySelector('.world');if(!w)return;
- if(!w.querySelector('.lqTownFountainVisual')){const f=document.createElement('div');f.className='lqTownFountainVisual';f.style.left=`${8*TS+TS/2}px`;f.style.top=`${8*TS+TS/2}px`;w.appendChild(f);}
+ const hasPhysicalFountain=currentNpcs().some(n=>n.kind==='lqTownFountain');
+ if(!hasPhysicalFountain&&!w.querySelector('.lqTownFountainVisual')){const f=document.createElement('div');f.className='lqTownFountainVisual';f.style.left=`${8*TS+TS/2}px`;f.style.top=`${8*TS+TS/2}px`;w.appendChild(f);}
  if(!w.querySelector('.lqMarketCanopy.fruit')){const m=document.createElement('div');m.className='lqMarketCanopy fruit';m.style.left=`${2.5*TS+TS/2}px`;m.style.top=`${9*TS+TS/2}px`;m.innerHTML='<i class="roof"></i><i class="table"></i><i class="goods"></i>';w.appendChild(m);}
  if(!w.querySelector('.lqMarketCanopy.gear')){const m=document.createElement('div');m.className='lqMarketCanopy gear';m.style.left=`${14.5*TS+TS/2}px`;m.style.top=`${9*TS+TS/2}px`;m.innerHTML='<i class="roof"></i><i class="table"></i><i class="goods"></i>';w.appendChild(m);}
 }
 const worldBase=world;world=function(){const r=worldBase();addLandmarks();return r;};
 const renderBase=render;render=function(){const r=renderBase();addLandmarks();return r;};
 if(s.screen==='world')addLandmarks();
-window.LQ_TOWN_LANDMARK_VISUAL_STATUS={fountain:true,marketCanopies:2,presentationOnly:true,reducedMotion:true};
+window.LQ_TOWN_LANDMARK_VISUAL_STATUS={fountain:'physical-interaction-preferred',marketCanopies:2,presentationOnly:true,reducedMotion:true};
 })();
