@@ -1,9 +1,10 @@
 # REQ-023 — 北の退避路・進行必須手掛かりの導線修正
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P0
 TYPE: UX / GUIDANCE / REAL-PLAY BUG
 OWNER_REQUEST: CONFIRMED
+IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## TRIGGER
 
@@ -59,6 +60,18 @@ Owner実プレイで「北の退避路で、ここから先に進めない。ど
 7. 北端gateの既存進行条件を変更しない
 8. 既存map/collision/save regression PASS
 9. public Pages buildに含まれる
+
+## IMPLEMENTATION
+
+- `addons/zzzz-evac-route-critical-guidance.js` を追加。
+- 未取得時のobjectiveを「左下側の撤収命令の切れ端を探して調べる」へ具体化。
+- canonical target座標 `(6,17)` に、未取得時のみpulseする `!` quest markerを表示。
+- `withdrawProofSeen=true` 直後のrenderからobjectiveを「北端へ戻り、崖道へ進む」へ即切替。
+- 取得後はclue markerを消し、既存北端gate `(14,0)` 側へ「北端へ ↑」の軽い目的マーカーを表示。
+- `withdrawProofSeen`、gate判定、map/collision/story/saveを変更していない。
+- `addons/zzzzz-evac-guidance-smoke.js` が未取得phaseと取得済みphaseをbrowser runtimeで検証し、失敗時は既存CI failure markerへ接続。
+- Pages workflow run `33996304585` on checkpoint `d7a5e608125eb40d35e74ae81e512116c42c1a9e`: SUCCESS。静的/contract/assembled browser/touch browser/upload/Pages deployを通過。
+- Owner実機での最終導線感確認はPENDING。
 
 ## COMPLETION CONDITION
 
