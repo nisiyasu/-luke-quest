@@ -13,11 +13,11 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 1 | REQ-002 | P0 | VERIFY | ルーク会話グラフィックを承認済み生成画像へ正式化 | `requirements/REQ-002_LUKE_DIALOGUE_ART.md` | 正式WebP transport + dialogue guard + Pages CI成功を確認。Owner実機/見た目確認待ち |
 | 2 | REQ-001 | P0 | VERIFY | 画面任意位置Dynamic Touch Controller | `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md` | v1.2。方向切替timer残留に加え、通常walk renderでhold入力が解除される不具合を修正。static/addon/browser/Pages PASS。Owner iPhone操作感確認待ち |
 | 3 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
-| 4 | REQ-004 | P1 | BACKLOG | レオン正式全身会話立ち絵 | TBD | ルーク正式化後に詳細REQ化 |
+| 4 | REQ-004 | P1 | BACKLOG | レオン正式全身会話立ち絵 | TBD | 正式アート要件/素材確定待ち。仮SVGを最終品質扱いしない |
 | 5 | REQ-005 | P1 | BACKLOG | グレン正式全身会話立ち絵 | TBD | ルーク/レオンとの世界観統一 |
 | 6 | REQ-006 | P1 | BACKLOG | 敵絵文字を完全オリジナル敵画像へ置換 | TBD | 地域別3〜5種＋将来ボス専用画像 |
 | 7 | REQ-007 | P1 | BACKLOG | 地域別戦闘背景画像の正式化 | TBD | CSS背景を最終品質扱いしない |
-| 8 | REQ-008 | P1 | BACKLOG | 王都アルディアをPS1初期級の視覚密度へ強化 | TBD | 道・建物・小物・影・ランドマーク・導線を総合改善 |
+| 8 | REQ-008 | P1 | IN_PROGRESS | 王都アルディアをPS1初期級の視覚密度へ強化 | `requirements/REQ-008_ALDIA_VISUAL_DENSITY.md` | 詳細REQ化して着手。既存collision/導線を維持しpresentation layerから段階強化 |
 | 9 | REQ-009 | P2 | BACKLOG | フィールド/森をPS1初期級の視覚密度へ強化 | TBD | 街道・草地・森・痕跡・環境密度 |
 | 10 | REQ-010 | P2 | BACKLOG | 建物内部と町コンテンツの追加拡張 | TBD | 宿屋/店/神殿に続く内部・NPC・イベント |
 
@@ -69,6 +69,7 @@ Future polish, optional content and non-urgent enhancement.
 4. Owner's newest direct request may be promoted/reordered immediately.
 5. `VERIFY` does not block selecting new `READY` work.
 6. A single `BLOCKED` item does not stop development.
+7. When all higher-priority items are VERIFY/BACKLOG and no READY exists, detail the highest-value safe BACKLOG requirement that does not require unavailable Owner-only assets/decisions, then move it to IN_PROGRESS.
 
 ## QUEUE INVARIANTS
 
