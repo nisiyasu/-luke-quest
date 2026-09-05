@@ -42,6 +42,10 @@ jobs:
         run: |
           node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/transport-test.png.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<8||b[0]!==0x89||b.slice(1,4).toString()!=='PNG')throw new Error('transport probe is not a PNG payload');console.log('base64 raster transport probe decoded:',b.length,'bytes')"
 
+      - name: Validate approved Luke dialogue asset
+        run: |
+          node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/luke/dialogue-neutral.webp.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<16||b.slice(0,4).toString()!=='RIFF'||b.slice(8,12).toString()!=='WEBP')throw new Error('Luke dialogue asset is not a WebP payload');console.log('Luke dialogue WebP decoded:',b.length,'bytes')"
+
       - name: Inject v0.8 UX/world patch
         run: sed -i 's#</body>#<script src="ux-v08.js"></script></body>#' index.html
 
