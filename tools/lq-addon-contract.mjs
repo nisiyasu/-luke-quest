@@ -72,4 +72,19 @@ if(fs.existsSync(treasurePath)){
  if(!text.includes("pointer-events:none"))throw new Error('treasure-chests.js: chest art must not intercept touch input');
  if(!text.includes("worldEl.querySelectorAll('.lqTreasureChest').forEach(n=>n.remove())"))throw new Error('treasure-chests.js: rerender duplicate cleanup missing');
 }
+
+const hiddenFindPath=`${dir}/hidden-finds.js`;
+if(fs.existsSync(hiddenFindPath)){
+ const text=fs.readFileSync(hiddenFindPath,'utf8');
+ for(const needle of ['LQ_HIDDEN_FIND_STATUS','lqHiddenFind','findAhead()','const actionFindBase=action','collectFind(f)','save();'])if(!text.includes(needle))throw new Error(`hidden-finds.js: missing runtime/host contract ${needle}`);
+ for(const map of ["map:'town'","map:'field'","map:'deepForest'"])if(!text.includes(map))throw new Error(`hidden-finds.js: missing find map ${map}`);
+ for(const flag of ['lqFindTownFountainCoin','lqFindFieldGrassCoin','lqFindDeepRootCoin'])if(!text.includes(flag))throw new Error(`hidden-finds.js: missing persistent flag ${flag}`);
+ const hiddenFlags=[...text.matchAll(/flag:'(lqFind[^']+)'/g)].map(m=>m[1]);
+ if(hiddenFlags.length!==3||new Set(hiddenFlags).size!==3)throw new Error('hidden-finds.js: expected 3 unique persistent find flags');
+ if(!text.includes('if(s.flags?.[f.flag])return false'))throw new Error('hidden-finds.js: one-time reward guard missing');
+ if(!text.includes('s.flags[f.flag]=true'))throw new Error('hidden-finds.js: discovered-state persistence missing');
+ if(!text.includes('!s.flags?.[f.flag]'))throw new Error('hidden-finds.js: discovered sparkle disappearance guard missing');
+ if(!text.includes('pointer-events:none'))throw new Error('hidden-finds.js: sparkle must not intercept touch input');
+ if(!text.includes("worldEl.querySelectorAll('.lqHiddenFind').forEach(n=>n.remove())"))throw new Error('hidden-finds.js: rerender duplicate cleanup missing');
+}
 console.log(`LUKE QUEST addon contract PASS: ${addons.length} isolated add-ons after ${ux.length} sequential patches`);
