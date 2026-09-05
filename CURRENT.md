@@ -1,19 +1,22 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-05 21:40 JST
+- UPDATED_AT: 2026-09-06 02:54 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_COMMIT_SHA: `3397feae49b57ad6624c61adb689f781095fc802` (implementation checkpoint; queue-management/documentation checkpoints may be ahead of this SHA)
+- FRESH_HEAD_AT_AUTOSAVE_START: `48cdb9fecd9844da5ccf9c74bd7de051da0f8257`
+- LATEST_IMPLEMENTATION_CHECKPOINT: `376c6e051baf46900d954325f11968a34da48fb4`
+- LATEST_QUEUE_CHECKPOINT_BEFORE_THIS_AUTOSAVE: `0235bd32b770a387319fc2060bebcab9aa169758`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - CURRENT_PHASE: Phase 2 WORLD + Phase 3 BATTLE + Phase 4 CONTENT + Phase 5 VISUAL QUALITY + Phase 6 POLISH
-- CURRENT_BUILD_STATUS: PLAYABLE. Rollback-safe core + sequential ux patches through v139 + collision-safe addons. Latest implementation adds the Owner-requested floating touch movement controller and explicit formal-Luke dialogue-art guard. Never infer current deploy safety from this autosave alone; fresh Actions/Pages state is required.
+- CURRENT_BUILD_STATUS: PLAYABLE. Queue-controlled autonomous development is active. Fresh implementation now includes formal Luke dialogue art, floating touch controller, 4-direction × 3-frame Luke field sprites, Aldia/field/forest visual-density upgrades, expanded interiors, original normal-enemy battle art, and original regional battle background art. Fresh HEAD always outranks this autosave.
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED`
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
-- ACTIVE_REQUIREMENT_ID: `REQ-002`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-002_LUKE_DIALOGUE_ART.md`
-- VERIFY_REQUIREMENTS: `REQ-001`
-- NEXT_QUEUED_REQUIREMENT_ID: `REQ-003`
+- ACTIVE_REQUIREMENT_ID: `NONE`
+- ACTIVE_REQUIREMENT_PATH: `NONE`
+- VERIFY_REQUIREMENTS: `REQ-001, REQ-002, REQ-003, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010`
+- BACKLOG_REQUIREMENTS: `REQ-004, REQ-005`
+- NEXT_QUEUE_SELECTION: follow fresh `WORK_MANAGER.md` + `WORK_QUEUE.md`; do not guess from CURRENT.
 
 ## MANDATORY_BOOT_FILES
 1. repository metadata / actual default branch / fresh HEAD
@@ -21,7 +24,7 @@
 3. `WORK_MANAGER.md` FULL TEXT
 4. `WORK_QUEUE.md` FULL TEXT
 5. `CURRENT.md` FULL TEXT
-6. active requirement file from WORK_QUEUE/CURRENT (`requirements/REQ-xxx_*.md`)
+6. active requirement file from WORK_QUEUE when one exists
 7. `index.html`
 8. `.github/workflows/pages.yml`
 9. all sequential `ux-v*.js` through fresh latest version in numeric order
@@ -39,77 +42,105 @@
 Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autonomous checkpoints. Never repeat work from CURRENT without HEAD/diff reconstruction.
 
 ## WORK_MANAGEMENT_REALITY
-- Queue-controlled work management is now active.
-- `WORK_MANAGER.md` defines recovery, WIP=1, priority selection, blocker handling, VERIFY handling, checkpoint behavior, and how new Owner requests become individual requirement files rather than additions to one giant prompt.
-- `WORK_QUEUE.md` is the authoritative full inventory of Owner-requested work and its ORDER / PRIORITY / STATUS.
-- `REQ-002` is the single `IN_PROGRESS` item: make Luke's speaking graphic use the Owner-approved/generated formal artwork in the real published dialogue path, with no fake completion from a guard/source path alone.
-- `REQ-001` is `VERIFY`: the anywhere-touch floating controller is already implemented/published at implementation level, but dedicated pointer-drag regression and Owner physical iPhone feel verification remain relevant.
-- `REQ-003` is the next `READY` P0 item: formal Luke four-direction × multi-frame field sprite.
-- `VERIFY` does not consume the WIP slot and does not stop independent development.
-- CURRENT updates, WORK_QUEUE updates, commits, Pages success and requirement completion are autosave/checkpoints, not execution-stop conditions.
+- Queue-controlled work management is active and has been exercised successfully across multiple requirements.
+- `WORK_MANAGER.md` defines recovery, WIP=1, priority selection, blocker handling, VERIFY handling, checkpoint behavior, and request registration.
+- `WORK_QUEUE.md` is the authoritative inventory of Owner requests and ORDER / PRIORITY / STATUS.
+- No requirement is IN_PROGRESS at this autosave checkpoint because REQ-006 and REQ-007 were both implemented and moved to VERIFY after automated validation and successful Pages deployment.
+- REQ-004 Leon formal full-body dialogue art and REQ-005 Glenn formal full-body dialogue art remain BACKLOG. Do not fabricate final approved character art or silently promote placeholder SVGs to formal status.
+- VERIFY does not consume the WIP slot and does not stop independent safe development.
+- CURRENT updates, WORK_QUEUE updates, commits, Pages success and requirement completion are checkpoints, not execution-stop conditions.
 
 ## WHAT_CHANGED_RECENTLY
-- Preserved all previously validated world, optional-area, battle-feedback, map-density and runtime-smoke work through implementation checkpoint `f473022846885a74edff7bfa780b8165d491bc7f`.
-- `addons/floating-touch-controller.js`: Owner-requested iPhone movement UX added. On world screen, touching a non-interactive point inside the game viewport summons a translucent four-arrow controller centered near the touch. Sliding from the touch origin into up/down/left/right begins continuous movement; holding continues movement; changing slide direction changes movement; returning toward center stops; pointerup/pointercancel/blur/visibility hidden stop movement. Mouse is excluded. Existing physical D-pad remains available as fallback.
-- `addons/luke-formal-dialogue-guard.js`: when the active dialogue speaker is Luke, the dialogue portrait explicitly prefers the already Owner-approved repository WebP hydrated by `ux-v12.js`. It never promotes the fallback SVG. The dialogue box is marked when formal Luke raster art is applied.
-- Existing approved Luke asset remains `assets/characters/luke/dialogue-neutral.webp.b64`; no new fake or alternate Luke was created.
-- Management migration added `WORK_MANAGER.md`, `WORK_QUEUE.md`, `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md`, `requirements/REQ-002_LUKE_DIALOGUE_ART.md`, and `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md`.
+### REQ-006 — Original normal-enemy battle art
+- `requirements/REQ-006_ORIGINAL_ENEMY_ART.md` created and later moved to VERIFY.
+- `addons/original-enemy-art.js` added.
+- All 18 normal encounter enemies across field / forest / deepForest / mistTrail / observation / evacRoute are registered to LUKE QUEST original inline-SVG battle art.
+- Former emoji remain only as legacy/base fallback data in the core enemy definitions; for the 18 registered normal enemies the assembled battle presentation replaces the visible enemy surface with original artwork.
+- Unknown/future/smoke enemies are deliberately not hijacked and retain their existing fallback.
+- Dedicated optional forest boss art remains independent and is not overwritten.
+- Existing enemy wound/critical presentation remains compatible because the original-art system replaces `.enemy` contents while preserving the `.enemy` wrapper and classes.
+- `window.LQ_ORIGINAL_ENEMY_ART_STATUS` exposes count/names/presentation-only/fallback state.
+- `tools/lq-addon-contract.mjs` now guards all 18 canonical enemy registrations, rejects former emoji glyphs from the formal enemy-art add-on, requires formal-stage/runtime markers, checks base/assembled battle targets, and checks unknown-enemy fallback.
+- Implementation checkpoint: `7e4762d5c2503bb27480f9d1ffb0bbd4a1b4f9a5`.
+- Contract checkpoint: `63fa055dce377b5d5fd4205867619494d1c0518f`.
+- Pages workflow run `33982213456`: SUCCESS, including syntax/add-on validation, static regression, add-on contract, assembled browser smoke, floating touch smoke, upload and deployment.
 
-## FILES_CHANGED
-Recent implementation:
-- `addons/floating-touch-controller.js`
-- `addons/luke-formal-dialogue-guard.js`
+### REQ-007 — Original regional battle backgrounds
+- `requirements/REQ-007_ORIGINAL_BATTLE_BACKGROUNDS.md` created and later moved to VERIFY.
+- `addons/original-battle-backgrounds.js` added.
+- Six normal encounter regions now have distinct LUKE QUEST original inline-SVG battle background images:
+  - `field` — bright grassland / distant Aldia stone silhouettes
+  - `forest` — dense trunks / canopy / green roadside depth
+  - `deepForest` — darker tall trunks / blue-green depth / roots
+  - `mistTrail` — cool ravine woodland / layered mist bands
+  - `observation` — black-iron military geometry / towers / warning accents
+  - `evacRoute` — northern rocky cliff road / mountain depth / exposed highland
+- Backdrop layer is attached only in battle, reused rather than duplicated, and changes by canonical `s.map`.
+- Unknown maps retain existing fallback safely.
+- Backdrop is presentation-only and sits behind enemy/focus/foreground layers without changing battle mechanics, commands, rewards or encounter rates.
+- `window.LQ_ORIGINAL_BATTLE_BACKGROUND_STATUS` exposes registered maps/count and fallback state.
+- `tools/lq-addon-contract.mjs` now guards all six scenes, SVG-image layer, formal-stage marker, unknown-map fallback and duplicate-layer reuse.
+- Implementation checkpoint: `9f9c93fa69a71b2626b871e5650598cc1b0d1eb1`.
+- Contract checkpoint: `376c6e051baf46900d954325f11968a34da48fb4`.
+- Pages workflow run `33982352056`: SUCCESS, including syntax/add-on validation, static regression, add-on contract, assembled browser smoke, floating touch smoke, upload and deployment.
 
-Management migration:
-- `WORK_MANAGER.md`
+## EXISTING VERIFIED REQUIREMENT STATE
+- REQ-001 Dynamic Touch Controller: VERIFY. v1.2 automated pointer-drag regression passes; Owner physical iPhone feel verification pending.
+- REQ-002 Luke dialogue formal art: VERIFY. Formal approved WebP route/guard integrated; Owner visual confirmation pending.
+- REQ-003 Luke field sprite: VERIFY. 4 directions × 3 frames integrated; automated validation/Pages passed; Owner visual/iPhone confirmation pending.
+- REQ-006 Original enemy art: VERIFY. 18 normal enemies implemented; Owner subjective/iPhone visual confirmation pending.
+- REQ-007 Regional battle backgrounds: VERIFY. 6 normal encounter regions implemented; Owner subjective/iPhone visual confirmation pending.
+- REQ-008 Aldia visual density: VERIFY. Automated/Pages validation passed; Owner subjective/iPhone confirmation pending.
+- REQ-009 Field/forest visual density: VERIFY. Automated/Pages validation passed; Owner subjective/iPhone confirmation pending.
+- REQ-010 Building/interior expansion: VERIFY. South Gate Inn / attic and interior transition smoke coverage passed; Owner subjective/iPhone confirmation pending.
+
+## FILES_CHANGED_IN_LATEST_RUN
+- `requirements/REQ-006_ORIGINAL_ENEMY_ART.md`
+- `requirements/REQ-007_ORIGINAL_BATTLE_BACKGROUNDS.md`
+- `addons/original-enemy-art.js`
+- `addons/original-battle-backgrounds.js`
+- `tools/lq-addon-contract.mjs`
 - `WORK_QUEUE.md`
-- `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md`
-- `requirements/REQ-002_LUKE_DIALOGUE_ART.md`
-- `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md`
 - `CURRENT.md`
 
-## NEW_ASSETS
-- No new image asset created by the management migration.
-- Existing Owner-approved Luke full-body WebP transport remains authoritative; REQ-002 requires verifying/reconciling the actual published speaking graphic rather than trusting metadata alone.
-
 ## TESTS_AND_VERIFICATION
-- Fresh repository metadata/default branch reconstruction previously confirmed `main`; every future run must repeat this fresh check.
-- Fresh HEAD after management-file creation was documentation checkpoint `8d6c397844ef6fbdc6421de9783bc0442334e6ac`; it is ahead of the implementation SHA because queue/requirement files were added.
-- Existing floating touch controller implementation and Luke dialogue guard remain implementation reality from the prior checkpoint.
-- Management files were created as independent GitHub checkpoints and must be fresh-fetched after this CURRENT update.
-- Existing Pages workflow validates JavaScript/addons and assembled browser regressions; deploy status must always be checked fresh before claiming current production success.
-- Real-device iPhone touch feel: NOT CLAIMED; requires Owner device.
-- Owner visual confirmation that the published Luke speaking graphic is the intended formal image remains part of REQ-002 verification.
+- Fresh repository metadata/default branch/HEAD were fetched at run start; actual default branch remained `main`.
+- Fresh run-start HEAD was `48cdb9fecd9844da5ccf9c74bd7de051da0f8257`, proving prior CURRENT was materially stale and validating the HEAD-first recovery design.
+- REQ-006 workflow `33982213456`: SUCCESS.
+- REQ-007 workflow `33982352056`: SUCCESS.
+- Both successful workflows passed: sequential patch syntax, collision-safe addon syntax, static regression guard, addon contract guard, PWA validation, approved Luke asset validation, assembled browser smoke, floating touch pointer-drag smoke, Pages artifact upload and Pages deployment.
+- Real-device iPhone touch/visual feel remains NOT CLAIMED unless Owner physically checks it.
 
-## KNOWN_ISSUES
-- Floating controller needs real iPhone feel-testing for dead-zone size, controller radius and whether the original fixed D-pad should later be hidden by default on coarse-pointer devices.
-- Dedicated automated pointer-drag regression for REQ-001 is still desirable even though the implementation exists.
-- Luke field representation is still interim CSS directional art rather than formal approved/generated 4-direction × multi-frame sprite artwork.
-- Leon, Glenn, Eleanor and Elisia still lack formal integrated major-character artwork.
-- Rapid autonomous commits can make CURRENT stale; always reconstruct from fresh HEAD.
+## KNOWN_ISSUES / PENDING OWNER-SIDE VERIFICATION
+- Dynamic touch controller still needs Owner iPhone feel confirmation for dead zone, controller radius, hold speed and whether fixed D-pad should later hide on coarse-pointer devices.
+- Formal Luke dialogue art and 4-direction field sprite need Owner visual confirmation on the published build.
+- REQ-006 and REQ-007 need Owner subjective visual confirmation on the published build; implementation/automated deployment is complete enough for VERIFY.
+- Leon, Glenn, Eleanor and Elisia still lack final integrated approved major-character artwork. REQ-004 and REQ-005 specifically preserve Leon/Glenn requests without pretending placeholder SVGs are final art.
 
 ## BLOCKERS
-- No blocker for continued code/UI/world/battle development.
-- Formal Luke directional sprite integration still requires suitable original/approved four-direction art.
-- Real iPhone confirmation requires Owner-device testing.
-- Owner physical/subjective checks never block independent READY work; use VERIFY status.
+- No blocker to continued safe code/UI/world/battle development in general.
+- Final approved Leon/Glenn visual integration should not invent or silently approve character art when the required final asset/canon is not sufficiently established.
+- Owner physical/subjective checks never block independent safe work; keep affected requirements in VERIFY.
 
 ## NEXT_ACTION
-1. Recover `REQ-002` from fresh HEAD and inspect the actual Luke speaking-image route, current hydrated WebP, dialogue routing, source guard, workflow publication path and published behavior. Do not assume CURRENT's earlier `INTEGRATED` wording proves the visible graphic is the intended one.
-2. Satisfy `requirements/REQ-002_LUKE_DIALOGUE_ART.md` as far as can be verified autonomously; checkpoint safe changes, update queue to VERIFY when implementation conditions are met, and continue.
-3. Then take highest-priority READY item under `WORK_MANAGER.md`; currently `REQ-003` unless Owner reorders the queue.
-4. Independently keep `REQ-001` in VERIFY until remaining automated pointer-flow coverage and/or Owner iPhone feel verification justify DONE.
+1. On next execution, fresh-fetch HEAD and WORK_QUEUE first. If another session/Owner action created an IN_PROGRESS/READY requirement, recover/select it under WORK_MANAGER.
+2. If the queue still has no IN_PROGRESS/READY item, do not demote VERIFY items or fabricate completion. Evaluate the highest-value BACKLOG requirement for whether it can be safely detailed without inventing Owner-only character-art decisions.
+3. If REQ-004/REQ-005 still require unavailable formal-art decisions/assets, preserve them and continue with another directive-authorized, collision-safe player-visible improvement only when it does not overwrite Owner decisions or protected story canon.
+4. Keep one IN_PROGRESS item at a time and continue checkpoint-to-checkpoint while the environment allows.
 
 ## NEXT_ACTION_COMPLETION_CONDITION
-- `REQ-002` implementation conditions are judged against its detailed requirement file, not against old prose in CURRENT.
-- Actual published Luke dialogue route uses the intended formal generated/approved artwork and does not silently fall back to wrong/simple art.
-- Safe checkpoint committed and fresh re-fetched.
-- Queue/CURRENT synchronized to repository reality.
-- Completion of REQ-002 does not stop execution; continue with next READY requirement while environment allows.
+- Fresh HEAD remains the implementation reality.
+- Queue state accurately reflects work in progress / verify / backlog.
+- Any selected new work has a detailed requirement or equivalent safe scope before mutation.
+- Safe implementation checkpoint, automated regression, fresh Actions/Pages validation and state autosave are performed.
+- Completion of one requirement is never itself the reason to stop execution.
 
 ## DO_NOT_REPEAT
 - Do not replace Owner-approved Luke dialogue art with a newly invented different-looking Luke.
 - Do not call fallback SVG formal.
+- Do not reintroduce enemy emoji as final art for the 18 registered normal enemies.
+- Do not reduce REQ-007 regional background art to a flat CSS gradient and call it complete.
+- Do not overwrite dedicated optional-boss art with the normal-enemy registry.
 - Do not remove centralized pointerup/pointercancel/blur/visibility movement-stop safety.
 - Do not make mouse clicks summon the floating controller.
 - Do not let world touch movement activate over buttons/dialogue/interactive controls.
@@ -120,65 +151,48 @@ Management migration:
 - Do not let VERIFY items block safe independent work.
 
 ## IMPORTANT_DESIGN_DECISIONS
-- LUKE QUEST now uses queue-controlled requirement management. Global permanent rules remain in `AUTONOMOUS_DEV_DIRECTIVE.md`; request-specific implementation detail belongs in `requirements/`; priority and execution state belong in `WORK_QUEUE.md`; recovery/selection rules belong in `WORK_MANAGER.md`; CURRENT remains autosave/handoff.
-- Owner-requested floating controller is an additive iPhone control mode: touch game viewport -> translucent four-arrow pad appears at contact -> slide to direction -> hold to continue. Existing D-pad remains fallback until real-device tuning proves the new controller can replace it safely.
-- Luke speaking surfaces must prefer the already approved generated/full-body raster asset. The repository's base64 WebP transport remains the formal path unless fresh reality proves a safer verified path is needed.
+- LUKE QUEST uses queue-controlled requirement management: global rules in `AUTONOMOUS_DEV_DIRECTIVE.md`, recovery/selection in `WORK_MANAGER.md`, inventory/priority/status in `WORK_QUEUE.md`, request detail in `requirements/`, and autosave/handoff in CURRENT.
+- Original battle enemy art and original battle background art are collision-safe presentation layers. Battle mechanics remain canonical and independent.
+- Inline SVG counts as original image artwork for REQ-006/REQ-007 because it is authored LUKE QUEST visual content rather than a CSS-only placeholder or external copyrighted asset.
+- Unknown enemy/map fallback is deliberately preserved to keep future content and smoke tests safe.
 - PS1-early target continues to mean layered readable 2D presentation, not copied existing-game art.
 
 ## STORY_CANON_ADDED_OR_CHANGED
 - None.
 
-## PLAYER_GUIDANCE_IMPROVEMENTS
-- Floating touch controller reduces thumb travel by allowing movement input directly where the player touches inside the game viewport.
-- Active arrow visually brightens so the chosen direction is immediately readable.
-
-## DIALOGUE_VISUAL_PROGRESS
-- Luke formal generated/approved artwork infrastructure exists, but `REQ-002` is deliberately IN_PROGRESS until fresh implementation/published-output verification proves the actual speaking graphic is the intended one.
-- Luke fallback SVG: fallback only, never formal.
-- Leon / Glenn / Eleanor / Elisia formal art: pending.
-
-## BATTLE_VISUAL_PROGRESS
-- Existing validated regional battle presentation remains unchanged by the management migration.
-
-## MAP_READABILITY_IMPROVEMENTS
-- Existing validated route landmarks and environmental density remain unchanged by the management migration.
-
 ## CHARACTER_CANON_STATUS
-- Luke formal large-image canon: blue hair / blue clothing and cloak / silver armor / gold accents. Owner-approved generated artwork is authoritative.
-- Luke field direction behavior: UP / DOWN / LEFT / RIGHT LIVE.
-- Luke field formal sprite art: NOT YET INTEGRATED.
-
-## PORTRAIT_INTEGRATION_STATUS
-- Luke: implementation path exists; REQ-002 IN_PROGRESS until actual intended published speaking graphic is freshly verified/reconciled.
-- Leon: NOT YET INTEGRATED.
-- Glenn: NOT YET INTEGRATED.
-- Eleanor: NOT YET INTEGRATED.
-- Elisia: NOT YET INTEGRATED.
-
-## FIELD_SPRITE_DIRECTION_STATUS
-- Luke direction logic: 4/4 LIVE.
-- Interim direction visuals + step cadence: LIVE.
-- Formal Luke 4-direction × 2-3 frame sprite sheet: NOT YET INTEGRATED; REQ-003 READY.
+- Luke formal large-image canon: blue hair / blue clothing and cloak / silver armor / gold accents. Owner-approved generated artwork remains authoritative.
+- Luke field formal sprite: 4-direction × 3-frame implementation LIVE, Owner visual verification pending.
+- Leon formal art: pending, REQ-004 BACKLOG.
+- Glenn formal art: pending, REQ-005 BACKLOG.
 
 ## TOUCH_CONTROLLER_STATUS
 - REQ-001: VERIFY.
-- Anywhere-touch translucent four-arrow controller implementation: LIVE at implementation level.
-- Four-direction slide/hold movement: implemented.
-- Centralized release/cancel/blur/visibility cleanup: implemented.
+- Anywhere-touch translucent four-arrow controller: LIVE.
+- Four-direction slide/hold movement: LIVE.
+- Centralized release/cancel/blur/visibility cleanup: LIVE.
+- Dedicated automated pointer-drag regression: PASS.
 - Fixed D-pad/keyboard fallback: preserved.
-- Dedicated pointer-drag automated regression: remaining verification/improvement item.
 - Owner physical iPhone feel verification: PENDING.
 
-## POST_BATTLE_LINE_VARIETY_STATUS
-- Base generic Luke victory lines: 60.
-- Situational add-on lines: +30.
-- Combined available pool: 90.
-- Recent exact-repeat avoidance remains active.
+## BATTLE_VISUAL_PROGRESS
+- Normal enemy original art: 18/18 registered, VERIFY.
+- Regional normal-encounter background art: 6/6 registered, VERIFY.
+- Optional forest boss retains independent dedicated SVG art.
+- Existing wound/critical state, focus-frame, foreground-depth and battle runtime smoke remain protected by regression.
 
-## CHECKPOINT_HISTORY
-- `f473022846885a74edff7bfa780b8165d491bc7f` last fully validated/deployed implementation before floating-controller/Luke-guard work.
-- `8fdcfe384abaec2daf72b5db873a291b2576ecbd` floating anywhere touch movement controller.
-- `3397feae49b57ad6624c61adb689f781095fc802` formal Luke dialogue-art guard implementation checkpoint.
-- queue-management documentation commits after implementation checkpoint create `WORK_MANAGER.md`, `WORK_QUEUE.md`, REQ-001, REQ-002 and REQ-003; documentation HEAD may therefore be ahead of `LATEST_COMMIT_SHA` without implying unrecorded game-code changes.
+## CHECKPOINT_HISTORY_RECENT
+- `48cdb9fecd9844da5ccf9c74bd7de051da0f8257` fresh run-start HEAD.
+- `d0c9ef8c2231612962b9ad834c899d18233f5097` define REQ-006.
+- `ba363e158ee4a704522e68da47e36fd1d2cd1a4b` select REQ-006 IN_PROGRESS.
+- `7e4762d5c2503bb27480f9d1ffb0bbd4a1b4f9a5` original normal-enemy art implementation.
+- `63fa055dce377b5d5fd4205867619494d1c0518f` REQ-006 contract guard checkpoint; Pages run 33982213456 SUCCESS.
+- `a8d8361c7ce45939e72c1fdb5711d0e6b14097a0` REQ-006 moved to VERIFY.
+- `5fdfcd082df2a75366ea60e3875c6db45b24abef` define REQ-007.
+- `e337a520a41b3a15856d8826a41603ae1c3dfa4c` select REQ-007 IN_PROGRESS / queue advance.
+- `9f9c93fa69a71b2626b871e5650598cc1b0d1eb1` original regional battle background implementation.
+- `376c6e051baf46900d954325f11968a34da48fb4` REQ-007 contract guard checkpoint; Pages run 33982352056 SUCCESS.
+- `80338dc562cfa8e21aac4d3f7f8c4fb603922469` REQ-007 moved to VERIFY.
+- `0235bd32b770a387319fc2060bebcab9aa169758` queue synchronized with REQ-006/REQ-007 VERIFY.
 
 CURRENT is an autosave, not a stop condition. Continue from fresh HEAD under WORK_MANAGER and WORK_QUEUE control.
