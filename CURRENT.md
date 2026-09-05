@@ -1,129 +1,162 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-05 12:28 JST
+- UPDATED_AT: 2026-09-05 13:29 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_COMMIT_SHA: `a72c5e18078eecfc1cc283728b0c8cd4b521860d` (v0.7 walkable northern evacuation route + Leon escape/injury clues; this CURRENT checkpoint is committed immediately after it)
+- LATEST_COMMIT_SHA: `97dd3d5c3bbe68c5ff4465aff15f214bc8d5b207` (v0.8 Pages injection + UX/world patch; this CURRENT checkpoint is committed immediately after it)
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
-- CURRENT_PHASE: Phase 2 WORLD + Phase 4 CONTENT / northern evacuation route and deliberate-escape evidence
-- CURRENT_BUILD_STATUS: PLAYABLE / v0.7 / GitHub Pages deploy steps SUCCESS
+- CURRENT_PHASE: Phase 2 WORLD + Phase 4 CONTENT + OWNER UX Priority A
+- CURRENT_BUILD_STATUS: PLAYABLE / v0.8 / GitHub Pages deploy SUCCESS
+
+## MANDATORY_BOOT_FILES
+
+Read these fresh before the next mutation:
+1. `CURRENT.md`
+2. `index.html`
+3. `ux-v08.js`
+4. `.github/workflows/pages.yml`
+5. recent commits / Pages workflow state
+
+Important: v0.8 is deployed by build-time injection. The repository `index.html` remains the rollback-safe v0.7 core, while `.github/workflows/pages.yml` injects `<script src="ux-v08.js"></script>` into the deployed artifact before upload. Do not accidentally remove or duplicate this injection without intentionally folding the patch into the core.
 
 ## WHAT_CHANGED_THIS_SESSION
 
 1. Booted from fresh GitHub state and confirmed default branch = `main`.
-2. Read fresh `CURRENT.md` and `index.html` before mutation.
-3. Replaced the previously blocked northern `Y` continuation of `魔王軍・監視区域` with a real physical transition after Glenn has been seen.
-4. Added a distinct 30x24 walkable map, `北の退避路`.
-5. Added rock/ruin collision terrain, camera scrolling, a southern return transition to the observation zone, and a northern continuation placeholder.
-6. Added regional encounters for the evacuation route: `崖ネズミ`, `石羽コンドル`, `退避路オオカミ`.
-7. Added persistent backward-compatible flags: `evacEntered`, `leonInjurySeen`, `escapeProofSeen`, `withdrawProofSeen`.
-8. Added a physically discoverable `血のついた岩`: fresh blood, a kneeling mark, and one set of footprints continuing north establish that Leon is injured but got back up and kept moving.
-9. Added `外された封鎖杭`: Demon-Army barricade stakes have deliberately been stacked to the side instead of blocking the route.
-10. The removed barricade includes an explicit Glenn-order note: keep the northern passage open and prohibit pursuit squads from entering.
-11. Added `撤収命令の切れ端`: the Third Recon Squad is ordered to withdraw while keeping the evacuation route open and not pursuing Leon.
-12. This makes it inferable in-world that Leon was deliberately allowed to escape rather than merely missed by the Demon Army.
-13. Glenn's hidden family connection remains unrevealed and no Glenn boss battle begins.
-14. The northern `N` gate remains the next continuation; after the withdrawal clue is found, it explicitly states that Leon's fresh tracks continue north while no Demon-Army pursuit tracks follow.
-15. Preserved the centralized `stopMoving()` architecture, global pointer-release/blur/background fail-safes, encounter grace, keyboard controls, HP/EXP/gold/level progression, potion, guard, and escape mechanics.
-16. Updated the adventure memo progression to point through the evacuation route and then toward the northern cliff road.
+2. Read fresh `CURRENT.md`, `index.html`, and Pages workflow before mutation.
+3. Applied the Owner UX priority that the initial town exit was not discoverable enough.
+4. Added an always-visible in-world `目的` guidance bar that changes by map/progression state.
+5. Changed the two town exit gate tiles into a highly visible animated yellow `出口↓` marker in the deployed build.
+6. Added a `南門の案内兵` immediately beside the town exit route; he explicitly tells the player where to leave the city.
+7. Added a one-time `冒険ガイド` when a player reaches/continues in the starting town, telling them to move south to the yellow exit and use the top objective bar / adventure memo if lost.
+8. Added a post-exit message that immediately explains the next objective: win two field battles and head northeast to the monster forest.
+9. Preserved the centralized touch movement stop architecture and all global release/blur/background fail-safes.
+10. Completed the previous story NEXT_ACTION instead of abandoning it: the northern evacuation-route gate now physically opens into a distinct walkable `北の崖道` after the withdrawal evidence is found.
+11. Added a 30x24 `北の崖道` map with collision terrain, scrolling, return traversal, and regional encounters.
+12. Added cliff-road enemies: `崖風コウモリ`, `岩角ヤギ`, `裂谷ワシ`.
+13. Added a second physical Leon encounter in the traversable world.
+14. Leon now says his fear is real but that returning to the capital would endanger the inn people and training companions; he refuses to identify the exact threat because he believes telling Luke would put Luke in danger too.
+15. Preserved the intended mystery: Glenn's family connection, Elisia's full truth, and the Demon-King succession conflict remain unrevealed; no Glenn boss fight starts.
+16. Increased enemy visual size in the v0.8 presentation layer as a small first Battle Visual improvement.
+17. Implemented v0.8 as `ux-v08.js` plus deterministic Pages artifact injection so the known-good v0.7 core remains easy to roll back while UX changes are validated.
+18. GitHub Pages workflow run `33944599633` completed the injection, upload, and deployment steps successfully.
 
 ## FILES_CHANGED
 
-- `index.html` — v0.7 northern evacuation route, new regional enemies, Leon injury clue, deliberate escape evidence, withdrawal evidence, progression flags and quest memo update
+- `ux-v08.js` — new v0.8 UX guidance, map/presentation patch, cliff-road content and second Leon event
+- `.github/workflows/pages.yml` — injects `ux-v08.js` into the deployed `index.html` artifact before Pages upload
 - `CURRENT.md` — this persistent handoff/checkpoint
 
 ## NEW_ASSETS
 
-- No binary/generated image assets were added this session.
-- New world objects currently use CSS + emoji placeholders (`🩸`, `🚧`, `📜`, rock emoji tiles).
-- Existing player/NPC/enemy/map visuals remain placeholder presentation and are not final art.
+- No binary/generated character portrait assets were added this session.
+- New visuals are code/CSS presentation improvements and emoji placeholders only.
+- Do not claim the requested high-quality conversation portraits are done yet.
 
 ## TESTS_AND_VERIFICATION
 
 - Fresh repository metadata confirmed default branch = `main`.
-- Fresh `CURRENT.md` and `index.html` were retrieved before mutation.
-- Locally prepared v0.7 JavaScript passed `node --check` before repository write.
-- `北の退避路` was validated as exactly 30 columns x 24 rows.
-- Static BFS reachability confirmed the evacuation-route spawn can reach the northern `N` gate and approach all three evidence objects; the withdrawal-note object is interactable from adjacent walkable tiles.
-- Updated `index.html` was fresh-retrieved after repository write; blob SHA = `68dcdef00b6a1d0d3b669da7b7e0a6691ed3cf9f`.
-- GitHub Pages workflow run `33941845213` executed for build commit `a72c5e18078eecfc1cc283728b0c8cd4b521860d`.
-- Workflow steps Checkout, Configure Pages, Upload site, Deploy to GitHub Pages, Post Checkout, and Complete job all report `success`.
-- Real iPhone touch behavior still requires owner-device confirmation for final regression verdict; the established fail-safe architecture was preserved.
+- `ux-v08.js` passed local `node --check` before repository write.
+- Patch presence was fresh-retrieved after creation and includes the town exit guide, objective bar, cliff map, Leon second encounter, and cliff enemy pool.
+- Pages workflow injection step `Inject v0.8 UX/world patch` completed with `success`.
+- Pages workflow steps Checkout, Configure Pages, Inject v0.8 UX/world patch, Upload site, Deploy to GitHub Pages, Post Checkout, and Complete job all completed with `success` in run `33944599633`.
+- Cliff-road map was designed as exactly 30 columns x 24 rows in the prepared candidate.
+- Real iPhone touch behavior and visual legibility still require owner-device confirmation; movement fail-safes were not removed.
+
+## PLAYER_GUIDANCE_IMPROVEMENTS
+
+- Starting town now has a persistent objective: `南へ進み、黄色い「出口」から王都近郊へ`.
+- Town exit visually displays `出口↓` rather than looking like an anonymous floor/gate tile.
+- A `南門の案内兵` stands beside the exit approach and explicitly gives the route.
+- First-time town guidance tells the player to move south and explains where to re-check the goal.
+- Each major current map now exposes a context-sensitive objective in the playfield.
+- Adventure memo now uses the same objective source as the HUD so the two cannot drift as easily.
+
+## DIALOGUE_VISUAL_PROGRESS
+
+- High-quality character portraits requested by Owner are NOT yet integrated.
+- Dialogue remains text-window + map-character presentation in v0.8.
+- Priority B remains: build portrait-capable dialogue UI and integrate real original Luke / Leon / Glenn images when a verified asset-to-repository path is available.
+
+## BATTLE_VISUAL_PROGRESS
+
+- Enemy display size is increased in the v0.8 presentation layer.
+- Full battle background, high-quality enemy art, damage-number animation, and polished command UI remain pending.
+
+## MAP_READABILITY_IMPROVEMENTS
+
+- Town exit is now a high-contrast animated landmark.
+- Persistent objective text gives directional semantics to each map rather than relying only on tile interpretation.
+- Cliff road uses a distinct terrain palette and physical north/south transitions.
 
 ## KNOWN_ISSUES
 
-- The northern continuation beyond `北の退避路` is intentionally blocked for the next build.
-- Generated final character/map/enemy art has not started; visuals remain CSS + emoji placeholders.
+- Conversation portraits are still not the requested high-quality art level.
+- Most field/NPC/enemy graphics remain CSS + emoji placeholders rather than SFC-late / PS1-early quality sprites.
 - Capital buildings remain exterior collision objects; interiors are not implemented yet.
 - No dedicated automated browser/touch regression suite exists yet.
-- `wins` remains a global battle victory count rather than separated battle statistics/progression counters.
+- `wins` remains a global battle victory count rather than separated progression/statistics counters.
 - Battle return state still relies on current map/tile state instead of a separate encounter-state object.
-- Glenn has appeared and deliberately leaves a route open, but his hidden motives and family relation remain unrevealed by design.
-- Leon is confirmed injured and moving north, but the player has not caught him again yet.
+- The north continuation beyond `北の崖道` is intentionally not open yet.
+- v0.8 currently uses build-time injection rather than folding all changes directly into `index.html`; this is deliberate rollback isolation, but future refactoring should eventually consolidate once stable.
 
 ## BLOCKERS
 
-- None for continued code/world/story development.
-- Real-device iPhone touch confirmation remains external to this runtime; preserve the fail-safe architecture.
-- Actual generated-image binary integration still requires a runtime path that can generate and commit verified assets; do not claim image completion without repository files.
+- None for continued code/world/story/UX development.
+- Real-device iPhone confirmation remains external to this runtime.
+- High-quality generated portrait integration is not yet verified end-to-end as an actual repository asset workflow; do not fabricate asset completion.
 
 ## NEXT_ACTION
 
-Open the northern `N` continuation from `北の退避路` into a physically walkable `北の崖道` / cliff-road area. Let Luke catch up to Leon again there rather than only finding another clue. Build a short in-world Leon scene that reveals more of why he refuses to return: his fear is genuine, but he believes returning to the capital will endanger specific people. Keep the exact threat/source partially obscured. Do not reveal Glenn's family connection, Elisia's full truth, or start the Glenn boss fight yet.
+Owner Priority B: upgrade dialogue presentation toward the target `SFC後期〜PS1初期の高品質2D JRPG`. First create a portrait-capable dialogue component that supports speaker name + left/right portrait slot + future expression variants without breaking existing dialogue. Integrate it first for Luke / Leon / Glenn using real repository assets if a verified image-generation/upload path is available; if binary asset transport is still unavailable, build and test the portrait UI/asset contract with clearly marked temporary placeholders, preserve hooks for actual images, and do not pretend the final art is complete. Keep the newly fixed town guidance intact.
 
 ## NEXT_ACTION_COMPLETION_CONDITION
 
 The next action is complete only when:
-1. The northern `N` gate becomes a real physical transition into a distinct walkable cliff-road map.
-2. The new area supports collision, camera scrolling, encounters, and return traversal.
-3. Leon appears physically in the traversable world again, not only through environmental evidence.
-4. A short second Leon encounter makes clear that his refusal to return includes protecting people in the capital, while preserving mystery about the exact threat.
-5. Leon remains frightened and conflicted rather than becoming suddenly heroic/confident.
-6. Glenn's hidden family connection and Elisia's deeper canon remain unrevealed.
-7. No Glenn boss battle starts.
-8. Mobile movement fail-safes and full battle/level progression remain intact.
-9. Updated build deploys successfully to GitHub Pages.
-10. `CURRENT.md` is updated and fresh-retrieved again.
+1. Existing dialogue still works on iPhone-sized layouts.
+2. Dialogue component can display a portrait separately from the small field sprite.
+3. Luke, Leon, and Glenn each have a stable portrait asset key / slot architecture.
+4. If real generated files can be committed, at least Luke is visibly integrated first and the file/path is verified in GitHub/Pages.
+5. If real images cannot be committed, the UI contract is shipped with explicit temporary art state and CURRENT documents the exact blocker.
+6. Town `出口↓`, objective HUD, guide NPC, and movement fail-safes do not regress.
+7. GitHub Pages deployment succeeds.
+8. `CURRENT.md` is updated and fresh-retrieved again.
 
 ## DO_NOT_REPEAT
 
+- Do not make the starting exit visually ambiguous again.
+- Do not remove the persistent objective guidance without an equivalently clear navigation system.
 - Do not bind movement-stop responsibility only to directional button DOM nodes that `render()` destroys.
 - Do not allow movement timers to survive world→battle/dialogue/menu/background transitions.
 - Do not remove centralized `stopMoving()` / global pointer-release safety without an equivalently robust replacement.
 - Do not remove encounter grace without an equivalent anti-chain-encounter mechanism.
-- Do not regress keyboard movement, battle rewards, level-up, potion/guard/escape, or HP display while adding maps/content.
+- Do not regress keyboard movement, battle rewards, level-up, potion/guard/escape, or HP display.
 - Do not return to menu-only location selection as the main exploration model.
 - Do not replace physical traversal with static story cards.
-- Do not copy maps, sprites, UI, text, music, enemies, or characters from Dragon Quest or another existing game.
+- Do not copy maps, sprites, UI, text, music, enemies, characters, or art from Dragon Quest or another existing game.
 - Do not treat emoji/CSS placeholder art as final.
-- Do not claim image assets were generated or integrated unless actual files exist in the repository and are referenced by the playable build.
-- Do not declare a map complete unless it is physically reachable and return traversal is possible.
+- Do not claim image assets were generated/integrated unless actual repository files exist and the playable build references them.
 - Do not reveal Glenn's relation to Luke, Elisia, or the Demon-King succession conflict yet.
 - Do not reveal Elisia's full history through Leon at this stage.
 - Do not start the Glenn boss fight yet.
 
 ## IMPORTANT_DESIGN_DECISIONS
 
-- Exploration remains top-down, tile/coordinate based with camera following.
-- World progression continues through physically walkable exits/gates instead of location-selection menus.
-- Story progression uses explicit persistent flags where battle counts are insufficient.
-- First-contact and reveal beats occur inside the traversable world or through physically discoverable objects.
-- Leon's fear is real, but his flight increasingly reads as protective rather than simple cowardice.
-- Glenn's restraint is now supported by physical evidence: an opened passage, no-pursuit order, and unit withdrawal rather than only dialogue.
-- Environmental evidence should make the player infer character motives before the story explicitly explains them.
-- Regional enemy pools continue scaling by area.
-- Mobile-first touch controls remain protected core infrastructure.
-- Movement input state remains independent from ephemeral re-rendered button DOM nodes.
-- Battle/dialogue/menu/blur/pointer-cancel/background transitions must stop continuous movement.
-- Autosave remains local-browser based for the current web prototype.
+- Visual target is now explicitly `SFC後期〜PS1初期の高品質2D JRPG`, not PS1-era full 3D.
+- Player guidance is a core quality requirement, not optional polish.
+- Exploration remains top-down, tile/coordinate based with physical exits.
+- World progression continues through walkable transitions rather than location-selection menus.
+- Dialogue field sprites and high-quality conversation portraits are separate presentation layers by design.
+- Main character portrait priority: Luke → Leon → Glenn → Eleanor → Elisia.
+- Battle presentation should improve incrementally without sacrificing iPhone performance or core stability.
+- Mobile-first touch controls remain protected infrastructure.
+- v0.8 uses a rollback-safe external patch injected only into the Pages artifact; consolidate into core later after validation.
 
 ## STORY_CANON_ADDED_OR_CHANGED
 
 - No previously established canon was contradicted or removed.
-- Leon is now canonically confirmed to be injured during his flight but still able to continue north under his own power.
-- Glenn's unit canonically removes/opens the northern barricade rather than trapping Leon.
-- A written Glenn order explicitly forbids pursuit squads from entering the northern evacuation route.
-- The Third Recon Squad canonically withdraws while leaving Leon's escape corridor open.
-- Luke can now reasonably conclude that the Demon Army had an opportunity to corner Leon but intentionally did not do so.
-- Glenn's precise motive remains unexplained.
-- The first chapter remains unresolved, with Leon's fresh trail continuing north.
+- Leon is now encountered a second time on the northern cliff road.
+- Leon explicitly fears that returning to the capital would endanger people at the inn and his training companions, not only himself.
+- Leon refuses to identify the exact threat because he believes Luke would also become a target.
+- Leon remains frightened, conflicted, and protective; he has not suddenly become fearless or conventionally heroic.
+- Glenn's hidden family relation, Elisia's deeper history, and the Demon-King succession conflict remain unrevealed.
+- The first chapter remains unresolved; Leon continues north after the cliff-road encounter.
