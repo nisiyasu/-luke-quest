@@ -36,6 +36,7 @@ jobs:
           node --check ux-v10.js
           node --check ux-v11.js
           node --check ux-v12.js
+          node --check ux-v13.js
 
       - name: Validate base64 raster transport probe
         run: |
@@ -55,6 +56,9 @@ jobs:
 
       - name: Inject v0.12 character asset transport patch
         run: sed -i 's#</body>#<script src="ux-v12.js"></script></body>#' index.html
+
+      - name: Inject v0.13 map readability patch
+        run: sed -i 's#</body>#<script src="ux-v13.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
