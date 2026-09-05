@@ -85,13 +85,13 @@ for(const [label,needle] of touchContracts)if(!touchController.includes(needle))
 
 const fieldSprite=fs.readFileSync('addons/zzz-luke-field-sprite.js','utf8');
 const fieldDirections=['down','up','left','right'];
+if(!fieldSprite.includes("assets/characters/luke/field-${d}.webp.b64"))throw new Error('Luke field runtime dynamic transport pattern missing');
 for(const dir of fieldDirections){
   const path=`assets/characters/luke/field-${dir}.webp.b64`;
   if(!fs.existsSync(path))throw new Error(`Formal Luke field transport missing: ${dir}`);
   const b64=fs.readFileSync(path,'utf8').trim();
   const bytes=Buffer.from(b64,'base64');
   if(bytes.length<16||bytes.slice(0,4).toString()!=='RIFF'||bytes.slice(8,12).toString()!=='WEBP')throw new Error(`Formal Luke ${dir} field payload is not WebP`);
-  if(!fieldSprite.includes(path))throw new Error(`Luke field runtime does not reference ${dir} transport`);
 }
 const fieldContracts=[
  ['formal field status','LQ_LUKE_FIELD_SPRITE_STATUS'],
