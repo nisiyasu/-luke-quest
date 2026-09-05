@@ -96,7 +96,7 @@ jobs:
             local needle="$1" file="$2" label="$3"
             if ! grep -q "$needle" "$file"; then
               echo "Missing smoke assertion: $label ($needle)"
-              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-facing-cue="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-saved="[^"]*"\|data-storage-count="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -50 || true
+              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-facing-cue="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-entered="[^"]*"\|data-exited="[^"]*"\|data-room="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-saved="[^"]*"\|data-storage-count="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -60 || true
               exit 1
             fi
           }
@@ -136,6 +136,10 @@ jobs:
           assert_dom 'data-facing-cue="true"' /tmp/lq-world-dom.html npc-facing-cue
           assert_dom 'data-interacted="true"' /tmp/lq-world-dom.html npc-interaction
           assert_dom 'data-dialog="旅好きの老人"' /tmp/lq-world-dom.html npc-dialogue
+          assert_dom 'lqRuntimeBuildingSmokeMarker' /tmp/lq-world-dom.html building-marker
+          assert_dom 'data-entered="true"' /tmp/lq-world-dom.html guest-room-entry
+          assert_dom 'data-exited="true"' /tmp/lq-world-dom.html guest-room-exit
+          assert_dom 'data-room="true"' /tmp/lq-world-dom.html guest-room-map
           assert_dom 'lqRuntimeBattleSmokeMarker' /tmp/lq-world-dom.html battle-marker
           assert_dom 'data-battled="true"' /tmp/lq-world-dom.html battle-action
           assert_dom 'data-enemy="訓練用スモーク標的"' /tmp/lq-world-dom.html battle-enemy
@@ -146,7 +150,7 @@ jobs:
             cat /tmp/lq-world-chrome.log
             exit 1
           fi
-          echo "LUKE QUEST headless title + world + movement + facing cue + interaction + battle + save smoke PASS (chrome status $world_status)"
+          echo "LUKE QUEST headless title + world + movement + facing cue + interaction + guest-room transition + battle + save smoke PASS (chrome status $world_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
