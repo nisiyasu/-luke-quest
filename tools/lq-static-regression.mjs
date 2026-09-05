@@ -83,4 +83,27 @@ const touchContracts=[
 ];
 for(const [label,needle] of touchContracts)if(!touchController.includes(needle))throw new Error(`Floating touch controller regression guard missing: ${label}`);
 
-console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch contracts intact`);
+const fieldSprite=fs.readFileSync('addons/zzz-luke-field-sprite.js','utf8');
+const fieldDirections=['down','up','left','right'];
+for(const dir of fieldDirections){
+  const path=`assets/characters/luke/field-${dir}.webp.b64`;
+  if(!fs.existsSync(path))throw new Error(`Formal Luke field transport missing: ${dir}`);
+  const b64=fs.readFileSync(path,'utf8').trim();
+  const bytes=Buffer.from(b64,'base64');
+  if(bytes.length<16||bytes.slice(0,4).toString()!=='RIFF'||bytes.slice(8,12).toString()!=='WEBP')throw new Error(`Formal Luke ${dir} field payload is not WebP`);
+  if(!fieldSprite.includes(path))throw new Error(`Luke field runtime does not reference ${dir} transport`);
+}
+const fieldContracts=[
+ ['formal field status','LQ_LUKE_FIELD_SPRITE_STATUS'],
+ ['formal raster marker',"dataset.lukeSprite='formal-raster'"],
+ ['direction marker','dataset.lukeDirection=dir'],
+ ['frame marker','dataset.lukeFrame=String(frame)'],
+ ['three-frame strip','framesPerDirection:3'],
+ ['four directions','directions:4'],
+ ['movement wrapper','const baseMove=move'],
+ ['central stop wrapper','const baseStop=stopMoving'],
+ ['idle neutral frame','const frame=walking?frameForStep():1']
+];
+for(const [label,needle] of fieldContracts)if(!fieldSprite.includes(needle))throw new Error(`Formal Luke field regression guard missing: ${label}`);
+
+console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field contracts intact`);
