@@ -54,6 +54,7 @@ jobs:
           node --check ux-v28.js
           node --check ux-v29.js
           node --check ux-v30.js
+          node --check ux-v31.js
           node --check sw.js
 
       - name: Validate PWA files
@@ -137,6 +138,9 @@ jobs:
 
       - name: Inject v0.30 iPhone PWA shell
         run: sed -i 's#</body>#<script src="ux-v30.js"></script></body>#' index.html
+
+      - name: Inject v0.31 equipment shop and DEF system
+        run: sed -i 's#</body>#<script src="ux-v31.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
