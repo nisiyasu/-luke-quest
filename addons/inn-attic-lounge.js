@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-/* REQ-010 Checkpoint A/B/C: a real walkable attic lounge reached from the existing inn guest room, plus a dedicated runtime smoke probe. */
+/* REQ-010 Checkpoint A/B/C: a real walkable attic lounge reached from the existing inn guest room, plus an assembled-game runtime smoke probe. */
 MAPS.innAtticLounge={
  name:'南門宿・屋根裏談話室',w:11,h:9,
  tiles:[
@@ -23,7 +23,6 @@ MAPS.innAtticLounge={
  ]
 };
 
-/* Add one unobtrusive door to a free east-side tile of the already-walkable guest room. */
 if(MAPS.innGuestRoom&&!MAPS.innGuestRoom.npcs.some(n=>n.kind==='lqAtticDoor')){
  MAPS.innGuestRoom.npcs.push({x:8,y:4,e:'',name:'屋根裏への扉',kind:'lqAtticDoor',text:'細い階段が上へ続いている。'});
 }
@@ -85,8 +84,8 @@ window.LQ_BUILDING_INTERIORS=Object.assign({},window.LQ_BUILDING_INTERIORS,{innA
 window.LQ_INN_ATTIC_STATUS={checkpoint:'REQ-010-A-B-C',walkable:true,entry:'innGuestRoom',exit:'innGuestRoom',inspectablePoints:4};
 if(s.screen==='world')decorateAttic();
 
-/* Dedicated browser smoke uses the same public action/checkGate transition paths as play, then restores the prior state. */
-if(new URLSearchParams(location.search).has('lqAtticSmoke')){
+/* Run late in the existing assembled ?lqSmoke flow so earlier smoke probes have already captured their markers. */
+if(new URLSearchParams(location.search).has('lqSmoke')){
  setTimeout(()=>{
   const snapshot=structuredClone(s);let entered=false,exited=false,roomDefined=!!MAPS.innAtticLounge;
   try{
@@ -96,6 +95,6 @@ if(new URLSearchParams(location.search).has('lqAtticSmoke')){
   }catch(err){console.error('lqAtticRuntimeSmokeFailure',err);}
   Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
   const marker=document.createElement('i');marker.id='lqAtticRuntimeSmokeMarker';marker.dataset.atticEntered=String(entered);marker.dataset.atticExited=String(exited);marker.dataset.atticRoom=String(roomDefined);marker.hidden=true;document.body.appendChild(marker);
- },250);
+ },4000);
 }
 })();
