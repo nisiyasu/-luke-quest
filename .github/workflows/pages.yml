@@ -44,6 +44,8 @@ jobs:
           node --check sw.js
       - name: Run static regression guard
         run: node tools/lq-static-regression.mjs
+      - name: Run add-on contract guard
+        run: node tools/lq-addon-contract.mjs
       - name: Validate PWA files
         run: |
           node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'));console.log('manifest valid')"
