@@ -79,9 +79,10 @@ function smokeMarker(shell,statusCard,controls){
   let marker=document.getElementById('lqFullscreenWorldRuntimeSmokeMarker');
   if(!marker){marker=document.createElement('i');marker.id='lqFullscreenWorldRuntimeSmokeMarker';marker.hidden=true;document.body.appendChild(marker);}
   const heightRatio=(shell.getBoundingClientRect().height||0)/Math.max(1,innerHeight);
-  const data={worldClass:document.body.classList.contains(WORLD_CLASS),statusOverlay:statusCard&&statusCard.parentElement===shell,controlsOverlay:controls&&controls.parentElement===shell,fullscreenHeight:heightRatio>.8,footHidden:!document.querySelector('.foot')||getComputedStyle(document.querySelector('.foot')).display==='none',controlsAbsolute:controls&&getComputedStyle(controls).position==='absolute',statusAbsolute:statusCard&&getComputedStyle(statusCard).position==='absolute'};
+  const data={worldClass:document.body.classList.contains(WORLD_CLASS),statusOverlay:!!statusCard&&statusCard.parentElement===shell,controlsOverlay:!!controls&&controls.parentElement===shell,fullscreenHeight:heightRatio>.8,footHidden:!document.querySelector('.foot')||getComputedStyle(document.querySelector('.foot')).display==='none',controlsAbsolute:!!controls&&getComputedStyle(controls).position==='absolute',statusAbsolute:!!statusCard&&getComputedStyle(statusCard).position==='absolute'};
   Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(!!v));
   if(Object.values(data).some(v=>!v)&&!document.getElementById('lqFloatingTouchSmokeFailure')){
+    console.error('lqFullscreenSmokeFailure',JSON.stringify(data));
     const f=document.createElement('i');f.id='lqFloatingTouchSmokeFailure';f.dataset.reason='REQ-022 fullscreen structural assertion false';f.hidden=true;document.body.appendChild(f);
   }
 }
@@ -125,5 +126,5 @@ window.addEventListener('orientationchange',scheduleRecenter,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleRecenter,{passive:true});
 applyWorldLayout();
 
-window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,controlsOverlay:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
+window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.1',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,controlsOverlay:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
 })();
