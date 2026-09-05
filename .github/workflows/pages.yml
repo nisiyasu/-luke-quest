@@ -96,7 +96,7 @@ jobs:
             local needle="$1" file="$2" label="$3"
             if ! grep -q "$needle" "$file"; then
               echo "Missing smoke assertion: $label ($needle)"
-              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-facing-cue="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-entered="[^"]*"\|data-exited="[^"]*"\|data-room="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-saved="[^"]*"\|data-storage-count="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -60 || true
+              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-facing-cue="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-entered="[^"]*"\|data-exited="[^"]*"\|data-room="[^"]*"\|data-stock-entered="[^"]*"\|data-stock-exited="[^"]*"\|data-stock-room="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-saved="[^"]*"\|data-storage-count="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -70 || true
               exit 1
             fi
           }
@@ -140,6 +140,9 @@ jobs:
           assert_dom 'data-entered="true"' /tmp/lq-world-dom.html guest-room-entry
           assert_dom 'data-exited="true"' /tmp/lq-world-dom.html guest-room-exit
           assert_dom 'data-room="true"' /tmp/lq-world-dom.html guest-room-map
+          assert_dom 'data-stock-entered="true"' /tmp/lq-world-dom.html stock-room-entry
+          assert_dom 'data-stock-exited="true"' /tmp/lq-world-dom.html stock-room-exit
+          assert_dom 'data-stock-room="true"' /tmp/lq-world-dom.html stock-room-map
           assert_dom 'lqRuntimeBattleSmokeMarker' /tmp/lq-world-dom.html battle-marker
           assert_dom 'data-battled="true"' /tmp/lq-world-dom.html battle-action
           assert_dom 'data-enemy="訓練用スモーク標的"' /tmp/lq-world-dom.html battle-enemy
@@ -150,7 +153,7 @@ jobs:
             cat /tmp/lq-world-chrome.log
             exit 1
           fi
-          echo "LUKE QUEST headless title + world + movement + facing cue + interaction + guest-room transition + battle + save smoke PASS (chrome status $world_status)"
+          echo "LUKE QUEST headless title + world + movement + facing cue + interaction + guest + stock room transitions + battle + save smoke PASS (chrome status $world_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
