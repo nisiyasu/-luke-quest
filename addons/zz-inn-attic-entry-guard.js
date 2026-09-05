@@ -6,7 +6,8 @@ const actionBase=action;
 function atticFrontNpc(){
   if(s.screen!=='world'||s.map!=='innGuestRoom')return null;
   const p=front();
-  return currentNpcs().find(n=>n.x===p.x&&n.y===p.y)||null;
+  /* Use the canonical guest-room NPC array directly. Some presentation/content add-ons wrap currentNpcs() for transient overlays. */
+  return (MAPS.innGuestRoom?.npcs||[]).find(n=>n.x===p.x&&n.y===p.y)||null;
 }
 function enterAtticGuarded(){
   stopMoving();
@@ -24,5 +25,5 @@ action=function(){
   if(!s.dialog&&atticFrontNpc()?.kind==='lqAtticDoor')return enterAtticGuarded();
   return actionBase();
 };
-window.LQ_INN_ATTIC_ENTRY_GUARD={status:'ACTIVE',loadOrder:'late',target:'lqAtticDoor',map:'innGuestRoom'};
+window.LQ_INN_ATTIC_ENTRY_GUARD={status:'ACTIVE',loadOrder:'late',target:'lqAtticDoor',map:'innGuestRoom',lookup:'canonical-map'};
 })();
