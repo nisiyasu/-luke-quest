@@ -1,6 +1,6 @@
 # REQ-003 — Luke Formal Four-Direction Field Sprite
 
-STATUS: READY
+STATUS: VERIFY
 PRIORITY: P0
 TYPE: VISUAL / FIELD / CHARACTER
 OWNER_REQUEST: CONFIRMED
@@ -153,6 +153,22 @@ sprite animationのために独立した制御不能timerを増やさない。
 既存browser testがある場合、最低限direction class/style/sourceの変化とmovement regressionを自動確認する。
 
 画像の主観品質はOwner確認が必要だが、四方向source/coordinates/frame切替は自動検証可能にする。
+
+## IMPLEMENTATION CHECKPOINT — 2026-09-06
+
+- `assets/characters/luke/field-down.webp.b64`
+- `assets/characters/luke/field-up.webp.b64`
+- `assets/characters/luke/field-left.webp.b64`
+- `assets/characters/luke/field-right.webp.b64`
+- 各directionは 144×64 の3-frame horizontal WebP stripとしてrepository transport済み。
+- `addons/zzz-luke-field-sprite.js` が4directionのWebP transportをhydrateし、`s.dir` に従って実プレイヤーDOMへ適用する。
+- 歩行中は step A / neutral / step B 系の3frameを切り替え、停止時はneutral frameへ戻す。
+- 既存 `move()` / `stopMoving()` の中央経路へ接続し、独立した無制限animation timerは追加していない。
+- static regressionは全4 WebP payloadのRIFF/WEBP identity、runtime path、4-direction、3-frame、movement/stop contractを検証する。
+- addon isolation contract PASS。
+- assembled-game browser smoke PASS。
+- GitHub Pages deploy PASS。
+- Ownerによる見た目の主観確認およびiPhone実機表示確認は未実施のため `DONE` ではなく `VERIFY`。
 
 ## COMPLETION CONDITION
 
