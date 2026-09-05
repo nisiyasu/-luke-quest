@@ -2,8 +2,7 @@
 'use strict';
 
 /* LUKE QUEST v0.12 character-asset transport layer.
-   Purpose: prove repository-safe base64 raster transport and provide formal-art slots.
-   This patch does NOT promote or substitute any unapproved character art. */
+   Purpose: prove repository-safe base64 raster transport and integrate only approved formal art. */
 
 const TEST_ASSET={
   path:'assets/characters/transport-test.png.b64',
@@ -12,6 +11,14 @@ const TEST_ASSET={
 };
 
 window.LQ_CHARACTER_ASSETS=window.LQ_CHARACTER_ASSETS||{};
+window.LQ_CHARACTER_ASSETS.luke=window.LQ_CHARACTER_ASSETS.luke||{};
+window.LQ_CHARACTER_ASSETS.luke.dialogue=window.LQ_CHARACTER_ASSETS.luke.dialogue||{};
+window.LQ_CHARACTER_ASSETS.luke.dialogue.neutral={
+  path:'assets/characters/luke/dialogue-neutral.webp.b64',
+  mime:'image/webp',
+  formal:true,
+  source:'owner-approved Luke full-body reference'
+};
 window.LQ_ASSET_TRANSPORT_STATUS={state:'pending',detail:'probe not started'};
 
 const assetCache=new Map();
@@ -114,6 +121,26 @@ async function applyFormalLukeFieldArt(){
 const style=document.createElement('style');
 style.textContent=`
 .player .lukeFormalFieldArt{display:block;width:38px;height:42px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 3px #0008)}
+.dialogPortrait img,.storyPortrait img{object-fit:contain!important;object-position:center bottom!important;background:linear-gradient(180deg,#31577e,#14243b)}
+.dialogBox.portraitMode{grid-template-columns:142px 1fr}
+.dialogBox.portraitMode.portraitRight{grid-template-columns:1fr 142px}
+.dialogPortrait{min-height:196px}
+.storyPortraitCard{padding-left:152px;min-height:220px}
+.storyPortraitCard.storyPortraitRight{padding-left:14px;padding-right:152px}
+.storyPortraitCard .storyPortrait{width:140px}
+@media(max-width:390px){
+ .dialogBox.portraitMode{grid-template-columns:116px 1fr;min-height:180px}
+ .dialogBox.portraitMode.portraitRight{grid-template-columns:1fr 116px}
+ .dialogPortrait{min-height:180px}
+ .storyPortraitCard{padding-left:126px;min-height:196px}
+ .storyPortraitCard.storyPortraitRight{padding-left:14px;padding-right:126px}
+ .storyPortraitCard .storyPortrait{width:114px}
+}
+@media(max-height:700px){
+ .dialogBox.portraitMode{grid-template-columns:96px 1fr;min-height:150px}
+ .dialogBox.portraitMode.portraitRight{grid-template-columns:1fr 96px}
+ .dialogPortrait{min-height:150px}
+}
 `;
 document.head.appendChild(style);
 
@@ -135,5 +162,9 @@ window.LQ_applyFormalLukeFieldArt=applyFormalLukeFieldArt;
 window.LQ_CHARACTER_ASSET_CONTRACT_VERSION='1.0';
 
 void runTransportProbe();
+void hydrateFormalDialogueAsset('luke','neutral').then(ok=>{
+  window.LQ_LUKE_FORMAL_DIALOGUE_STATUS=ok?'integrated':'failed';
+  if(ok&&typeof render==='function')render();
+});
 
 })();
