@@ -128,4 +128,25 @@ const mpContracts=[
 for(const [label,needle] of mpContracts)if(!mpSkill.includes(needle))throw new Error(`REQ-016 MP/skill regression guard missing: ${label}`);
 for(const needle of ['function attack()','function guard()','function potion()','function runAway()'])if(!core.includes(needle))throw new Error(`REQ-016 existing battle command lost: ${needle}`);
 
-console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill contracts intact`);
+const enemyDrop=fs.readFileSync('addons/enemy-drop-system.js','utf8');
+const expectedDropEnemies=['ぷるぷるスライム','ツノウサギ','闇カラス','苔むしコウモリ','森グモ','木霊ウルフ','霧まといキツネ','樹皮トカゲ','夜歩きフクロウ','霧喰いヤマネコ','灰羽トンビ','泥鎧イノシシ','灰爪ハウンド','監視フクロウ','黒甲ムカデ','崖ネズミ','石羽コンドル','退避路オオカミ'];
+for(const name of expectedDropEnemies)if(!enemyDrop.includes(`'${name}'`))throw new Error(`REQ-017 drop registry missing enemy: ${name}`);
+const dropNames=[...enemyDrop.matchAll(/^ '([^']+)':\{type:/gm)].map(m=>m[1]);
+if(dropNames.length!==18||new Set(dropNames).size!==18)throw new Error(`REQ-017 expected 18 unique enemy drop entries, got ${dropNames.length}`);
+const dropContracts=[
+ ['base win delegation','const winDropBase=win'],
+ ['base win execution','const result=winDropBase()'],
+ ['unknown enemy fallback','if(!drop)return null'],
+ ['bounded herb grant',"s.potions=(Number(s.potions)||0)+1"],
+ ['bounded smoke grant',"s.smokeBombs=(Number(s.smokeBombs)||0)+1"],
+ ['save after drop','save();'],
+ ['loot dialogue','戦利品：${drop.label} ×1'],
+ ['runtime status','LQ_ENEMY_DROP_STATUS'],
+ ['one unit cap','maxUnitsPerVictory:1'],
+ ['no gold mutation marker','mutatesGold:false']
+];
+for(const [label,needle] of dropContracts)if(!enemyDrop.includes(needle))throw new Error(`REQ-017 drop regression guard missing: ${label}`);
+if(/s\.gold\s*[+\-*/]?=/.test(enemyDrop))throw new Error('REQ-017 must not mutate Gold');
+if(/s\.(?!potions\b|smokeBombs\b|enemy\b|dialog\b|screen\b)[A-Za-z_$][\w$]*\s*=/.test(enemyDrop))throw new Error('REQ-017 introduced an unexpected state authority');
+
+console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill + REQ-017 enemy-drop contracts intact`);
