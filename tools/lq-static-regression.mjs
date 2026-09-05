@@ -106,4 +106,26 @@ const fieldContracts=[
 ];
 for(const [label,needle] of fieldContracts)if(!fieldSprite.includes(needle))throw new Error(`Formal Luke field regression guard missing: ${label}`);
 
-console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field contracts intact`);
+const mpSkill=fs.readFileSync('addons/mp-skill-system.js','utf8');
+const mpContracts=[
+ ['MP default current','DEFAULT.mp=INITIAL_MP'],
+ ['MP default max','DEFAULT.mmp=INITIAL_MP'],
+ ['old-save migration','if(!Number.isFinite(s.mp))s.mp=s.mmp'],
+ ['MP clamping','Math.max(0,Math.min(s.mmp,Math.floor(s.mp)))'],
+ ['MP status UI','lqMpValue'],
+ ['skill UI','lqSkillBtn'],
+ ['skill name',"SKILL_NAME='蒼閃'"],
+ ['skill cost',"SKILL_COST=4"],
+ ['insufficient MP gate','if(s.mp<SKILL_COST)'],
+ ['insufficient MP no enemy turn','return battle()'],
+ ['canonical enemy HP','s.ehp=Math.max(0,s.ehp-d)'],
+ ['victory delegation','if(s.ehp<=0)return win()'],
+ ['enemy turn delegation','return enemyTurn()'],
+ ['level-up MP growth','s.mmp+=2;s.mp=s.mmp'],
+ ['defeat MP recovery','s.mp=s.mmp;save();render()'],
+ ['runtime status','LQ_MP_SKILL_STATUS']
+];
+for(const [label,needle] of mpContracts)if(!mpSkill.includes(needle))throw new Error(`REQ-016 MP/skill regression guard missing: ${label}`);
+for(const needle of ['function attack()','function guard()','function potion()','function runAway()'])if(!core.includes(needle))throw new Error(`REQ-016 existing battle command lost: ${needle}`);
+
+console.log(`LUKE QUEST static regression PASS: ${files.length} ordered patches v${versions[0]}..v${versions.at(-1)}; core movement/save/battle + formal Luke dialogue + floating touch + formal 4-direction/3-frame Luke field + REQ-016 MP/skill contracts intact`);
