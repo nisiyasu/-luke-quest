@@ -56,6 +56,7 @@ jobs:
           node --check ux-v30.js
           node --check ux-v31.js
           node --check ux-v32.js
+          node --check ux-v33.js
           node --check sw.js
 
       - name: Validate PWA files
@@ -73,78 +74,56 @@ jobs:
 
       - name: Inject v0.8 UX/world patch
         run: sed -i 's#</body>#<script src="ux-v08.js"></script></body>#' index.html
-
       - name: Inject v0.9 portrait dialogue patch
         run: sed -i 's#</body>#<script src="ux-v09.js"></script></body>#' index.html
-
       - name: Inject v0.10 battle presentation patch
         run: sed -i 's#</body>#<script src="ux-v10.js"></script></body>#' index.html
-
       - name: Inject v0.11 direction and victory-variety patch
         run: sed -i 's#</body>#<script src="ux-v11.js"></script></body>#' index.html
-
       - name: Inject v0.12 character asset transport patch
         run: sed -i 's#</body>#<script src="ux-v12.js"></script></body>#' index.html
-
       - name: Inject v0.13 map readability patch
         run: sed -i 's#</body>#<script src="ux-v13.js"></script></body>#' index.html
-
       - name: Inject v0.14 town services patch
         run: sed -i 's#</body>#<script src="ux-v14.js"></script></body>#' index.html
-
       - name: Inject v0.15 treasure chest patch
         run: sed -i 's#</body>#<script src="ux-v15.js"></script></body>#' index.html
-
       - name: Inject v0.16 inn interior patch
         run: sed -i 's#</body>#<script src="ux-v16.js"></script></body>#' index.html
-
       - name: Inject v0.17 item shop interior patch
         run: sed -i 's#</body>#<script src="ux-v17.js"></script></body>#' index.html
-
       - name: Inject v0.18 Royal Capital visual density patch
         run: sed -i 's#</body>#<script src="ux-v18.js"></script></body>#' index.html
-
       - name: Inject v0.19 field visual density patch
         run: sed -i 's#</body>#<script src="ux-v19.js"></script></body>#' index.html
-
       - name: Inject v0.20 forest atmosphere patch
         run: sed -i 's#</body>#<script src="ux-v20.js"></script></body>#' index.html
-
       - name: Inject v0.21 battle depth and impact patch
         run: sed -i 's#</body>#<script src="ux-v21.js"></script></body>#' index.html
-
       - name: Inject v0.22 treasure visual patch
         run: sed -i 's#</body>#<script src="ux-v22.js"></script></body>#' index.html
-
       - name: Inject v0.23 temple lobby patch
         run: sed -i 's#</body>#<script src="ux-v23.js"></script></body>#' index.html
-
       - name: Inject v0.24 contextual guidance patch
         run: sed -i 's#</body>#<script src="ux-v24.js"></script></body>#' index.html
-
       - name: Inject v0.25 original early-enemy vector art
         run: sed -i 's#</body>#<script src="ux-v25.js"></script></body>#' index.html
-
       - name: Inject v0.26 original forest-enemy vector art
         run: sed -i 's#</body>#<script src="ux-v26.js"></script></body>#' index.html
-
       - name: Inject v0.27 original deep-forest enemy vector art
         run: sed -i 's#</body>#<script src="ux-v27.js"></script></body>#' index.html
-
       - name: Inject v0.28 title and intro presentation
         run: sed -i 's#</body>#<script src="ux-v28.js"></script></body>#' index.html
-
       - name: Inject v0.29 map arrival polish
         run: sed -i 's#</body>#<script src="ux-v29.js"></script></body>#' index.html
-
       - name: Inject v0.30 iPhone PWA shell
         run: sed -i 's#</body>#<script src="ux-v30.js"></script></body>#' index.html
-
       - name: Inject v0.31 equipment shop and DEF system
         run: sed -i 's#</body>#<script src="ux-v31.js"></script></body>#' index.html
-
       - name: Inject v0.32 full JRPG adventure menu
         run: sed -i 's#</body>#<script src="ux-v32.js"></script></body>#' index.html
+      - name: Inject v0.33 original mist-trail enemy vector art
+        run: sed -i 's#</body>#<script src="ux-v33.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
