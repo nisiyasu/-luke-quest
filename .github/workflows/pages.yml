@@ -43,6 +43,7 @@ jobs:
           node --check ux-v17.js
           node --check ux-v18.js
           node --check ux-v19.js
+          node --check ux-v20.js
 
       - name: Validate base64 raster transport probe
         run: |
@@ -87,6 +88,9 @@ jobs:
 
       - name: Inject v0.19 field visual density patch
         run: sed -i 's#</body>#<script src="ux-v19.js"></script></body>#' index.html
+
+      - name: Inject v0.20 forest atmosphere patch
+        run: sed -i 's#</body>#<script src="ux-v20.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
