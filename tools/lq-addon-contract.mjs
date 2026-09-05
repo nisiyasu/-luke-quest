@@ -45,4 +45,17 @@ if(fs.existsSync(backdropPath)){
  const sceneCount=(text.match(/^(?:field|forest|deepForest|mistTrail|observation|evacRoute):\{/gm)||[]).length;
  if(sceneCount!==6)throw new Error(`original-battle-backgrounds.js: expected 6 regional scenes, got ${sceneCount}`);
 }
+
+const journalPath=`${dir}/adventure-journal.js`;
+if(fs.existsSync(journalPath)){
+ const text=fs.readFileSync(journalPath,'utf8');
+ for(const needle of ['lqAdventureJournalSection','LQ_ADVENTURE_JOURNAL_STATUS','MAIN OBJECTIVE','DISCOVERED CLUES','SIDE QUESTS'])if(!text.includes(needle))throw new Error(`adventure-journal.js: missing UI/runtime contract ${needle}`);
+ for(const flag of ['withdrawProofSeen','evacEntered','glennSeen','observationEntered','glennTraceSeen','mistEntered','leonSeen'])if(!text.includes(flag))throw new Error(`adventure-journal.js: main story progression missing ${flag}`);
+ if(!text.includes('s.wins'))throw new Error('adventure-journal.js: early main objective win gate missing');
+ for(const flag of ['leonInjurySeen','escapeProofSeen','elderCharmQuest','elderCharmFound','elderCharmComplete','forestBountyAccepted','forestBountyKills','forestBountyComplete','lqHerbSampleQuestAsked','forestClearingHerbHarvested','lqHerbSampleQuestDone'])if(!text.includes(flag))throw new Error(`adventure-journal.js: journal state missing ${flag}`);
+ if(!text.includes("panel.querySelector('.lqAdventureJournalSection')"))throw new Error('adventure-journal.js: duplicate section guard missing');
+ if(!text.includes("if(!s.pauseOpen||s.screen!=='world')return"))throw new Error('adventure-journal.js: pause/world visibility guard missing');
+ const protectedSpoilers=['叔父','人身売買','軟禁','次期魔王','ルークの父'];
+ for(const phrase of protectedSpoilers)if(text.includes(phrase))throw new Error(`adventure-journal.js: protected spoiler leaked (${phrase})`);
+}
 console.log(`LUKE QUEST addon contract PASS: ${addons.length} isolated add-ons after ${ux.length} sequential patches`);
