@@ -1,6 +1,6 @@
 # REQ-011 — Adventure Journal / Objective Tracking
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: UX / STORY NAVIGATION / IPHONE
 SOURCE: Owner-authorized continuous development under AUTONOMOUS_DEV_DIRECTIVE.md
@@ -119,6 +119,21 @@ LUKE QUESTの現在のメイン目的、既に判明した手掛かり、進行�
 - floating touch smoke PASS
 - GitHub Pages deployment SUCCESS
 - Owner物理iPhone確認が未実施の場合、実装完了後は VERIFY とする
+
+## IMPLEMENTATION / VERIFICATION RECORD
+
+- `addons/adventure-journal.js` implemented as an isolated collision-safe add-on.
+- MAIN OBJECTIVE mirrors the existing canonical progression flags and early win gate.
+- DISCOVERED CLUES renders only facts whose corresponding discovery flags are already true.
+- SIDE QUESTS tracks Elder Charm, Forest Bounty and Forest Herb Sample, including completion states.
+- Duplicate insertion is guarded and the section is added only inside the world pause menu.
+- `window.LQ_ADVENTURE_JOURNAL_STATUS` exposes main-objective, clue, side-quest, spoiler-safe and menu-integration status.
+- `tools/lq-addon-contract.mjs` now guards story-state coverage, side-quest-state coverage, duplicate protection, pause/world visibility and protected-spoiler phrases.
+- Implementation checkpoint: `f40ff5699f60b7f3432be844db0fb7f4c27b6ece`.
+- Contract checkpoint: `5c860ab5772b899402dea50d0894b3ae83d8d024`.
+- GitHub Pages workflow run `33984155835`: SUCCESS.
+- Successful run passed sequential patch syntax, collision-safe add-on syntax, static regression, add-on contract, PWA checks, approved Luke asset validation, assembled browser smoke, floating-touch pointer-drag smoke, artifact upload and Pages deployment.
+- Owner physical iPhone readability / subjective UX confirmation remains PENDING, therefore status is VERIFY rather than DONE.
 
 ## DO NOT REPEAT
 
