@@ -2,7 +2,7 @@
 
 - ID: REQ-015
 - PRIORITY: P1
-- STATUS: IN_PROGRESS
+- STATUS: VERIFY
 - TITLE: 宝箱探索を実アイテム報酬へ拡張
 
 ## PURPOSE
@@ -19,31 +19,36 @@
 - 煙玉 = `s.smokeBombs`
 - Gold = `s.gold`
 
-## IMPLEMENTATION RULES
-- `addons/item-treasure-caches.js` の独立IIFEで実装する。
-- 既存 `addons/treasure-chests.js` と既存3宝箱、そのsave flags、報酬を変更しない。
+## IMPLEMENTATION
+- `addons/item-treasure-caches.js` の独立IIFEで実装。
+- 既存 `addons/treasure-chests.js` と既存3宝箱、そのsave flags、報酬は未変更。
 - 各cacheは独自persistent flagを持ち、取得はexactly-once。
 - 正面隣接 `front()` + `action()` で取得。
 - 未取得cacheはworld上に小型補給箱として描画し、取得後は開いた/空の状態を残す。
-- cache tileはcollision対象にする。
+- cache tileはcollision対象。
 - DOMは `pointer-events:none` でDynamic Touch Controllerを奪わない。
-- reward適用後に `save()` する。
-- 既存shop/戦闘が参照する `s.potions` / `s.smokeBombs` を使い、別inventory authorityを作らない。
-- protected story canonは扱わない。
+- reward適用後に `save()`。
+- 既存shop/戦闘が参照する `s.potions` / `s.smokeBombs` を使用し、別inventory authorityは作成していない。
+- `window.LQ_ITEM_TREASURE_CACHE_STATUS` でruntime状態を公開。
 
 ## COMPLETION CONDITIONS
-- [ ] 3地域にunique cacheを追加。
-- [ ] 薬草×2、煙玉×1、45Gの3種類報酬。
-- [ ] 3 unique persistent flags。
-- [ ] exactly-once reward。
-- [ ] opened-state visual persists。
-- [ ] collision。
-- [ ] touch passthrough。
-- [ ] `save()` persistence。
-- [ ] runtime status marker。
-- [ ] generic add-on syntax/static/browser/touch regression PASS。
-- [ ] Pages deploy PASS。
+- [x] 3地域にunique cacheを追加。
+- [x] 薬草×2、煙玉×1、45Gの3種類報酬。
+- [x] 3 unique persistent flags。
+- [x] exactly-once reward。
+- [x] opened-state visual persists。
+- [x] collision。
+- [x] touch passthrough。
+- [x] `save()` persistence。
+- [x] runtime status marker。
+- [x] generic add-on syntax/static/browser/touch regression PASS。
+- [x] Pages deploy PASS。
 - [ ] Owner subjective iPhone verification。未主張。
+
+## AUTOMATED VERIFICATION
+Implementation checkpoint: `6788d4e6c43113c7b863d154759acd76c382ac58`.
+Pages workflow run `33990010600`: SUCCESS.
+Passed sequential patch syntax, collision-safe add-on syntax, static regression, add-on contract, PWA/asset validation, assembled browser smoke, floating-touch pointer-drag smoke, upload and GitHub Pages deployment.
 
 ## DO NOT
 - 既存REQ-012の3宝箱を削除・移動・報酬変更しない。
