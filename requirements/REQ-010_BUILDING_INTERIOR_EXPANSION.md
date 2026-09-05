@@ -1,6 +1,6 @@
 # REQ-010 — 建物内部と町コンテンツの追加拡張
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P2
 TYPE: WORLD / INTERIOR / CONTENT / UX
 OWNER_REQUEST: CONFIRMED
@@ -82,6 +82,73 @@ Checkpoint A: 南門宿の追加歩行室内を1つ実装
 Checkpoint B: 室内小物・調べるポイント・視覚密度を仕上げる
 Checkpoint C: browser smokeへ新室内のentry/exit/runtime assertionを追加
 Checkpoint D: Pages回帰、requirement/queue/CURRENT同期
+
+## IMPLEMENTED CHECKPOINTS
+
+### Checkpoint A — COMPLETE
+Files:
+- `addons/inn-attic-lounge.js`
+- `addons/zz-inn-attic-entry-guard.js`
+
+新規の独立歩行MAP `MAPS.innAtticLounge`（表示名: `南門宿・屋根裏談話室`）を実装した。
+既存 `innGuestRoom` の東側から扉を調べて入室し、屋根裏南側の出口から `innGuestRoom` へ戻る。
+entry/exit双方で既存 `stopMoving()` 安全契約を維持する。
+
+### Checkpoint B — COMPLETE
+屋根裏談話室に以下を統合した。
+
+- 木床 / 壁 / 出口の専用visual
+- 大きな青系ラグ
+- 本棚
+- 窓
+- 暖炉
+- 中央テーブル
+- 4つの調査ポイント
+  - 旅人の本棚
+  - 古い街道地図
+  - 旅人の置き手紙
+  - 暖炉脇の椅子
+- ルークの軽いコメントと旅人の生活感
+
+重大なstory canonは追加していない。
+
+### Checkpoint C — COMPLETE
+`.github/workflows/pages.yml` のassembled-game browser smokeへ、新屋根裏の実entry/exit assertionを追加した。
+
+追加検証:
+- `lqAtticRuntimeSmokeMarker`
+- `data-attic-entered="true"`
+- `data-attic-exited="true"`
+- `data-attic-room="true"`
+
+最初の実動試験で入口だけfalseを検出した。原因はadd-onのalphabetical load orderで、`inn-attic-lounge.js` が `inn-guest-room.js` より先に実行され、客室MAP生成前に扉登録を試みていたことだった。
+
+これを `zz-inn-attic-entry-guard.js` で、guest-room生成後に扉登録と最終action guardを行う構造へ修正した。
+
+### Checkpoint D — AUTOMATED PASS / OWNER VISUAL VERIFY REMAINS
+Implementation hardening commit:
+`180d71a1b5f8e8c4f5a656838ec8abfb93d16e36`
+
+GitHub Pages workflow run:
+`33981620155`
+
+結果: `SUCCESS`
+
+以下を全て通過した。
+- sequential patch syntax validation
+- 68 collision-safe add-on syntax validation
+- static regression guard
+- add-on contract guard
+- PWA / approved Luke raster transport validation
+- assembled game browser smoke
+- existing six optional/interior transitions
+- 新規 attic entry/exit/runtime assertion
+- battle smoke
+- save smoke
+- site upload
+- GitHub Pages deploy
+
+Owner physical iPhone / subjective room appearance confirmationは未実施なので、`DONE`ではなく`VERIFY`とする。
 
 ## REGRESSION REQUIREMENTS
 TEST 1: 既存の `innInterior` → `innGuestRoom` が維持される。
