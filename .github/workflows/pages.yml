@@ -41,6 +41,7 @@ jobs:
           node --check ux-v15.js
           node --check ux-v16.js
           node --check ux-v17.js
+          node --check ux-v18.js
 
       - name: Validate base64 raster transport probe
         run: |
@@ -79,6 +80,9 @@ jobs:
 
       - name: Inject v0.17 item shop interior patch
         run: sed -i 's#</body>#<script src="ux-v17.js"></script></body>#' index.html
+
+      - name: Inject v0.18 Royal Capital visual density patch
+        run: sed -i 's#</body>#<script src="ux-v18.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
