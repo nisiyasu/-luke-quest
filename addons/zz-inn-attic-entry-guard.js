@@ -1,12 +1,15 @@
 (() => {
 'use strict';
 
-/* REQ-010 hardening: load last alphabetically so later add-on action wrappers cannot swallow the attic door interaction. */
+/* REQ-010 hardening: load last alphabetically so the guest-room map and all action wrappers already exist. */
+if(MAPS.innGuestRoom&&!MAPS.innGuestRoom.npcs.some(n=>n.kind==='lqAtticDoor')){
+  MAPS.innGuestRoom.npcs.push({x:8,y:4,e:'',name:'屋根裏への扉',kind:'lqAtticDoor',text:'細い階段が上へ続いている。'});
+}
+
 const actionBase=action;
 function atticFrontNpc(){
   if(s.screen!=='world'||s.map!=='innGuestRoom')return null;
   const p=front();
-  /* Use the canonical guest-room NPC array directly. Some presentation/content add-ons wrap currentNpcs() for transient overlays. */
   return (MAPS.innGuestRoom?.npcs||[]).find(n=>n.x===p.x&&n.y===p.y)||null;
 }
 function enterAtticGuarded(){
@@ -25,5 +28,5 @@ action=function(){
   if(!s.dialog&&atticFrontNpc()?.kind==='lqAtticDoor')return enterAtticGuarded();
   return actionBase();
 };
-window.LQ_INN_ATTIC_ENTRY_GUARD={status:'ACTIVE',loadOrder:'late',target:'lqAtticDoor',map:'innGuestRoom',lookup:'canonical-map'};
+window.LQ_INN_ATTIC_ENTRY_GUARD={status:'ACTIVE',loadOrder:'late',target:'lqAtticDoor',map:'innGuestRoom',lookup:'canonical-map',doorRegistered:!!MAPS.innGuestRoom?.npcs?.some(n=>n.kind==='lqAtticDoor')};
 })();
