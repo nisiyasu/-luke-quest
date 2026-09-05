@@ -2,12 +2,12 @@
 'use strict';
 
 /* LUKE QUEST unified floating touch controller + tap-anywhere action.
-   Touch/pen anywhere in the world game viewport to summon a translucent
-   four-way pad at the contact point. A short stationary tap invokes the final
-   canonical action() exactly once. Sliding beyond the dead zone enters movement
-   mode and can never fire Action on release. Release/cancel/blur/hidden always
-   stops movement. Mouse is intentionally excluded so desktop click interaction
-   is unchanged. */
+   Touch/pen anywhere in the world game viewport. A short stationary tap invokes
+   the final canonical action() exactly once. Outside dialogue, sliding beyond
+   the dead zone summons/uses the translucent four-way controller and enters
+   movement mode. Dialogue taps remain valid Action taps, but movement can never
+   start while dialogue is already active. Release/cancel/blur/hidden always
+   stops movement. Mouse is intentionally excluded so desktop clicks are unchanged. */
 
 const STYLE_ID='lq-floating-touch-controller-style';
 const PAD_ID='lq-floating-touch-controller';
@@ -24,6 +24,7 @@ let pointerStartedAt=0;
 let pointerStartMap=null;
 let pointerStartScreen=null;
 let pointerStartTarget=null;
+let movementAllowedAtStart=false;
 let lastRenderedMap=(typeof s!=='undefined'&&s)?s.map:null;
 
 function injectStyle(){
@@ -85,6 +86,7 @@ function resetGesture(){
   pointerStartMap=null;
   pointerStartScreen=null;
   pointerStartTarget=null;
+  movementAllowedAtStart=false;
   setVisual(null);
   if(pad)pad.classList.remove('visible');
 }
@@ -96,7 +98,7 @@ function stop(){
 }
 
 function beginDirection(dir){
-  if(!dir||dir===activeDir)return;
+  if(!movementAllowedAtStart||!dir||dir===activeDir)return;
   clearFallback();
   if(typeof stopMoving==='function')stopMoving();
   activeDir=dir;
@@ -116,6 +118,15 @@ function directionFromDelta(dx,dy){
   return dy<0?'up':'down';
 }
 
+function positionPad(){
+  const p=ensurePad();
+  const half=75,margin=8;
+  const x=Math.max(half+margin,Math.min(innerWidth-half-margin,originX));
+  const y=Math.max(half+margin,Math.min(innerHeight-half-margin,originY));
+  p.style.left=x+'px';p.style.top=y+'px';
+  return p;
+}
+
 function onPointerDown(event){
   if(event.pointerType==='mouse'||pointerId!==null||!allowedTarget(event.target))return;
   pointerId=event.pointerId;
@@ -124,12 +135,12 @@ function onPointerDown(event){
   pointerStartMap=s.map;
   pointerStartScreen=s.screen;
   pointerStartTarget=event.target;
+  movementAllowedAtStart=!s.dialog;
   gestureMoved=false;
-  const p=ensurePad();
-  const half=75,margin=8;
-  const x=Math.max(half+margin,Math.min(innerWidth-half-margin,originX));
-  const y=Math.max(half+margin,Math.min(innerHeight-half-margin,originY));
-  p.style.left=x+'px';p.style.top=y+'px';p.classList.add('visible');
+  const p=positionPad();
+  // A dialogue already on screen accepts tap-anywhere Action, but must never
+  // expose or activate a movement controller behind the dialogue.
+  p.classList.toggle('visible',movementAllowedAtStart);
   setVisual(null);
   event.preventDefault();
 }
@@ -140,6 +151,7 @@ function onPointerMove(event){
   const dx=event.clientX-originX,dy=event.clientY-originY;
   const distance=Math.hypot(dx,dy);
   if(distance>=DEAD_ZONE)gestureMoved=true;
+  if(!movementAllowedAtStart)return;
   const dir=directionFromDelta(dx,dy);
   if(!dir){
     if(activeDir&&distance<SWITCH_ZONE){clearFallback();if(typeof stopMoving==='function')stopMoving();activeDir=null;setVisual(null);}
@@ -201,5 +213,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.3',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,explicitControlExclusion:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.4',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
