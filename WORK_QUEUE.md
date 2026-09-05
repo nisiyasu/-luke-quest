@@ -17,8 +17,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 5 | REQ-005 | P1 | BACKLOG | グレン正式全身会話立ち絵 | TBD | ルーク/レオンとの世界観統一 |
 | 6 | REQ-006 | P1 | BACKLOG | 敵絵文字を完全オリジナル敵画像へ置換 | TBD | 地域別3〜5種＋将来ボス専用画像 |
 | 7 | REQ-007 | P1 | BACKLOG | 地域別戦闘背景画像の正式化 | TBD | CSS背景を最終品質扱いしない |
-| 8 | REQ-008 | P1 | IN_PROGRESS | 王都アルディアをPS1初期級の視覚密度へ強化 | `requirements/REQ-008_ALDIA_VISUAL_DENSITY.md` | 詳細REQ化して着手。既存collision/導線を維持しpresentation layerから段階強化 |
-| 9 | REQ-009 | P2 | BACKLOG | フィールド/森をPS1初期級の視覚密度へ強化 | TBD | 街道・草地・森・痕跡・環境密度 |
+| 8 | REQ-008 | P1 | VERIFY | 王都アルディアをPS1初期級の視覚密度へ強化 | `requirements/REQ-008_ALDIA_VISUAL_DENSITY.md` | Checkpoint A-C実装、最新CのPages workflow run 33980792050 SUCCESS。Owner主観/iPhone見た目確認待ち |
+| 9 | REQ-009 | P2 | IN_PROGRESS | フィールド/森をPS1初期級の視覚密度へ強化 | `requirements/REQ-009_FIELD_FOREST_VISUAL_DENSITY.md` | 既存地域add-onを基礎として重複を避け、王都近郊→森入口→深部の視覚階層を段階強化 |
 | 10 | REQ-010 | P2 | BACKLOG | 建物内部と町コンテンツの追加拡張 | TBD | 宿屋/店/神殿に続く内部・NPC・イベント |
 
 ## STATUS DEFINITIONS
