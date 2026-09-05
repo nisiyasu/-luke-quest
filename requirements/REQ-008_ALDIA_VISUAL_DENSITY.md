@@ -1,6 +1,6 @@
 # REQ-008 — 王都アルディア PS1初期級 視覚密度強化
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / VISUAL / UX
 OWNER_REQUEST: CONFIRMED
@@ -88,6 +88,54 @@ Checkpoint C: 光・影・foreground polish
 Checkpoint D: browser/Pages回帰と管理同期
 
 各checkpointは単独で公開可能な壊れていない状態にする。
+
+## IMPLEMENTED CHECKPOINTS
+
+### Checkpoint A — COMPLETE
+Commit: `ea5d6e0d7a9b021a9edbd3f7050d72f8511849f0`
+File: `addons/aldia-visual-density.js`
+
+Integrated without collision changes:
+- south-to-temple main boulevard
+- civic cross-route and central plaza
+- richer town-specific ground/wall/roof/floor/gate treatment
+- two layered building facades with windows and doors
+- royal-blue/gold banners
+- warm street lamps
+- flower planters
+- wall-edge depth shading
+
+### Checkpoint B — COMPLETE
+Commit: `ca83ee2cfdc8e81f524f671840bab6fcdfcd8157`
+File: `addons/aldia-landmarks.js`
+
+Integrated without collision changes:
+- readable temple front over the existing temple precinct
+- blue/gold temple crest
+- civic fountain
+- two striped market awnings
+- benches
+- crates
+- barrels
+- wall pennants and ground shadowing
+
+### Checkpoint C — COMPLETE
+Commit: `2de6067df868341631dcc2b759424a7621055521`
+File: `addons/aldia-lighting-polish.js`
+
+Integrated without collision changes:
+- building contact shadows
+- stone curb depth around main route
+- subtle lamp-route glow
+- foreground foliage framing away from central traversal
+- town atmosphere/light layer
+
+### Checkpoint D — AUTOMATED PASS / OWNER VISUAL VERIFY REMAINS
+GitHub Pages workflow run `33980792050` completed with `success` for checkpoint C on commit `2de6067df868341631dcc2b759424a7621055521`.
+
+That workflow fresh-validated sequential patches, every collision-safe add-on with `node --check`, static regression, add-on contract, PWA files, approved Luke raster transport, assembled-game browser smoke, upload and Pages deployment.
+
+Owner physical iPhone / subjective final-art-quality confirmation is not claimed. That is why this requirement is `VERIFY`, not `DONE`.
 
 ## COMPLETION CONDITION
 - 王都が平坦な基礎タイルだけに見えない。
