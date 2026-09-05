@@ -1,4 +1,4 @@
-(()=>{
+(() => {
 'use strict';
 const DIRS=['down','up','left','right'];
 const PATHS=Object.fromEntries(DIRS.map(d=>[d,`assets/characters/luke/field-${d}.webp.b64`]));
