@@ -16,7 +16,12 @@ try{
  const interacted=!!s.dialog&&s.dialog.name==='旅好きの老人'&&!!app.querySelector('.dialogBox');
  const shell=app.querySelector('.gameShell'),player=app.querySelector('.player');
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeMarker';marker.dataset.screen=s.screen;marker.dataset.map=s.map;marker.dataset.shell=String(!!shell);marker.dataset.player=String(!!player);marker.dataset.moved=String(moved);marker.dataset.interacted=String(interacted);marker.dataset.dialog=String(s.dialog?.name||'');marker.dataset.x=String(s.x);marker.dataset.y=String(s.y);marker.style.display='none';document.body.appendChild(marker);
- window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,worldRendered:!!shell,playerRendered:!!player,movement:moved,interaction:interacted,dialog:s.dialog?.name||'',map:s.map,x:s.x,y:s.y};
+
+ s.dialog=null;s.hp=99;s.mh=99;s.enemy={n:'訓練用スモーク標的',e:'',hp:999,a:[1,1],xp:0,g:0};s.ehp=999;s.log=['CI battle smoke'];s.screen='battle';s.lqFocusSlashUsed=false;s.lqBattleMeta={turns:0,herbUsed:false};
+ battle();const beforeEnemyHp=s.ehp;attack();
+ const battled=s.screen==='battle'&&s.ehp<beforeEnemyHp&&!!app.querySelector('.enemyName');
+ const battleMarker=document.createElement('div');battleMarker.id='lqRuntimeBattleSmokeMarker';battleMarker.dataset.battled=String(battled);battleMarker.dataset.enemy=String(s.enemy?.n||'');battleMarker.dataset.enemyHp=String(s.ehp);battleMarker.dataset.playerHp=String(s.hp);battleMarker.style.display='none';document.body.appendChild(battleMarker);
+ window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,worldRendered:!!shell,playerRendered:!!player,movement:moved,interaction:interacted,battleAction:battled,map:'town'};
 }catch(err){
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeFailure';marker.textContent=String(err&&err.stack||err);document.body.appendChild(marker);throw err;
 }
