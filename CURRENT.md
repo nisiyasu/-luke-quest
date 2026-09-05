@@ -1,20 +1,20 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 02:54 JST
+- UPDATED_AT: 2026-09-06 03:30 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- FRESH_HEAD_AT_AUTOSAVE_START: `48cdb9fecd9844da5ccf9c74bd7de051da0f8257`
-- LATEST_IMPLEMENTATION_CHECKPOINT: `376c6e051baf46900d954325f11968a34da48fb4`
-- LATEST_QUEUE_CHECKPOINT_BEFORE_THIS_AUTOSAVE: `0235bd32b770a387319fc2060bebcab9aa169758`
+- FRESH_HEAD_AT_AUTOSAVE_START: `fd7dac8d2ef511805041e6fa503289d41cf4e7eb`
+- LATEST_IMPLEMENTATION_CHECKPOINT: `5c860ab5772b899402dea50d0894b3ae83d8d024`
+- LATEST_QUEUE_CHECKPOINT_BEFORE_THIS_AUTOSAVE: `453826d3150a0ddaee4fa1761688da22de11cd3e`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - CURRENT_PHASE: Phase 2 WORLD + Phase 3 BATTLE + Phase 4 CONTENT + Phase 5 VISUAL QUALITY + Phase 6 POLISH
-- CURRENT_BUILD_STATUS: PLAYABLE. Queue-controlled autonomous development is active. Fresh implementation now includes formal Luke dialogue art, floating touch controller, 4-direction × 3-frame Luke field sprites, Aldia/field/forest visual-density upgrades, expanded interiors, original normal-enemy battle art, and original regional battle background art. Fresh HEAD always outranks this autosave.
+- CURRENT_BUILD_STATUS: PLAYABLE. Queue-controlled autonomous development is active. Fresh implementation now includes formal Luke dialogue art, floating touch controller, 4-direction × 3-frame Luke field sprites, Aldia/field/forest visual-density upgrades, expanded interiors, original normal-enemy battle art, original regional battle background art, and a spoiler-safe Adventure Journal for main objective, discovered clues and existing side quests. Fresh HEAD always outranks this autosave.
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED`
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
-- VERIFY_REQUIREMENTS: `REQ-001, REQ-002, REQ-003, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010`
+- VERIFY_REQUIREMENTS: `REQ-001, REQ-002, REQ-003, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005`
 - NEXT_QUEUE_SELECTION: follow fresh `WORK_MANAGER.md` + `WORK_QUEUE.md`; do not guess from CURRENT.
 
@@ -45,12 +45,27 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Queue-controlled work management is active and has been exercised successfully across multiple requirements.
 - `WORK_MANAGER.md` defines recovery, WIP=1, priority selection, blocker handling, VERIFY handling, checkpoint behavior, and request registration.
 - `WORK_QUEUE.md` is the authoritative inventory of Owner requests and ORDER / PRIORITY / STATUS.
-- No requirement is IN_PROGRESS at this autosave checkpoint because REQ-006 and REQ-007 were both implemented and moved to VERIFY after automated validation and successful Pages deployment.
+- No requirement is IN_PROGRESS at this autosave checkpoint because REQ-006, REQ-007 and REQ-011 were implemented and moved to VERIFY after automated validation and successful Pages deployment.
 - REQ-004 Leon formal full-body dialogue art and REQ-005 Glenn formal full-body dialogue art remain BACKLOG. Do not fabricate final approved character art or silently promote placeholder SVGs to formal status.
 - VERIFY does not consume the WIP slot and does not stop independent safe development.
 - CURRENT updates, WORK_QUEUE updates, commits, Pages success and requirement completion are checkpoints, not execution-stop conditions.
 
 ## WHAT_CHANGED_RECENTLY
+### REQ-011 — Adventure Journal / Objective Tracking
+- `requirements/REQ-011_ADVENTURE_JOURNAL.md` created and moved to VERIFY after implementation and automated deployment validation.
+- `addons/adventure-journal.js` added as an isolated collision-safe add-on.
+- The pause menu now gains an `ADVENTURE JOURNAL` section with three groups: MAIN OBJECTIVE, DISCOVERED CLUES and SIDE QUESTS.
+- MAIN OBJECTIVE mirrors the existing canonical openMenu progression and uses only current state/flags rather than inventing a parallel story path.
+- DISCOVERED CLUES exposes only facts already unlocked by `leonSeen`, `glennTraceSeen`, `glennSeen`, `leonInjurySeen`, `escapeProofSeen` and `withdrawProofSeen`; undiscovered future facts are not previewed.
+- SIDE QUESTS tracks the existing Elder Charm, Forest Bounty and Forest Herb Sample state, including in-progress and completed states.
+- The section inserts only while the world pause menu is open, guards duplicate insertion, and remains compatible with the existing menu-section navigator.
+- `window.LQ_ADVENTURE_JOURNAL_STATUS` exposes main-objective, discovered-clue, side-quest, spoiler-safe and menu-integration status.
+- `tools/lq-addon-contract.mjs` now guards journal UI/runtime markers, canonical story-state coverage, side-quest-state coverage, duplicate protection, pause/world visibility, and protected-spoiler phrases.
+- Implementation checkpoint: `f40ff5699f60b7f3432be844db0fb7f4c27b6ece`.
+- Contract checkpoint: `5c860ab5772b899402dea50d0894b3ae83d8d024`.
+- Pages workflow run `33984155835`: SUCCESS, including syntax/add-on validation, static regression, add-on contract, assembled browser smoke, floating touch smoke, artifact upload and Pages deployment.
+- Owner physical iPhone readability/subjective UX check remains pending, therefore REQ-011 is VERIFY rather than DONE.
+
 ### REQ-006 — Original normal-enemy battle art
 - `requirements/REQ-006_ORIGINAL_ENEMY_ART.md` created and later moved to VERIFY.
 - `addons/original-enemy-art.js` added.
@@ -93,28 +108,27 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - REQ-008 Aldia visual density: VERIFY. Automated/Pages validation passed; Owner subjective/iPhone confirmation pending.
 - REQ-009 Field/forest visual density: VERIFY. Automated/Pages validation passed; Owner subjective/iPhone confirmation pending.
 - REQ-010 Building/interior expansion: VERIFY. South Gate Inn / attic and interior transition smoke coverage passed; Owner subjective/iPhone confirmation pending.
+- REQ-011 Adventure Journal: VERIFY. Main objective, discovered-clue and three side-quest trackers integrated with spoiler guards; Owner iPhone readability/subjective confirmation pending.
 
 ## FILES_CHANGED_IN_LATEST_RUN
-- `requirements/REQ-006_ORIGINAL_ENEMY_ART.md`
-- `requirements/REQ-007_ORIGINAL_BATTLE_BACKGROUNDS.md`
-- `addons/original-enemy-art.js`
-- `addons/original-battle-backgrounds.js`
+- `requirements/REQ-011_ADVENTURE_JOURNAL.md`
+- `addons/adventure-journal.js`
 - `tools/lq-addon-contract.mjs`
 - `WORK_QUEUE.md`
 - `CURRENT.md`
 
 ## TESTS_AND_VERIFICATION
 - Fresh repository metadata/default branch/HEAD were fetched at run start; actual default branch remained `main`.
-- Fresh run-start HEAD was `48cdb9fecd9844da5ccf9c74bd7de051da0f8257`, proving prior CURRENT was materially stale and validating the HEAD-first recovery design.
-- REQ-006 workflow `33982213456`: SUCCESS.
-- REQ-007 workflow `33982352056`: SUCCESS.
-- Both successful workflows passed: sequential patch syntax, collision-safe addon syntax, static regression guard, addon contract guard, PWA validation, approved Luke asset validation, assembled browser smoke, floating touch pointer-drag smoke, Pages artifact upload and Pages deployment.
-- Real-device iPhone touch/visual feel remains NOT CLAIMED unless Owner physically checks it.
+- Fresh run-start HEAD was `fd7dac8d2ef511805041e6fa503289d41cf4e7eb`, and fresh HEAD remained implementation truth throughout recovery.
+- REQ-011 workflow `33984155835`: SUCCESS.
+- The successful workflow passed: sequential patch syntax, collision-safe addon syntax, static regression guard, addon contract guard, PWA validation, approved Luke asset validation, assembled browser smoke, floating touch pointer-drag smoke, Pages artifact upload and Pages deployment.
+- Real-device iPhone touch/visual/readability feel remains NOT CLAIMED unless Owner physically checks it.
 
 ## KNOWN_ISSUES / PENDING OWNER-SIDE VERIFICATION
 - Dynamic touch controller still needs Owner iPhone feel confirmation for dead zone, controller radius, hold speed and whether fixed D-pad should later hide on coarse-pointer devices.
 - Formal Luke dialogue art and 4-direction field sprite need Owner visual confirmation on the published build.
 - REQ-006 and REQ-007 need Owner subjective visual confirmation on the published build; implementation/automated deployment is complete enough for VERIFY.
+- REQ-011 needs Owner iPhone readability/subjective confirmation in the pause-menu journal; implementation/automated deployment is complete enough for VERIFY.
 - Leon, Glenn, Eleanor and Elisia still lack final integrated approved major-character artwork. REQ-004 and REQ-005 specifically preserve Leon/Glenn requests without pretending placeholder SVGs are final art.
 
 ## BLOCKERS
@@ -146,6 +160,7 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Do not let world touch movement activate over buttons/dialogue/interactive controls.
 - Do not trust stale CURRENT over fresh HEAD.
 - Do not expose protected story canon early.
+- Do not make the Adventure Journal preview undiscovered future clues or protected secrets.
 - Do not append every new Owner request to the giant global directive; create/register a requirement file under queue control.
 - Do not run multiple IN_PROGRESS requirements without an explicit WIP-policy change.
 - Do not let VERIFY items block safe independent work.
@@ -154,11 +169,12 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - LUKE QUEST uses queue-controlled requirement management: global rules in `AUTONOMOUS_DEV_DIRECTIVE.md`, recovery/selection in `WORK_MANAGER.md`, inventory/priority/status in `WORK_QUEUE.md`, request detail in `requirements/`, and autosave/handoff in CURRENT.
 - Original battle enemy art and original battle background art are collision-safe presentation layers. Battle mechanics remain canonical and independent.
 - Inline SVG counts as original image artwork for REQ-006/REQ-007 because it is authored LUKE QUEST visual content rather than a CSS-only placeholder or external copyrighted asset.
+- Adventure Journal is a projection of already-known canonical state, not an alternate story authority. It must remain spoiler-safe and only expose discovered facts.
 - Unknown enemy/map fallback is deliberately preserved to keep future content and smoke tests safe.
 - PS1-early target continues to mean layered readable 2D presentation, not copied existing-game art.
 
 ## STORY_CANON_ADDED_OR_CHANGED
-- None.
+- None. REQ-011 only exposes already-discovered canonical state and does not add story canon.
 
 ## CHARACTER_CANON_STATUS
 - Luke formal large-image canon: blue hair / blue clothing and cloak / silver armor / gold accents. Owner-approved generated artwork remains authoritative.
@@ -182,17 +198,13 @@ Fresh HEAD is implementation truth. CURRENT is autosave and may lag after autono
 - Existing wound/critical state, focus-frame, foreground-depth and battle runtime smoke remain protected by regression.
 
 ## CHECKPOINT_HISTORY_RECENT
-- `48cdb9fecd9844da5ccf9c74bd7de051da0f8257` fresh run-start HEAD.
-- `d0c9ef8c2231612962b9ad834c899d18233f5097` define REQ-006.
-- `ba363e158ee4a704522e68da47e36fd1d2cd1a4b` select REQ-006 IN_PROGRESS.
-- `7e4762d5c2503bb27480f9d1ffb0bbd4a1b4f9a5` original normal-enemy art implementation.
-- `63fa055dce377b5d5fd4205867619494d1c0518f` REQ-006 contract guard checkpoint; Pages run 33982213456 SUCCESS.
-- `a8d8361c7ce45939e72c1fdb5711d0e6b14097a0` REQ-006 moved to VERIFY.
-- `5fdfcd082df2a75366ea60e3875c6db45b24abef` define REQ-007.
-- `e337a520a41b3a15856d8826a41603ae1c3dfa4c` select REQ-007 IN_PROGRESS / queue advance.
-- `9f9c93fa69a71b2626b871e5650598cc1b0d1eb1` original regional battle background implementation.
-- `376c6e051baf46900d954325f11968a34da48fb4` REQ-007 contract guard checkpoint; Pages run 33982352056 SUCCESS.
-- `80338dc562cfa8e21aac4d3f7f8c4fb603922469` REQ-007 moved to VERIFY.
-- `0235bd32b770a387319fc2060bebcab9aa169758` queue synchronized with REQ-006/REQ-007 VERIFY.
+- `fd7dac8d2ef511805041e6fa503289d41cf4e7eb` fresh run-start HEAD.
+- `5cb2956898c26d81be0353fa977419f90b51bdbf` define REQ-011 Adventure Journal.
+- `965acd41eb0aa0706dc93e10f81f8b28f227ad2b` select REQ-011 IN_PROGRESS in queue.
+- `f40ff5699f60b7f3432be844db0fb7f4c27b6ece` implement spoiler-safe Adventure Journal.
+- `5c860ab5772b899402dea50d0894b3ae83d8d024` add Adventure Journal contract guard; Pages run 33984155835 SUCCESS.
+- `4fb07a4870f299de04853a3585c5ccf6cfd92dad` REQ-011 moved to VERIFY.
+- `453826d3150a0ddaee4fa1761688da22de11cd3e` queue synchronized with REQ-011 VERIFY.
+- Prior REQ-006/REQ-007 checkpoint history remains authoritative in their requirement files and earlier CURRENT autosaves.
 
 CURRENT is an autosave, not a stop condition. Continue from fresh HEAD under WORK_MANAGER and WORK_QUEUE control.
