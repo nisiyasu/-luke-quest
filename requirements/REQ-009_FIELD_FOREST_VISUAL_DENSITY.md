@@ -1,6 +1,6 @@
 # REQ-009 — 王都近郊 / 森 PS1初期級 視覚密度強化
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P2
 TYPE: WORLD / VISUAL / EXPLORATION / UX
 OWNER_REQUEST: CONFIRMED
@@ -97,6 +97,51 @@ Checkpoint A: 王都近郊の街道・地面階層・王都/森方向誘導
 Checkpoint B: 魔物の森入口の木陰・地表・木漏れ日
 Checkpoint C: 深部の暗さ・根/倒木・光スポット・霧方向の予感
 Checkpoint D: browser/Pages回帰と管理同期
+
+## IMPLEMENTED CHECKPOINTS
+
+### Checkpoint A — COMPLETE
+Commit: `e76e46c0e2e5b03117b8ee86ee9649d29ee25670`
+File: `addons/field-route-hierarchy.js`
+
+Added without collision changes:
+- capital-side stone paving
+- maintained route from the south gate toward the northeast forest gate
+- visually distinct route segments rather than another flower/fence duplicate pass
+- townward and forestward direction stones
+- low shrubs and forest-gate verge darkening
+- field-specific ground hierarchy
+
+### Checkpoint B — COMPLETE
+Commit: `0079e23aa34bae1c41ac7014b0be8c303b7629e8`
+File: `addons/forest-light-depth.js`
+
+Added without duplicating the existing logs/mushrooms/stones/leaves layer:
+- readable entrance glow near the south entry
+- narrowing forest trail
+- root crossings and fern clusters
+- canopy shade
+- two subtle sunshafts
+- forest-specific ground treatment
+
+### Checkpoint C — COMPLETE
+Commit: `e12d472d6f8575334e62cc67ba1690ba200f4354`
+File: `addons/deep-forest-depth.js`
+
+Added:
+- colder/darker deep-forest ground treatment
+- northward cold trail
+- root masses, moss patches and dead branches
+- two light pools
+- northern mist hint
+- deeper edge darkness
+
+### Checkpoint D — AUTOMATED PASS / OWNER VISUAL VERIFY REMAINS
+GitHub Pages workflow run `33981010791` completed successfully on commit `e12d472d6f8575334e62cc67ba1690ba200f4354`.
+
+The workflow passed collision-safe add-on syntax validation, static regression, add-on contract, PWA and raster validation, assembled-game browser smoke, site upload and GitHub Pages deploy.
+
+Owner physical iPhone / subjective final-art-quality confirmation is not claimed, so this requirement remains `VERIFY` rather than `DONE`.
 
 ## COMPLETION CONDITION
 - 王都近郊が単なる緑床に見えない。
