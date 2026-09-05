@@ -1,20 +1,29 @@
 (() => {
 'use strict';
 
-/* LUKE QUEST floating touch controller.
-   Touch/pen anywhere in the walkable game viewport to summon a translucent
-   four-way pad at the contact point. Slide into a direction and hold to walk.
-   Release/cancel/blur/hidden always stops movement. Mouse is intentionally
-   excluded so desktop click interaction is unchanged. */
+/* LUKE QUEST unified floating touch controller + tap-anywhere action.
+   Touch/pen anywhere in the world game viewport to summon a translucent
+   four-way pad at the contact point. A short stationary tap invokes the final
+   canonical action() exactly once. Sliding beyond the dead zone enters movement
+   mode and can never fire Action on release. Release/cancel/blur/hidden always
+   stops movement. Mouse is intentionally excluded so desktop click interaction
+   is unchanged. */
 
 const STYLE_ID='lq-floating-touch-controller-style';
 const PAD_ID='lq-floating-touch-controller';
 const DEAD_ZONE=18;
 const SWITCH_ZONE=25;
+const TAP_MAX_MS=420;
+const INTERACTIVE_SELECTOR='button,a,input,select,textarea,[role="button"],[contenteditable="true"],[data-lq-no-global-action],.lqExplicitControl';
 let pointerId=null;
 let originX=0,originY=0;
 let activeDir=null;
 let pad=null;
+let gestureMoved=false;
+let pointerStartedAt=0;
+let pointerStartMap=null;
+let pointerStartScreen=null;
+let pointerStartTarget=null;
 let lastRenderedMap=(typeof s!=='undefined'&&s)?s.map:null;
 
 function injectStyle(){
@@ -46,12 +55,16 @@ function ensurePad(){
   return pad;
 }
 
+function isExplicitControl(target){
+  return !!(target&&target.closest&&target.closest(INTERACTIVE_SELECTOR));
+}
+
 function allowedTarget(target){
-  if(typeof s==='undefined'||s.screen!=='world'||s.dialog)return false;
+  if(typeof s==='undefined'||s.screen!=='world')return false;
   if(!target||!target.closest)return false;
   const shell=target.closest('.gameShell');
   if(!shell)return false;
-  if(target.closest('button,a,input,select,textarea,.dialogBox'))return false;
+  if(isExplicitControl(target))return false;
   return true;
 }
 
@@ -64,13 +77,22 @@ function clearFallback(){
   if(window.__lqFloatFallbackTimer){clearInterval(window.__lqFloatFallbackTimer);window.__lqFloatFallbackTimer=null;}
 }
 
+function resetGesture(){
+  activeDir=null;
+  pointerId=null;
+  gestureMoved=false;
+  pointerStartedAt=0;
+  pointerStartMap=null;
+  pointerStartScreen=null;
+  pointerStartTarget=null;
+  setVisual(null);
+  if(pad)pad.classList.remove('visible');
+}
+
 function stop(){
   clearFallback();
   if(typeof stopMoving==='function')stopMoving();
-  activeDir=null;
-  pointerId=null;
-  setVisual(null);
-  if(pad)pad.classList.remove('visible');
+  resetGesture();
 }
 
 function beginDirection(dir){
@@ -78,6 +100,7 @@ function beginDirection(dir){
   clearFallback();
   if(typeof stopMoving==='function')stopMoving();
   activeDir=dir;
+  gestureMoved=true;
   setVisual(dir);
   if(typeof startMoving==='function')startMoving(dir);
   else if(typeof move==='function'){
@@ -97,6 +120,11 @@ function onPointerDown(event){
   if(event.pointerType==='mouse'||pointerId!==null||!allowedTarget(event.target))return;
   pointerId=event.pointerId;
   originX=event.clientX;originY=event.clientY;
+  pointerStartedAt=performance.now();
+  pointerStartMap=s.map;
+  pointerStartScreen=s.screen;
+  pointerStartTarget=event.target;
+  gestureMoved=false;
   const p=ensurePad();
   const half=75,margin=8;
   const x=Math.max(half+margin,Math.min(innerWidth-half-margin,originX));
@@ -110,18 +138,37 @@ function onPointerMove(event){
   if(event.pointerId!==pointerId)return;
   event.preventDefault();
   const dx=event.clientX-originX,dy=event.clientY-originY;
+  const distance=Math.hypot(dx,dy);
+  if(distance>=DEAD_ZONE)gestureMoved=true;
   const dir=directionFromDelta(dx,dy);
   if(!dir){
-    if(activeDir&&Math.hypot(dx,dy)<SWITCH_ZONE){clearFallback();if(typeof stopMoving==='function')stopMoving();activeDir=null;setVisual(null);}
+    if(activeDir&&distance<SWITCH_ZONE){clearFallback();if(typeof stopMoving==='function')stopMoving();activeDir=null;setVisual(null);}
     return;
   }
   beginDirection(dir);
 }
 
-function onPointerEnd(event){
-  if(pointerId!==null&&event.pointerId!==undefined&&event.pointerId!==pointerId)return;
-  stop();
+function shouldFireTap(event){
+  if(pointerId===null||event.pointerId!==pointerId)return false;
+  if(gestureMoved||activeDir)return false;
+  if(performance.now()-pointerStartedAt>TAP_MAX_MS)return false;
+  if(typeof s==='undefined'||s.screen!=='world'||pointerStartScreen!=='world')return false;
+  if(s.map!==pointerStartMap)return false;
+  if(isExplicitControl(pointerStartTarget))return false;
+  return true;
 }
+
+function finishPointer(event,allowTap){
+  if(pointerId!==null&&event.pointerId!==undefined&&event.pointerId!==pointerId)return;
+  const fireTap=!!allowTap&&shouldFireTap(event);
+  clearFallback();
+  if(typeof stopMoving==='function')stopMoving();
+  resetGesture();
+  if(fireTap&&typeof action==='function')action();
+}
+
+function onPointerUp(event){finishPointer(event,true);}
+function onPointerCancel(event){finishPointer(event,false);}
 
 function armShell(){
   const shell=document.querySelector('.gameShell');
@@ -130,17 +177,18 @@ function armShell(){
 
 function mustStopForRender(){
   if(typeof s==='undefined'||!s)return false;
-  if(s.screen!=='world'||s.dialog)return true;
+  if(s.screen!=='world')return true;
+  if(s.dialog&&activeDir)return true;
   return pointerId!==null&&lastRenderedMap!==null&&s.map!==lastRenderedMap;
 }
 
 injectStyle();ensurePad();
 window.addEventListener('pointerdown',onPointerDown,{capture:true,passive:false});
 window.addEventListener('pointermove',onPointerMove,{capture:true,passive:false});
-window.addEventListener('pointerup',onPointerEnd,{capture:true,passive:true});
-window.addEventListener('pointercancel',onPointerEnd,{capture:true,passive:true});
-window.addEventListener('blur',onPointerEnd);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)onPointerEnd({});});
+window.addEventListener('pointerup',onPointerUp,{capture:true,passive:true});
+window.addEventListener('pointercancel',onPointerCancel,{capture:true,passive:true});
+window.addEventListener('blur',()=>onPointerCancel({}));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)onPointerCancel({});});
 
 if(typeof render==='function'){
   const renderBeforeFloatingTouch=render;
@@ -153,5 +201,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.2',anywhereOnGameShell:true,slideAndHold:true,mouseExcluded:true,releaseSafety:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.3',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,explicitControlExclusion:true,iosPhysicalVerification:'PENDING'};
 })();
