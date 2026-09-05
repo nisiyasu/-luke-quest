@@ -18,6 +18,12 @@ try{
  const shell=app.querySelector('.gameShell'),player=app.querySelector('.player');
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeMarker';marker.dataset.screen=s.screen;marker.dataset.map=s.map;marker.dataset.shell=String(!!shell);marker.dataset.player=String(!!player);marker.dataset.moved=String(moved);marker.dataset.facingCue=String(facingCue);marker.dataset.interacted=String(interacted);marker.dataset.dialog=String(s.dialog?.name||'');marker.dataset.x=String(s.x);marker.dataset.y=String(s.y);marker.style.display='none';document.body.appendChild(marker);
 
+ s.screen='world';s.map='innInterior';s.x=10;s.y=6;s.dir='right';s.dialog=null;render();action();
+ const enteredGuestRoom=s.screen==='world'&&s.map==='innGuestRoom'&&!!MAPS.innGuestRoom;
+ s.dialog=null;s.x=4;s.y=7;s.dir='down';checkGate();
+ const exitedGuestRoom=s.screen==='world'&&s.map==='innInterior';
+ const buildingMarker=document.createElement('div');buildingMarker.id='lqRuntimeBuildingSmokeMarker';buildingMarker.dataset.entered=String(enteredGuestRoom);buildingMarker.dataset.exited=String(exitedGuestRoom);buildingMarker.dataset.room=String(!!MAPS.innGuestRoom);buildingMarker.style.display='none';document.body.appendChild(buildingMarker);
+
  s.dialog=null;s.hp=99;s.mh=99;s.enemy={n:'訓練用スモーク標的',e:'',hp:999,a:[1,1],xp:0,g:0};s.ehp=999;s.log=['CI battle smoke'];s.screen='battle';s.lqFocusSlashUsed=false;s.lqBattleMeta={turns:0,herbUsed:false};
  battle();const beforeEnemyHp=s.ehp;attack();
  const battled=s.screen==='battle'&&s.enemy?.n==='訓練用スモーク標的'&&s.ehp<beforeEnemyHp&&s.hp<99&&s.hp>0;
@@ -32,7 +38,7 @@ try{
  const saved=changed&&sentinel;
  const saveMarker=document.createElement('div');saveMarker.id='lqRuntimeSaveSmokeMarker';saveMarker.dataset.saved=String(saved);saveMarker.dataset.changed=String(changed);saveMarker.dataset.sentinel=String(sentinel);saveMarker.dataset.storageCount=String(localStorage.length);saveMarker.style.display='none';document.body.appendChild(saveMarker);
 
- window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,worldRendered:!!shell,playerRendered:!!player,movement:moved,facingInteractionCue:facingCue,interaction:interacted,battleAction:battled,savePersistence:saved,map:'town'};
+ window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,worldRendered:!!shell,playerRendered:!!player,movement:moved,facingInteractionCue:facingCue,interaction:interacted,buildingTransition:enteredGuestRoom&&exitedGuestRoom,battleAction:battled,savePersistence:saved,map:'town'};
 }catch(err){
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeFailure';marker.textContent=String(err&&err.stack||err);document.body.appendChild(marker);throw err;
 }
