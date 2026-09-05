@@ -58,4 +58,18 @@ if(fs.existsSync(journalPath)){
  const protectedSpoilers=['叔父','人身売買','軟禁','次期魔王','ルークの父'];
  for(const phrase of protectedSpoilers)if(text.includes(phrase))throw new Error(`adventure-journal.js: protected spoiler leaked (${phrase})`);
 }
+
+const treasurePath=`${dir}/treasure-chests.js`;
+if(fs.existsSync(treasurePath)){
+ const text=fs.readFileSync(treasurePath,'utf8');
+ for(const needle of ['LQ_TREASURE_CHEST_STATUS','lqTreasureChest','chestAhead()','const actionChestBase=action','const moveChestBase=move','save();'])if(!text.includes(needle))throw new Error(`treasure-chests.js: missing runtime/host contract ${needle}`);
+ for(const map of ["map:'town'","map:'field'","map:'forest'"])if(!text.includes(map))throw new Error(`treasure-chests.js: missing chest map ${map}`);
+ for(const flag of ['lqChestTownSupply','lqChestFieldTraveler','lqChestForestMoss'])if(!text.includes(flag))throw new Error(`treasure-chests.js: missing persistent flag ${flag}`);
+ const flagMatches=[...text.matchAll(/flag:'(lqChest[^']+)'/g)].map(m=>m[1]);
+ if(flagMatches.length!==3||new Set(flagMatches).size!==3)throw new Error('treasure-chests.js: expected 3 unique persistent chest flags');
+ if(!text.includes('if(isOpen(c))'))throw new Error('treasure-chests.js: one-time reward guard missing');
+ if(!text.includes('s.flags[c.flag]=true'))throw new Error('treasure-chests.js: opened-state persistence missing');
+ if(!text.includes("pointer-events:none"))throw new Error('treasure-chests.js: chest art must not intercept touch input');
+ if(!text.includes("worldEl.querySelectorAll('.lqTreasureChest').forEach(n=>n.remove())"))throw new Error('treasure-chests.js: rerender duplicate cleanup missing');
+}
 console.log(`LUKE QUEST addon contract PASS: ${addons.length} isolated add-ons after ${ux.length} sequential patches`);
