@@ -96,7 +96,7 @@ jobs:
             local needle="$1" file="$2" label="$3"
             if ! grep -q "$needle" "$file"; then
               echo "Missing smoke assertion: $label ($needle)"
-              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -40 || true
+              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-saved="[^"]*"\|data-storage-count="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -50 || true
               exit 1
             fi
           }
@@ -138,12 +138,14 @@ jobs:
           assert_dom 'lqRuntimeBattleSmokeMarker' /tmp/lq-world-dom.html battle-marker
           assert_dom 'data-battled="true"' /tmp/lq-world-dom.html battle-action
           assert_dom 'data-enemy="訓練用スモーク標的"' /tmp/lq-world-dom.html battle-enemy
+          assert_dom 'lqRuntimeSaveSmokeMarker' /tmp/lq-world-dom.html save-marker
+          assert_dom 'data-saved="true"' /tmp/lq-world-dom.html save-persistence
           if grep -q 'lqRuntimeSmokeFailure' /tmp/lq-world-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-world-chrome.log; then
             echo 'Browser runtime error detected'
             cat /tmp/lq-world-chrome.log
             exit 1
           fi
-          echo "LUKE QUEST headless title + world + movement + interaction + battle smoke PASS (chrome status $world_status)"
+          echo "LUKE QUEST headless title + world + movement + interaction + battle + save smoke PASS (chrome status $world_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
