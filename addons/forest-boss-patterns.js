@@ -17,8 +17,8 @@ const bossEnemyTurnBase=enemyTurn;enemyTurn=function(g=false){
  if(feint){s.log.push('苔角の森王は地面を踏み鳴らし、こちらの出方を見ている。');battle();addIntent();return;}
  const oldA=s.enemy.a;s.enemy.a=[11,15];s.log.push('苔角の森王の「森割り突進」！');try{return bossEnemyTurnBase(g);}finally{s.enemy.a=oldA;requestAnimationFrame(addIntent);}
 };
-const optionalStart=window.LQ_OPTIONAL_BOSS_STATUS;
+const actionBossPatternBase=action;action=function(){const before=s.screen,enemy=s.enemy?.n;const r=actionBossPatternBase();if(before!=='battle'&&s.screen==='battle'&&s.enemy?.n===BOSS&&enemy!==BOSS){s.lqBossTurn=0;save();}return r;};
 const battleBossPatternBase=battle;battle=function(){const r=battleBossPatternBase();addIntent();return r;};const renderBossPatternBase=render;render=function(){const r=renderBossPatternBase();addIntent();return r;};
-window.LQ_OPTIONAL_BOSS_PATTERN_STATUS={boss:BOSS,bigAttackEvery:4,feintEvery:3,telegraphed:true};
+window.LQ_OPTIONAL_BOSS_PATTERN_STATUS={boss:BOSS,bigAttackEvery:4,feintEvery:3,telegraphed:true,resetOnStart:true};
 addIntent();
 })();
