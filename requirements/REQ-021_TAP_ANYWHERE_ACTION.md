@@ -1,9 +1,10 @@
 # REQ-021 — Tap Anywhere Action
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P0
 TYPE: UX / INPUT / IPHONE
 OWNER_REQUEST: CONFIRMED
+IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## PURPOSE
 
@@ -106,6 +107,17 @@ Action tapが成立した時、必要なら軽いtap ripple / pulseを短時間�
 9. pointercancel → actionなし
 10. map transitionをまたぐpointer → stale actionなし
 11. 1tapにつきaction()最大1回
+
+## AUTOMATED VERIFICATION
+
+- `addons/floating-touch-controller.js` v1.3 integrates short-tap Action and drag/hold movement on one pointer surface.
+- Short stationary tap invokes the current final canonical `action()` exactly once.
+- Dialogue tap closes via canonical Action.
+- Drag release and pointercancel do not fire Action.
+- Explicit interactive controls are excluded.
+- `addons/zzz-floating-touch-smoke.js` enforces tap Action, dialogue close, drag-no-Action, cancel-no-Action and single-fire behavior in browser CI.
+- Pages workflow run `33995782229` for checkpoint `2c28b2c983911c029a808021b930580e7e1d2796`: SUCCESS.
+- Owner physical iPhone verification remains pending.
 
 ## COMPLETION CONDITION
 
