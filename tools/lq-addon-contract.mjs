@@ -87,4 +87,17 @@ if(fs.existsSync(hiddenFindPath)){
  if(!text.includes('pointer-events:none'))throw new Error('hidden-finds.js: sparkle must not intercept touch input');
  if(!text.includes("worldEl.querySelectorAll('.lqHiddenFind').forEach(n=>n.remove())"))throw new Error('hidden-finds.js: rerender duplicate cleanup missing');
 }
+
+const npcDialoguePath=`${dir}/npc-dialogue-progression.js`;
+if(fs.existsSync(npcDialoguePath)){
+ const text=fs.readFileSync(npcDialoguePath,'utf8');
+ for(const needle of ['LQ_NPC_DIALOGUE_PROGRESSION_STATUS','progressionStage()','applyProgressionDialogue()','const actionDialogueBase=action','const worldDialogueBase=world','const renderDialogueBase=render'])if(!text.includes(needle))throw new Error(`npc-dialogue-progression.js: missing runtime/host contract ${needle}`);
+ for(const name of ['旅好きの老人','道具屋のミナ','神殿の見習い','畑仕事の青年'])if(!text.includes(`'${name}'`))throw new Error(`npc-dialogue-progression.js: missing tracked NPC ${name}`);
+ for(const flag of ['leonSeen','mistEntered','glennTraceSeen','observationEntered','glennSeen','evacEntered','withdrawProofSeen'])if(!text.includes(flag))throw new Error(`npc-dialogue-progression.js: missing canonical progression flag ${flag}`);
+ if(!text.includes('s.wins'))throw new Error('npc-dialogue-progression.js: early progression win gate missing');
+ if(!text.includes("for(const mapName of ['town','field'])"))throw new Error('npc-dialogue-progression.js: map scope must stay town/field');
+ if(!text.includes('npc.text=lines['))throw new Error('npc-dialogue-progression.js: projection assignment missing');
+ const protectedSpoilers=['叔父','人身売買','軟禁','次期魔王','ルークの父','グレンの兄'];
+ for(const phrase of protectedSpoilers)if(text.includes(phrase))throw new Error(`npc-dialogue-progression.js: protected spoiler leaked (${phrase})`);
+}
 console.log(`LUKE QUEST addon contract PASS: ${addons.length} isolated add-ons after ${ux.length} sequential patches`);
