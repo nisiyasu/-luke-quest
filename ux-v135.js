@@ -1,0 +1,7 @@
+(() => {
+'use strict';
+
+/* LUKE QUEST v0.135 original synthesized battle SFX. No sampled/external audio. */
+let C=null;function ac(){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;if(!C)C=new A();if(C.state==='suspended')void C.resume();return C;}function tone(f,d,type='sine',gain=.025,end=null,delay=0){const c=ac();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(end)o.frequency.exponentialRampToValueAtTime(end,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(c.destination);o.start(t);o.stop(t+d+.03);}function slash(){tone(620,.12,'sawtooth',.018,170);tone(130,.09,'square',.009,80,.035);}function shield(){tone(190,.11,'triangle',.018,125);tone(420,.08,'sine',.008,300,.03);}function heal(){tone(330,.11,'sine',.015,null,0);tone(440,.12,'sine',.014,null,.08);tone(659.25,.18,'sine',.013,null,.16);}function victory(){[392,523.25,659.25,783.99].forEach((f,i)=>tone(f,.16,'triangle',.012,null,i*.09));}
+const attackV134=attack;attack=function(){slash();return attackV134();};const guardV134=guard;guard=function(){shield();return guardV134();};const potionV134=potion;potion=function(){heal();return potionV134();};const winV134=win;win=function(){const r=winV134();victory();return r;};window.LQ_SFX_STATUS={originalSynth:true,attack:true,guard:true,heal:true,victory:true,externalAudio:false};
+})();
