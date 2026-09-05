@@ -45,6 +45,7 @@ jobs:
           node --check ux-v19.js
           node --check ux-v20.js
           node --check ux-v21.js
+          node --check ux-v22.js
 
       - name: Validate base64 raster transport probe
         run: |
@@ -95,6 +96,9 @@ jobs:
 
       - name: Inject v0.21 battle depth and impact patch
         run: sed -i 's#</body>#<script src="ux-v21.js"></script></body>#' index.html
+
+      - name: Inject v0.22 treasure visual patch
+        run: sed -i 's#</body>#<script src="ux-v22.js"></script></body>#' index.html
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
