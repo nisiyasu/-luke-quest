@@ -1,7 +1,7 @@
 # REQ-016 — MP / BATTLE SKILL SYSTEM
 
 - PRIORITY: P1
-- STATUS: IN_PROGRESS
+- STATUS: VERIFY
 - OWNER_SOURCE: AUTONOMOUS_DEV_DIRECTIVE §§9, 25, 35 / queue selection rule 8
 - TYPE: core gameplay / battle readability / persistent character resource
 
@@ -60,11 +60,29 @@ Automated verification must cover at least:
 10. existing battle commands remain present
 11. Pages assembly/browser smoke remains green
 
+## IMPLEMENTATION CHECKPOINTS
+- Requirement definition: `60882b7cf5b2e040a151744ecf9d36abf56e4078`
+- MP/skill runtime implementation: `8a18bb5143eea8e71853ba0cf45da8b3f5f68b6b`
+- Queue registration: `9a95b9665a429d6f0ab655972c9fc6e2983c86a6`
+- Regression-contract checkpoint: `6240b4e72fa2dbc503f1354715db0d25a3c7d533`
+
+## AUTOMATED VERIFICATION RESULT
+- GitHub Pages workflow run `33992924664`: SUCCESS.
+- Sequential patch syntax: PASS.
+- Collision-safe add-on syntax: PASS.
+- Static regression including explicit REQ-016 contracts: PASS.
+- Existing add-on contracts: PASS.
+- PWA and formal Luke asset validation: PASS.
+- Assembled-game headless browser smoke: PASS.
+- Floating touch controller pointer-drag smoke: PASS.
+- Pages artifact upload and deployment: PASS.
+- Physical iPhone/subjective combat feel remains Owner-side and is not claimed.
+
 ## COMPLETION
-- implementation committed to default branch
-- automated contracts / existing regression pass
-- GitHub Pages deployment succeeds
-- requirement moves to VERIFY, because final iPhone subjective combat feel is Owner-side
+- implementation committed to default branch: SATISFIED
+- automated contracts / existing regression pass: SATISFIED
+- GitHub Pages deployment succeeds: SATISFIED
+- requirement state: VERIFY pending Owner subjective/iPhone combat-feel confirmation
 
 ## DO NOT CLAIM
 - physical iPhone PASS without Owner check
