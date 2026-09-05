@@ -6,7 +6,7 @@
 
 const TARGETS={
  town:()=>({x:9,y:14,label:'南門'}),
- field:()=>({x:20,y:0,label:s.wins<2?'草原で2勝':'魔物の森'}),
+ field:()=>s.wins<2?({x:s.x,y:s.y,label:`草原であと${2-s.wins}勝`}):({x:20,y:0,label:'魔物の森'}),
  forest:()=>({x:11,y:0,label:'森の深部'}),
  deepForest:()=>s.flags?.leonSeen?({x:12,y:0,label:'北の霧'}):({x:13,y:5,label:'レオン'}),
  mistTrail:()=>s.flags?.glennTraceSeen?({x:13,y:0,label:'監視区域'}):({x:13,y:4,label:'魔王軍の痕跡'}),
