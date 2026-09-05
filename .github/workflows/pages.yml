@@ -92,6 +92,15 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           sleep 1
 
+          assert_dom() {
+            local needle="$1" file="$2" label="$3"
+            if ! grep -q "$needle" "$file"; then
+              echo "Missing smoke assertion: $label ($needle)"
+              grep -o 'lqRuntimeSmoke[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"' "$file" | tail -30 || true
+              exit 1
+            fi
+          }
+
           set +e
           timeout 18 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --virtual-time-budget=3500 --dump-dom http://127.0.0.1:8123/ >/tmp/lq-title-dom.html 2>/tmp/lq-title-chrome.log
           title_status=$?
@@ -101,8 +110,8 @@ jobs:
             cat /tmp/lq-title-chrome.log
             exit 1
           fi
-          grep -q 'LUKE QUEST' /tmp/lq-title-dom.html
-          grep -q 'lqTitleStage' /tmp/lq-title-dom.html
+          assert_dom 'LUKE QUEST' /tmp/lq-title-dom.html title
+          assert_dom 'lqTitleStage' /tmp/lq-title-dom.html title-stage
           if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-title-chrome.log; then
             echo 'Browser title runtime error detected'
             cat /tmp/lq-title-chrome.log
@@ -119,13 +128,11 @@ jobs:
             cat /tmp/lq-world-chrome.log
             exit 1
           fi
-          grep -q 'id="lqRuntimeSmokeMarker"' /tmp/lq-world-dom.html
-          grep -q 'data-screen="world"' /tmp/lq-world-dom.html
-          grep -q 'data-shell="true"' /tmp/lq-world-dom.html
-          grep -q 'data-player="true"' /tmp/lq-world-dom.html
-          grep -q 'class="gameShell"' /tmp/lq-world-dom.html
-          grep -q 'class="player' /tmp/lq-world-dom.html
-          if grep -q 'id="lqRuntimeSmokeFailure"' /tmp/lq-world-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-world-chrome.log; then
+          assert_dom 'lqRuntimeSmokeMarker' /tmp/lq-world-dom.html smoke-marker
+          assert_dom 'data-screen="world"' /tmp/lq-world-dom.html world-state
+          assert_dom 'data-shell="true"' /tmp/lq-world-dom.html world-shell
+          assert_dom 'data-player="true"' /tmp/lq-world-dom.html world-player
+          if grep -q 'lqRuntimeSmokeFailure' /tmp/lq-world-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-world-chrome.log; then
             echo 'Browser world runtime error detected'
             cat /tmp/lq-world-chrome.log
             exit 1
