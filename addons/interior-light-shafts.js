@@ -2,7 +2,7 @@
 'use strict';
 
 /* Collision-safe add-on: layered window light and dust for physical interiors. */
-const INTERIORS=new Set(['innInterior','shopInterior','templeInterior','residenceInterior']);
+const INTERIORS=new Set(['innInterior','innGuestRoom','shopInterior','templeInterior','residenceInterior']);
 const style=document.createElement('style');
 style.textContent=`
 .lqInteriorLightLayer{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
