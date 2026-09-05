@@ -15,6 +15,13 @@ function marker(data){
   m.hidden=true;
   document.body.appendChild(m);
 }
+function failure(reason){
+  const f=document.createElement('i');
+  f.id='lqFloatingTouchSmokeFailure';
+  f.dataset.reason=String(reason||'unknown');
+  f.hidden=true;
+  document.body.appendChild(f);
+}
 function pointInShell(shell){
   const r=shell.getBoundingClientRect();
   return {
@@ -86,6 +93,8 @@ setTimeout(()=>{
           pointer('pointercancel',window,703,p.x,p.y);
           cancelNoAction=actionCalls===2&&!pad.classList.contains('visible');
           singleFire=tapAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
+          const allPass=visible&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire;
+          if(!allPass)failure('REQ-001/021 assertion false');
 
           action=originalAction;
           Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
@@ -95,6 +104,7 @@ setTimeout(()=>{
     },300);
   }catch(err){
     console.error('lqFloatingTouchSmokeFailure',err);
+    failure(err&&err.message);
     action=originalAction;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
     marker({visible,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogClose,dragNoAction,cancelNoAction,singleFire,error:true});
