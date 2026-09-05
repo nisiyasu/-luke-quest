@@ -1,9 +1,12 @@
 (() => {
 'use strict';
 
-/* CI-only runtime smoke hook. Activated only by ?lqSmoke=1 and never during ordinary play. */
+/* CI-only runtime smoke hook. Activated only by ?lqSmoke=1 and never during ordinary play.
+   Defer the smoke body one task so alphabetically later add-ons are guaranteed to be registered. */
 const enabled=new URLSearchParams(location.search).get('lqSmoke')==='1';
 if(!enabled){window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:false};return;}
+window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:true};
+setTimeout(()=>{
 try{
  stopMoving();
  s.screen='world';s.map=MAPS.town?'town':Object.keys(MAPS)[0];s.x=9;s.y=12;s.dir='down';s.dialog=null;s.pauseOpen=false;s.shopOpen=false;s.victoryResult=null;
@@ -42,8 +45,10 @@ try{
  const saved=changed&&sentinel;
  const saveMarker=document.createElement('div');saveMarker.id='lqRuntimeSaveSmokeMarker';saveMarker.dataset.saved=String(saved);saveMarker.dataset.changed=String(changed);saveMarker.dataset.sentinel=String(sentinel);saveMarker.dataset.storageCount=String(localStorage.length);saveMarker.style.display='none';document.body.appendChild(saveMarker);
 
- window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,worldRendered:!!shell,playerRendered:!!player,movement:moved,facingInteractionCue:facingCue,interaction:interacted,buildingTransition:enteredGuestRoom&&exitedGuestRoom,stockRoomTransition:enteredStockRoom&&exitedStockRoom,battleAction:battled,savePersistence:saved,map:'town'};
+ window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:false,worldRendered:!!shell,playerRendered:!!player,movement:moved,facingInteractionCue:facingCue,interaction:interacted,buildingTransition:enteredGuestRoom&&exitedGuestRoom,stockRoomTransition:enteredStockRoom&&exitedStockRoom,battleAction:battled,savePersistence:saved,map:'town'};
 }catch(err){
+ window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:false,error:String(err&&err.stack||err)};
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeFailure';marker.textContent=String(err&&err.stack||err);document.body.appendChild(marker);throw err;
 }
+},0);
 })();
