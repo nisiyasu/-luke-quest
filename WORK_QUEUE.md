@@ -12,7 +12,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 |---:|---|---|---|---|---|---|
 | 1 | REQ-002 | P0 | VERIFY | ルーク会話グラフィックを承認済み生成画像へ正式化 | `requirements/REQ-002_LUKE_DIALOGUE_ART.md` | 正式WebP transport + dialogue guard + Pages CI成功を確認。Owner実機/見た目確認待ち |
 | 2 | REQ-001 | P0 | VERIFY | 画面任意位置Dynamic Touch Controller | `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md` | v1.1。方向切替時fallback timer残留を修正し静的回帰guard追加。Owner iPhone操作感確認待ち |
-| 3 | REQ-003 | P0 | READY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 現在の方向表現を正式ゲーム用spriteへ置換する |
+| 3 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
 | 4 | REQ-004 | P1 | BACKLOG | レオン正式全身会話立ち絵 | TBD | ルーク正式化後に詳細REQ化 |
 | 5 | REQ-005 | P1 | BACKLOG | グレン正式全身会話立ち絵 | TBD | ルーク/レオンとの世界観統一 |
 | 6 | REQ-006 | P1 | BACKLOG | 敵絵文字を完全オリジナル敵画像へ置換 | TBD | 地域別3〜5種＋将来ボス専用画像 |
