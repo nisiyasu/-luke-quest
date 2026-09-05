@@ -2,11 +2,11 @@
 'use strict';
 
 /* CI-only runtime smoke hook. Activated only by ?lqSmoke=1 and never during ordinary play.
-   Defer the smoke body one task so alphabetically later add-ons are guaranteed to be registered. */
+   Run only after window load so every injected add-on, including alphabetically later files, is registered. */
 const enabled=new URLSearchParams(location.search).get('lqSmoke')==='1';
 if(!enabled){window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:false};return;}
 window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:true};
-setTimeout(()=>{
+function runSmoke(){
 try{
  stopMoving();
  s.screen='world';s.map=MAPS.town?'town':Object.keys(MAPS)[0];s.x=9;s.y=12;s.dir='down';s.dialog=null;s.pauseOpen=false;s.shopOpen=false;s.victoryResult=null;
@@ -57,5 +57,6 @@ try{
  window.LQ_RUNTIME_SMOKE_HOOK_STATUS={available:true,active:true,pending:false,error:String(err&&err.stack||err)};
  const marker=document.createElement('div');marker.id='lqRuntimeSmokeFailure';marker.textContent=String(err&&err.stack||err);document.body.appendChild(marker);throw err;
 }
-},0);
+}
+if(document.readyState==='complete')setTimeout(runSmoke,0);else window.addEventListener('load',runSmoke,{once:true});
 })();
