@@ -1,12 +1,12 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-05 15:22 JST
+- UPDATED_AT: 2026-09-05 16:26 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_COMMIT_SHA: `f1e79d12c8a847e64e25e3380acea5219debd2d0` (v0.10 Pages injection + validation; this CURRENT checkpoint is committed immediately after it)
+- LATEST_COMMIT_SHA: `508046cebb4379ce8558c3a6e8b7ca8cd11a3cfb` (v0.11 deploy; this CURRENT checkpoint is committed immediately after it)
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
-- CURRENT_PHASE: Phase 3 BATTLE + Phase 5 VISUAL QUALITY / Owner Priority C completed → Priority D next
-- CURRENT_BUILD_STATUS: PLAYABLE / v0.10 regional battle presentation deployed / GitHub Pages deploy SUCCESS
+- CURRENT_PHASE: Phase 5 VISUAL QUALITY + Phase 6 POLISH / Owner field-direction + post-battle variety feedback implemented
+- CURRENT_BUILD_STATUS: PLAYABLE / v0.11 deployed / GitHub Pages run `33952527768` SUCCESS
 
 ## MANDATORY_BOOT_FILES
 
@@ -16,110 +16,136 @@ Read these fresh before the next mutation:
 3. `ux-v08.js`
 4. `ux-v09.js`
 5. `ux-v10.js`
-6. `.github/workflows/pages.yml`
-7. `assets/portraits/` directory state
-8. recent commits / Pages workflow state
+6. `ux-v11.js`
+7. `.github/workflows/pages.yml`
+8. `assets/portraits/` directory state
+9. recent commits / Pages workflow state
 
-Important: repository `index.html` remains the rollback-safe v0.7 core. Pages injects presentation patches in this exact order: `ux-v08.js` → `ux-v09.js` → `ux-v10.js`. Do not remove, reorder, or duplicate these injections accidentally.
+Important: repository `index.html` remains the rollback-safe v0.7 core. Pages injects presentation patches in this exact order: `ux-v08.js` → `ux-v09.js` → `ux-v10.js` → `ux-v11.js`. Do not remove, reorder, or duplicate these injections accidentally.
 
 ## WHAT_CHANGED_THIS_SESSION
 
 1. Booted from fresh GitHub state and confirmed default branch = `main` instead of assuming it.
-2. Read fresh `CURRENT.md`, `index.html`, `ux-v08.js`, `ux-v09.js`, workflow config, recent commits, and current Pages state before mutation.
-3. Followed prior NEXT_ACTION and Owner Priority C rather than expanding story content.
-4. Added `ux-v10.js`, a battle-presentation-only layer that preserves the existing battle rules and enemy data.
-5. Rebuilt the visible battle screen into a clearer SFC-late / PS1-early-inspired layout with a dedicated battlefield scene, enemy stage, enemy plate, numeric HP, HP bar, player status strip, and 2x2 command grid.
-6. Added regional CSS battle backgrounds for field, forest, mist trail, military/evacuation zones, and cliff road so encounters visually reflect the current map.
-7. Enlarged the enemy presentation substantially while keeping current emoji enemy art as explicit interim art rather than pretending it is final illustration quality.
-8. Added visible damage/heal/guard/escape-failure feedback overlays.
-9. Preserved Attack / Guard / Herb / Escape commands and underlying reward, level-up, encounter grace, defeat, victory, escape, and world-return logic.
-10. Added `stopMoving()` at battle rendering to keep the previous movement-loop fix protected.
-11. Updated the Pages workflow to run `node --check` on `ux-v08.js`, `ux-v09.js`, and `ux-v10.js` before injection/deployment.
-12. Updated Pages injection order to include `ux-v10.js` after `ux-v09.js`.
-13. GitHub Pages run `33949549698` completed successfully. Validation, all three injections, upload, and deployment all passed.
+2. Read fresh `CURRENT.md`, `index.html`, `ux-v08.js`, `ux-v09.js`, `ux-v10.js`, workflow config, repository tree, recent commits, and Pages state before mutation.
+3. Applied the newer Owner addendum before the older map-readability NEXT_ACTION because the Owner directly reported two concrete defects: Luke always faced forward and the same post-battle line repeated.
+4. Confirmed the core movement state already tracks `s.dir`, so four-direction presentation could be added without rewriting collision, touch, keyboard, camera, map transitions, or encounter logic.
+5. Added `ux-v11.js` with an interim full-body field representation for Luke that visibly changes among `up`, `down`, `left`, and `right` based on the actual movement direction.
+6. The v0.11 field representation uses Luke's approved blue / silver / gold visual palette, but it is explicitly interim CSS presentation and is NOT claimed as the final approved high-fidelity character art.
+7. Confirmed the exact repeated core victory line was `勝てました……。毎回これやるんですか？` and replaced the generic post-battle path with 60 original Luke lines.
+8. Added randomized victory-line selection with exact suppression of the previous 8 lines so the same line cannot recur in the near term.
+9. Preserved the special second-win narration that unlocks/guides progression toward the forest.
+10. Preserved existing gold, EXP, level-up, max-HP, heal-on-level, ATK growth, world-return, and encounter-grace behavior in the v0.11 victory path.
+11. Updated the Pages workflow to validate `ux-v11.js` with `node --check` and inject it after v0.10.
+12. GitHub Pages run `33952527768` for commit `508046cebb4379ce8558c3a6e8b7ca8cd11a3cfb` completed with conclusion `success`.
+13. No image generation was performed this session. The rejected simple portrait SVGs were not misrepresented as formal art.
 
 ## FILES_CHANGED
 
-- `ux-v10.js` — regional battle background, enemy/HP presentation, command hierarchy, visible action feedback
-- `.github/workflows/pages.yml` — JavaScript syntax validation + deterministic v0.10 injection
+- `ux-v11.js` — four-direction interim full-body Luke field facing + 60 randomized post-battle lines + last-8 repeat suppression
+- `.github/workflows/pages.yml` — v0.11 syntax validation + deterministic injection after v0.10
 - `CURRENT.md` — persistent checkpoint
 
 ## NEW_ASSETS
 
-- No new binary or raster assets were added this session.
-- v0.10 uses original CSS presentation and the existing enemy data/emoji as interim art.
-- No final enemy illustration is claimed.
+- No new raster/binary character art was generated or integrated this session.
+- No current SVG/CSS placeholder is promoted to formal character art.
 
 ## TESTS_AND_VERIFICATION
 
 - Fresh repository metadata confirmed default branch = `main`.
-- Fresh GitHub retrieval confirmed `ux-v10.js` exists on `main`; blob SHA `d6620a62429c21057c6349f3b794faed46252693`.
-- Pages workflow run `33949549698` completed with conclusion `success`.
-- Workflow `Validate presentation patches` step passed, executing `node --check` for `ux-v08.js`, `ux-v09.js`, and `ux-v10.js`.
-- Workflow steps confirmed successful: Checkout, Configure Pages, Validate presentation patches, Inject v0.8, Inject v0.9, Inject v0.10, Upload site, Deploy to GitHub Pages, Post Checkout, Complete job.
-- Static compatibility check: v0.10 wraps existing `attack`, `guard`, `potion`, and `runAway` functions instead of replacing their mechanics; original state transitions remain authoritative.
+- Fresh repository tree confirmed the pre-v0.11 file set and no prior `ux-v11.js` collision.
+- Local candidate `node --check` passed before repository creation.
+- Victory-line count verified as 60.
+- Fresh GitHub retrieval confirmed `ux-v11.js` exists on `main`; blob SHA `363b9a7ae2da077257d3093faec92cd716076317`.
+- Pages workflow run `33952527768` completed successfully for v0.11 deployment commit `508046cebb4379ce8558c3a6e8b7ca8cd11a3cfb`.
+- Workflow now validates `ux-v08.js`, `ux-v09.js`, `ux-v10.js`, and `ux-v11.js` before deployment.
+- Static compatibility check: v0.11 reads existing `s.dir` rather than changing movement mechanics.
+- Static compatibility check: v0.11 preserves the second-win progression narration and existing reward/level-up semantics.
 - Real iPhone visual/touch confirmation still requires Owner-device testing.
 
 ## PLAYER_GUIDANCE_IMPROVEMENTS
 
-- v0.8 guidance remains active and was not regressed.
-- Starting town still has persistent objective text directing the player south to the yellow `出口↓`.
-- `南門の案内兵` remains beside the exit.
-- Adventure memo still shares the progression guidance source.
+- v0.8 yellow south-exit marker, objective HUD, and guidance NPC remain active.
+- Special second-win forest guidance remains preserved in v0.11.
+- No navigation guidance was removed this session.
 
 ## DIALOGUE_VISUAL_PROGRESS
 
-- v0.9 portrait-capable dialogue architecture remains LIVE.
-- Luke, Leon, and Glenn portrait assets remain referenced and unchanged.
-- No dialogue visual regression was introduced by v0.10.
-- Current SVG portraits remain interim v1 art, below the final Owner-requested high-fidelity level.
+- v0.9 portrait architecture remains LIVE.
+- Current `luke.svg`, `leon.svg`, and `glenn.svg` remain interim/rejected-as-final art.
+- Formal Luke high-fidelity full-body dialogue art has NOT yet been integrated.
+- v0.11 victory dialogue includes `portraitKey:'luke'`, so it continues to use the existing dialogue portrait mechanism while final art remains pending.
 
 ## BATTLE_VISUAL_PROGRESS
 
-- Regional battlefield backgrounds are now LIVE.
-- Enemy display is substantially larger and placed on a dedicated stage.
-- Enemy HP now shows both a bar and exact numeric HP.
-- Player LV / HP / ATK / herbs / EXP are grouped into a clearer command panel.
-- Commands are now presented as a stable 2x2 grid.
-- Damage, healing, guard, and failed escape now produce visible floating feedback.
-- Current enemy art is still emoji/interim art; final generated enemy illustrations remain pending.
+- v0.10 regional battle presentation remains LIVE and unchanged.
+- Post-battle dialogue variety is now substantially improved: 60 Luke lines, randomized, with last-8 exact-repeat suppression.
+- Current enemy images remain interim emoji art.
 
 ## MAP_READABILITY_IMPROVEMENTS
 
-- v0.8 high-contrast town exit landmark remains active.
-- Persistent objective guidance remains active.
-- No map readability work was removed or weakened this session.
-- Owner Priority D is now the next visual focus.
+- v0.8 guidance/readability improvements remain active.
+- The earlier Priority D map-art pass was intentionally deferred one session because the newer Owner-reported character-direction and repeated-dialogue defects took precedence.
+
+## CHARACTER_CANON_STATUS
+
+- Luke formal visual canon remains: blue hair, blue-family clothing/cape, silver armor, gold accents, classic heroic fantasy knight presentation matching the Owner-approved high-quality reference.
+- The current v0.9 Luke SVG is NOT formal canon quality and must not be treated as completed art.
+- v0.11 field CSS sprite borrows the canon palette only as a temporary directional gameplay representation.
+
+## PORTRAIT_INTEGRATION_STATUS
+
+- Portrait system: LIVE.
+- Formal Luke full-body/high-fidelity asset: NOT YET INTEGRATED.
+- Leon/Glenn formal high-fidelity assets: NOT YET INTEGRATED.
+- Do not report formal image integration until the public game actually displays the approved-quality asset.
+
+## FIELD_SPRITE_DIRECTION_STATUS
+
+- Luke: 4/4 direction behavior LIVE (`up`, `down`, `left`, `right`) using existing `s.dir`.
+- Luke current directional sprite art: INTERIM CSS, not final generated sprite art.
+- Leon: four-direction formal field sprite NOT YET IMPLEMENTED.
+- Glenn: four-direction formal field sprite NOT YET IMPLEMENTED.
+
+## POST_BATTLE_LINE_VARIETY_STATUS
+
+- Total Luke generic victory lines: 60.
+- Selection: randomized.
+- Near-repeat prevention: exact exclusion of the last 8 displayed victory lines.
+- Special second total victory: dedicated progression narration remains authoritative and is not replaced by random banter.
 
 ## KNOWN_ISSUES
 
-- Enemy sprites remain emoji placeholders rather than final SFC-late / PS1-early quality original enemy illustrations.
-- Luke / Leon / Glenn portrait SVGs remain v1 interim art and are not yet the polished illustration quality Owner ultimately wants.
+- Formal high-quality Luke full-body dialogue art is still not integrated.
+- v0.11 Luke four-direction field figure is a functional interim CSS sprite, not the final Owner-approved art quality.
+- Leon and Glenn still lack four-direction field sprites.
+- Current Luke/Leon/Glenn portrait SVGs remain interim and below target quality.
+- Enemy sprites remain emoji placeholders rather than final original illustrations.
 - Most field/NPC graphics still use CSS + emoji placeholders.
 - Capital buildings remain exterior collision objects; interiors are not implemented yet.
 - No dedicated automated browser/touch regression suite exists yet.
 - `wins` remains a global battle victory count rather than separated progression/statistics counters.
 - Battle return state still relies on current map/tile state rather than a separate encounter-state object.
 - The north continuation beyond `北の崖道` remains intentionally unopened.
-- Build-time presentation is now three injected layers; consolidation should wait until real-device stability is confirmed.
+- Build-time presentation is now four injected layers; consolidation should wait until real-device stability is confirmed.
 
 ## BLOCKERS
 
-- None for continued code, world, battle, UI, or map-readability development.
+- None for continued code, world, battle, UI, or map-readability work.
 - Real-device iPhone confirmation remains external to this runtime.
-- High-fidelity generated raster art still lacks a verified binary write path through the current GitHub text-file connector. Repository-safe CSS/SVG remains the verified integration route unless a binary path is explicitly available and tested.
+- High-fidelity raster integration still needs a verified repository-safe transport path. The GitHub connector supports text and base64 blob primitives, so a future session may validate an optimized PNG/WebP → base64/blob/tree path or a Data URI route. Do not fall back to low-quality art merely because that validation is still pending.
 
 ## NEXT_ACTION
 
-Owner Priority D: improve map readability and visual hierarchy without expanding the story frontier. Start with `王都アルディア` and `王都近郊`: make roads/paths visually distinct from generic ground, strengthen the south-gate landmark and town-to-field visual flow, add clearer environmental landmarks, and reduce the placeholder/flat-tile feeling while preserving all current collision coordinates, NPC positions, exit behavior, objective HUD, portrait dialogue, battle system, and movement fail-safes. Prefer repository-safe CSS/SVG techniques unless a verified binary asset path exists.
+Validate and prepare the formal Luke-art integration path without generating a new image in this session context: create a repository-safe asset contract for a full-body dialogue image plus four directional field-art slots, prove the chosen PNG/WebP/base64/blob or Data-URI transport can be committed and referenced by the Pages build using a non-final test payload if needed, and keep all v0.11 direction/victory behavior intact. Do not replace the Owner-approved Luke design with a guessed substitute.
 
 ## NEXT_ACTION_COMPLETION_CONDITION
 
 The next action is complete only when:
-1. A first-time player can visually identify the intended town route to the south exit without relying only on text.
-2. `王都アルディア` has visibly differentiated traversable roads/paths and landmarks compared with v0.10.
-3. `王都近郊` has clearer path/terrain hierarchy and the route toward the forest is easier to read.
-4. Existing collision, NPC placement, south-gate transition, objective HUD, keyboard/touch movement, encounter rules, v0.9 portraits, and v0.10 battle presentation remain intact.
+1. The repository has a clear, documented file/path contract for Luke full-body dialogue art and four directional field art.
+2. A repository-safe high-fidelity image transport method is actually proven end-to-end through GitHub and Pages, or a precise blocker is recorded if the connector prevents it.
+3. No new unapproved Luke character design is generated or substituted.
+4. Existing v0.11 four-direction facing, 60-line victory randomization, last-8 suppression, movement safety, guidance, dialogue, battle, rewards, and progression remain intact.
 5. JavaScript validation passes.
 6. GitHub Pages deployment succeeds.
 7. `CURRENT.md` is updated and fresh-retrieved again.
@@ -128,6 +154,14 @@ The next action is complete only when:
 
 - Do not make the starting exit visually ambiguous again.
 - Do not remove persistent objective guidance without an equivalently clear navigation system.
+- Do not return Luke to a permanently front-facing field character.
+- Do not claim the v0.11 CSS field figure is final character art.
+- Do not claim the current simple SVG portrait is formal Luke art.
+- Do not use face-only art as the final major-character presentation.
+- Do not claim image integration merely because an image was generated outside the playable build.
+- Do not restore the same generic post-battle line every battle.
+- Do not reduce the generic victory pool below the Owner-required approximately-50-or-more standard without explicit Owner approval.
+- Do not remove near-repeat suppression without an equivalent or stronger mechanism.
 - Do not bind movement-stop responsibility only to directional button DOM nodes that `render()` destroys.
 - Do not allow movement timers to survive world→battle/dialogue/menu/background transitions.
 - Do not remove centralized `stopMoving()` / global pointer-release safety without an equivalently robust replacement.
@@ -137,25 +171,23 @@ The next action is complete only when:
 - Do not return to menu-only location selection as the main exploration model.
 - Do not replace physical traversal with static story cards.
 - Do not copy maps, sprites, UI, text, music, enemies, characters, or art from an existing game.
-- Do not treat emoji/CSS/SVG interim art as final when it is not final.
-- Do not claim generated raster assets were integrated unless actual repository files exist and the playable build references them.
 - Do not reveal Glenn's relation to Luke, Elisia, or the Demon-King succession conflict yet.
 - Do not reveal Elisia's full history through Leon at this stage.
 - Do not start the Glenn boss fight yet.
-- Do not remove or reorder the v0.8 → v0.9 → v0.10 Pages injection chain without intentionally testing it.
+- Do not remove or reorder the v0.8 → v0.9 → v0.10 → v0.11 Pages injection chain without intentional testing.
 
 ## IMPORTANT_DESIGN_DECISIONS
 
 - Visual target remains `SFC後期〜PS1初期の高品質2D JRPG`, not full 3D.
-- Player guidance remains a core quality requirement.
+- Main-character dialogue imagery should be full-body or body-dominant rather than face-only.
+- Main field characters ultimately require visible front/back/left/right presentation.
+- Luke direction rendering uses the already-authoritative `s.dir`; movement mechanics are not duplicated in the presentation layer.
+- Luke victory banter is personality-bearing content, not a single fixed system message.
+- Random victory dialogue preserves the last 8 selections in save state to reduce near-repeat fatigue.
+- The special second-win progression narration takes precedence over random banter.
 - Field sprites and dialogue portraits remain separate presentation layers.
-- Portrait contract remains key-based (`luke`, `leon`, `glenn`) with expression and side extensibility.
-- Original CSS/SVG is an acceptable repository-safe interim visual format when binary transport is unavailable.
 - Final art quality must still be improved later; technical integration success must not be confused with final visual fidelity.
-- Battle presentation is regional and map-aware but battle mechanics remain owned by the core logic.
-- Exploration remains top-down, tile/coordinate based with physical exits.
 - Mobile-first touch controls and movement-stop safety remain protected infrastructure.
-- Future visual upgrades should increasingly reduce placeholder appearance without destabilizing playability.
 
 ## STORY_CANON_ADDED_OR_CHANGED
 
