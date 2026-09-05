@@ -96,7 +96,7 @@ jobs:
             local needle="$1" file="$2" label="$3"
             if ! grep -q "$needle" "$file"; then
               echo "Missing smoke assertion: $label ($needle)"
-              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-facing-cue="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-entered="[^"]*"\|data-exited="[^"]*"\|data-room="[^"]*"\|data-stock-entered="[^"]*"\|data-stock-exited="[^"]*"\|data-stock-room="[^"]*"\|data-record-entered="[^"]*"\|data-record-exited="[^"]*"\|data-record-room="[^"]*"\|data-shrine-entered="[^"]*"\|data-shrine-exited="[^"]*"\|data-shrine-room="[^"]*"\|data-clearing-entered="[^"]*"\|data-clearing-exited="[^"]*"\|data-clearing-room="[^"]*"\|data-training-entered="[^"]*"\|data-training-exited="[^"]*"\|data-training-room="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-saved="[^"]*"\|data-storage-count="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -100 || true
+              grep -o 'lqRuntime[^< ]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-moved="[^"]*"\|data-facing-cue="[^"]*"\|data-interacted="[^"]*"\|data-dialog="[^"]*"\|data-entered="[^"]*"\|data-exited="[^"]*"\|data-room="[^"]*"\|data-stock-entered="[^"]*"\|data-stock-exited="[^"]*"\|data-stock-room="[^"]*"\|data-record-entered="[^"]*"\|data-record-exited="[^"]*"\|data-record-room="[^"]*"\|data-shrine-entered="[^"]*"\|data-shrine-exited="[^"]*"\|data-shrine-room="[^"]*"\|data-clearing-entered="[^"]*"\|data-clearing-exited="[^"]*"\|data-clearing-room="[^"]*"\|data-training-entered="[^"]*"\|data-training-exited="[^"]*"\|data-training-room="[^"]*"\|data-attic-entered="[^"]*"\|data-attic-exited="[^"]*"\|data-attic-room="[^"]*"\|data-battled="[^"]*"\|data-enemy="[^"]*"\|data-enemy-hp="[^"]*"\|data-player-hp="[^"]*"\|data-saved="[^"]*"\|data-storage-count="[^"]*"\|data-x="[^"]*"\|data-y="[^"]*"' "$file" | tail -100 || true
               exit 1
             fi
           }
@@ -120,7 +120,7 @@ jobs:
           echo "LUKE QUEST headless title smoke PASS (chrome status $title_status)"
 
           set +e
-          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --virtual-time-budget=5200 --dump-dom 'http://127.0.0.1:8123/?lqSmoke=1' >/tmp/lq-world-dom.html 2>/tmp/lq-world-chrome.log
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --virtual-time-budget=5600 --dump-dom 'http://127.0.0.1:8123/?lqSmoke=1' >/tmp/lq-world-dom.html 2>/tmp/lq-world-chrome.log
           world_status=$?
           set -e
           if [ ! -s /tmp/lq-world-dom.html ]; then
@@ -155,17 +155,21 @@ jobs:
           assert_dom 'data-training-entered="true"' /tmp/lq-world-dom.html training-yard-entry
           assert_dom 'data-training-exited="true"' /tmp/lq-world-dom.html training-yard-exit
           assert_dom 'data-training-room="true"' /tmp/lq-world-dom.html training-yard-map
+          assert_dom 'lqAtticRuntimeSmokeMarker' /tmp/lq-world-dom.html attic-marker
+          assert_dom 'data-attic-entered="true"' /tmp/lq-world-dom.html attic-room-entry
+          assert_dom 'data-attic-exited="true"' /tmp/lq-world-dom.html attic-room-exit
+          assert_dom 'data-attic-room="true"' /tmp/lq-world-dom.html attic-room-map
           assert_dom 'lqRuntimeBattleSmokeMarker' /tmp/lq-world-dom.html battle-marker
           assert_dom 'data-battled="true"' /tmp/lq-world-dom.html battle-action
           assert_dom 'data-enemy="訓練用スモーク標的"' /tmp/lq-world-dom.html battle-enemy
           assert_dom 'lqRuntimeSaveSmokeMarker' /tmp/lq-world-dom.html save-marker
           assert_dom 'data-saved="true"' /tmp/lq-world-dom.html save-persistence
-          if grep -q 'lqRuntimeSmokeFailure' /tmp/lq-world-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-world-chrome.log; then
+          if grep -q 'lqRuntimeSmokeFailure\|lqAtticRuntimeSmokeFailure' /tmp/lq-world-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-world-chrome.log; then
             echo 'Browser runtime error detected'
             cat /tmp/lq-world-chrome.log
             exit 1
           fi
-          echo "LUKE QUEST headless title + world + movement + interaction + six optional/interior transitions + battle + save smoke PASS (chrome status $world_status)"
+          echo "LUKE QUEST headless title + world + movement + interaction + seven optional/interior transitions + battle + save smoke PASS (chrome status $world_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
