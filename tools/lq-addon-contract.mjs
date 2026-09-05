@@ -16,4 +16,19 @@ for(const file of addons){
  if(!text.trim().startsWith('(() => {'))throw new Error(`${file}: must be isolated in an IIFE`);
  if(text.includes('document.write('))throw new Error(`${file}: document.write forbidden`);
 }
+
+const originalEnemyPath=`${dir}/original-enemy-art.js`;
+if(fs.existsSync(originalEnemyPath)){
+ const text=fs.readFileSync(originalEnemyPath,'utf8');
+ const names=['ぷるぷるスライム','ツノウサギ','闇カラス','苔むしコウモリ','森グモ','木霊ウルフ','霧まといキツネ','樹皮トカゲ','夜歩きフクロウ','霧喰いヤマネコ','灰羽トンビ','泥鎧イノシシ','灰爪ハウンド','監視フクロウ','黒甲ムカデ','崖ネズミ','石羽コンドル','退避路オオカミ'];
+ for(const name of names)if(!text.includes(`'${name}'`))throw new Error(`original-enemy-art.js: missing registry entry ${name}`);
+ if(!text.includes('LQ_ORIGINAL_ENEMY_ART_STATUS'))throw new Error('original-enemy-art.js: runtime status contract missing');
+ if(!text.includes("original-vector-normal-enemy"))throw new Error('original-enemy-art.js: formal-stage marker missing');
+ if(!text.includes("if(!cfg)return false"))throw new Error('original-enemy-art.js: unknown-enemy fallback guard missing');
+ if(!text.includes(".enemySpriteStage .enemy")||!text.includes("app.querySelector('.enemy')"))throw new Error('original-enemy-art.js: assembled/base battle target compatibility missing');
+ const forbidden=['🟦','🐇','🐦‍⬛','🦇','🕷️','🐺','🦊','🦎','🦉','🐈‍⬛','🦅','🐗','🐕‍🦺','🐛','🐀'];
+ for(const glyph of forbidden)if(text.includes(glyph))throw new Error(`original-enemy-art.js: emoji final art forbidden (${glyph})`);
+ const entryCount=(text.match(/'[^']+':\{kind:/g)||[]).length;
+ if(entryCount!==18)throw new Error(`original-enemy-art.js: expected 18 registered normal enemies, got ${entryCount}`);
+}
 console.log(`LUKE QUEST addon contract PASS: ${addons.length} isolated add-ons after ${ux.length} sequential patches`);
