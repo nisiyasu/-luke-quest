@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-/* REQ-010 Checkpoint A/B: a real walkable attic lounge reached from the existing inn guest room. */
+/* REQ-010 Checkpoint A/B/C: a real walkable attic lounge reached from the existing inn guest room, plus a dedicated runtime smoke probe. */
 MAPS.innAtticLounge={
  name:'南門宿・屋根裏談話室',w:11,h:9,
  tiles:[
@@ -82,6 +82,20 @@ function decorateAttic(){
 const worldBase=world;world=function(){const r=worldBase();decorateAttic();return r;};
 const renderBase=render;render=function(){const r=renderBase();decorateAttic();return r;};
 window.LQ_BUILDING_INTERIORS=Object.assign({},window.LQ_BUILDING_INTERIORS,{innAtticLounge:{entryMap:'innGuestRoom',exitMap:'innGuestRoom',type:'attic-lounge'}});
-window.LQ_INN_ATTIC_STATUS={checkpoint:'REQ-010-A-B',walkable:true,entry:'innGuestRoom',exit:'innGuestRoom',inspectablePoints:4};
+window.LQ_INN_ATTIC_STATUS={checkpoint:'REQ-010-A-B-C',walkable:true,entry:'innGuestRoom',exit:'innGuestRoom',inspectablePoints:4};
 if(s.screen==='world')decorateAttic();
+
+/* Dedicated browser smoke uses the same public action/checkGate transition paths as play, then restores the prior state. */
+if(new URLSearchParams(location.search).has('lqAtticSmoke')){
+ setTimeout(()=>{
+  const snapshot=structuredClone(s);let entered=false,exited=false,roomDefined=!!MAPS.innAtticLounge;
+  try{
+   stopMoving();s.screen='world';s.map='innGuestRoom';s.x=8;s.y=5;s.dir='up';s.dialog=null;render();
+   action();entered=s.map==='innAtticLounge';
+   s.dialog=null;s.x=5;s.y=8;s.dir='down';checkGate();exited=s.map==='innGuestRoom';
+  }catch(err){console.error('lqAtticRuntimeSmokeFailure',err);}
+  Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
+  const marker=document.createElement('i');marker.id='lqAtticRuntimeSmokeMarker';marker.dataset.atticEntered=String(entered);marker.dataset.atticExited=String(exited);marker.dataset.atticRoom=String(roomDefined);marker.hidden=true;document.body.appendChild(marker);
+ },250);
+}
 })();
