@@ -76,7 +76,10 @@ const touchContracts=[
  ['touch controller world-screen gate',"s.screen!=='world'"],
  ['touch controller centralized stop','stopMoving()'],
  ['touch controller blur safety',"addEventListener('blur'"],
- ['touch controller visibility safety','visibilitychange']
+ ['touch controller visibility safety','visibilitychange'],
+ ['touch controller fallback cleanup helper','function clearFallback()'],
+ ['touch controller direction-switch cleanup','clearFallback();\n  if(typeof stopMoving'],
+ ['touch controller cleanup status marker','directionSwitchTimerCleanup:true']
 ];
 for(const [label,needle] of touchContracts)if(!touchController.includes(needle))throw new Error(`Floating touch controller regression guard missing: ${label}`);
 
