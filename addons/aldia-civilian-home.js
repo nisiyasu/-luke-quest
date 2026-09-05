@@ -67,10 +67,10 @@ style.textContent=`
 `;
 document.head.appendChild(style);
 
-function frontNpc(){
+function homeNpcAhead(){
   if(s.screen!=='world')return null;
   const p=front();
-  return currentNpcs().find(n=>n.x===p.x&&n.y===p.y)||null;
+  return MAPS[HOME_MAP].npcs.find(n=>n.x===p.x&&n.y===p.y)||null;
 }
 
 function enterHome(){
@@ -82,7 +82,14 @@ function enterHome(){
 
 const baseAction=action;
 action=function(){
-  if(!s.dialog&&s.map==='town'&&frontNpc()?.kind==='lqCivilianHomeDoor')return enterHome();
+  if(!s.dialog&&s.screen==='world'&&s.map==='town'){
+    const p=front();
+    if(p.x===ENTRY_X&&p.y===ENTRY_Y)return enterHome();
+  }
+  if(!s.dialog&&s.screen==='world'&&s.map===HOME_MAP){
+    const n=homeNpcAhead();
+    if(n){stopMoving();s.dialog=n;render();return;}
+  }
   return baseAction();
 };
 
@@ -112,6 +119,6 @@ const baseRender=render;
 render=function(){const r=baseRender();decorateHome();return r;};
 
 window.LQ_BUILDING_INTERIORS=Object.assign({},window.LQ_BUILDING_INTERIORS,{aldiaCivilianHome:{entryMap:'town',map:HOME_MAP,exitMap:'town',type:'civilian-home'}});
-window.LQ_CIVILIAN_HOME_STATUS={version:'1.0',map:HOME_MAP,entry:{map:'town',x:ENTRY_X,y:ENTRY_Y},residentCount:1,propCount:4,rewardsAdded:false,protectedCanonChanged:false,walkable:true};
+window.LQ_CIVILIAN_HOME_STATUS={version:'1.1',map:HOME_MAP,entry:{map:'town',x:ENTRY_X,y:ENTRY_Y},residentCount:1,propCount:4,rewardsAdded:false,protectedCanonChanged:false,walkable:true,interactionRouting:'coordinate-hardened'};
 if(s.screen==='world')decorateHome();
 })();
