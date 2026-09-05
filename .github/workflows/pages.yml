@@ -170,6 +170,43 @@ jobs:
             exit 1
           fi
           echo "LUKE QUEST headless title + world + movement + interaction + seven optional/interior transitions + battle + save smoke PASS (chrome status $world_status)"
+      - name: Browser smoke floating touch controller
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8124 >/tmp/lq-touch-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --virtual-time-budget=2600 --dump-dom 'http://127.0.0.1:8124/?lqTouchSmoke=1' >/tmp/lq-touch-dom.html 2>/tmp/lq-touch-chrome.log
+          touch_status=$?
+          set -e
+          test -s /tmp/lq-touch-dom.html
+          for needle in \
+            'lqFloatingTouchRuntimeSmokeMarker' \
+            'data-visible="true"' \
+            'data-dead-zone="true"' \
+            'data-right-active="true"' \
+            'data-moved-right="true"' \
+            'data-up-active="true"' \
+            'data-released-hidden="true"' \
+            'data-stopped-after-release="true"' \
+            'data-fallback-cleared="true"'; do
+            if ! grep -q "$needle" /tmp/lq-touch-dom.html; then
+              echo "Floating touch smoke missing: $needle"
+              grep -o 'lqFloatingTouchRuntimeSmokeMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-touch-dom.html | tail -60 || true
+              cat /tmp/lq-touch-chrome.log
+              exit 1
+            fi
+          done
+          if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-touch-chrome.log; then
+            echo 'Floating touch browser runtime error detected'
+            cat /tmp/lq-touch-chrome.log
+            exit 1
+          fi
+          echo "LUKE QUEST floating touch pointer-drag smoke PASS (chrome status $touch_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
