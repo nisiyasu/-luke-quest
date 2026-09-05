@@ -1,130 +1,196 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-05 18:55 JST
+- UPDATED_AT: 2026-09-05 19:27 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_COMMIT_SHA: `01d615bf86ed6a114369137d74244c686711eb6f` (v0.50 implementation/deploy checkpoint immediately before this CURRENT autosave)
+- LATEST_COMMIT_SHA: `b77345331d27e8dd6608a6219463d80674efbb88` (fresh implementation HEAD observed immediately before this CURRENT autosave; this CURRENT commit follows it)
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - CURRENT_PHASE: Phase 2 WORLD + Phase 3 BATTLE + Phase 4 CONTENT + Phase 5 VISUAL QUALITY + Phase 6 POLISH
-- CURRENT_BUILD_STATUS: PLAYABLE / v0.50 validation+Pages deploy SUCCESS via workflow run `33959184463`
+- CURRENT_BUILD_STATUS: PLAYABLE / extended build chain now reaches at least `ux-v118.js` plus collision-safe `addons/*.js`; latest full Pages validation was still in progress immediately before this CURRENT autosave and must be rechecked fresh after this commit
 
 ## MANDATORY_BOOT_FILES
 
 Read fresh before mutation:
-1. `AUTONOMOUS_DEV_DIRECTIVE.md`
+1. `AUTONOMOUS_DEV_DIRECTIVE.md` FULL TEXT
 2. `CURRENT.md`
-3. `index.html`
-4. `.github/workflows/pages.yml`
-5. `ux-v08.js` through latest `ux-vNN.js`
-6. `manifest.webmanifest`
-7. `sw.js`
-8. `assets/app-icon.svg`
-9. `assets/characters/CHARACTER_ASSET_CONTRACT.md`
-10. `assets/characters/luke/dialogue-neutral.webp.b64`
-11. `assets/portraits/` state
-12. recent commits / Pages workflow state
+3. repository metadata / actual default branch / fresh HEAD
+4. `index.html`
+5. `.github/workflows/pages.yml`
+6. all sequential `ux-v*.js` through the fresh latest version in numeric order
+7. all `addons/*.js`
+8. `tools/lq-static-regression.mjs`
+9. `tools/lq-addon-contract.mjs`
+10. `manifest.webmanifest`
+11. `sw.js`
+12. `assets/app-icon.svg`
+13. `assets/characters/CHARACTER_ASSET_CONTRACT.md`
+14. `assets/characters/luke/dialogue-neutral.webp.b64`
+15. `assets/portraits/` state
+16. recent commits / Actions / Pages state
 
-`index.html` remains rollback-safe v0.7 core. Pages injects presentation/gameplay patches in numerical order. Current deployed chain is v0.8 → v0.50.
+`index.html` remains the rollback-safe v0.7 core. GitHub Pages dynamically discovers and injects `ux-v*.js` in numeric `sort -V` order, then injects `addons/*.js`. Do not manually assume the latest ux version. Fresh HEAD advanced concurrently during this run from v0.41 through at least v0.118.
 
 ## WHAT_CHANGED_RECENTLY
 
-### v0.16-v0.39 foundation carried forward
-1. Added physical interiors for `南門宿・一階`, `ミナの道具屋`, and `王国神殿・礼拝堂` with doorway entry/exit, collisions, props, services and safe story presentation.
-2. Added contextual A-button prompts, town/field/forest visual-density passes, demon-army route identity, battle depth, original CSS chest, 21 original vector enemy designs, title/prologue upgrade, transitions, PWA shell, real shop/equipment/DEF system, full adventure menu, inn overnight presentation and field herb use.
+### HEAD-FIRST RECOVERY / CONTINUOUS DEVELOPMENT
 
-### HEAD-first recovery in the current automation run
-3. Fresh `main` HEAD was `434d236667ca812b7e8d3a0bb61f459ae71c544a` while CURRENT still pointed to v0.39. The run correctly treated HEAD as reality, inspected the missing commits/diffs and resumed from v0.41 rather than repeating stale work.
-4. Recovered v0.40: explicit weapon/armor switching from the adventure menu.
-5. Recovered v0.41: original lightweight field silhouettes for five ordinary human NPCs (`旅好きの老人`, `畑仕事の青年`, `道具屋のミナ`, `南門宿の主人`, `神殿の見習い`) replacing their emoji placeholders.
+1. The run booted from fresh repository reality and detected that CURRENT was behind fresh HEAD. It correctly treated GitHub HEAD as implementation truth, reconstructed missing commits, and resumed from the latest real checkpoint rather than repeating stale work.
+2. While the run was active, another writer also advanced the same repository through sequential `ux-vNN.js` checkpoints. Direct attempts to claim fast-moving `ux-v104.js` / `ux-v105.js` names collided with already-created files. No existing work was overwritten.
+3. To keep development safe and continuous, a collision-safe extension lane was established: sequential core patches remain `ux-vNN.js`, while independent work can use uniquely named `addons/*.js` loaded after the sequential chain.
+4. Pages workflow now validates both lanes, injects ux patches in version order, and injects add-ons after the ux chain. This is the preferred safe pattern while multiple writers can advance HEAD.
 
-### v0.42-v0.50 player-visible work
-6. v0.42 replaced eight story-clue emoji with original CSS-drawn props: dying campfire, black feather, broken training sword, golden thread, disturbed footprints, black-iron order marker, disciplined bootprints and discarded bandage.
-7. v0.43 replaced three evacuation-route clue emoji with original props (`血のついた岩`, `外された封鎖杭`, `撤収命令の切れ端`) and replaced the ordinary demon-army lookout emoji with a distinct original CSS guard silhouette.
-8. v0.44 removed repeated house/tree/rock emoji from core terrain rendering and introduced a denser original CSS terrain language for grass, forest, deep forest, conifer trees, roof shingles, boulders, animated water glints, masonry walls, interior floors, gates, military ground and evacuation terrain.
-9. v0.45 added a two-step cadence, grounded shadow, body/head/cape bob and leg phase animation to the existing interim Luke field representation. This remains interim CSS and is explicitly NOT formal four-direction character artwork.
-10. v0.46 added two persistent optional exploration treasure caches: forest cache = 24G + 薬草1, deep-forest cache = 38G + 薬草1. Both use saved flags and the existing original chest presentation.
-11. v0.47 added an `INVESTIGATION` clue journal to the adventure menu. It exposes only already-discovered evidence from existing story flags and deliberately does not reveal hidden family/Elisia/Eleanor/Demon-King canon.
-12. v0.48 replaced emoji-led battle command labels with original console-style CSS glyphs and Japanese/English command hierarchy for ATTACK / GUARD / ITEM / ESCAPE; battle header chips were also de-emoji'd.
-13. v0.49 added a real shop sell-back flow for optional equipment. 青銅の剣 sells for 22G and 革の旅装 for 19G. Equipped gear cannot be sold, and starter gear remains protected.
-14. v0.50 added a dedicated post-battle result overlay with defeated enemy, EXP, GOLD and a LEVEL UP callout. Movement/action are safely blocked while the result is open; A or the continue button returns to the field, after which the existing Luke victory banter remains available.
-15. Final workflow run `33959184463` for commit `01d615bf86ed6a114369137d74244c686711eb6f` completed SUCCESS, validating all JS v0.8-v0.50 plus PWA/raster checks and deploying GitHub Pages.
+### v0.42-v0.50 VISUAL / WORLD / BATTLE FOUNDATION
+
+5. v0.42 replaced eight story-clue emoji with original CSS-drawn evidence props.
+6. v0.43 added original evacuation-route evidence props and a distinct demon-army lookout silhouette.
+7. v0.44 materially reduced repeated terrain emoji and added an original CSS terrain language for grass, forest, deep forest, trees, roofs, boulders, animated water, masonry, floors, gates and military/evacuation ground.
+8. v0.45 improved the interim Luke field sprite with grounded shadow and a two-step movement cadence. This is still interim CSS and is NOT formal directional character art.
+9. v0.46 added two persistent optional treasure caches in forest/deep forest.
+10. v0.47 added a spoiler-safe INVESTIGATION clue journal using only already-discovered flags.
+11. v0.48 replaced emoji battle-command labels with original console-style ATTACK / GUARD / ITEM / ESCAPE glyphs.
+12. v0.49 added equipment sell-back while protecting equipped/starter gear.
+13. v0.50 added a dedicated victory-result overlay with enemy, EXP, GOLD and level-up feedback.
+
+### v0.51-v0.103 PLAYER-VISIBLE EXPANSION
+
+14. Added projected shop stat comparisons, formal Luke reuse in adventure menu/title/victory/battle/prologue, illustrated regional battle scenery, contextual A interaction prompts, enemy entrance/idle motion, title save preview, live objective compass, first battle technique `集中斬り`, opened-chest persistence, regional world atmosphere, iPhone control-deck polish, original synthesized Web Audio SFX, HP HUD, treasure pickup feedback and save-schema migration.
+15. Added dialogue presentation polish, technique documentation in the adventure menu, physical/examinable Royal Capital fountain and market stalls, story-reactive ordinary NPC dialogue, lightweight enemy attack personalities plus visible enemy trait tags, clue-discovery toasts, EXP progress bars and level-up stat breakdown.
+16. Added hidden sparkle finds, contextual interaction labels, first optional side quest `旅人の銀留め具`, sidequest state markers, door/chest/clue synth SFX, sidequest completion banner, a physical field signpost, herb drop-table seed, discovered-enemy bestiary with defeat counts, and a second consumable `煙玉` with guaranteed battle escape.
+17. Added a live pause-menu minimap derived from current tile data, first ordinary Royal Capital residence interior with furniture and door audio, defeat/recovery presentation, three more town NPCs, original interior prop art, original building-door art, dynamic public build label, discovered-area record, active playtime record, Royal Capital forest-monster bounty, bounty state markers, and multiple save-schema hardening passes.
+
+### CONCURRENT UX CHAIN OBSERVED AFTER v0.103
+
+18. Fresh HEAD later advanced through at least v0.118 while this run continued. Confirmed examples include v0.109 cinematic dialogue framing, v0.110 field HP condition HUD, v0.111 battle command console feedback, v0.113 interior lighting atmosphere, v0.114 original interior-prop sprites, and v0.118 encounter danger indicator. Intervening versions must be read fresh at next boot instead of inferred from memory.
+
+### COLLISION-SAFE ADD-ONS ADDED IN THIS RUN
+
+19. `addons/situational-victory.js`: preserves the original 60 victory lines and adds 30 context-specific Luke lines for close wins, herb-use wins and quick wins, maintaining recent-repeat avoidance. Available pool is now 90 when this add-on is loaded.
+20. `addons/physical-landmark-prompts.js`: direct A prompts for the physical fountain and market stalls.
+21. `addons/completion-record.js`: completed optional-content record in the adventure menu.
+22. `addons/battle-turn-counter.js`: visible battle turn counter.
+23. `addons/optional-objective-chip.js`: compact current optional-objective HUD.
+24. `addons/autosave-pulse.js`: unobtrusive AUTOSAVE feedback on meaningful map/flag transitions.
+25. `addons/shop-item-cards.js`: richer item categories, descriptions, owned/equipped clarity.
+26. `addons/stackable-shop-quantity.js`: ×1 / ×3 purchase controls for stackable herb/smoke consumables.
+27. `addons/critical-hit.js`: conservative normal-attack critical-hit chance with visual feedback.
+28. `addons/menu-section-nav.js`: sticky iPhone adventure-menu header, quick close and horizontal section-jump navigation for the now content-rich menu.
+29. `addons/dialogue-log.js`: saves up to 30 recent dialogue records and exposes the latest 8 in the adventure menu.
+30. `addons/adventure-records.js`: compact battle/defeat/area/treasure/optional-content statistics.
+31. `addons/advanced-equipment.js`: second equipment tier (`鉄の剣`, `補強革鎧`) with buy/equip/sell support and projected stat growth.
+32. `addons/building-signage.js`: readable INN / SHOP / TEMPLE / HOME sign plaques for Royal Capital buildings.
+
+### CI / SAFETY HARDENING
+
+33. `.github/workflows/pages.yml` now discovers `ux-v*.js` dynamically in numeric version order instead of manually editing the list every checkpoint.
+34. `tools/lq-static-regression.mjs` asserts contiguous ux versions and guards critical movement/save/battle/major-feature contracts.
+35. `tools/lq-addon-contract.mjs` validates that add-ons remain isolated strict-mode IIFEs and that required host contracts are present.
+36. Workflow syntax-checks every sequential patch, every add-on, service worker, manifest, PWA files and formal Luke raster payload before deploy.
+37. `concurrency.cancel-in-progress: true` means many intermediate workflow runs are expected to be cancelled during rapid development. Only the freshest final run should be treated as deployment truth.
 
 ## FILES_CHANGED
 
-- `ux-v40.js`
-- `ux-v41.js`
-- `ux-v42.js`
-- `ux-v43.js`
-- `ux-v44.js`
-- `ux-v45.js`
-- `ux-v46.js`
-- `ux-v47.js`
-- `ux-v48.js`
-- `ux-v49.js`
-- `ux-v50.js`
+Major current-run files include:
+- `ux-v42.js` through numerous sequential checkpoints now reaching at least `ux-v118.js` on fresh HEAD
+- `addons/situational-victory.js`
+- `addons/physical-landmark-prompts.js`
+- `addons/completion-record.js`
+- `addons/battle-turn-counter.js`
+- `addons/optional-objective-chip.js`
+- `addons/autosave-pulse.js`
+- `addons/shop-item-cards.js`
+- `addons/stackable-shop-quantity.js`
+- `addons/critical-hit.js`
+- `addons/menu-section-nav.js`
+- `addons/dialogue-log.js`
+- `addons/adventure-records.js`
+- `addons/advanced-equipment.js`
+- `addons/building-signage.js`
+- `tools/lq-static-regression.mjs`
+- `tools/lq-addon-contract.mjs`
 - `.github/workflows/pages.yml`
 - `CURRENT.md`
 
 ## NEW_ASSETS
 
-- No new formal raster major-character art was fabricated.
-- Owner-approved Luke full-body WebP remains authoritative.
-- v0.42-v0.44 use original CSS-drawn environment/clue/terrain visuals integrated directly into the public game.
-- v0.41/v0.43 use original CSS field silhouettes for ordinary NPC/guard presentation; these are not formal major-character portrait assets.
+- No new formal major-character raster art was fabricated in this run.
+- Existing Owner-approved Luke full-body WebP remains the only formal main-character raster used by the new Luke presentation surfaces.
+- Original CSS/vector art has been added for terrain, evidence props, ordinary NPCs, building doors, interior objects, enemy presentation and UI effects. These are integrated public-game assets/presentation, but they are NOT to be mislabeled as formal final major-character art.
+- Synthesized SFX are generated at runtime with Web Audio; no copied/external audio file was introduced.
 
 ## TESTS_AND_VERIFICATION
 
-- Fresh repository metadata/default branch confirmed `main`.
-- HEAD-first recovery correctly detected stale CURRENT and reconstructed v0.40-v0.41 from commit reality.
-- v0.42-v0.50 are included in workflow `node --check` validation before deployment.
-- PWA manifest JSON parse, service-worker syntax check, app-icon presence, base64 PNG transport signature and Owner-approved Luke WebP RIFF/WEBP signature remain in CI.
-- Final v0.50 workflow run `33959184463`: `status=completed`, `conclusion=success`.
-- Pages deploy checkpoint HEAD verified as `01d615bf86ed6a114369137d74244c686711eb6f` before this CURRENT autosave.
+- Fresh repository metadata/default branch repeatedly confirmed `main`.
+- HEAD-first recovery was exercised in practice because CURRENT lagged behind HEAD.
+- Sequential ux naming collision was detected safely; no overwrite occurred and the add-on lane was introduced instead.
+- Workflow validates sequential ux patches with `node --check` in `sort -V` order.
+- Workflow validates all `addons/*.js` with `node --check`.
+- Static regression guard verifies contiguous ux patch chain plus central stopMoving, global pointer release/cancel, visibility safety, save, battle actions and major feature contracts.
+- Add-on contract guard verifies host contracts and isolated add-on structure.
+- Manifest JSON, service worker syntax, app icon, PNG transport probe and Owner-approved Luke WebP RIFF/WEBP signature remain validated in CI.
+- Latest fresh implementation HEAD immediately before this CURRENT autosave: `b77345331d27e8dd6608a6219463d80674efbb88` (`Add v0.118 encounter danger indicator`).
+- The workflow for that HEAD was `in_progress` immediately before this CURRENT autosave. Recheck the new freshest run after this CURRENT commit before reporting final deployment PASS.
 - Real-device iPhone visual/touch confirmation remains Owner-device testing and is NOT claimed as passed.
+- There is still no real automated browser/touch execution suite; current CI is strong static/syntax/asset contract validation, not a substitute for Safari runtime testing.
 
 ## PLAYER_GUIDANCE_IMPROVEMENTS
 
-- Existing objective HUD, initial exit guidance, route landmarks, building prompts and interior guidance remain active.
-- Adventure menu keeps the main objective visible.
-- v0.47 now also preserves discovered mystery evidence in a clue journal, reducing the need to remember scattered NPC/prop dialogue.
-- v0.46 rewards optional forest exploration with persistent treasure instead of making every detour purely decorative.
+- Initial exit guidance, route landmarks, objective HUD, context prompts and building hints remain active.
+- Live objective compass now gives route direction while avoiding a false forest direction before the two-win unlock condition.
+- Field signpost gives physical in-world direction to 王都 / 魔物の森.
+- Physical fountain, market stalls, buildings and NPCs show direct A interaction prompts/context labels.
+- Building sign plaques make INN / SHOP / TEMPLE / HOME readable at a glance.
+- Pause-menu minimap shows current position and terrain-derived area context.
+- Optional objective chip exposes the currently active sidequest/bounty without replacing the main objective.
+- Adventure-menu section navigation prevents the growing menu from becoming an iPhone scroll maze.
+- Investigation journal, dialogue log, completed-content record and discovered-area record reduce memory burden for long play sessions.
 
 ## DIALOGUE_VISUAL_PROGRESS
 
-- Owner-approved formal Luke full-body dialogue art remains integrated and authoritative.
-- Dialogue shell remains body-dominant rather than face-only.
-- Leon and Glenn still use interim SVG dialogue art and are NOT formalized.
-- Eleanor / Elisia formal dialogue art remains unintegrated.
-- Investigation journal summarizes discovered evidence without leaking hidden canon.
+- Owner-approved formal Luke full-body art remains integrated and reused in dialogue, adventure menu, title screen, victory results, battle UI and Luke-spoken prologue beats where supported.
+- Dialogue framing has received multiple cinematic polish passes while preserving formal art containment.
+- Recent dialogue history now stores up to 30 entries and shows the latest 8 in the menu.
+- Ordinary NPC dialogue can react to already-known story progress without revealing hidden canon.
+- Leon and Glenn formal full-body art: NOT YET INTEGRATED.
+- Eleanor and Elisia formal art: NOT YET INTEGRATED.
 
 ## BATTLE_VISUAL_PROGRESS
 
-- Regional battle framing, enemy stage, HP display, environmental depth, particles, enemy hit pulse, low-HP danger and 21 original vector enemy designs remain active.
-- v0.48 replaces emoji-led command labels with original console-style command glyphs and stronger hierarchy.
-- v0.50 adds a dedicated victory-result presentation with EXP/GOLD/level-up feedback.
-- DEF continues to reduce enemy damage before guard reduction.
-- Victory banter remains 60 randomized Luke lines with last-8 exact repeat suppression.
+- 21+ original regional enemy vector designs, regional scenery, particles, enemy stage motion, HP display, command hierarchy, damage feedback and low-HP states remain active.
+- Command UI uses original console-style glyphs rather than emoji labels.
+- Dedicated victory result presents enemy, EXP, GOLD, level-up and possible item drop.
+- Formal Luke art is reused in battle/victory presentation without generating a different Luke.
+- `集中斬り` provides the first explicit battle technique, once per battle.
+- Enemy personalities now introduce lightweight fast/heavy/tricky behavior variation with readable trait tags.
+- Normal attack has a conservative critical-hit layer via collision-safe add-on.
+- Battle turn counter improves tactical readability.
+- Defeat has a dedicated recovery presentation before returning to existing safe Royal Capital recovery state.
+- Original runtime Web Audio SFX cover attack, guard, heal, skill, escape, victory, menu, door, chest and clue feedback where supported.
+- Encounter danger indication is present on fresh v0.118 HEAD.
 
 ## MAP_READABILITY_IMPROVEMENTS
 
-- 王都 / 王都近郊 / 魔物の森 / 深部 / 監視区域 / 退避路 retain their prior landmark and density passes.
-- v0.42-v0.43 turn story evidence into distinct readable physical props instead of generic emoji.
-- v0.44 materially reduces repeated emoji tiles and gives grass/forest/tree/roof/rock/water/wall/floor/military/evacuation terrain a more coherent 2D-console visual language.
-- Three Royal Capital interiors remain physically enterable.
-- Two forest-region optional treasure caches add readable exploration destinations.
+- 王都 / 王都近郊 / 魔物の森 / 深部 / 霧 / 監視区域 / 退避路 / 崖道 retain dedicated terrain/atmosphere/route identity.
+- Repeated terrain/clue/door/interior-prop emoji have been materially reduced or replaced with original CSS/vector presentation.
+- 王都 now contains physical service buildings plus an ordinary residence interior, market stalls, fountain, sign plaques and additional townsfolk.
+- Optional forest exploration has persistent treasure and hidden sparkle rewards.
+- Route objective compass + physical field sign + pause minimap create three complementary navigation layers.
+- Interior lighting/prop improvements continued on concurrent v0.113-v0.114 checkpoints.
 
 ## CHARACTER_CANON_STATUS
 
-- Luke formal dialogue image: Owner-approved blue-haired / blue-cloak / silver-armor / gold-accent full-body design remains live.
-- Luke field direction logic: 4/4 directions live.
-- Luke field artwork: still interim CSS and NOT formal directional art.
-- v0.45 improves movement cadence only; it does NOT change formal-canon status.
-- Leon and Glenn formal visual art: pending.
+- Luke formal dialogue/large presentation image: Owner-approved blue hair / blue cloak / silver armor / gold-accent full-body design remains authoritative and live.
+- Luke field direction logic: 4/4 directions LIVE (`up`, `down`, `left`, `right`).
+- Luke field presentation: interim CSS with four directional silhouettes and step cadence. NOT formal directional artwork.
+- Do not promote current field CSS to formal completion.
+- Leon formal art: pending.
+- Glenn formal art: pending.
+- Eleanor formal art: pending.
+- Elisia formal art: pending.
 
 ## PORTRAIT_INTEGRATION_STATUS
 
-- Luke formal full-body dialogue art: INTEGRATED.
-- Luke old interim SVG remains only as fallback path.
+- Luke formal full-body art: INTEGRATED and reused across multiple presentation surfaces.
+- Luke fallback interim SVG remains only as fallback path.
 - Leon formal art: NOT YET INTEGRATED.
 - Glenn formal art: NOT YET INTEGRATED.
 - Eleanor formal art: NOT YET INTEGRATED.
@@ -132,151 +198,201 @@ Read fresh before mutation:
 
 ## FIELD_SPRITE_DIRECTION_STATUS
 
-- Luke direction logic: 4/4 LIVE (`up`, `down`, `left`, `right`) using authoritative `s.dir`.
-- Luke interim CSS field presentation: four directional silhouettes + v0.45 two-step movement cadence / idle return.
-- Luke formal four-direction field art: NOT YET INTEGRATED.
-- Leon/Glenn formal four-direction field art: NOT YET IMPLEMENTED.
-- Five ordinary human NPCs now use original CSS chibi silhouettes; major-character formal-art requirements are unchanged.
-- Do not call current CSS Luke representation final sprite art.
+- Luke direction behavior: 4/4 LIVE from authoritative `s.dir`.
+- Interim CSS direction silhouettes + simple two-step cadence: LIVE.
+- Formal generated/approved four-direction Luke field sprite sheet: NOT YET INTEGRATED.
+- Leon / Glenn formal four-direction field sprites: NOT YET IMPLEMENTED.
+- Ordinary NPC CSS silhouettes are an interim/original presentation improvement, not a substitute for eventual high-fidelity main-character sprite sheets.
 
 ## POST_BATTLE_LINE_VARIETY_STATUS
 
-- Generic Luke victory lines: 60.
-- Random selection: LIVE.
-- Near-repeat suppression: previous 8 exact lines excluded.
-- Special progression narration remains authoritative where already implemented.
-- v0.50 victory results are additive and do not replace the existing Luke character banter system.
+- Original generic Luke victory lines: 60.
+- Collision-safe situational add-on: +30 context-specific lines (10 close win / 10 herb-use / 10 quick win).
+- Available combined pool when add-on is loaded: 90.
+- Original random selection remains active.
+- Recent repeat protection remains; situational add-on also avoids recent exact repeats.
+- Do not reduce below approximately 50 or collapse back to one repeated line.
 
 ## CHECKPOINT_HISTORY
 
-- v0.16: first inn interior.
-- v0.17: item-shop interior.
-- v0.18: Royal Capital visual-density pass.
-- v0.19: field visual-density pass.
-- v0.20: forest atmosphere pass.
-- v0.21: battle depth/impact pass.
-- v0.22: original chest presentation.
-- v0.23: temple lobby interior.
-- v0.24: contextual building guidance.
-- v0.25: original field enemy vectors.
-- v0.26: original forest enemy vectors.
-- v0.27: original deep-forest enemy vectors.
-- v0.28: title/prologue presentation.
-- v0.29: map-arrival polish.
-- v0.30: iPhone/PWA shell.
-- v0.31: shop/equipment/DEF system.
-- v0.32: full adventure menu.
-- v0.33: mist-trail enemy vectors.
-- v0.34: observation-zone enemy vectors.
-- v0.35: evacuation-route enemy vectors.
-- v0.36: cliff-road enemy vectors.
-- v0.37: inn overnight presentation.
-- v0.38: field herb use from menu.
-- v0.39: demon-army route visual identity.
-- v0.40: explicit equipment switching from adventure menu.
-- v0.41: original ordinary-NPC CSS chibi silhouettes.
-- v0.42: original clue/world prop sprites for eight evidence objects.
-- v0.43: evacuation clues + demon-army guard field silhouette.
-- v0.44: original terrain tile-art pass / repeated terrain emoji reduction.
-- v0.45: interim Luke two-step field movement cadence.
-- v0.46: two persistent optional exploration treasure caches.
-- v0.47: spoiler-safe investigation clue journal.
-- v0.48: console-style battle command glyph/UI pass.
-- v0.49: equipment sell-back flow.
-- v0.50: victory results / reward / level-up presentation.
+Foundation:
+- v0.16 inn interior
+- v0.17 shop interior
+- v0.18-v0.20 town/field/forest density
+- v0.21 battle depth
+- v0.22 original chest
+- v0.23 temple interior
+- v0.24 interaction guidance
+- v0.25-v0.27 early regional enemy vectors
+- v0.28 title/prologue
+- v0.29 transitions
+- v0.30 PWA/iPhone shell
+- v0.31 equipment/DEF
+- v0.32 adventure menu
+- v0.33-v0.36 later regional enemies
+- v0.37 inn overnight
+- v0.38 field herb
+- v0.39 demon-route identity
+- v0.40 equipment switching
+- v0.41 ordinary NPC silhouettes
+
+Extended run highlights:
+- v0.42-v0.44 evidence/route/terrain de-emoji and art passes
+- v0.45 movement cadence
+- v0.46 treasure caches
+- v0.47 investigation journal
+- v0.48 battle command art
+- v0.49 sell-back
+- v0.50 victory results
+- v0.51 shop comparison
+- v0.52 formal Luke menu art
+- v0.53 battle scenery
+- v0.54 interaction bubble
+- v0.55 enemy motion
+- v0.56 save preview
+- v0.57 formal Luke title art
+- v0.58 objective compass
+- v0.59 first technique
+- v0.60 formal Luke victory art
+- v0.61 persistent open chests
+- v0.62 world atmosphere
+- v0.63 iPhone control deck
+- v0.64 synth SFX
+- v0.65 HP HUD
+- v0.66 treasure pickup presentation
+- v0.67 formal Luke battle art
+- v0.68 save schema hardening
+- v0.69 dialogue polish
+- v0.70 technique menu
+- v0.71-v0.72 physical fountain/market
+- v0.73 reactive NPC dialogue
+- v0.74-v0.75 enemy behavior + trait UI
+- v0.76 clue toast
+- v0.77-v0.78 EXP/level-up feedback
+- v0.79 hidden finds
+- v0.80 contextual interaction label
+- v0.81-v0.84 first sidequest + markers + SFX + completion
+- v0.85 field signpost
+- v0.86 drops
+- v0.87-v0.88 bestiary + kill counts
+- v0.89 smoke bomb
+- v0.90 minimap
+- v0.91-v0.92 residence interior + density
+- v0.93 defeat presentation
+- v0.94 town population
+- v0.95-v0.96 original interior props/doors
+- v0.97 formal Luke prologue art
+- v0.98 save schema v4
+- v0.99 dynamic build label
+- v0.100 area record
+- v0.101 playtime
+- v0.102-v0.103 bounty + presentation
+- fresh concurrent ux chain continued through at least v0.118
+
+Collision-safe add-on checkpoints include situational victory lines, physical landmark prompts, completion record, battle turn counter, optional objective chip, autosave pulse, richer shop cards, stack purchase controls, critical hits, menu section navigation, recent dialogue log, adventure statistics, Tier-II equipment and building signage.
 
 ## KNOWN_ISSUES
 
-- Luke field character still uses interim CSS rather than formal four-direction artwork.
-- Leon/Glenn dialogue images remain interim SVGs; Eleanor/Elisia formal portraits are not integrated.
-- Some NPCs/environment/story markers still use emoji or CSS placeholders; visual replacement remains ongoing.
-- CSS-drawn ordinary NPCs/props/terrain are a meaningful quality step but are not equivalent to final high-fidelity generated/raster sprite sheets where the directive ultimately requires them.
-- Some later/other enemy groups may still use placeholders outside the 21 already-covered regional designs.
-- Shop purchase currently auto-equips newly purchased weapon/armor; explicit re-equip is available from the adventure menu and optional gear can now be sold if unequipped.
-- Equipment/save migration is lightweight; an explicit save schema version/migration layer remains desirable.
+- Luke field character is still interim CSS rather than formal approved four-direction sprite art.
+- Leon/Glenn dialogue images remain interim; Eleanor/Elisia formal portraits remain unavailable.
+- CSS/vector world art is substantially improved but still below the eventual high-fidelity sprite/tile/raster target in many places.
+- Some map/NPC/environment markers may still use placeholder presentation and need continued replacement.
+- Adventure menu is feature-rich and therefore long; sticky section navigation was added, but real iPhone usability still needs Owner-device confirmation.
+- Single-save localStorage remains the primary save model; no multi-slot save UI yet.
+- `wins` remains a legacy global progression count even though bestiary/bounty now maintain more specific records.
+- Some balance values (Tier-II gear, criticals, drops, bounty, smoke bombs) need real playtesting rather than static confidence.
+- Current audio is original synthesized Web Audio SFX; there is still no full original BGM layer.
 - PWA/service worker is implemented but not real-device verified on Owner iPhone.
-- No dedicated automated browser/touch regression suite exists.
-- `wins` remains a global victory count rather than separated progression/stat counters.
-- North continuation beyond the existing story frontier remains intentionally unopened.
-- Patch chain is now v0.8→v0.50 and is maintenance debt. Do NOT consolidate until a safe tested migration/checkpoint is prepared; gameplay/player-visible progress still has priority.
+- No browser-executed/touch regression harness exists yet.
+- Sequential patch chain is large. Dynamic discovery and regression guards reduce maintenance risk, but a future consolidation should only happen as an explicitly tested migration, never casual refactoring.
+- Concurrent writers can advance HEAD between reads/writes. Always fresh-fetch target SHA immediately before stateful updates and use `addons/*.js` for independent work when sequential filenames are racing.
 
 ## BLOCKERS
 
 - No blocker for continued code/world/UI/content development.
-- Formal four-direction Luke field images remain unavailable without approved directional source art; do not fabricate completion with mirroring/guessing.
-- Formal Leon/Glenn/Eleanor/Elisia art requires generation/approval/integration work and must not be represented by low-quality substitute art as final.
-- Real-device iPhone verification remains external to this runtime.
+- Formal four-direction Luke field art remains blocked on approved directional source art. Do not fabricate completion by mirroring/guessing the formal design.
+- Formal Leon/Glenn/Eleanor/Elisia art requires generation/approval/integration work. Do not substitute low-quality placeholders and call them final.
+- Real-device iPhone verification is external to this runtime.
 
 ## NEXT_ACTION
 
-Continue from fresh HEAD with player-visible PS1-early quality escalation. Highest-value safe work is to keep removing prototype/emoji presentation, improve equipment/shop comparison clarity and battle/world feedback, and add exploration depth without advancing hidden story canon or waiting for blocked formal character-art work.
+Continue from fresh HEAD, first re-reading the latest sequential ux checkpoints that landed after v0.118 if any. Keep using the collision-safe add-on lane for independent work while another writer owns fast-moving `ux-vNN.js`. Highest-value safe priorities are: actual browser/touch regression capability if achievable, remaining prototype/emoji replacement, deeper walkable world/building content, richer battle/item/equipment progression, and PS1-early presentation polish without crossing the locked north story frontier or exposing hidden canon.
 
 ## NEXT_ACTION_COMPLETION_CONDITION
 
-1. At least one additional visible gameplay/presentation improvement is checkpointed beyond v0.50.
-2. Existing movement-stop safety, four-direction logic, physical interiors, shop/equipment/sell flow, menu/clue journal, treasure persistence, battle rewards, 60-line banter, story flags and save behavior remain intact.
-3. New JS validates in the Pages workflow and final latest Pages deployment succeeds.
-4. CURRENT remains an autosave checkpoint rather than a stop trigger; continue after this sync while execution capacity remains.
+1. Fresh HEAD and latest concurrent ux changes are reconstructed before new mutation.
+2. At least one additional player-visible improvement is safely checkpointed without overwriting concurrent work.
+3. Central movement-stop safety, collision, save, physical interiors, shop/equipment/sell, menu/minimap/journals, treasure persistence, battle rewards/technique/AI, 90-line combined victory variety and current story flags remain intact.
+4. New files pass syntax/static/add-on contract validation.
+5. The freshest final Pages workflow completes SUCCESS before any user-facing deploy PASS claim.
+6. CURRENT remains an autosave checkpoint, not a stop trigger; development should continue after this sync while execution capacity remains.
 
 ## SESSION_WORK_ITEMS_COMPLETED
 
-- HEAD-first crash recovery from stale CURRENT to v0.41 reality.
-- Explicit equipment switching recovery.
-- Ordinary NPC placeholder reduction.
-- 11 evidence/clue prop visual replacements plus demon guard silhouette.
-- Terrain emoji reduction and original CSS terrain-art pass.
-- Interim Luke movement cadence polish without mislabeling it as formal art.
-- Two persistent optional treasure caches.
-- Spoiler-safe investigation clue journal.
-- Battle command UI de-emoji / console glyph pass.
-- Shop equipment sell-back flow.
-- Dedicated victory results and level-up presentation.
-- Final v0.50 Pages validation/deploy SUCCESS.
+- Fresh HEAD recovery from stale CURRENT.
+- Continuous multi-checkpoint work far beyond a single NEXT_ACTION.
+- Major terrain/evidence/interior/NPC/door de-placeholder passes.
+- Four walkable Royal Capital building interiors including an ordinary residence.
+- Expanded battle presentation, first technique, critical layer, enemy behavior classes, results, defeat presentation and original synth SFX.
+- Shop sell-back, comparison, stack purchase clarity and Tier-II equipment progression.
+- Exploration treasure, hidden finds, minimap, signpost and area records.
+- First sidequest and first bounty loop with HUD/menu/completion presentation.
+- Bestiary, kill counts, playtime, dialogue log, investigation journal and adventure statistics.
+- Formal Owner-approved Luke art reused across multiple large presentation surfaces without inventing a new Luke.
+- iPhone menu navigation/control-deck polish.
+- Dynamic ux patch discovery, collision-safe add-on architecture, static regression guard and add-on contract guard.
+- Concurrent writer collision handled without overwrite or forced stop.
 
 ## SESSION_NEXT_AVAILABLE_WORK
 
-- Shop projected-stat comparison before purchase.
-- More placeholder/NPC/environment visual replacement.
-- Further battle background/image-quality escalation without changing mechanics.
-- More optional treasure/environment interactions.
-- Additional readable dungeon-like exploration branches that do not advance locked story frontier.
-- Save-schema version/migration hardening after player-visible priorities.
-- Formal four-direction Luke sprite when approved source art exists.
-- Formal Leon/Glenn portrait integration when approved/generated assets exist.
+- Fresh-read concurrent ux versions beyond current known v0.118.
+- Add a browser-executed smoke test if tooling can support it safely.
+- Continue replacing any remaining emoji/prototype world presentation.
+- Expand ordinary building interiors and town interactions.
+- Add additional original equipment/items while tuning economy through real play data.
+- Continue battle depth without prematurely creating a major boss.
+- Add original BGM only if a safe original-audio generation/integration route is available.
+- Formal Luke four-direction sprite when approved source art exists.
+- Formal Leon/Glenn/Eleanor/Elisia portrait integration when appropriate source art is available.
 
 ## DO_NOT_REPEAT
 
-- Do not make the starting exit ambiguous again.
+- Do not make the initial route/exit ambiguous again.
 - Do not return Luke to permanently front-facing movement.
 - Do not call interim CSS/SVG major-character art formal final art.
-- Do not use face-only major-character art as final presentation.
+- Do not use face-only major-character art as the final presentation.
 - Do not claim formal image integration unless the public game actually references the approved asset.
 - Do not generate/substitute an unapproved Luke design while formal canon exists.
-- Do not reduce the victory-line pool below approximately 50 or remove near-repeat protection without Owner approval.
-- Do not regress central movement-stop safety, keyboard/touch movement, collision, battle rewards, level-up, herbs, guard/escape, world return, objectives, clue flags or save behavior.
-- Do not copy existing-game characters, maps, text, UI, music, images or protected assets.
-- Do not reveal Glenn's family relation to Luke, Elisia's full history, Eleanor's full crime, or Demon-King succession secrets yet.
-- Do not start the Glenn boss fight or open the north story continuation casually; the existing story frontier remains intentional.
-- Do not reorder the numerical patch injection chain accidentally.
-- Do not treat CURRENT update, commit, successful deploy, or completion of one NEXT_ACTION as a reason to stop development.
+- Do not reduce victory-line variety below approximately 50 or remove recent-repeat protection without Owner approval.
+- Do not regress central movement-stop safety, global pointer release/cancel handling, visibility safety, keyboard/touch movement, collision, battle rewards, level-up, herbs, guard/escape, world return, objectives or save behavior.
+- Do not overwrite a sequential ux file that appeared concurrently; fresh-check and move independent work to a unique add-on path instead.
+- Do not infer latest ux version from memory; fresh HEAD is authority.
+- Do not reveal Glenn's family relation to Luke, Elisia's full history, Eleanor's crime, or Demon-King succession secrets yet.
+- Do not start the Glenn boss fight or casually open the locked north story continuation.
+- Do not copy existing-game characters, maps, dialogue, UI art, music, images or protected assets.
+- Do not treat CURRENT update, commit, successful deploy, one completed feature or a satisfying checkpoint as a reason to stop development.
 
 ## IMPORTANT_DESIGN_DECISIONS
 
-- Detailed quality authority is `AUTONOMOUS_DEV_DIRECTIVE.md`.
-- Visual target remains PS1-early high-quality 2D JRPG, implemented concretely through density, interiors, original art, transitions, readable UI, physical evidence props, battle result presentation and character presentation rather than an abstract label.
-- GitHub fresh HEAD is implementation reality; CURRENT is operational autosave/handoff.
-- Commit safe completion units frequently so interrupted runs resume from latest HEAD.
-- CURRENT update is not a reason to stop development.
-- Main-character dialogue art is full-body/body-dominant; field sprites are a separate four-direction layer.
-- Formal raster assets may use optimized `.webp.b64` transport; only approved/formal character art may replace interim major-character art.
-- Original inline SVG/CSS is acceptable for original enemies/environment/interim ordinary NPC presentation when it produces meaningful in-game quality and is actually integrated, but it must not be mislabeled as final formal major-character art.
-- Player guidance, map readability, exploration reward, mystery-evidence readability and touch-safe interaction are first-class quality requirements.
-- Functional systems and visible player improvements outrank pure refactoring.
-- PWA shell is progressive enhancement; browser playability must remain intact.
+- `AUTONOMOUS_DEV_DIRECTIVE.md` is the detailed quality/operation authority.
+- Fresh GitHub HEAD is implementation reality. CURRENT is operational autosave/handoff.
+- CURRENT is not shutdown work.
+- Sequential `ux-vNN.js` remains the ordered main patch lane. Unique `addons/*.js` is the safe collision-avoidance lane for independent improvements and is loaded after sequential patches.
+- Pages workflow must dynamically validate/inject the current ux chain and all add-ons. Do not return to a hand-maintained patch list.
+- `tools/lq-static-regression.mjs` and `tools/lq-addon-contract.mjs` are part of deployment safety.
+- Frequent safe commits are preferred so sudden execution stop loses minimal work.
+- PS1-early quality means concrete density, readable world geometry, physical interiors, original props/enemies, character presence, battle feedback, transitions, menu records and touch usability. It is not permission to call flat CSS placeholders “finished”.
+- Formal major-character presentation remains full-body/body-dominant. Field sprites are a separate four-direction layer.
+- Approved Luke art may be reused across dialogue/title/menu/battle/victory/prologue. Do not generate a different Luke simply to fill a slot.
+- Original CSS/vector art is acceptable as integrated environment/enemy/interim ordinary-NPC presentation, but not as falsely completed formal major-character art.
+- Player guidance, exploration reward, readable evidence, optional-content tracking and iPhone interaction are first-class quality requirements.
+- Functional/player-visible improvements outrank cosmetic refactoring for its own sake.
+- Story secrets must continue to be revealed through evidence/ambiguity, not exposition dumps.
 
 ## STORY_CANON_ADDED_OR_CHANGED
 
-- No core story canon changed in v0.40-v0.50.
-- Investigation journal only records evidence already discoverable from existing flags/dialogue; it does not explain the hidden reason behind Glenn's behavior.
-- No Glenn-family / Elisia full-history / Eleanor crime / Demon-King succession secret was revealed.
-- Existing story frontier remains unresolved and the first chapter is not marked complete.
+- No core hidden story canon was changed in this extended run.
+- New optional sidequest/bounty content is local world flavor and does not alter the main canonical mystery.
+- Investigation/dialogue records only expose information the player has already encountered.
+- Glenn-family relation, Elisia full history, Eleanor's crime and Demon-King succession remain unrevealed.
+- The existing north story frontier remains intentionally unresolved.
