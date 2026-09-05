@@ -1,6 +1,6 @@
 # REQ-006 — Replace Enemy Emoji With Original Battle Art
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: VISUAL / BATTLE / ORIGINAL_ASSET
 OWNER_REQUEST: PRESERVED
@@ -75,6 +75,15 @@ B. Integrate safely with assembled battle DOM and re-render path.
 C. Add regression/contract coverage proving known enemies receive original art and unknown enemies are not hijacked.
 D. Pages/browser CI pass.
 
+## IMPLEMENTATION EVIDENCE
+- `addons/original-enemy-art.js` registers all 18 normal enemies and renders LUKE QUEST original inline SVG art.
+- Known enemies receive `data-lq-formal-stage="original-vector-normal-enemy"`; unknown enemies are explicitly ignored so smoke/future fallback remains available.
+- Existing optional forest boss is not registered in the normal registry and retains its dedicated art layer.
+- `tools/lq-addon-contract.mjs` asserts all 18 canonical names, the runtime status marker, formal-stage marker, unknown-enemy fallback guard, assembled/base battle target compatibility, exactly 18 registry entries, and rejects the former enemy emoji glyphs from the formal art add-on.
+- Implementation checkpoint commit: `7e4762d5c2503bb27480f9d1ffb0bbd4a1b4f9a5`.
+- Contract checkpoint commit: `63fa055dce377b5d5fd4205867619494d1c0518f`.
+- GitHub Pages workflow run `33982213456` completed SUCCESS, including add-on syntax validation, static regression, add-on contract, assembled-game browser smoke, floating touch regression, upload and Pages deploy.
+
 ## COMPLETION CONDITION
 Move to VERIFY when:
 - all 18 listed enemies have distinct registered original vector/raster presentations;
@@ -84,7 +93,7 @@ Move to VERIFY when:
 - browser/Pages workflow succeeds;
 - fresh HEAD confirms the integration.
 
-Owner subjective/iPhone visual approval may remain pending in VERIFY and must not block independent work.
+Owner subjective/iPhone visual approval remains pending in VERIFY and does not block independent work.
 
 ## DO NOT REPEAT
 - Do not call emoji final artwork.
