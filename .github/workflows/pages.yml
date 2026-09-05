@@ -27,16 +27,29 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Validate sequential presentation patches
+      - name: Validate sequential patches v08-v80
+        shell: bash
+        run: |
+          for f in ux-v*.js; do
+            v=$(echo "$f" | sed -E 's/ux-v([0-9]+)\.js/\1/')
+            if ((10#$v >= 8 && 10#$v <= 80)); then node --check "$f"; fi
+          done
+      - name: Validate sequential patches v81-v120
+        shell: bash
+        run: |
+          for f in ux-v*.js; do
+            v=$(echo "$f" | sed -E 's/ux-v([0-9]+)\.js/\1/')
+            if ((10#$v >= 81 && 10#$v <= 120)); then node --check "$f"; fi
+          done
+      - name: Validate sequential patches v121-plus
         shell: bash
         run: |
           mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
           test "${#patches[@]}" -gt 0
           test "${patches[0]}" = "ux-v08.js"
-          printf 'Validating %s sequential presentation patches\n' "${#patches[@]}"
           for f in "${patches[@]}"; do
-            echo "node --check $f"
-            node --check "$f"
+            v=$(echo "$f" | sed -E 's/ux-v([0-9]+)\.js/\1/')
+            if ((10#$v >= 121)); then node --check "$f"; fi
           done
           node --check sw.js
       - name: Validate collision-safe add-ons
@@ -44,11 +57,7 @@ jobs:
         run: |
           if compgen -G 'addons/*.js' > /dev/null; then
             count=0
-            for f in addons/*.js; do
-              count=$((count+1))
-              echo "node --check $f"
-              node --check "$f"
-            done
+            for f in addons/*.js; do count=$((count+1)); node --check "$f"; done
             echo "Validated $count add-ons"
           fi
       - name: Run static regression guard
@@ -69,15 +78,9 @@ jobs:
         shell: bash
         run: |
           mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
-          for f in "${patches[@]}"; do
-            echo "Injecting $f"
-            sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html
-          done
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           if compgen -G 'addons/*.js' > /dev/null; then
-            for f in addons/*.js; do
-              echo "Injecting $f"
-              sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html
-            done
+            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           fi
       - name: Browser smoke test assembled game
         shell: bash
@@ -91,11 +94,7 @@ jobs:
           timeout 25 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --dump-dom http://127.0.0.1:8123/ >/tmp/lq-dom.html 2>/tmp/lq-chrome.log
           grep -q 'LUKE QUEST' /tmp/lq-dom.html
           grep -q 'lqTitleStage' /tmp/lq-dom.html
-          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-chrome.log; then
-            echo 'Browser runtime error detected'
-            cat /tmp/lq-chrome.log
-            exit 1
-          fi
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-chrome.log; then cat /tmp/lq-chrome.log; exit 1; fi
           echo 'LUKE QUEST headless title smoke PASS'
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
