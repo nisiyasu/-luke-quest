@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 14:32 JST
+- UPDATED_AT: 2026-09-06 14:36 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,12 +8,12 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `22c00432f878f1e80caba02ff930b9f594a3ab09`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `908db4fe113fa60249b36e73e60c38035851397e`
-- LATEST_REQUIREMENT_CHECKPOINT: `9ac1d3ca8a33e13d1966c6f60d158ebc76740215`
-- LATEST_QUEUE_CHECKPOINT: `22c00432f878f1e80caba02ff930b9f594a3ab09`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-056 AUTOMATED ACCEPTANCE SUCCESS`
-- LATEST_PAGES_RUN: `34014165812` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `5eef990aa04e81dc35ddf345064301c393f1588f`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `ffa0a2b046e7fa1fdc3fbfade92e694338e4a654`
+- LATEST_REQUIREMENT_CHECKPOINT: `b9e15165f717602e99e09a998d416f8131255de7`
+- LATEST_QUEUE_CHECKPOINT: `5eef990aa04e81dc35ddf345064301c393f1588f`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-057 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34014292725` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -24,7 +24,7 @@
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-054`, `REQ-055`, `REQ-056`
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-055`, `REQ-056`, `REQ-057`
 - NEXT_ACTION: fresh-audit existing final-game capability inventory for the next non-duplicate player-visible defect/capability; register/execute it under WIP=1, verify, publish, synchronize, then continue
 - NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
@@ -110,35 +110,40 @@
 
 ### REQ-055 — Consumable Shop Sell Foundation
 - STATUS: `VERIFY`
-- Aldia item shop now supports one-unit selling for canonical stackable consumables: 薬草 4G and 煙玉 9G.
-- selling uses existing shop state, `save()` and `render()`; zero inventory and out-of-shop calls fail safely; equipment selling is intentionally excluded.
-- initial run `34013949081` failed the existing 390x844 P0 touch gate because the new acceptance mutated shared world state during gesture sampling. The older gate was not weakened.
-- smoke timing was isolated in checkpoint `4d344310df36355d42b8ed59899a978dcfc78510`.
-- final Pages run `34013983279` SUCCESS: syntax/add-on/static/assembled browser/390x844 touch+visual/upload/deploy all PASS.
+- Aldia item shop supports one-unit selling for canonical stackable consumables: 薬草 4G and 煙玉 9G.
+- initial acceptance timing collision with the P0 touch smoke was caught by CI; the older gate was not weakened.
+- final Pages run `34013983279` SUCCESS.
 - physical/subjective iPhone shop feel verification PENDING.
 
 ### REQ-056 — Base Equipment Shop Comparison
 - STATUS: `VERIFY`
-- base-shop 青銅の剣 / 革の旅装 now show current ATK/DEF -> projected stat with signed delta before purchase.
-- projection uses the same audited Tier-I/Tier-II bonus chain as REQ-032, so downgrades from 鉄の剣 / 補強革鎧 are explicitly shown rather than hidden.
+- base-shop 青銅の剣 / 革の旅装 show current ATK/DEF -> projected stat with signed delta before purchase.
+- downgrades from 鉄の剣 / 補強革鎧 are explicitly shown.
 - implementation is UI-only and does not call save or mutate state/prices.
-- Pages run `34014165812` SUCCESS: syntax/add-on/static/assembled browser/390x844 touch+visual/upload/deploy all PASS.
+- Pages run `34014165812` SUCCESS.
 - physical/subjective iPhone comparison readability PENDING.
+
+### REQ-057 — Stackable Shop Sell Quantity
+- STATUS: `VERIFY`
+- REQ-055 single sell authority now supports explicit x1/x3 quantities for herbs and smoke bombs.
+- x3 rejects insufficient inventory rather than silently clamping; unsupported qty and out-of-shop calls also reject without save/gold mutation.
+- x1 compatibility and existing x1/x3 buying remain intact.
+- dedicated REQ-057 acceptance plus REQ-055 regression, assembled browser and 390x844 touch/fullscreen all PASS.
+- Pages run `34014292725` SUCCESS.
+- physical/subjective iPhone shop feel verification PENDING.
 
 ## SELF_REPAIR_ACTIONS THIS EXECUTION
 
 1. Fresh boot found implementation HEAD at REQ-054 while CURRENT was synchronized only through REQ-051 and WORK_QUEUE omitted REQ-053/054.
 2. Repaired WORK_QUEUE and CURRENT forward from fresh HEAD rather than repeating committed work.
 3. Reloaded REQ-021 / REQ-022 / REQ-001 / REQ-023 and re-audited latest integrated 390x844 smoke coverage.
-4. Deep capability inventory found the item shop remained buy-only for stackable consumables while the directive explicitly calls out sell as a shop expansion.
-5. Registered and implemented REQ-055 under WIP=1.
-6. New REQ-055 acceptance initially collided with the pre-existing touch test timeline; CI caught it before publish.
-7. Kept the old P0 gate intact, delayed/isolated the REQ-055 state-mutating acceptance, reran the full workflow and obtained Pages SUCCESS.
-8. Fresh equipment/shop audit then found Tier II cards had projection comparison while base-shop equipment did not.
-9. Registered and implemented REQ-056 as a UI-only comparison layer, preserving canonical equipment behavior and save state.
-10. REQ-056 dedicated/assembled/equipment/touch/fullscreen regressions and Pages deployment all passed in run `34014165812`.
-11. REQ-055 and REQ-056 are VERIFY; physical iPhone checks remain PENDING.
-12. CONTINUE remains required because safe directive-authorized final-game work still exists.
+4. Deep shop inventory found consumable selling missing; registered/implemented REQ-055.
+5. REQ-055 acceptance initially collided with the pre-existing touch timeline; CI caught it before publish. The older P0 gate was preserved and timing was isolated, then full Pages PASS obtained.
+6. Fresh equipment/shop audit found Tier II comparison existed while base-shop comparison did not; registered/implemented REQ-056 as UI-only comparison with full regressions PASS.
+7. Fresh shop UX audit found x1/x3 buying but only x1 selling; registered/implemented REQ-057 by extending REQ-055's same authority rather than duplicating economy logic.
+8. REQ-057 dedicated acceptance, REQ-055 regression, assembled browser, 390x844 touch/fullscreen and Pages deploy all passed in run `34014292725`.
+9. REQ-055/056/057 are VERIFY; physical iPhone checks remain PENDING.
+10. CONTINUE remains required because safe directive-authorized final-game work still exists.
 
 ## MANDATORY BOOT / RECOVERY
 
