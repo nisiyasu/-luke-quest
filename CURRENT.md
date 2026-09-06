@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 14:22 JST
+- UPDATED_AT: 2026-09-06 14:28 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,31 +8,31 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `2febf15fbd1666776db1a62eb66e2aa73e768024`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `b6ae4f13161148aab6cfd518f682d59f1ab335ee`
-- LATEST_REQUIREMENT_CHECKPOINT: `b6ae4f13161148aab6cfd518f682d59f1ab335ee`
-- LATEST_QUEUE_CHECKPOINT: `2febf15fbd1666776db1a62eb66e2aa73e768024`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-054 AUTOMATED ACCEPTANCE SUCCESS`
-- LATEST_PAGES_RUN: `34012131433` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `386f3424c33a0b95f6255bed91517fb14c16ad79`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `4d344310df36355d42b8ed59899a978dcfc78510`
+- LATEST_REQUIREMENT_CHECKPOINT: `eeb474f8385385e966579f7caa5da076fdf93b90`
+- LATEST_QUEUE_CHECKPOINT: `386f3424c33a0b95f6255bed91517fb14c16ad79`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-055 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34013983279` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
-- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED / PREVIOUS INTERRUPTED HANDOFF RECOVERED`
+- EXECUTION_DEGRADATION_STATUS: `SELF_REPAIR ACTIVE / NO OWNER REMINDER REQUIRED`
 - PREEMPTED_REQUIREMENT: `NONE`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-052`, `REQ-053`, `REQ-054`
-- NEXT_ACTION: after fresh P0 automated/public re-audit, deep-audit existing final-game capability inventory, register the next concrete non-duplicate player-visible defect/capability under WIP=1, implement, regress, publish, synchronize, then continue
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-053`, `REQ-054`, `REQ-055`
+- NEXT_ACTION: fresh-audit existing final-game capability inventory for the next non-duplicate player-visible defect/capability; register/execute it under WIP=1, verify, publish, synchronize, then continue
 - NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
 ## CURRENT VERIFIED REALITY
 
 ### Owner-confirmed P0 reality
 - REQ-034 remains `DONE / IOS_PHYSICAL_VERIFICATION=PASS` after Owner physical-iPhone confirmation `うん、直った`.
-- REQ-021 / REQ-022 / REQ-001 / REQ-023 remain `VERIFY`; latest assembled 390x844 browser regressions continue to exercise tap/action, floating movement and fullscreen visual-liveness contracts, but no false physical PASS is claimed.
+- REQ-021 / REQ-022 / REQ-001 / REQ-023 remain `VERIFY`; latest 390x844 browser regressions exercise tap/action, floating movement and fullscreen visual-liveness contracts, but no false physical PASS is claimed.
 - Fresh P0 requirement files were reloaded during this recovery execution rather than trusting old VERIFY labels alone.
 
 ### REQ-043 — Poison Defeat Cleanup
@@ -85,7 +85,6 @@
 - present canonical numeric fields are normalized dynamically against current runtime `DEFAULT`; non-number/non-finite values fall back to canonical defaults.
 - later add-ons extending DEFAULT with numeric resources are covered without a hard-coded obsolete list.
 - unknown extension keys remain untouched and source payloads are not mutated.
-- REQ-049/050 contracts remain green.
 - Pages run `34011542116` SUCCESS including assembled browser smoke and 390x844 floating-touch + iPhone world visual-liveness.
 - iPhone subjective verification PENDING.
 
@@ -106,20 +105,29 @@
 - canonical North Temple setting is now a walkable Aldia interior with a safe entrance/exit, attendant, prayer crystal and environmental prop.
 - no reward, healing, progression gate or protected-canon reveal was added.
 - first acceptance probe caught its own exit-coordinate mistake and was repaired before completion claim.
-- Pages run `34012131433` SUCCESS; fresh Actions re-check confirms `completed / success` on the acceptance-coordinate repair checkpoint.
+- Pages run `34012131433` SUCCESS.
 - physical/subjective iPhone temple look/feel verification PENDING.
+
+### REQ-055 — Consumable Shop Sell Foundation
+- STATUS: `VERIFY`
+- Aldia item shop now supports one-unit selling for canonical stackable consumables: 薬草 4G and 煙玉 9G.
+- selling uses existing shop state, `save()` and `render()`; zero inventory and out-of-shop calls fail safely; equipment selling is intentionally excluded.
+- initial run `34013949081` failed the existing 390x844 P0 touch gate because the new acceptance mutated shared world state during gesture sampling. The older gate was not weakened.
+- smoke timing was isolated in checkpoint `4d344310df36355d42b8ed59899a978dcfc78510`.
+- final Pages run `34013983279` SUCCESS: syntax/add-on/static/assembled browser/390x844 touch+visual/upload/deploy all PASS.
+- physical/subjective iPhone shop feel verification PENDING.
 
 ## SELF_REPAIR_ACTIONS THIS EXECUTION
 
-1. Fresh boot found implementation HEAD at REQ-054 while CURRENT was still synchronized only through REQ-051.
-2. Fresh WORK_QUEUE was also behind implementation reality, ending at REQ-052 and omitting completed REQ-053/REQ-054.
-3. Inspected REQ-053, REQ-054, the REQ-054 final diff, implementation add-on and fresh Pages workflow evidence rather than repeating committed work.
-4. Repaired WORK_QUEUE forward by registering REQ-053 and REQ-054 as VERIFY with their actual successful Pages evidence.
-5. Repaired CURRENT forward to the latest committed implementation reality while preserving physical verification as PENDING.
-6. Reloaded REQ-021 / REQ-022 / REQ-001 / REQ-023 and re-audited latest integrated smoke coverage instead of treating historical VERIFY as immunity from review.
-7. Confirmed latest integrated touch smoke still checks stationary tap -> canonical Action exactly once, dialogue tap/drag distinction, drag no Action, pointercancel, UI exclusion, rerender hold safety, blur cleanup, map-transition cleanup, dead zone, live direction changes and release stop.
-8. Confirmed latest fullscreen visual-liveness CI still guards transparent controls plus shell/world/player geometry and viewport intersection at 390x844.
-9. Previous premature/interrupted handoff was repaired without Owner intervention; CONTINUE remains required.
+1. Fresh boot found implementation HEAD at REQ-054 while CURRENT was synchronized only through REQ-051 and WORK_QUEUE omitted REQ-053/054.
+2. Repaired WORK_QUEUE and CURRENT forward from fresh HEAD rather than repeating committed work.
+3. Reloaded REQ-021 / REQ-022 / REQ-001 / REQ-023 and re-audited latest integrated 390x844 smoke coverage.
+4. Deep capability inventory found the item shop remained buy-only for stackable consumables while the directive explicitly calls out sell as a shop expansion.
+5. Registered and implemented REQ-055 under WIP=1.
+6. New acceptance initially collided with the pre-existing touch test timeline; CI caught it before publish.
+7. Kept the old P0 gate intact, delayed/isolated the REQ-055 state-mutating acceptance, reran the full workflow and obtained Pages SUCCESS.
+8. REQ-055 requirement and queue advanced to VERIFY; physical iPhone verification remains PENDING.
+9. CONTINUE remains required because safe directive-authorized final-game work still exists.
 
 ## MANDATORY BOOT / RECOVERY
 
@@ -147,5 +155,6 @@ Every future execution must freshly obtain and apply repository metadata/default
 - do not merge dangerous object keys from legacy/manual backups
 - do not let corrupt canonical numeric types reach runtime arithmetic/UI assumptions
 - do not bind deferred player feedback only to transient DOM when canonical flow can replace it synchronously
+- do not weaken an older fail-closed P0 gate to make a new acceptance pass
 - do not use CURRENT as implementation truth when fresh HEAD differs
 - do not self-terminate while safe executable work remains
