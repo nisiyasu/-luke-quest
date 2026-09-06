@@ -1,6 +1,6 @@
 # REQ-064 — Save Transfer File Export / Import
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / CROSS-BROWSER / CROSS-DEVICE / PLAYER-UX
 OWNER_REQUEST: DIRECT_FOLLOW_THROUGH_FROM_CROSS_BROWSER_SAVE_TRANSFER
@@ -70,3 +70,19 @@ Automated acceptance must prove at minimum:
 - Do not bypass existing import validation or overwrite guard.
 - Do not claim iPhone physical PASS from headless CI.
 - Completion is a checkpoint, not a stop condition. Run GATE C and continue when safe work remains.
+
+## 6. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Existing `addons/save-transfer.js` was extended rather than creating a second save authority.
+- File payload is exactly the existing REQ-060 SAVE CODE plus a trailing newline.
+- Menu/world transfer UI now exposes `DOWNLOAD SAVE FILE` and `LOAD SAVE FILE`; title recovery UI exposes `LOAD SAVE FILE` while export remains unavailable without a resumable field state.
+- File import validates through existing `prepareImportedState()`, writes the validated code into the existing `.lqTransferCode` textarea, dispatches the existing input path, then clicks the existing `.import` button.
+- This preserves REQ-062 capture-phase overwrite protection; dedicated acceptance proves an existing resumable local adventure arms the two-step overwrite guard rather than being silently replaced.
+- File size is bounded to 256 KiB and empty, malformed, oversized or unreadable payloads fail closed before canonical state mutation.
+- Checkpoints:
+  - `ae412c30a8fdfa13259dabb6d723f98aa61f5d9b` — requirement registration.
+  - `9a114954165b9d6b6bb9a749e6773f732c694b00` — implementation.
+  - `130790d261da03b9299962a2e0bf15fa6eaf7c25` — dedicated runtime acceptance.
+- Pages workflow run `34016621862`: SUCCESS.
+- The run passed addon syntax/contract/static gates, REQ-063 bootstrap regression, assembled browser runtime including REQ-064 dedicated file-transfer acceptance, 390x844 touch/fullscreen visual-liveness, upload and deployment.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
