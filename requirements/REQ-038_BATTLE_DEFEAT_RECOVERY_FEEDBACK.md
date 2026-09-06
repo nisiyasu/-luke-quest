@@ -1,6 +1,6 @@
 # REQ-038 — Battle Defeat Recovery Feedback
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYER_VISIBLE / BATTLE / RECOVERY / PRESENTATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -20,50 +20,70 @@ Fresh final-game inventory found that canonical defeat recovery already exists i
 
 Therefore defeat recovery mechanics are **not missing** and must not be duplicated or redesigned.
 
-The player-visible gap is transition clarity: defeat currently jumps directly from the battle frame to the town world/dialogue with no dedicated defeat cue. That can feel like an abrupt screen jump, especially on mobile.
+The player-visible gap was transition clarity: defeat jumped directly from the battle frame to the town world/dialogue with no dedicated defeat cue.
 
-## REQUIRED IMPLEMENTATION
+## IMPLEMENTATION
 
-Add a presentation-only defeat transition that preserves canonical recovery exactly.
+`addons/battle-defeat-recovery-feedback.js` adds a presentation-only defeat/recovery transition while preserving canonical recovery exactly.
 
-Required behavior:
+Behavior:
 
-1. Detect the existing canonical battle defeat transition without replacing its state logic.
-2. After the canonical recovery has completed, show a short fixed viewport defeat/recovery cue.
-3. Make clear that Luke was defeated and returned to the town/inn rather than silently teleporting.
-4. Overlay must be `pointer-events:none` so it cannot trap touch input.
-5. Overlay must automatically clean itself up and must not stack across repeated events.
-6. Respect `prefers-reduced-motion`.
-7. Do not change HP restoration, map, coordinates, encounter grace, gold, EXP, story flags, equipment, items, poison rules, save format or battle balance.
-8. Do not introduce a separate Game Over screen or new irreversible penalty.
+1. wraps the current final `enemyTurn()` only to observe before/after state;
+2. canonical `enemyTurn()` remains sole owner of defeat/recovery state;
+3. after the canonical battle→town recovery is observed, a short fixed viewport cue shows `戦闘不能` and explains the return to town;
+4. overlay is `pointer-events:none`;
+5. repeated presentation removes/replaces the prior layer rather than stacking;
+6. animation-end cleanup plus timed fallback cleanup are both present;
+7. `prefers-reduced-motion` shortens the presentation;
+8. HP restoration, map, coordinates, encounter grace, gold, EXP, story flags, equipment, items, poison rules, save format and battle balance are unchanged.
+
+Status surface:
+
+`window.LQ_DEFEAT_RECOVERY_FEEDBACK_STATUS`
+
+records presentation-only ownership, canonical recovery metadata, pointer safety, reduced-motion support, cleanup fallback, active-layer count and smoke preview/cleanup hooks.
+
+Dedicated acceptance:
+
+`addons/zzzzzzzzzzzzzzzzzz-defeat-recovery-feedback-smoke.js`
+
+runs only under `?lqTouchSmoke=1`, drives two preview presentations, verifies one-layer behavior, fixed viewport, pointer safety, reduced motion, cleanup fallback and canonical recovery metadata, then fails closed through an uncaught runtime failure marker if any contract check fails.
 
 ## INTEGRATION SAFETY
 
 - canonical `enemyTurn()` remains authority for defeat/recovery state
-- wrapper must preserve arguments and return value
-- later add-on wrappers must remain composable
-- REQ-001 / REQ-021 touch input must not be intercepted
-- REQ-022 / REQ-034 fullscreen world visibility must remain intact
-- no permanent opaque layer may remain after cleanup
+- wrapper preserves arguments and return value
+- later add-on wrappers remain composable
+- REQ-001 / REQ-021 touch input is not intercepted
+- REQ-022 / REQ-034 fullscreen world visibility remains intact
+- no permanent opaque layer remains after cleanup
 
-## AUTOMATED ACCEPTANCE
+## VERIFICATION EVIDENCE
 
-Provide a smoke-capable status surface that can verify without mutating canonical production state:
+Checkpoints:
 
-- feature loaded
-- presentation-only flag
-- pointer-safe overlay
-- fixed viewport overlay
-- single-layer/non-stacking behavior
-- reduced-motion declaration
-- cleanup fail-safe
-- canonical recovery contract documented in status metadata
+- requirement registration: `1793e4000939ae764c3de248cf5b33ba2423a8ab`
+- implementation: `ec3d505fe8e631e5d72989943d63188de12e24b1`
+- dedicated browser acceptance: `246728d9adc1315590a836c2df2b50c426f801a4`
+- queue activation checkpoint: `49606d38328c5582564c65c56035af10b65b7dab`
 
-Dedicated browser smoke should run only under the existing `lqTouchSmoke` query flag and fail closed if the presentation contract breaks.
+Pages workflow run `34008956384`: SUCCESS.
+
+Verified in that run:
+
+- sequential JavaScript syntax: SUCCESS
+- collision-safe add-ons syntax: SUCCESS
+- static regression guard: SUCCESS
+- add-on contract guard: SUCCESS
+- PWA/assets validation: SUCCESS
+- assembled browser world/movement/interaction/battle/save smoke: SUCCESS
+- 390x844 floating-touch + fullscreen visible-world regression: SUCCESS
+- defeat-feedback smoke executed under the same `lqTouchSmoke` assembled page and did not trip its fail-closed runtime guard
+- Pages upload/deploy: SUCCESS
 
 ## COMPLETION CONDITION
 
-Automated implementation completion requires:
+Automated implementation completion is satisfied:
 
 - requirement + implementation committed
 - JavaScript syntax PASS
@@ -76,6 +96,8 @@ Automated implementation completion requires:
 Physical/subjective completion remains:
 
 - `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner experiences the defeat cue on iPhone.
+
+Therefore REQ-038 is `VERIFY`, not DONE.
 
 ## DO NOT REPEAT
 
