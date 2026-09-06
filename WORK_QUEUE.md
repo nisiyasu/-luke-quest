@@ -49,6 +49,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 37 | REQ-037 | P1 | VERIFY | Map Transition Fade / Scene Change Feedback | `requirements/REQ-037_MAP_TRANSITION_FADE.md` | visual fade + non-stacking/pointer-safe/reduced-motion cleanup。既存v0.139 transition SFX非重複。Pages run 34007224602 SUCCESS。Owner iPhone transition feel確認待ち |
 | 38 | REQ-038 | P1 | VERIFY | Battle Defeat Recovery Feedback | `requirements/REQ-038_BATTLE_DEFEAT_RECOVERY_FEEDBACK.md` | canonical defeat recovery保持。presentation-only戦闘不能→王都搬送cue + dedicated lqTouchSmoke acceptance。Pages run 34008956384 SUCCESS。Owner iPhone feel確認待ち |
 | 39 | REQ-039 | P1 | VERIFY | Level-Up Feedback | `requirements/REQ-039_LEVEL_UP_FEEDBACK.md` | canonical `win()` progression保持。actual before/after LV・最大HP・ATK差分を表示するpresentation-only cue + dedicated lqTouchSmoke acceptance。Pages run 34009085469 SUCCESS。Owner iPhone feel確認待ち |
+| 40 | REQ-040 | P1 | VERIFY | EXP Progress Visibility | `requirements/REQ-040_EXP_PROGRESS_VISIBILITY.md` | canonical `s.xp` / `s.nx`保持。compact EXP current/threshold + proportional meter、malformed threshold safe、pointer-safe。Pages run 34009253993 SUCCESS。Owner iPhone readability確認待ち |
 
 ## STATUS DEFINITIONS
 
