@@ -11,6 +11,18 @@
     return proto === Object.prototype || proto === null;
   };
 
+  const normalizeKeyItems = value => {
+    if (!Array.isArray(value)) return [];
+    const seen = new Set();
+    const out = [];
+    for (const item of value) {
+      if (typeof item !== 'string' || !item || seen.has(item)) continue;
+      seen.add(item);
+      out.push(item);
+    }
+    return out;
+  };
+
   const quarantine = (raw, reason) => {
     const record = JSON.stringify({
       timestamp: new Date().toISOString(),
@@ -81,6 +93,14 @@
       safeFlags[key] = parsed.flags[key];
     }
     if (flagsChanged) sanitized.flags = safeFlags;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(parsed, 'keyItems')) {
+    const normalizedKeyItems = normalizeKeyItems(parsed.keyItems);
+    if (!Array.isArray(parsed.keyItems) || JSON.stringify(normalizedKeyItems) !== JSON.stringify(parsed.keyItems)) {
+      sanitized.keyItems = normalizedKeyItems;
+      changed = true;
+    }
   }
 
   if (!changed) return;
