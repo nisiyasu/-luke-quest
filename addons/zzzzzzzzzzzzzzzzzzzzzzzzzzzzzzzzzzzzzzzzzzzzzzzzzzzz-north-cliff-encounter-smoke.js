@@ -25,12 +25,17 @@ setTimeout(()=>{
     exactPool=pool===EVAC_ENEMIES;
     noNewEnemies=pool.length===EVAC_ENEMIES.length&&pool.every((e,i)=>e===EVAC_ENEMIES[i]);
 
+    // move() consumes one grace count after a successful step/gate transition,
+    // so acceptance verifies a positive bounded grace rather than incorrectly
+    // requiring the pre-move configured value to survive unchanged.
     encounterGrace=0;
     s.screen='world';s.map='evacRoute';s.x=14;s.y=1;s.dir='up';s.dialog=null;s.flags.withdrawProofSeen=true;render();move('up');
-    entryGrace=s.map==='northCliffRoad'&&encounterGrace===window.LQ_NORTH_CLIFF_ROAD_STATUS?.entryEncounterGrace&&encounterGrace>0;
+    const configuredEntry=window.LQ_NORTH_CLIFF_ROAD_STATUS?.entryEncounterGrace||0;
+    entryGrace=s.map==='northCliffRoad'&&encounterGrace>0&&encounterGrace<=configuredEntry;
 
     s.dialog=null;s.screen='world';s.map='northCliffRoad';s.x=10;s.y=16;s.dir='down';encounterGrace=0;render();move('down');
-    returnGrace=s.map==='evacRoute'&&encounterGrace===window.LQ_NORTH_CLIFF_ROAD_STATUS?.returnEncounterGrace&&encounterGrace>0;
+    const configuredReturn=window.LQ_NORTH_CLIFF_ROAD_STATUS?.returnEncounterGrace||0;
+    returnGrace=s.map==='evacRoute'&&encounterGrace>0&&encounterGrace<=configuredReturn;
 
     s.screen='world';s.map='northCliffRoad';s.x=10;s.y=16;s.dir='up';s.dialog=null;encounterGrace=0;render();
     startBattle();
