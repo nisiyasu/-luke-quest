@@ -1,6 +1,6 @@
 # REQ-104 — North Cliff Landmark Lighting Continuity
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 OWNER_SOURCE: AUTONOMOUS_DEV_DIRECTIVE / WORK_QUEUE selection rule 8 after fresh adjacent-route coverage audit
 CREATED_AT: 2026-09-06 Asia/Tokyo
@@ -9,11 +9,11 @@ CANONICAL_BRANCH: main
 
 ## 1. Problem
 
-Fresh HEAD audit after REQ-103 confirms `addons/world-landmark-lighting.js` now covers town, forest, observation and windcutPass, but canonical `northCliffRoad` still has zero landmark-light coverage.
+Fresh HEAD audit after REQ-103 confirmed `addons/world-landmark-lighting.js` covered town, forest, observation and windcutPass, but canonical `northCliffRoad` still had zero landmark-light coverage.
 
-North Cliff Road already has canonical route landmarks including the broken safety stake and the north-turn boundary. The route therefore has guidance, battle/title/ambient/cloud/footstep continuity, but lacks the same restrained visual landmark-readability layer now present in the adjacent Windcut Pass.
+North Cliff Road already has canonical route landmarks including the broken safety stake and the north-turn boundary. The route therefore had guidance, battle/title/ambient/cloud/footstep continuity, but lacked the same restrained visual landmark-readability layer now present in the adjacent Windcut Pass.
 
-This is a presentation continuity gap only.
+This was a presentation continuity gap only.
 
 ## 2. Goal
 
@@ -32,7 +32,7 @@ On `northCliffRoad`:
 
 ## 4. Regression requirements
 
-Preserve:
+Preserved:
 
 - town lights = 4
 - forest camp = 1 and spent/rest state
@@ -45,36 +45,46 @@ Preserve:
 
 ## 5. Verification contract
 
-Add a late fail-closed smoke that verifies:
+A late fail-closed smoke verifies:
 
-- `northCliffRoad` has exactly two intended route landmark glints
+- `northCliffRoad` has exactly two intended `cliff` route landmark glints
 - coordinates match canonical broken stake `(15,12)` and north boundary `(10,1)`
 - REQ-103 windcutPass coverage remains exactly two `wind` glints
 - existing town/forest/observation counts remain unchanged
 - unknown map fallback remains empty
 - lighting remains presentation-only and pointer-safe
 
-No gameplay mutation in the smoke.
+No gameplay mutation occurs in the smoke.
 
 ## 6. Public completion gate
 
-Before VERIFY:
+Implementation checkpoints:
 
-- JavaScript/static validation PASS
-- add-on contract PASS
-- assembled browser smoke PASS
-- 390x844 touch/fullscreen regression PASS
-- GitHub Pages SUCCESS on a HEAD containing implementation + smoke
-- deployed build inclusion PASS
+- requirement registration: `e2ebe30695b0dbb60d82b14bb68aa9808fcc77f4`
+- landmark-light implementation: `b8d9a1fe19662f83f8b4d9e014528fe33787fe8c`
+- fail-closed smoke: `af73134232a9bb4a23272397abe48cf18e2e508e`
+
+GitHub Pages workflow:
+
+- run: `34040880074`
+- tested HEAD: `af73134232a9bb4a23272397abe48cf18e2e508e`
+- conclusion: SUCCESS
+- JavaScript/static regression: PASS
+- add-on contract: PASS
+- assembled browser smoke: PASS
+- 390x844 floating touch + iPhone world visual-liveness smoke: PASS
+- REQ-081 north cliff road browser smoke: PASS
+- REQ-082 north cliff encounters browser smoke: PASS
+- Pages deploy: PASS
 
 IOS_PHYSICAL_VERIFICATION remains PENDING until Owner physical confirmation.
 
 ## 7. Protected boundaries
 
-Do not change protected story canon, `withdrawProofSeen`, northCliffRoad/windcutPass transition authority, NPC clue meaning, encounter behavior, save schema, or P0 input/fullscreen behavior.
+Unchanged: protected story canon, `withdrawProofSeen`, northCliffRoad/windcutPass transition authority, NPC clue meaning, encounter behavior, save schema, and P0 input/fullscreen behavior.
 
 ## 8. Completion state
 
-IMPLEMENTATION_COMPLETE: NO
-PAGES_VERIFIED: NO
+IMPLEMENTATION_COMPLETE: YES
+PAGES_VERIFIED: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
