@@ -108,6 +108,10 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 94 | REQ-095 | P1 | VERIFY | 風切り峠・地域別戦闘背景の連続性 | `requirements/REQ-095_WINDCUT_PASS_BATTLE_BACKGROUND_CONTINUITY.md` | 既存regional battle backdrop single-sourceへ風切り峠を第8地域として追加。Pages run 34033196993 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 | 95 | REQ-096 | P1 | VERIFY | 風切り峠・エリアタイトル演出の連続性 | `requirements/REQ-096_WINDCUT_PASS_AREA_TITLE_CONTINUITY.md` | dedicated subtitle「北尾根へ続く風の強い高所峠」を既存area-title authorityへ接続。Pages run 34033373703 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 | 96 | REQ-097 | P1 | VERIFY | 風切り峠・world ambient演出の連続性 | `requirements/REQ-097_WINDCUT_PASS_WORLD_AMBIENT_CONTINUITY.md` | 既存world ambient registryへwindcutPass=fogを追加しnorthCliffRoad/legacy alias/unknown fallbackを保持。Pages run 34033532905 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
+| 97 | REQ-098 | P1 | VERIFY | 風切り峠・cloud shadow演出の連続性 | `requirements/REQ-098_WINDCUT_PASS_CLOUD_SHADOW_CONTINUITY.md` | windcutPassを既存cloud-shadow OUTDOOR/mist分類へ接続。northCliffRoad/legacy alias/unknown fallback保持。Pages run 34033702442 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
+| 98 | REQ-099 | P1 | VERIFY | 風切り峠・terrain footstep演出の連続性 | `requirements/REQ-099_WINDCUT_PASS_FOOTSTEP_CONTINUITY.md` | windcutPassを既存footstep OUTDOOR/mist分類へ接続。transition/reduced-motion/unknown fallback保持。Pages run 34033788915 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
+| 99 | REQ-100 | P1 | VERIFY | 風切り峠・cross-system coverage self-audit guard | `requirements/REQ-100_WINDCUT_PASS_CROSS_SYSTEM_COVERAGE_GUARD.md` | canonical windcutPassのguidance/battle/title/ambient/cloud/footstep coverageをlate-loading fail-closed smokeで固定。Pages run 34033921077 SUCCESS。IOS_PHYSICAL_VERIFICATION=NOT_REQUIRED_FOR_GATE。 |
+| 100 | REQ-101 | P1 | VERIFY | 風切り峠・冒険ジャーナル目的地整合 | `requirements/REQ-101_WINDCUT_PASS_JOURNAL_OBJECTIVE_CONTINUITY.md` | windcutPass到着後のMAIN OBJECTIVEを現在地に整合。northCliffRoad/generic fallback保持。Pages run 34035907648 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 
 ## STATUS DEFINITIONS
 
