@@ -32,15 +32,16 @@ function injectStyle(){
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
-#${PAD_ID}{position:fixed;width:150px;height:150px;z-index:120;pointer-events:none;transform:translate(-50%,-50%);opacity:0;transition:opacity .08s ease;filter:drop-shadow(0 5px 12px #0007)}
+#${PAD_ID}{position:fixed;width:168px;height:168px;z-index:120;pointer-events:none;transform:translate(-50%,-50%);opacity:0;transition:opacity .08s ease;filter:drop-shadow(0 7px 17px #000a)}
 #${PAD_ID}.visible{opacity:1}
-#${PAD_ID} .lqFloatRing{position:absolute;inset:19px;border:1px solid #ffffff42;border-radius:50%;background:#07111f35;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
-#${PAD_ID} .lqFloatArrow{position:absolute;width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:27px;font-weight:950;background:#183a5f70;border:1px solid #ffffff4a;text-shadow:0 2px 5px #000;box-shadow:inset 0 1px #ffffff24}
-#${PAD_ID} .lqFloatArrow.up{left:51px;top:0}#${PAD_ID} .lqFloatArrow.down{left:51px;bottom:0}#${PAD_ID} .lqFloatArrow.left{left:0;top:51px}#${PAD_ID} .lqFloatArrow.right{right:0;top:51px}
-#${PAD_ID} .lqFloatArrow.active{background:#4b83c9c9;border-color:#d8edff;transform:scale(1.08);box-shadow:0 0 18px #72adff88,inset 0 1px #fff6}
-#${PAD_ID} .lqFloatCore{position:absolute;left:61px;top:61px;width:28px;height:28px;border-radius:50%;background:#ffffff2b;border:1px solid #ffffff42}
+#${PAD_ID} .lqFloatRing{position:absolute;inset:18px;border:2px solid #d8edff9a;border-radius:50%;background:radial-gradient(circle,#10243a66 0 35%,#07111f9a 70%);box-shadow:0 0 0 1px #4f8edb55,0 0 22px #4f9dff50,inset 0 0 18px #d8edff18;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#${PAD_ID} .lqFloatArrow{position:absolute;width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#f7fbff;font-size:30px;font-weight:950;background:#173b63c9;border:2px solid #d8edff9a;text-shadow:0 2px 5px #000;box-shadow:0 3px 10px #0008,inset 0 1px #ffffff42}
+#${PAD_ID} .lqFloatArrow.up{left:57px;top:0}#${PAD_ID} .lqFloatArrow.down{left:57px;bottom:0}#${PAD_ID} .lqFloatArrow.left{left:0;top:57px}#${PAD_ID} .lqFloatArrow.right{right:0;top:57px}
+#${PAD_ID} .lqFloatArrow.active{background:#5b9deee8;border-color:#fff;transform:scale(1.12);box-shadow:0 0 24px #72adffcc,0 4px 12px #0008,inset 0 1px #fff8}
+#${PAD_ID} .lqFloatCore{position:absolute;left:65px;top:65px;width:38px;height:38px;border-radius:50%;background:#d8edff73;border:2px solid #ffffffb8;box-shadow:0 0 16px #72adff99,inset 0 0 9px #fff6}
+#${PAD_ID} .lqFloatCore:after{content:'';position:absolute;inset:10px;border-radius:50%;background:#fff9;box-shadow:0 0 7px #fff}
 .gameShell.lqTouchSurface{touch-action:none!important;-webkit-user-select:none;user-select:none}
-@media(pointer:coarse){.controls .dpad{opacity:.42}.controls .dpad:before{content:'画面タッチでも移動';position:absolute;font-size:9px;color:#cfe3ff;transform:translateY(-12px);white-space:nowrap}}
+@media(pointer:coarse){.controls .dpad{opacity:.34}.controls .dpad:before{content:'どこでもドラッグで移動';position:absolute;font-size:9px;color:#d9edff;transform:translateY(-12px);white-space:nowrap;text-shadow:0 1px 3px #000}}
 @media(prefers-reduced-motion:reduce){#${PAD_ID}{transition:none}}
 `;
   document.head.appendChild(style);
@@ -50,6 +51,7 @@ function ensurePad(){
   if(pad&&pad.isConnected)return pad;
   pad=document.createElement('div');
   pad.id=PAD_ID;
+  pad.dataset.lqControllerVersion='1.5';
   pad.setAttribute('aria-hidden','true');
   pad.innerHTML='<div class="lqFloatRing"></div><div class="lqFloatArrow up" data-dir="up">↑</div><div class="lqFloatArrow left" data-dir="left">←</div><div class="lqFloatCore"></div><div class="lqFloatArrow right" data-dir="right">→</div><div class="lqFloatArrow down" data-dir="down">↓</div>';
   document.body.appendChild(pad);
@@ -120,7 +122,7 @@ function directionFromDelta(dx,dy){
 
 function positionPad(){
   const p=ensurePad();
-  const half=75,margin=8;
+  const half=84,margin=8;
   const x=Math.max(half+margin,Math.min(innerWidth-half-margin,originX));
   const y=Math.max(half+margin,Math.min(innerHeight-half-margin,originY));
   p.style.left=x+'px';p.style.top=y+'px';
@@ -213,5 +215,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.4',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.5',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
