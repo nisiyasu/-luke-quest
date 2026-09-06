@@ -1,8 +1,8 @@
 (() => {
 'use strict';
 
-/* REQ-122 — complete the canonical gameplay loop for keyboard users.
-   This listener delegates to existing world/battle commands and does not alter touch. */
+/* REQ-122 + REQ-124 — complete the canonical gameplay loop for keyboard/gamepad users.
+   These inputs delegate to existing world/battle commands and do not alter touch. */
 
 const DIRECT_BATTLE={
   '1':'attack',
@@ -11,6 +11,9 @@ const DIRECT_BATTLE={
   '4':'runAway'
 };
 const ARROWS=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown']);
+const GAMEPAD_DEAD_ZONE=.55;
+const GAMEPAD_NAV_REPEAT_MS=180;
+const GAMEPAD_KEYS={up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'};
 
 function editableTarget(target){
   if(!target||typeof target.closest!=='function')return false;
@@ -89,6 +92,136 @@ if(!window.LQ_REQ122_KEYBOARD_BOUND){
   window.LQ_REQ122_KEYBOARD_BOUND=true;
 }
 
+/* REQ-124 gamepad layer. It emits the already-supported keyboard movement/action
+   path for world play and clicks the existing battle command buttons. */
+const gamepadState={direction:null,lastBattleDirection:null,lastBattleNavAt:0,buttons:new Map(),raf:0};
+
+function gamepadPressed(gp,index){
+  const b=gp?.buttons?.[index];
+  return Boolean(b&&(b.pressed||Number(b.value)>.55));
+}
+
+function gamepadDirection(gp){
+  if(!gp)return null;
+  if(gamepadPressed(gp,12))return 'up';
+  if(gamepadPressed(gp,13))return 'down';
+  if(gamepadPressed(gp,14))return 'left';
+  if(gamepadPressed(gp,15))return 'right';
+  const x=Number(gp.axes?.[0]||0),y=Number(gp.axes?.[1]||0);
+  if(Math.max(Math.abs(x),Math.abs(y))<GAMEPAD_DEAD_ZONE)return null;
+  if(Math.abs(x)>Math.abs(y))return x>0?'right':'left';
+  return y>0?'down':'up';
+}
+
+function emitKey(key,type='keydown'){
+  window.dispatchEvent(new KeyboardEvent(type,{key,bubbles:true,cancelable:true}));
+}
+
+function releaseGamepadMovement(){
+  if(gamepadState.direction){
+    emitKey(GAMEPAD_KEYS[gamepadState.direction],'keyup');
+    gamepadState.direction=null;
+  }
+  if(typeof stopMoving==='function')stopMoving();
+}
+
+function applyWorldDirection(direction){
+  if(direction===gamepadState.direction)return;
+  if(gamepadState.direction)emitKey(GAMEPAD_KEYS[gamepadState.direction],'keyup');
+  gamepadState.direction=direction;
+  if(direction)emitKey(GAMEPAD_KEYS[direction],'keydown');
+}
+
+function risingGamepadButton(gp,index){
+  const now=gamepadPressed(gp,index);
+  const before=gamepadState.buttons.get(index)===true;
+  gamepadState.buttons.set(index,now);
+  return now&&!before;
+}
+
+function activateFocusedBattleCommand(){
+  const buttons=battleButtons();
+  if(!buttons.length)return false;
+  let target=buttons.includes(document.activeElement)?document.activeElement:buttons[0];
+  target.focus({preventScroll:true});
+  target.click();
+  return true;
+}
+
+function processGamepad(gp,now=performance.now()){
+  if(typeof s==='undefined'||!s||!gp){
+    releaseGamepadMovement();
+    return false;
+  }
+
+  const direction=gamepadDirection(gp);
+  if(s.screen==='world'&&!s.dialog){
+    gamepadState.lastBattleDirection=null;
+    applyWorldDirection(direction);
+  }else{
+    releaseGamepadMovement();
+    if(s.screen==='battle'&&direction){
+      if(direction!==gamepadState.lastBattleDirection||now-gamepadState.lastBattleNavAt>=GAMEPAD_NAV_REPEAT_MS){
+        focusBattle(direction==='right'||direction==='down'?1:-1);
+        gamepadState.lastBattleDirection=direction;
+        gamepadState.lastBattleNavAt=now;
+      }
+    }else{
+      gamepadState.lastBattleDirection=null;
+    }
+  }
+
+  if(risingGamepadButton(gp,0)){
+    if(s.screen==='battle')activateFocusedBattleCommand();
+    else if(s.screen==='world'){
+      emitKey('Enter','keydown');
+      emitKey('Enter','keyup');
+    }
+  }
+
+  /* B is cancel/close only. It is deliberately never mapped to runAway. */
+  if(risingGamepadButton(gp,1)&&s.screen==='world'&&s.dialog){
+    emitKey('Escape','keydown');
+    emitKey('Escape','keyup');
+  }
+
+  if(risingGamepadButton(gp,9)&&s.screen==='world'&&!s.dialog){
+    emitKey('m','keydown');
+    emitKey('m','keyup');
+  }
+  return true;
+}
+
+function firstConnectedGamepad(){
+  if(typeof navigator.getGamepads!=='function')return null;
+  try{return [...(navigator.getGamepads()||[])].find(Boolean)||null}catch{return null}
+}
+
+function pollGamepad(now){
+  const gp=firstConnectedGamepad();
+  if(gp)processGamepad(gp,now);
+  else {
+    releaseGamepadMovement();
+    gamepadState.buttons.clear();
+    gamepadState.lastBattleDirection=null;
+  }
+  gamepadState.raf=requestAnimationFrame(pollGamepad);
+}
+
+function hardReleaseGamepad(){
+  releaseGamepadMovement();
+  gamepadState.buttons.clear();
+  gamepadState.lastBattleDirection=null;
+}
+
+if(!window.LQ_REQ124_GAMEPAD_BOUND){
+  window.addEventListener('gamepaddisconnected',hardReleaseGamepad);
+  window.addEventListener('blur',hardReleaseGamepad);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)hardReleaseGamepad()});
+  gamepadState.raf=requestAnimationFrame(pollGamepad);
+  window.LQ_REQ124_GAMEPAD_BOUND=true;
+}
+
 function assert(ok,reason){
   if(ok)return;
   const el=document.createElement('i');
@@ -96,12 +229,32 @@ function assert(ok,reason){
   el.className='lqReq122KeyboardSmokeFailure';
   el.dataset.reason=String(reason);
   document.body.appendChild(el);
-  throw new TypeError(`REQ-122 keyboard smoke failed: ${reason}`);
+  throw new TypeError(`REQ-122/124 input smoke failed: ${reason}`);
 }
 
 function syntheticKey(key,{repeat=false,target=window}={}){
   const event=new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true,repeat});
   target.dispatchEvent(event);
+}
+
+function gamepadSmoke(){
+  const button=(pressed=false)=>({pressed,value:pressed?1:0});
+  const gp=(axes=[0,0],pressed=[])=>({axes,buttons:Array.from({length:16},(_,i)=>button(pressed.includes(i)))});
+  assert(gamepadDirection(gp([0,0]))===null,'gamepad dead zone');
+  assert(gamepadDirection(gp([.8,.1]))==='right','gamepad analog horizontal');
+  assert(gamepadDirection(gp([.1,-.9]))==='up','gamepad analog vertical');
+  assert(gamepadDirection(gp([0,0],[15]))==='right','gamepad dpad direction');
+  assert(typeof activateFocusedBattleCommand==='function','battle canonical button activation path present');
+  assert(typeof releaseGamepadMovement==='function','gamepad hard release path present');
+  const marker=document.createElement('i');
+  marker.hidden=true;
+  marker.className='lqReq124GamepadSmokeMarker';
+  marker.dataset.deadZone='true';
+  marker.dataset.dpad='true';
+  marker.dataset.release='true';
+  marker.dataset.canonicalBattleButton='true';
+  marker.dataset.touchAuthorityChanged='false';
+  document.body.appendChild(marker);
 }
 
 function smoke(){
@@ -152,6 +305,7 @@ function smoke(){
     assert(Object.keys(inputBefore).every(k=>calls[k]===inputBefore[k]),'editable target excluded');
     input.remove();
 
+    gamepadSmoke();
     assert(window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.tapAnywhereAction===true,'Tap Anywhere authority preserved');
     assert(window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS?.worldViewportPrimary===true,'fullscreen authority preserved');
 
@@ -166,6 +320,7 @@ function smoke(){
     marker.dataset.editableExclusion='true';
     document.body.appendChild(marker);
   } finally {
+    hardReleaseGamepad();
     Object.assign(window,original);
     s.screen=snapshot.screen;s.map=snapshot.map;s.x=snapshot.x;s.y=snapshot.y;s.dir=snapshot.dir;
     s.dialog=snapshot.dialog;s.enemy=snapshot.enemy;s.ehp=snapshot.ehp;s.hp=snapshot.hp;
@@ -187,5 +342,21 @@ window.LQ_REQ122_KEYBOARD_STATUS={
   storyChanged:false
 };
 window.LQ_REQ122_KEYBOARD_TEST={handleKey,focusBattle,smoke};
+window.LQ_REQ124_GAMEPAD_STATUS={
+  requirement:'REQ-124',
+  gamepadApi:typeof navigator.getGamepads==='function'?'available':'unsupported-safe-noop',
+  deadZone:GAMEPAD_DEAD_ZONE,
+  worldMovementViaExistingKeyboardPath:true,
+  worldActionViaExistingKeyboardPath:true,
+  battleViaCanonicalButtons:true,
+  accidentalRunMapping:false,
+  disconnectRelease:true,
+  blurRelease:true,
+  visibilityRelease:true,
+  touchAuthorityChanged:false,
+  saveChanged:false,
+  storyChanged:false
+};
+window.LQ_REQ124_GAMEPAD_TEST={gamepadDirection,processGamepad,releaseGamepadMovement,activateFocusedBattleCommand,gamepadSmoke};
 setTimeout(()=>{if(new URLSearchParams(location.search).has('lqSmoke'))smoke();},0);
 })();
