@@ -1,6 +1,6 @@
 # REQ-060 — Cross-Browser Save Transfer
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / TRANSFER / PLAYER-VISIBLE / IOS / DIRECTIVE-AUTHORIZED
 OWNER_REQUEST: RECENT_PLAYER_PAIN_POINT
@@ -34,7 +34,7 @@ Browser B / fresh browser:
 
 Do not redesign autosave. Keep `lukeQuestV2` as canonical browser-local autosave.
 
-Use a versioned transfer envelope such as:
+Use a versioned transfer envelope:
 
 ```json
 {
@@ -45,7 +45,7 @@ Use a versioned transfer envelope such as:
 }
 ```
 
-Transport encoding may be URL-safe base64 over UTF-8 JSON or an equivalently copy-safe text representation.
+Transport encoding is URL-safe base64 over UTF-8 JSON.
 
 Reuse the existing manual-backup safety contract where possible:
 - plain-object validation;
@@ -54,90 +54,88 @@ Reuse the existing manual-backup safety contract where possible:
 - legacy/default migration;
 - invalid-map safe fallback.
 
-Do not import arbitrary object prototypes, arrays, malformed JSON, invalid transfer envelopes, unsupported versions, or dangerous keys.
+## 3. IMPLEMENTATION
 
-## 3. UI REQUIREMENTS
+### `addons/save-transfer.js`
 
-### Title screen
+- versioned `LUKE_QUEST_SAVE_TRANSFER` v1 envelope;
+- UTF-8-safe URL-safe base64 encode/decode;
+- field/world snapshot export with volatile battle/menu/dialogue state removed;
+- Clipboard API copy when available plus visible textarea/manual-copy fallback;
+- title-screen SAVE TRANSFER import UI available independently of existing local save/manual slots;
+- pause-menu SAVE TRANSFER export/import UI;
+- malformed/wrong-format/wrong-version/non-object payload rejection before canonical mutation;
+- dangerous-key sanitization for state and flags;
+- current DEFAULT numeric normalization via the existing manual-backup contract;
+- missing/removed map fallback to safe town coordinates;
+- movement stop + canonical `save()` + safe world resume after successful import;
+- existing `lukeQuestV2` autosave and two manual localStorage slots remain unchanged.
 
-The import path MUST be available in a completely fresh browser where `lukeQuestV2` and manual slots do not exist.
+### `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-save-transfer-smoke.js`
 
-Provide a compact `SAVE TRANSFER` area with:
-- paste/input area;
-- IMPORT button;
-- clear success/error feedback.
+Fail-closed runtime acceptance covers:
+- status/format/version contract;
+- export code creation;
+- representative story/map/position/stats/flags round trip;
+- Japanese Unicode round trip;
+- malformed payload no-mutation rejection;
+- wrong format/version rejection;
+- array state rejection;
+- `__proto__` / `constructor` / `prototype` sanitization;
+- canonical numeric normalization;
+- invalid-map town fallback;
+- valid import canonical localStorage write;
+- existing manual two-slot backup contract preservation;
+- title import UI existence in the no-prior-save scenario.
 
-Do not hide transfer import merely because no local save exists.
+## 4. CHECKPOINTS
 
-### World / pause menu
+- requirement registration: `7b2f2f77995912a6f66c7b2170d83461edcdb6a9`
+- queue activation / REQ-059 blocker synchronization: `54d6f6d505c118eb3050d394b6fd8126aafd7c90`
+- implementation: `b570a3363adda31017f3903b64341137a41c4c0a`
+- dedicated acceptance: `e7254bd6882f40e50fcb911afa603f8b26e2896b`
 
-Provide an export path with:
-- `COPY SAVE CODE` or equivalent;
-- fallback selectable text if clipboard access is unavailable/denied;
-- concise explanation that the code can be pasted into another browser/device.
+## 5. VERIFICATION
 
-An import path may also be exposed from pause/menu if it remains safe and compact.
+GitHub Pages workflow run `34015168161`: SUCCESS.
 
-## 4. IMPORT SAFETY
+Observed successful steps include:
+- sequential JavaScript validation: PASS;
+- collision-safe add-on validation: PASS;
+- static regression guard: PASS;
+- add-on contract guard: PASS;
+- PWA/raster/Luke asset validation: PASS;
+- assembled browser smoke: PASS;
+- REQ-060 fail-closed smoke executed inside the assembled `?lqSmoke=1` build without runtime failure: PASS;
+- 390x844 floating-touch + iPhone world visual-liveness regression: PASS;
+- Pages upload: PASS;
+- Pages deploy: PASS.
 
-Import must:
-- reject malformed/empty payloads without mutating `s` or localStorage;
-- reject wrong format/version;
-- sanitize dangerous keys before merge;
-- normalize canonical numeric fields using current DEFAULT contract;
-- merge flags conservatively;
-- reset volatile UI/combat presentation state to a safe world/title continuation state;
-- fall back to safe town coordinates if imported map is unavailable;
-- stop movement before applying imported state;
-- call canonical `save()` after successful application;
-- preserve backward compatibility with current saves and manual slots.
+The public build therefore contains the SAVE TRANSFER add-on through the workflow's versioned-patch/add-on injection step.
 
-Do not silently delete existing local progress on invalid import.
-
-## 5. EXPORT SAFETY
-
-Export current playable progress, not transient UI/battle garbage.
-
-At minimum remove/reset volatile fields consistent with existing manual `snapshot()` behavior:
-- pause/menu open state;
-- shop open state;
-- transient victory/defeat result;
-- active dialogue if necessary for stable transfer;
-- screen should resume safely;
-- include `createdAt` / saved timestamp.
-
-Do not include secrets or account credentials. LUKE QUEST currently has no account credential requirement for this transfer.
+Physical iPhone clipboard/paste feel remains `IOS_PHYSICAL_VERIFICATION=PENDING` and is not claimed from automation.
 
 ## 6. TEST REQUIREMENTS
 
-Fail closed with automated acceptance covering at least:
-
-1. export produces expected format/version and a non-empty portable code;
-2. round-trip encode/decode preserves representative story progress, map/position, stats and flags;
-3. Unicode-safe encoding/decoding works;
-4. fresh-browser title UI exposes import controls without an existing local save;
-5. valid import writes canonical autosave and yields playable state;
-6. malformed code rejects without state/save mutation;
-7. wrong format/version rejects;
-8. array/primitive state rejects;
-9. `__proto__`, `constructor`, `prototype` cannot pollute imported state/flags;
-10. invalid numeric fields normalize through current DEFAULT schema;
-11. invalid/removed map falls back safely;
-12. existing manual backup contract remains intact;
-13. assembled browser smoke PASS;
-14. 390x844 touch/fullscreen regression PASS;
-15. Pages deploy SUCCESS.
+1. export produces expected format/version and a non-empty portable code — PASS
+2. round-trip encode/decode preserves representative story progress, map/position, stats and flags — PASS
+3. Unicode-safe encoding/decoding works — PASS
+4. fresh-browser title UI exposes import controls without an existing local save — PASS (assembled runtime acceptance)
+5. valid import writes canonical autosave and yields playable state — PASS
+6. malformed code rejects without state/save mutation — PASS
+7. wrong format/version rejects — PASS
+8. array/primitive state rejects — PASS
+9. `__proto__`, `constructor`, `prototype` cannot pollute imported state/flags — PASS
+10. invalid numeric fields normalize through current DEFAULT schema — PASS
+11. invalid/removed map falls back safely — PASS
+12. existing manual backup contract remains intact — PASS
+13. assembled browser smoke — PASS
+14. 390x844 touch/fullscreen regression — PASS
+15. Pages deploy — PASS (`34015168161`)
 
 ## 7. COMPLETION CONDITION
 
-Automated implementation is complete only when:
-- transfer UI is in the assembled public build;
-- valid cross-browser code round-trip is proven by browser/runtime acceptance;
-- invalid payloads fail closed;
-- existing save/manual-backup behavior remains intact;
-- Pages succeeds.
-
-Physical iPhone copy/paste feel remains `IOS_PHYSICAL_VERIFICATION=PENDING` until genuinely observed.
+Automated implementation, transfer round-trip safety, assembled browser regression and Pages publication are satisfied. Physical iPhone copy/paste feel remains pending, therefore STATUS is VERIFY rather than DONE.
 
 ## 8. DO NOT REPEAT / DO NOT FAKE
 
