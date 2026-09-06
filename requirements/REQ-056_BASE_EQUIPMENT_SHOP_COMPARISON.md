@@ -1,6 +1,6 @@
 # REQ-056 — Base Equipment Shop Comparison
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SHOP / EQUIPMENT / UX / PLAYER-VISIBLE / DIRECTIVE-AUTHORIZED
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -31,23 +31,55 @@ Make base equipment purchases readable and reversible-looking before purchase wi
 - existing owned/equipped state and buy controls remain intact
 - no state mutation, no save call, no price mutation
 
+## IMPLEMENTATION
+
+- `addons/base-equipment-shop-comparison.js`
+  - UI-only projection for canonical Tier-I cards
+  - same audited bonus chain as REQ-032: weapon 0/3/6, armor 0/2/4
+  - explicit positive, negative and zero signed deltas
+  - no save/state mutation
+- `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-base-equipment-shop-comparison-smoke.js`
+  - fail-closed assembled-browser acceptance for upgrade/downgrade math, no-save behavior, visible comparison, preserved buy controls and Tier II system
+
+## CHECKPOINTS
+
+- requirement registration: `61cb6380c2c5e6ce9d5b17468ee0fc7f2c8205f9`
+- implementation: `bbd93b7724329362f0cbfe43cfad671bd9d97901`
+- dedicated acceptance: `908db4fe113fa60249b36e73e60c38035851397e`
+
+## VERIFICATION
+
+Pages run `34014165812` for the acceptance checkpoint completed SUCCESS:
+
+- sequential syntax validation: PASS
+- collision-safe add-on validation: PASS
+- static regression: PASS
+- add-on contract: PASS
+- existing equipment runtime/browser coverage: PASS through assembled browser smoke
+- REQ-056 dedicated browser acceptance: PASS
+- 390x844 floating touch + iPhone world visual-liveness: PASS
+- upload: PASS
+- GitHub Pages deploy: PASS
+
+Physical iPhone readability remains PENDING.
+
 ## TEST REQUIREMENTS
 
-1. base ATK 7 with 旅人の短剣 -> 青銅の剣 projects 10 (+3)
-2. ATK 13 with 鉄の剣 -> 青銅の剣 projects 10 (-3)
-3. DEF 0 with 旅人服 -> 革の旅装 projects 2 (+2)
-4. DEF 4 with 補強革鎧 -> 革の旅装 projects 2 (-2)
-5. comparison does not mutate state or call save
-6. existing owned/equipped card state remains
-7. existing base purchase controls remain
-8. Tier II comparison remains present and unchanged
-9. assembled browser regression PASS
-10. 390x844 touch/world visual-liveness PASS
-11. Pages deploy SUCCESS before VERIFY
+1. base ATK 7 with 旅人の短剣 -> 青銅の剣 projects 10 (+3) — PASS
+2. ATK 13 with 鉄の剣 -> 青銅の剣 projects 10 (-3) — PASS
+3. DEF 0 with 旅人服 -> 革の旅装 projects 2 (+2) — PASS
+4. DEF 4 with 補強革鎧 -> 革の旅装 projects 2 (-2) — PASS
+5. comparison does not mutate state or call save — PASS
+6. existing owned/equipped card state remains — PASS via existing assembled shop/equipment regressions
+7. existing base purchase controls remain — PASS
+8. Tier II comparison/system remains present — PASS
+9. assembled browser regression PASS — PASS
+10. 390x844 touch/world visual-liveness PASS — PASS
+11. Pages deploy SUCCESS before VERIFY — PASS (`34014165812`)
 
 ## COMPLETION CONDITION
 
-Implementation + fail-closed acceptance + existing equipment regression + assembled browser + 390x844 touch/fullscreen + Pages SUCCESS. Physical iPhone readability check remains PENDING.
+Automated implementation, fail-closed acceptance, equipment/browser/touch/fullscreen regressions and Pages SUCCESS are satisfied. Physical iPhone readability remains PENDING, therefore STATUS is VERIFY rather than DONE.
 
 ## DO NOT REPEAT
 
