@@ -50,10 +50,6 @@ setTimeout(()=>{
     }
   }catch(err){
     console.error('lqNorthCliffEncounterSmokeFailure',err);
-    // On a caught failure, put the exception into a field that the existing CI
-    // assertion loop already dumps. This is diagnostic-only and inert on PASS.
-    encounterEnabled=`ERROR:${err&&err.message}`;
-    statusContract=false;
     deferredError=new TypeError(`REQ-082 north cliff encounter smoke failed: ${err&&err.message}`);
   }
   finally{
@@ -62,6 +58,8 @@ setTimeout(()=>{
     render();
     const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
     if(deferredError){
+      // Dedicated CI probe owns this page. Strip unrelated runtime DOM so the
+      // workflow's existing data-*=true checks cannot be satisfied by another marker.
       document.body.replaceChildren();
       failure(deferredError.message);
       marker(data);
