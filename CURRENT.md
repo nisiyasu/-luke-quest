@@ -1,138 +1,121 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 02:25 JST
+- UPDATED_AT: 2026-09-07 02:54 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `bbabd857dff56dfbb2b21530f3be0a33a0200745`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `1270aad68ee08c4a6536a4947615111913fbb712`
-- LATEST_TESTED_HEAD_SHA: `1270aad68ee08c4a6536a4947615111913fbb712`
-- LATEST_REQUIREMENT_CHECKPOINT: `bbabd857dff56dfbb2b21530f3be0a33a0200745` / REQ-112 moved to VERIFY after public gate PASS
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-112 FIRST-TOUCH GESTURE COACH PUBLIC GATE PASS / OWNER IPHONE CHECK PENDING`
-- LATEST_PAGES_RUN: `34048446380` / SUCCESS on complete implementation HEAD `1270aad68ee08c4a6536a4947615111913fbb712`
-- BOOT_REALITY_AUDIT: `PASS / fresh HEAD matched prior CURRENT at boot; WORK_QUEUE remained stale through REQ-105, so HEAD-backed requirements and current code were used without destructive queue replacement`
-- OWNER_PRIORITY_AUDIT: `PASS / REQ-021 -> REQ-022 -> REQ-001 remain public-regression protected; REQ-111 keeps Tap-first copy; REQ-112 improves first-touch discoverability without changing canonical input authority; physical iPhone confirmation remains PENDING`
-- CONTINUE_GATE_LAST_RESULT: `CONTINUE`
-- EXECUTION_DEGRADATION_STATUS: `IMPLEMENTATION_HEALTHY / WORK_QUEUE_MANAGEMENT_DRIFT_RECORDED`
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `1f4a9ce8464873b9e4424be7a937076d74e5ac87`
+- LATEST_GAMEPLAY_IMPLEMENTATION_COMMIT_SHA: `7360b6279280193f76cfbe579e059a51ddeef0b7` / REQ-113 windStairRidge authority hardening
+- LATEST_STORY_CANON_COMMIT_SHA: `5fd43a687e23ffb6a391639ae80ac819b22ef784`
+- LATEST_MANAGEMENT_RECOVERY_COMMIT_SHA: `049f072403ec38086ac2daee64bf1e34466077e7`
+- LATEST_TESTED_HEAD_SHA: `1f4a9ce8464873b9e4424be7a937076d74e5ac87`
+- LATEST_PAGES_RUN: `34049947164` / SUCCESS
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / P0 INPUT+FULLSCREEN AUTOMATED PUBLIC GATE PASS / STORY PURSUIT EXTENSION FROZEN AT OWNER CANON CHECKPOINT / OWNER IPHONE CHECK PENDING`
+- BOOT_REALITY_AUDIT: `REPAIRED / prior CURRENT was stale behind REQ-113 implementation and STORY_CANON; recovered commits, workflow state, duplicate requirement collision and concurrent queue drift from fresh HEAD`
+- OWNER_PRIORITY_AUDIT: `REPAIRED_PASS / REQ-021 -> REQ-022 -> REQ-001 fresh code re-audited; latest Pages assembled browser + 390x844 touch/fullscreen smoke PASS; IOS_PHYSICAL_VERIFICATION remains PENDING`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE / story-specific work blocked does not block independent canon-safe work`
+- EXECUTION_DEGRADATION_STATUS: `CONCURRENT_MANAGEMENT_DRIFT_DETECTED_REPAIRED`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
-- PREEMPTED_REQUIREMENT: `NONE`
-- SELF_REPAIR_ACTIONS: `Fresh mobile UX audit identified first-touch gesture discoverability gap; registered REQ-112, implemented transient world gesture coach, fresh-audited and repaired a malformed descendant CSS selector before public gate, then public-gated the polished implementation without touching pointer/action/movement authority.`
-- BLOCKED_REQUIREMENTS: `REQ-059` only; generated-raster chainable handoff remains nonblocking.
-- BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art require Owner-quality source authority and are not safe autonomous selections.
-- SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091`
-- KNOWN_ISSUES: `WORK_QUEUE.md remains a stale projection ending at REQ-105. Recent HEAD-backed requirements must be reconstructed from requirement files/commits. Full queue output is connector-truncated, so destructive replacement is prohibited.`
-- BLOCKERS: `No implementation blocker. Queue append remains management-only until it can be performed without losing historical rows.`
-- NEXT_ACTION: `Continue fresh player-visible audit after REQ-112. Prefer an observed mobile/first-chapter usability or gameplay gap over redundant permanent HUD; preserve canonical touch/fullscreen authority.`
-- NEXT_ACTION_COMPLETION_CONDITION: `fresh HEAD grounded requirement, protected canon unchanged, P0 input/fullscreen protected, fail-closed regression PASS, assembled browser PASS, 390x844 touch/fullscreen PASS, relevant regressions PASS, Pages SUCCESS before VERIFY.`
-- DO_NOT_REPEAT: `Do not reimplement REQ-106 / REQ-107 / REQ-108 / REQ-109 / REQ-110 / REQ-111 / REQ-112 after public gate PASS unless a fresh regression is found. Do not claim physical iPhone PASS from CI. Do not revert Tap-first copy to A-only guidance or move the transient gesture coach into a permanent HUD row.`
+- PREEMPTED_REQUIREMENT: `REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION -> BLOCKED by newer Owner-approved STORY_CANON governance`
+- SELF_REPAIR_ACTIONS: `Recovered REQ-113 north-route commits; preserved published windStairRidge instead of destructive rollback; blocked further generic Leon pursuit extension; detected duplicate REQ-113 story-wiring file and incorrect early-wiring/sister-canon inference; superseded that duplicate; registered REQ-114 as BLOCKED until Chapter 1/2 story design; fresh re-audited P0 touch/fullscreen implementation and public workflow.`
+- BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
+- BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
+- SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
+- KNOWN_ISSUES: `WORK_QUEUE.md contains a concurrent stale READY row for duplicate REQ-113 story wiring even though its target requirement file is now SUPERSEDED. Do not execute that row. Queue history is large and prior connector retrieval has truncated it; do not destructively replace the queue from incomplete content. Repair forward when a byte-safe/full-content update path is available.`
+- BLOCKERS: `Main-story continuation is intentionally blocked at STORY_CANON partial checkpoint: Chapter 1 stopping role remains PENDING_OWNER_DECISION and Chapter 2 remains NOT_DESIGNED. This does not block non-main-story UX/system/bug/polish work.`
+- NEXT_ACTION: `On next autonomous selection, fresh-load HEAD first. Do not extend Leon pursuit north and do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE yet. Select only independent canon-safe player-visible UX/system/bug/polish work unless Owner has since completed Chapter 1/2 Story Canon.`
+- NEXT_ACTION_COMPLETION_CONDITION: `fresh HEAD grounded requirement; Story Canon boundary preserved; P0 input/fullscreen protected; no unapproved plot invention; relevant fail-closed regression PASS; assembled browser PASS; 390x844 touch/fullscreen PASS; Pages SUCCESS before VERIFY.`
+- DO_NOT_REPEAT: `Do not create another generic north pursuit map from Leon traces. Do not treat Leon's sister stopping the clash as confirmed. Do not create/name/age/characterize Leon's sister as canon. Do not invent Chapter 2. Do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE until Chapter 1 and Chapter 2 are Owner-approved enough to satisfy REQ-114 unblock conditions. Do not execute duplicate queue row REQ-113 Story Canon Autonomous Wiring. Do not claim physical iPhone PASS from CI.`
 
-## P0 INPUT / FULLSCREEN — FRESH RE-AUDIT
+## P0 INPUT / FULLSCREEN — FRESH RE-AUDIT 2026-09-07
 
-- REQ-021 `Tap Anywhere Action`: unified world touch surface routes a short dead-zone tap to canonical `action()` exactly once; drag/cancel/stale release does not Action; explicit controls remain excluded.
-- REQ-022 `iPhone Fullscreen World UI`: `100dvh`, safe-area handling, viewport-primary world, floating controls/status/dialogue overlays and resize/orientation recenter remain active.
-- REQ-001 `Dynamic Touch Controller`: pointerId ownership, dead zone, live direction switching, central `stopMoving()`, pointercancel/blur/dialogue/battle/map-transition/rerender cleanup remain active.
-- REQ-111 `Tap-First Interaction Affordance`: dialogue says `タップ / Aで閉じる`; facing NPC and physical landmark prompts use semantic `話す` / `調べる` cues instead of teaching A as mandatory. Fallback A remains available.
-- REQ-112 `First-Touch Gesture Coach`: mobile/coarse-pointer world entry briefly teaches `短くタップ：調べる / スライド：歩く` in a pointer-transparent transient overlay; no new input authority or persistence.
-- Explicit `visibilitychange` movement-stop regression remains protected.
-- Pages run `34048446380`: SUCCESS including JavaScript/add-on validation, static/contract guards, assembled browser, 390x844 floating touch/fullscreen smoke, north-route regressions, artifact upload and deployment.
-- IOS_PHYSICAL_VERIFICATION: PENDING for REQ-021 / REQ-022 / REQ-001 / REQ-111 / REQ-112 until Owner confirms on actual iPhone.
+### REQ-021 — Tap Anywhere Action
+
+- STATUS: `VERIFY`.
+- Fresh implementation: `addons/floating-touch-controller.js`.
+- Unified world pointer surface remains active.
+- Short touch/pen tap inside `.gameShell`, within 18px dead zone and 420ms, calls the final canonical `action()` at most once.
+- Drag/hold movement marks the gesture moved and cannot fire Action on release.
+- Explicit controls are excluded through the shared interactive selector.
+- pointercancel, blur, visibility hidden, dialogue start and map/screen transition cleanup remain tied to central movement stop/reset.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+### REQ-022 — iPhone Fullscreen World UI
+
+- STATUS: `VERIFY`.
+- Fresh implementation: `addons/zzzz-iphone-fullscreen-world-ui.js`.
+- `100dvh` viewport-primary world remains active with safe-area-aware status/HUD/quest/control/dialogue overlays.
+- Controls plane remains transparent and pointer-transparent except actual dpad/action controls.
+- Portrait camera scale remains 0.88 with visual-liveness assertions for world/player/painted tiles.
+- No map coordinates, collision, story flags or save semantics changed by the layout layer.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+### REQ-001 — Dynamic Touch Controller
+
+- STATUS: `VERIFY`.
+- Same `addons/floating-touch-controller.js` owns unified tap/drag distinction.
+- pointerId ownership, dead zone, live dominant-axis direction change, window-level pointerup/pointercancel, blur/visibility cleanup, render transition stop, dialogue start cleanup and central `stopMoving()` remain present.
+- Dynamic pad remains 168px presentation with fallback fixed controls retained.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+### PUBLIC GATE
+
+- Latest Pages run inspected: `34049947164` on HEAD `1f4a9ce8464873b9e4424be7a937076d74e5ac87`: `SUCCESS`.
+- Recent successful descendant run `34049703956` explicitly passed sequential JS validation, add-on validation, static regression guard, add-on contract guard, assembled browser smoke, floating touch + iPhone world visual-liveness smoke, REQ-081 north-route smoke, REQ-082 encounter smoke, upload and deploy.
+- No physical-device claim is made from CI.
+
+## STORY GOVERNANCE RECOVERY — 2026-09-07
+
+### STORY_CANON.md
+
+- STATUS: `PARTIAL / CHAPTER_01_DESIGN_IN_PROGRESS / CHAPTER_02_NOT_DESIGNED`.
+- Owner-approved additions preserved: Leon is Eleanor's son; Eleanor has long boasted that she gave birth to the hero; Leon was raised under hero expectations, is highly capable but not uniquely first, sometimes loses school matches to unmotivated Luke, expected a future awakening, and fled before hero selection from fear the crystal would not respond.
+- Chapter 1 confirmed core preserved: Luke reaches Leon; Leon learns Luke was chosen as hero; Leon's accumulated resentment explodes; Leon attacks; Luke refuses to attack back and only defends while remaining naturally confused/non-hostile.
+- Chapter 1 stopping role remains `PENDING_OWNER_DECISION`: Eleanor vs Leon's sister path is not yet canon.
+- Chapter 2 remains `NOT_DESIGNED`.
+- `AUTONOMOUS_DEV_DIRECTIVE.md` is intentionally NOT yet wired to STORY_CANON; Owner-approved sequencing is Chapter 1 + Chapter 2 design first, wiring afterward.
+
+### REQ-113 — Cloudbreak North Playable Continuation
+
+- Historical implementation is present and published: `windStairRidge` / `北尾根・風鳴りの石段`.
+- Hardening culminated at `7360b6279280193f76cfbe579e059a51ddeef0b7`, making its standalone registration data-only and keeping new global wrappers off the protected REQ-082 authority chain.
+- Original acceptance requested `EVAC_ENEMIES` encounter integration, but stabilized implementation intentionally deferred that integration; therefore original acceptance is not falsely claimed complete.
+- STATUS repaired to `BLOCKED` because newer Owner Story Canon forbids continuing the main pursuit by repeatedly adding another north route.
+- Existing published map is preserved; no destructive rollback merely to erase history.
+
+### Duplicate REQ-113 Story Wiring Collision
+
+- A concurrent session created `requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md` after REQ-113 already existed.
+- It also incorrectly treated immediate Directive wiring and the Leon-sister interruption outcome as approved.
+- File repaired to `SUPERSEDED`; it must not execute.
+- Successor `requirements/REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02.md` created as `BLOCKED` with correct sequencing.
+- Concurrent `WORK_QUEUE.md` row still says duplicate REQ-113 is READY. Treat this as known stale projection, not execution authority over fresh requirement reality and latest Owner instruction.
 
 ## REQ-023 — NORTH EVAC ROUTE GUIDANCE
 
 - STATUS: `VERIFY`.
-- Before `withdrawProofSeen`, objective explicitly directs the player toward the left-lower withdrawal-order fragment and marks the required clue.
-- After canonical Action sets `withdrawProofSeen=true`, objective immediately changes to return to the north edge and proceed, with clue marker removed and north exit guidance shown.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
+- Before `withdrawProofSeen`, objective directs the player to the required withdrawal-order clue and presents a visible marker.
+- After acquisition, objective immediately changes toward the north exit.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
 
-## REQ-106 — WIND SHELF PLAYABLE CONTINUATION
+## RECENT VERIFIED PLAYER-VISIBLE CHECKPOINTS
 
-- STATUS: `VERIFY`.
-- `windShelf` / `北尾根・風蝕の岩棚` is public with safe entry/return, four canonical interactions, guidance and existing encounter authority.
-- Pages run `34043518316` SUCCESS.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
-
-## REQ-107 — SKYLINE TRAVERSE PLAYABLE CONTINUATION
-
-- STATUS: `VERIFY`.
-- `skylineTraverse` / `北尾根・雲裂きの稜線` is public with safe entry/return, canonical interactions, guidance and cross-system integration.
-- Pages run `34045914153`: SUCCESS.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
-
-## REQ-108 — CLOUDBREAK SADDLE PLAYABLE CONTINUATION
-
-- STATUS: `VERIFY`.
-- `cloudbreakSaddle` / `北尾根・雲上の鞍部` is public as a distinct pursuit interval with safe entry/return, four interactables and presentation integration.
-- Complete implementation HEAD: `3428c4aa83c0d7afc322f08269ef520bc49f5f91`.
-- Pages run `34046303036`: SUCCESS.
-- IMPLEMENTATION_COMPLETE: YES.
-- PAGES_VERIFIED: YES.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
-
-## REQ-109 — NORTH PURSUIT ROUTE COMPASS
-
-- STATUS: `VERIFY`.
-- Implementation: `addons/north-route-compass.js`.
-- Adventure Journal shows CURRENT / NOW / FORWARD / BACK only on the northern pursuit route.
-- CURRENT derives from canonical `MAPS`; evacuation guidance switches immediately after `withdrawProofSeen`; later maps reuse spoiler-safe Journal objective.
-- No world pointer authority, save schema or persistent route-history state added.
-- Complete implementation HEAD: `b8199732e36c9c3cf1f13513ccf44852661c475f`.
-- Pages run `34046783044`: SUCCESS.
-- IMPLEMENTATION_COMPLETE: YES.
-- PAGES_VERIFIED: YES.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
-
-## REQ-110 — MOBILE RESUME ORIENTATION TOAST
-
-- STATUS: `VERIFY`.
-- Implementation: `addons/mobile-resume-orientation-toast.js`.
-- After a hidden -> visible transition during an already-running world session, a compact transient RESUME toast shows canonical current area and the spoiler-safe Adventure Journal NOW objective.
-- Toast auto-cleans, does not stack, is pointer-events none, respects safe-area/reduced-motion, and does not appear on non-world screens.
-- Existing hidden-state movement stop is untouched; no pointer/action/movement authority, save schema, story flag or permanent HUD row added.
-- Complete implementation HEAD: `d7be318418b624a7e2a741bb306d2153f91d9985`.
-- Pages run `34046939401`: SUCCESS.
-- IMPLEMENTATION_COMPLETE: YES.
-- PAGES_VERIFIED: YES.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
-
-## REQ-111 — TAP-FIRST INTERACTION AFFORDANCE
-
-- STATUS: `VERIFY`.
-- Implementation: `addons/tap-first-interaction-affordance.js`.
-- Fresh audit found player-visible A-only copy despite canonical Tap Anywhere being operational.
-- Dialogue footer reads `タップ / Aで閉じる`.
-- Facing NPC marker presents semantic `話す` instead of A-only requirement.
-- Physical landmark prompt badge presents semantic `調べる` instead of A-only requirement.
-- Fallback physical A button and desktop keyboard Action are untouched.
-- No pointer/action/movement authority, save schema, story state or permanent HUD added.
-- Complete implementation HEAD: `a46c9b8f088ba32fd5e31a2a44aa4646240ee2b8`.
-- Pages run `34047595001`: SUCCESS. JavaScript/static/add-on contract/assembled browser/390x844 Touch+Fullscreen/REQ-081/REQ-082/upload/deploy all PASS.
-- IMPLEMENTATION_COMPLETE: YES.
-- PAGES_VERIFIED: YES.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
-
-## REQ-112 — FIRST-TOUCH GESTURE COACH
-
-- STATUS: `VERIFY`.
-- Implementation: `addons/first-touch-gesture-coach.js`.
-- Fresh audit found a discoverability gap after REQ-111: canonical Tap Anywhere and Dynamic Touch were operational, but first-time mobile players had no compact world-level explanation that short tap and drag share the same surface.
-- On coarse-pointer world gameplay, one transient pointer-transparent overlay teaches `短くタップ：調べる` and `スライド：歩く`.
-- The coach auto-hides after 4800ms and suppresses itself during dialogue, battle, menu/shop or non-world screens.
-- Session-local only: no localStorage/save field/story flag.
-- No pointer/action/movement authority added; REQ-021 / REQ-022 / REQ-001 remain canonical.
-- Fresh post-write audit repaired a malformed descendant CSS selector before the public gate.
-- Complete implementation HEAD: `1270aad68ee08c4a6536a4947615111913fbb712`.
-- Pages run `34048446380`: SUCCESS. JavaScript/add-on/static/contract/assembled browser/390x844 Touch+Fullscreen/REQ-081/REQ-082/upload/deploy all PASS.
-- IMPLEMENTATION_COMPLETE: YES.
-- PAGES_VERIFIED: YES.
-- IOS_PHYSICAL_VERIFICATION: PENDING.
+- REQ-106 `windShelf`: VERIFY / published.
+- REQ-107 `skylineTraverse`: VERIFY / published.
+- REQ-108 `cloudbreakSaddle`: VERIFY / published.
+- REQ-109 north-route compass: VERIFY / published.
+- REQ-110 mobile resume orientation toast: VERIFY / published.
+- REQ-111 tap-first interaction affordance: VERIFY / published.
+- REQ-112 first-touch gesture coach: VERIFY / published.
+- These must not be reimplemented without fresh defect evidence.
 
 ## QUEUE / RECOVERY NOTE
 
-Fresh HEAD and requirement contents are authoritative over stale queue projection. `WORK_QUEUE.md` remains behind recent HEAD-backed requirements. Queue repair is mandatory only when it can be performed without losing historical rows. Never replace it from a truncated connector response.
+Fresh HEAD, latest direct Owner authority, and actual requirement contents outrank stale queue projections. `WORK_QUEUE.md` now contains one known incorrect concurrent READY row for the superseded duplicate REQ-113. Do not select it merely from the row. Do not destructively replace the large queue from truncated connector output. Repair forward once the full queue can be safely transformed without losing historical rows.
 
 ## MANDATORY CONTINUATION
 
-Every future execution must fresh-load repository metadata, actual default branch, HEAD, `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, active requirements, relevant implementation files, recent commits/workflow/Pages state. Fresh HEAD wins over projections. WIP remains one IN_PROGRESS. VERIFY does not block work. A single BLOCKED item does not stop work. Commits, REQ completion, Pages success, queue updates and CURRENT autosaves are checkpoints, not autonomous stop conditions.
+Every future execution must fresh-load repository metadata, actual default branch, HEAD, `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, active/re-audit requirements, relevant implementation files, recent commits/workflow/Pages state, and detect whether Owner has updated `STORY_CANON.md`. WIP remains one IN_PROGRESS. VERIFY does not block independent work. Story-specific blockers do not block safe non-story development. Commits, Pages success and CURRENT autosaves are checkpoints, not autonomous stop conditions.
