@@ -33,7 +33,7 @@ setTimeout(()=>{
   let actionCalls=0;
   let visible=false,visualContract=false,deadZone=false,rightActive=false,movedRight=false,upActive=false,releasedHidden=false,stoppedAfterRelease=false,fallbackCleared=false;
   let tapAction=false,dialogClose=false,dialogPadHidden=false,dialogDragBlocked=false,dialogDragNoAction=false,dragNoAction=false,cancelNoAction=false,singleFire=false;
-  let uiExcluded=false,blurStops=false,rerenderHoldSafe=false,mapTransitionStops=false;
+  let uiExcluded=false,blurStops=false,rerenderHoldSafe=false,mapTransitionStops=false,battleTransitionStops=false;
   let dialogueStartStopsPending=false,dialogueStartMoveBlocked=false,dialogueStartNoAction=false;
   action=function(){actionCalls++;return originalAction.apply(this,arguments);};
   try{
@@ -153,13 +153,24 @@ setTimeout(()=>{
           mapTransitionStops=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
           pointer('pointerup',window,708,p.x+65,p.y);
 
+          // Battle/screen transition must also revoke an active world pointer. A stale
+          // release from the old world gesture cannot survive into battle.
+          s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;render();
+          shell=document.querySelector('.gameShell');p=pointInShell(shell);
+          pointer('pointerdown',shell,710,p.x,p.y);
+          pointer('pointermove',window,710,p.x+65,p.y);
+          s.screen='battle';
+          render();
+          battleTransitionStops=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
+          pointer('pointerup',window,710,p.x+65,p.y);
+
           singleFire=tapAction&&dialogPadHidden&&dialogDragBlocked&&dialogDragNoAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
-          const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&dialogueStartStopsPending&&dialogueStartMoveBlocked&&dialogueStartNoAction&&blurStops&&rerenderHoldSafe&&mapTransitionStops;
+          const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&dialogueStartStopsPending&&dialogueStartMoveBlocked&&dialogueStartNoAction&&blurStops&&rerenderHoldSafe&&mapTransitionStops&&battleTransitionStops;
           if(!allPass)failure('REQ-001/021 assertion false');
 
           action=originalAction;
           Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-          marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops});
+          marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops});
         },280);
       },170);
     },300);
@@ -168,7 +179,7 @@ setTimeout(()=>{
     failure(err&&err.message);
     action=originalAction;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,error:true});
+    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,error:true});
   }
 },350);
 })();
