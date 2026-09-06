@@ -1,6 +1,6 @@
 # REQ-078 — Key Item Collection Type Hardening
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / RECOVERY / KEY-ITEM / DATA-SAFETY / CONSISTENCY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FINAL_GAME_DATA_SAFETY
@@ -51,3 +51,14 @@ Automated acceptance must prove:
 ## 3. NO-STOP
 
 Completion is a checkpoint only. Synchronize durable state, run GATE C and continue if safe useful work remains.
+
+## 4. VERIFICATION EVIDENCE
+
+- SAVE CODE import normalization implemented at commit `a4993b2b1963c8637ba26ee1b66f293732a41132`.
+- Canonical autosave bootstrap normalization implemented at commit `52eae5aa9b1b3adaa6431fb37463273f4b2ab98a`.
+- Manual backup load normalization implemented at commit `87d545f258de0917755574b2f3292f21ec1b12f3`.
+- Dedicated REQ-078 acceptance added at commit `bb25c26a1da59780abd183234b5f1446a582d750`.
+- Assembled browser key-item restore gate added at commit `def54bdc05da5a7da4f48aac6712f2869f97972e`.
+- Autosave bootstrap smoke extended at commit `5a6e0456b61c16cec958ba4b86fb80728d6d646f`.
+- GitHub Pages workflow run `34019919393` for HEAD `5a6e0456b61c16cec958ba4b86fb80728d6d646f`: SUCCESS.
+- IOS_PHYSICAL_VERIFICATION remains PENDING; automated/browser evidence is not a physical-device claim.
