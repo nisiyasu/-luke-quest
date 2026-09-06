@@ -1,7 +1,10 @@
 (() => {
 'use strict';
 
-/* REQ-028 dedicated assembled-browser acceptance probe. */
+/* REQ-028 dedicated assembled-browser acceptance probe.
+   Run after earlier shared-world probes so their temporary state changes cannot
+   race this acceptance. Any failure emits the standard failure marker and an
+   uncaught ReferenceError carrying the exact acceptance reason for CI logs. */
 if(!new URLSearchParams(location.search).has('lqSmoke'))return;
 function marker(ok,data={}){
   const el=document.createElement('i');
@@ -36,7 +39,13 @@ setTimeout(()=>{
     const safeSpawn=exited&&((MAPS[s.map].tiles[s.y]||'')[s.x]!=='#');
     if(!exited||!safeSpawn)throw new Error('hall return failed');
     marker(true,{entered,walked,guardInteracted,mapInteracted,boundaryInteracted,exited,safeSpawn});
-  }catch(err){console.error('REQ-028 runtime smoke failure',err);marker(false,{reason:err&&err.message||String(err)});}
-  finally{stopMoving();Object.assign(s,snapshot);render();}
-},1800);
+  }catch(err){
+    const reason=err&&err.message||String(err);
+    console.error('REQ-028 runtime smoke failure',reason);
+    marker(false,{reason});
+    setTimeout(()=>{throw new ReferenceError('REQ028_ACCEPTANCE: '+reason);},0);
+  }finally{
+    stopMoving();Object.assign(s,snapshot);render();
+  }
+},4000);
 })();
