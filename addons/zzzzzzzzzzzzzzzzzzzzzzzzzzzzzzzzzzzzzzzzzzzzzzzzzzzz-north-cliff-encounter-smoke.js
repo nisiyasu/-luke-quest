@@ -3,6 +3,8 @@
 
 /* REQ-082 dedicated assembled-browser acceptance. Inert outside explicit probe. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqNorthCliffEncounterSmoke'))return;
+if(window.__LQ_REQ082_SMOKE_ARMED)return;
+window.__LQ_REQ082_SMOKE_ARMED=true;
 
 function marker(data){
   const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeMarker';
@@ -63,10 +65,6 @@ setTimeout(()=>{
     render();
     const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
     if(deferredError){
-      // Failure deliberately omits the required success marker. The existing
-      // workflow therefore enters its missing-marker diagnostic branch, where
-      // these data-* fields and exact reason are printed instead of being hidden
-      // behind the later generic runtime-error message.
       const reason=deferredError.message;
       document.documentElement.replaceChildren();
       const head=document.createElement('head');
