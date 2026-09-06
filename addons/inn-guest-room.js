@@ -44,9 +44,31 @@ style.textContent=`
 `;
 document.head.appendChild(style);
 function frontNpc(){if(s.screen!=='world')return null;const p=front();return currentNpcs().find(n=>n.x===p.x&&n.y===p.y)||null;}
+function guestBedAhead(){const n=frontNpc();return s.map==='innGuestRoom'&&n?.kind==='lqGuestRoomProp'&&n?.name==='窓辺のベッド';}
 function enterGuestRoom(){stopMoving();s.map='innGuestRoom';s.x=4;s.y=5;s.dir='up';s.dialog={name:'南門宿・客室',text:'廊下の奥の扉を開けると、小さく静かな客室があった。\nルーク「ここに立てこもれば冒険終了……いや、連れ戻されますよね。」'};render();}
+function restAtGuestBed(){
+ stopMoving();
+ const hpBefore=Number(s.hp)||0,mpBefore=Number(s.mp)||0,poisonBefore=Math.max(0,Math.floor(Number(s.status?.poison)||0));
+ const maxHp=Math.max(1,Number(s.mh)||Number(s.hp)||1);
+ s.hp=maxHp;
+ if(Object.prototype.hasOwnProperty.call(s,'mp')||Number.isFinite(Number(s.mmp))){
+  const maxMp=Math.max(0,Number(s.mmp)||0);s.mp=maxMp;
+ }
+ if(!s.status||typeof s.status!=='object'||Array.isArray(s.status))s.status={};
+ s.status.poison=0;
+ save();
+ if(window.lqPlayOriginalSfx)window.lqPlayOriginalSfx('heal');
+ const changed=hpBefore!==s.hp||mpBefore!==(Number(s.mp)||0)||poisonBefore>0;
+ s.dialog={name:'窓辺のベッド',text:changed?'やわらかなベッドでしっかり休んだ。HPとMPが全回復した。\nルーク「……よし。勇者業、再開しますか。」':'少し横になった。今はもう十分に休めている。\nルーク「二度寝は強敵ですね……。」'};
+ render();
+ return true;
+}
 const actionBase=action;
-action=function(){if(!s.dialog&&s.map==='innInterior'&&frontNpc()?.kind==='lqGuestRoomDoor')return enterGuestRoom();return actionBase();};
+action=function(){
+ if(!s.dialog&&s.screen==='world'&&guestBedAhead())return restAtGuestBed();
+ if(!s.dialog&&s.map==='innInterior'&&frontNpc()?.kind==='lqGuestRoomDoor')return enterGuestRoom();
+ return actionBase();
+};
 const checkGateBase=checkGate;
 checkGate=function(){
  if(s.map==='innGuestRoom'&&(MAPS.innGuestRoom.tiles[s.y]||'')[s.x]==='G'){
@@ -62,5 +84,6 @@ function decorateGuest(){
 const worldBase=world;world=function(){const r=worldBase();decorateGuest();return r;};
 const renderBase=render;render=function(){const r=renderBase();decorateGuest();return r;};
 window.LQ_BUILDING_INTERIORS=Object.assign({},window.LQ_BUILDING_INTERIORS,{innGuestRoom:{entryMap:'innInterior',exitMap:'innInterior',type:'guest-room'}});
+window.LQ_INN_GUEST_ROOM_STATUS={bedRecovery:true,repeatableRest:true,fullHpRecovery:true,fullMpRecovery:true,battleOnlyPoisonCleanup:true,guestBedAhead,restAtGuestBed};
 if(s.screen==='world')decorateGuest();
 })();
