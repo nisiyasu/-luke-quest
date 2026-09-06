@@ -15,10 +15,15 @@ style.textContent=`
 .lqMapLight.wind{width:30px;height:30px;transform:translate(-50%,-62%)}
 .lqMapLight.wind::before{left:50%;bottom:8px;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle,#f4ffff 0 18%,#bdefff 30%,#83c7dc66 58%,transparent 72%);box-shadow:0 0 7px #d8f8ffcc,0 0 18px #8fd6e877;animation:lqWindGlint 2.4s ease-in-out infinite alternate}
 .lqMapLight.wind::after{left:50%;bottom:7px;width:42px;height:10px;border-radius:50%;background:linear-gradient(90deg,transparent,#c9f4ff45 35%,#efffff88 50%,#c9f4ff45 65%,transparent);filter:blur(.4px);transform:translateX(-50%) rotate(-8deg);animation:lqWindGlintTrail 2.4s ease-in-out infinite alternate}
+.lqMapLight.cliff{width:30px;height:30px;transform:translate(-50%,-64%)}
+.lqMapLight.cliff::before{left:50%;bottom:7px;width:10px;height:8px;border-radius:48%;background:radial-gradient(circle,#f1f5ef 0 16%,#c8d3ca 34%,#7f989173 62%,transparent 74%);box-shadow:0 0 7px #d7e1dbb8,0 0 16px #8ca8a06b;animation:lqCliffGlint 3.1s ease-in-out infinite alternate}
+.lqMapLight.cliff::after{left:50%;bottom:6px;width:34px;height:12px;border-radius:50%;background:radial-gradient(ellipse,#dce8e26b 0 18%,#8fa9a13b 40%,transparent 70%);filter:blur(.6px);transform:translateX(-50%) rotate(7deg);animation:lqCliffGlintTrail 3.1s ease-in-out infinite alternate}
 @keyframes lqFireFlicker{from{transform:translateX(-50%) scale(.92,1.04);filter:brightness(.95)}to{transform:translateX(-50%) scale(1.07,.9);filter:brightness(1.14)}}
 @keyframes lqWindGlint{from{opacity:.45;transform:translateX(-50%) scale(.82)}to{opacity:.95;transform:translateX(-50%) scale(1.1)}}
 @keyframes lqWindGlintTrail{from{opacity:.28;transform:translateX(-50%) rotate(-8deg) scaleX(.82)}to{opacity:.72;transform:translateX(-50%) rotate(-8deg) scaleX(1.06)}}
-@media(prefers-reduced-motion:reduce){.lqMapLight.camp::before,.lqMapLight.wind::before,.lqMapLight.wind::after{animation:none}}
+@keyframes lqCliffGlint{from{opacity:.34;transform:translateX(-50%) scale(.88)}to{opacity:.8;transform:translateX(-50%) scale(1.05)}}
+@keyframes lqCliffGlintTrail{from{opacity:.2;transform:translateX(-50%) rotate(7deg) scale(.9)}to{opacity:.56;transform:translateX(-50%) rotate(7deg) scale(1.04)}}
+@media(prefers-reduced-motion:reduce){.lqMapLight.camp::before,.lqMapLight.wind::before,.lqMapLight.wind::after,.lqMapLight.cliff::before,.lqMapLight.cliff::after{animation:none}}
 `;
 document.head.appendChild(style);
 
@@ -26,6 +31,7 @@ const LIGHTS={
  town:[{x:5,y:10},{x:12,y:10},{x:5,y:13},{x:12,y:13}],
  forest:[{x:12,y:11,type:'camp'}],
  observation:[{x:6,y:6,type:'hostile'},{x:25,y:6,type:'hostile'},{x:6,y:16,type:'hostile'},{x:25,y:16,type:'hostile'}],
+ northCliffRoad:[{x:15,y:12,type:'cliff'},{x:10,y:1,type:'cliff'}],
  windcutPass:[{x:15,y:13,type:'wind'},{x:10,y:1,type:'wind'}]
 };
 
@@ -58,6 +64,8 @@ window.LQ_WORLD_LANDMARK_LIGHT_STATUS={
  forestCampGlow:1,
  campReflectsRestState:true,
  observationTorches:4,
+ northCliffRoadGlints:2,
+ northCliffRoadStyle:'cliff',
  windcutPassGlints:2,
  windcutPassStyle:'wind',
  presentationOnly:true,
