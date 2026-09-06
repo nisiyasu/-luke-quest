@@ -12,22 +12,32 @@ style.textContent=`
 .lqMapLight.camp::before{width:12px;height:9px;bottom:2px;border-radius:60% 40% 55% 45%;background:linear-gradient(#fff5a0,#ff9b31 55%,#a93d22);box-shadow:0 0 10px #ffc75ecc,0 0 25px #ff7f3380;animation:lqFireFlicker .78s ease-in-out infinite alternate}
 .lqMapLight.camp.spent::before{width:13px;height:5px;background:linear-gradient(#8f8177,#554e49);box-shadow:0 0 4px #aaa5;animation:none;filter:none}
 .lqMapLight.camp.spent::after{width:22px;height:9px;background:radial-gradient(ellipse,#a8988130 0%,transparent 68%)}
+.lqMapLight.wind{width:30px;height:30px;transform:translate(-50%,-62%)}
+.lqMapLight.wind::before{left:50%;bottom:8px;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle,#f4ffff 0 18%,#bdefff 30%,#83c7dc66 58%,transparent 72%);box-shadow:0 0 7px #d8f8ffcc,0 0 18px #8fd6e877;animation:lqWindGlint 2.4s ease-in-out infinite alternate}
+.lqMapLight.wind::after{left:50%;bottom:7px;width:42px;height:10px;border-radius:50%;background:linear-gradient(90deg,transparent,#c9f4ff45 35%,#efffff88 50%,#c9f4ff45 65%,transparent);filter:blur(.4px);transform:translateX(-50%) rotate(-8deg);animation:lqWindGlintTrail 2.4s ease-in-out infinite alternate}
 @keyframes lqFireFlicker{from{transform:translateX(-50%) scale(.92,1.04);filter:brightness(.95)}to{transform:translateX(-50%) scale(1.07,.9);filter:brightness(1.14)}}
-@media(prefers-reduced-motion:reduce){.lqMapLight.camp::before{animation:none}}
+@keyframes lqWindGlint{from{opacity:.45;transform:translateX(-50%) scale(.82)}to{opacity:.95;transform:translateX(-50%) scale(1.1)}}
+@keyframes lqWindGlintTrail{from{opacity:.28;transform:translateX(-50%) rotate(-8deg) scaleX(.82)}to{opacity:.72;transform:translateX(-50%) rotate(-8deg) scaleX(1.06)}}
+@media(prefers-reduced-motion:reduce){.lqMapLight.camp::before,.lqMapLight.wind::before,.lqMapLight.wind::after{animation:none}}
 `;
 document.head.appendChild(style);
 
 const LIGHTS={
  town:[{x:5,y:10},{x:12,y:10},{x:5,y:13},{x:12,y:13}],
  forest:[{x:12,y:11,type:'camp'}],
- observation:[{x:6,y:6,type:'hostile'},{x:25,y:6,type:'hostile'},{x:6,y:16,type:'hostile'},{x:25,y:16,type:'hostile'}]
+ observation:[{x:6,y:6,type:'hostile'},{x:25,y:6,type:'hostile'},{x:6,y:16,type:'hostile'},{x:25,y:16,type:'hostile'}],
+ windcutPass:[{x:15,y:13,type:'wind'},{x:10,y:1,type:'wind'}]
 };
 
+function specsFor(mapId){return Array.isArray(LIGHTS[mapId])?LIGHTS[mapId]:[];}
+function hasMap(mapId){return Object.prototype.hasOwnProperty.call(LIGHTS,mapId);}
+function countFor(mapId){return specsFor(mapId).length;}
+function typesFor(mapId){return specsFor(mapId).map(spec=>spec.type||'warm');}
 function addLights(){
  if(s.screen!=='world')return;
  const worldEl=app.querySelector('.world');if(!worldEl)return;
  worldEl.querySelectorAll('.lqMapLight').forEach(n=>n.remove());
- const specs=LIGHTS[s.map]||[];
+ const specs=specsFor(s.map);
  for(const spec of specs){
   const e=document.createElement('div');
   const spent=spec.type==='camp'&&!!s.flags?.forestCampRested;
@@ -43,5 +53,18 @@ world=function(){const r=worldBase();addLights();return r;};
 const renderBase=render;
 render=function(){const r=renderBase();addLights();return r;};
 if(s.screen==='world')addLights();
-window.LQ_WORLD_LANDMARK_LIGHT_STATUS={townLamps:4,forestCampGlow:1,campReflectsRestState:true,observationTorches:4,presentationOnly:true};
+window.LQ_WORLD_LANDMARK_LIGHT_STATUS={
+ townLamps:4,
+ forestCampGlow:1,
+ campReflectsRestState:true,
+ observationTorches:4,
+ windcutPassGlints:2,
+ windcutPassStyle:'wind',
+ presentationOnly:true,
+ pointerSafe:true,
+ hasMap,
+ specsFor,
+ countFor,
+ typesFor
+};
 })();
