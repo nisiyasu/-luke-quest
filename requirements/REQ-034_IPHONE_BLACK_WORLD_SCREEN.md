@@ -1,6 +1,6 @@
 # REQ-034 — iPhone public build world/map black screen
 
-STATUS: READY
+STATUS: IN_PROGRESS
 PRIORITY: P0
 OWNER_AUTHORITY: LATEST_DIRECT_OWNER_DEFECT_REPORT
 TYPE: BLOCKING_PUBLIC_VISUAL_RUNTIME_DEFECT
@@ -67,3 +67,9 @@ Physical completion remains:
 ## Preemption / concurrency note
 
 Do not overwrite concurrent work blindly. Fresh-fetch before writes and use normal GitHub SHA conflict protection. Safely checkpoint/suspend REQ-033 if still IN_PROGRESS, then activate this requirement as the newest Owner P0.
+
+## Activation checkpoint
+
+- Fresh boot found REQ-033 implementation plus dedicated runtime acceptance already committed and its Pages checkpoint successful, so REQ-033 was closed to VERIFY rather than left as active WIP.
+- REQ-034 is now the sole IN_PROGRESS requirement under WIP=1.
+- Fresh CURRENT and WORK_QUEUE were stale relative to HEAD and will be repaired forward while this P0 remains active.
