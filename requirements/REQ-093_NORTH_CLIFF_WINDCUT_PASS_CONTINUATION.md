@@ -1,6 +1,6 @@
 # REQ-093 — 北の崖道・風切り峠への追跡ルート継続
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / STORY-PROGRESSION / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -121,3 +121,15 @@ Physical/subjective completion:
 - `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner checks actual iPhone feel/visibility.
 
 Requirement creation/implementation/Pages success/VERIFYは自律開発の停止理由ではない。
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration checkpoint: `0402e96e375377bd0c0d6ae8b0fdf2d1f67467e6`.
+- Implementation checkpoint: `76228f444a2acfb6bd0fe777cdc1840836549f58`.
+- Dedicated REQ-081/093 assembled-browser smoke expansion: `44c158aaed1aae7d1a6e9dbe514f660d06744e09`.
+- Legacy REQ-081 smoke compatibility hardening: `6b1dd56eb79a7eee5148c7af2a2f51a302dea0dd`.
+- Dedicated smoke asserts Windcut entry, safe spawn, walkability, all four canonical interactions, safe north boundary, south return, canonical encounter-pool reuse, save round-trip and protected-canon safety while preserving REQ-081 legacy assertions.
+- GitHub Pages workflow run `34032450470` on HEAD `6b1dd56eb79a7eee5148c7af2a2f51a302dea0dd`: SUCCESS.
+- PUBLIC_BUILD_INCLUSION: PASS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
