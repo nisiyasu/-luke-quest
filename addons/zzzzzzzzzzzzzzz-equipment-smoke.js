@@ -78,7 +78,8 @@ try{
   const reason=err&&err.message||String(err);
   const slug=reason.replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,120)||'unknown';
   const fail=mark(false,{reason});fail.id=`lqRuntimeSmokeFailure_REQ032_${slug}`;
-  const core=document.getElementById('lqRuntimeSmokeMarker');if(core)core.id='lqCoreSmokeMarkerSuppressedByREQ032Failure';
+  const suppressCore=()=>{const core=document.getElementById('lqRuntimeSmokeMarker');if(core)core.id='lqCoreSmokeMarkerSuppressedByREQ032Failure';};
+  suppressCore();setTimeout(suppressCore,4500);
 }finally{
   stopMoving();
   s=structuredClone(snapshot);
