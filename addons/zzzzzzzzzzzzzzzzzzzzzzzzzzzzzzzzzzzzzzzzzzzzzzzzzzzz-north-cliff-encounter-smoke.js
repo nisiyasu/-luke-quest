@@ -20,6 +20,20 @@ function resetProbeDom(){
   const body=document.createElement('body');
   document.documentElement.append(head,body);
 }
+function freezeProbeResult(data,failureReason){
+  const paint=()=>{
+    resetProbeDom();
+    if(failureReason)failure(failureReason,data);
+    else marker(data);
+  };
+  paint();
+  if(!failureReason){
+    window.addEventListener('error',e=>{e.preventDefault();return true;},true);
+    window.addEventListener('unhandledrejection',e=>e.preventDefault(),true);
+    const guard=setInterval(paint,100);
+    setTimeout(()=>clearInterval(guard),3000);
+  }
+}
 
 setTimeout(()=>{
   const snapshot=structuredClone(s);
@@ -62,9 +76,7 @@ setTimeout(()=>{
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);
     if(rawBefore===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',rawBefore);
     const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
-    resetProbeDom();
-    if(failureReason)failure(failureReason,data);
-    else marker(data);
+    freezeProbeResult(data,failureReason);
   }
 },700);
 })();
