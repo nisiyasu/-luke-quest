@@ -47,6 +47,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 35 | REQ-035 | P1 | SUPERSEDED | Original Audio Feedback / SE foundation | `requirements/REQ-035_ORIGINAL_AUDIO_FEEDBACK.md` | deeper inventoryで既存 `ux-v83.js` + `ux-v138.js` + audio dedup実装を発見。重複実装せず監査履歴としてSUPERSEDED |
 | 36 | REQ-036 | P1 | VERIFY | Original Ambient Music Foundation | `requirements/REQ-036_ORIGINAL_AMBIENT_MUSIC.md` | external assetなしWeb Audio original safe/wild music + explicit MUSIC toggle。autoplay OFF、既存SE非干渉、390x844 integrated smoke含むPages run 34006935671 SUCCESS。Owner iPhone音量/雰囲気確認待ち |
 | 37 | REQ-037 | P1 | VERIFY | Map Transition Fade / Scene Change Feedback | `requirements/REQ-037_MAP_TRANSITION_FADE.md` | visual fade + non-stacking/pointer-safe/reduced-motion cleanup。既存v0.139 transition SFX非重複。Pages run 34007224602 SUCCESS。Owner iPhone transition feel確認待ち |
+| 38 | REQ-038 | P1 | IN_PROGRESS | Battle Defeat Recovery Feedback | `requirements/REQ-038_BATTLE_DEFEAT_RECOVERY_FEEDBACK.md` | canonical defeat recoveryは既存のため保持。presentation-only戦闘不能→王都搬送cue + dedicated browser acceptanceを実装、Pages検証中 |
 
 ## STATUS DEFINITIONS
 
