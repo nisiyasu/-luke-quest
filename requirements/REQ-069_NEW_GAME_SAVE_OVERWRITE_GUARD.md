@@ -1,6 +1,6 @@
 # REQ-069 — New Game Existing-Save Overwrite Guard
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / TITLE / DATA-LOSS-PREVENTION / PLAYER-UX
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FOLLOW_THROUGH_FROM_SAVE_PORTABILITY
@@ -34,3 +34,19 @@ Automated acceptance must prove: resumable first tap preserves raw save bytes; s
 ## 4. NO-STOP
 
 Completion is a checkpoint, not a stop condition.
+
+## 5. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Added `addons/new-game-save-overwrite-guard.js` as a wrapper over canonical `newGame()`; no second new-game path was created.
+- Resumable-save detection uses REQ-061 `LQ_TITLE_CONTINUE_STATUS.hasResumableStoredSave()` when present, with equivalent fail-safe screen parsing fallback.
+- With resumable progress, first NEW GAME tap only arms a 10-second confirmation and renders an explicit replacement warning; it does not delete or mutate the raw autosave.
+- Second deliberate tap while armed invokes the original canonical `newGame()` path. Non-resumable/bootstrap title remains one-tap.
+- CONTINUE and SAVE TRANSFER remain in the DOM while confirmation is armed; leaving title disarms the confirmation.
+- Added dedicated acceptance `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-new-game-overwrite-guard-smoke.js` proving first-tap byte preservation, second-tap canonical new-game behavior, non-resumable one-tap behavior, and continued availability of CONTINUE/transfer. Its teardown was adversarially hardened to re-render the restored runtime rather than merely restoring HTML strings.
+- Checkpoints:
+  - `04fb5db888c032a1057ef113ea6b63997c7c620f` — requirement registration.
+  - `43b803e1902f8b6c93e631d5752000999642ecc4` — implementation.
+  - `73c69a916dca5329022d7a41bc93daac7b512047` — dedicated acceptance.
+  - `f8754b8248c5bde19a38a951909043ce37a9a800` — smoke isolation hardening.
+- Pages workflow run `34017974207`: SUCCESS. Sequential patches, collision-safe add-ons, static/contract guards, autosave guard, raster/Luke asset gates, assembled browser smoke, 390x844 touch/fullscreen visual-liveness, upload and Pages deployment all passed.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
