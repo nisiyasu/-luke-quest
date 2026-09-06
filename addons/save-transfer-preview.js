@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-/* REQ-068/071: read-only preview over REQ-060 canonical transfer validation. */
+/* REQ-068/071/079: read-only preview over REQ-060 canonical transfer validation. */
 const transfer=window.LQ_SAVE_TRANSFER_STATUS;
 if(!transfer?.prepareImportedState)return;
 
@@ -14,14 +14,26 @@ function canonicalGold(next){
  const legacy=Number(next?.g);
  return Number.isFinite(legacy)?legacy:0;
 }
+function createdAtLabel(code){
+ if(typeof transfer.decodeEnvelope!=='function')return'作成時刻不明';
+ try{
+  const envelope=transfer.decodeEnvelope(String(code||'').trim());
+  const date=new Date(envelope?.createdAt);
+  if(!envelope?.createdAt||!Number.isFinite(date.getTime()))return'作成時刻不明';
+  const pad=value=>String(value).padStart(2,'0');
+  return `${date.getFullYear()}/${pad(date.getMonth()+1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+ }catch{return'作成時刻不明';}
+}
 function previewCode(code){
  try{
-  const next=transfer.prepareImportedState(String(code||'').trim());
+  const textCode=String(code||'').trim();
+  const next=transfer.prepareImportedState(textCode);
   const lv=Number.isFinite(Number(next.lv))?Number(next.lv):1;
   const hp=`${Number(next.hp)||0}/${Number(next.mh)||0}`;
   const mp=`${Number(next.mp)||0}/${Number(next.mmp)||0}`;
   const gold=canonicalGold(next);
-  return{ok:true,text:`LV ${lv} · ${mapLabel(next.map)} · HP ${hp} · MP ${mp} · ${gold}G`,state:next};
+  const createdAt=createdAtLabel(textCode);
+  return{ok:true,text:`LV ${lv} · ${mapLabel(next.map)} · HP ${hp} · MP ${mp} · ${gold}G · ${createdAt}`,state:next,createdAt};
  }catch(err){return{ok:false,text:'',error:String(err?.message||err)};}
 }
 function ensurePreview(box){
@@ -54,6 +66,6 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.appendChild(style);
 const renderBase=render;
 render=function(){const out=renderBase();enhanceAll();return out;};
-window.LQ_SAVE_TRANSFER_PREVIEW_STATUS={enabled:true,previewCode,refreshBox,enhanceAll,mapLabel,canonicalGold};
+window.LQ_SAVE_TRANSFER_PREVIEW_STATUS={enabled:true,previewCode,refreshBox,enhanceAll,mapLabel,canonicalGold,createdAtLabel};
 enhanceAll();
 })();
