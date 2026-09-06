@@ -1,6 +1,6 @@
 # REQ-102 — Owner iPhone Forest Input / HUD Toggle / Dialogue Portrait Fix
 
-STATUS: READY
+STATUS: VERIFY
 PRIORITY: P0
 ORDER: 0
 OWNER_REQUEST: DIRECT_OWNER_HOT_INSERT
@@ -170,3 +170,36 @@ This is the newest direct Owner P0 hot insert and therefore outranks older gener
 If a lower-priority IN_PROGRESS item exists, safely checkpoint/suspend/advance it according to WORK_MANAGER authority before switching.
 
 Registration is not implementation completion. The next autonomous execution must select this requirement first, implement it, test it, deploy it, then continue the normal persistent autonomous work loop rather than stopping after this REQ.
+
+## IMPLEMENTATION RESULT — 2026-09-06
+
+- Root cause of the apparent forest movement lock was the field -> forest canonical spawn at `(11,18)`, directly below blocked tree tile `(11,17)`. The Owner naturally dragged north toward the displayed north objective, but the first north move was collision-blocked, making the entrance feel immobile.
+- Preserved the canonical forest collision map and shifted only the transition spawn one passable tile right to `(12,18)`, where the immediate north tile `(12,17)` is open.
+- Re-stacked mobile top overlays so the status card uses the available width, location chips reserve room for the compact HUD toggle, MUSIC moves to its own row position, and objective width reserves the MUSIC area instead of colliding with it.
+- Added compact `HUD ▲ / HUD ▼` touch toggle. Collapsed mode fully hides the status/location/objective/MUSIC overlays and restores upper-world visibility. Toggle is a real button with `data-lq-no-global-action`, so unified world tap/drag authority excludes it.
+- Routed Luke dialogue portrait presentation to Owner source `assets/images/03334052-E944-4DE4-9C61-48F011193E46.png` and applies non-stretched `object-fit: cover` face framing. Original source is preserved; no generated substitute was created. Final subjective face framing remains Owner iPhone visual verification PENDING.
+- Added fail-closed assembled runtime smoke covering the forest north lane, canonical collision preservation, HUD toggle cycle/exclusion, Owner portrait route and no-generated-substitute invariant.
+
+### CHECKPOINTS
+
+- implementation: `58f56708cc493e2d176fc283ea6850b995a30510`
+- regression gate: `d3318687ae8e7a50421a08eab47467ed68baedcd`
+- Pages workflow: run `34039338259` SUCCESS
+
+### AUTOMATED VERIFICATION
+
+- JavaScript/add-on syntax: PASS
+- static regression guard: PASS
+- add-on contract guard: PASS
+- assembled browser game smoke: PASS
+- 390x844 floating touch + fullscreen visual liveness smoke: PASS
+- REQ-102 fail-closed runtime guard within the 390x844 path: PASS
+- REQ-081 north cliff regression: PASS
+- REQ-082 encounter regression: PASS
+- Pages upload/deploy: PASS
+
+### REMAINING OWNER CHECK
+
+`IOS_PHYSICAL_VERIFICATION = PENDING`
+
+Verify on the actual iPhone that forest movement feels normal in all four directions, expanded top UI no longer overlaps, HUD collapse/restore is comfortable, and the Owner-provided Luke face crop is framed as intended.
