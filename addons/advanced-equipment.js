@@ -1,7 +1,10 @@
 (() => {
 'use strict';
 
-/* Collision-safe add-on: second equipment tier for early-game progression. */
+/* Collision-safe add-on: second equipment tier for early-game progression.
+   REQ-032 audit hardening: this wrapper owns delta reconciliation for every
+   known equipment tier so moving from Tier II back to base/Tier I cannot
+   leave stale ATK/DEF bonuses behind. */
 const WEAPONS={'旅人の短剣':0,'青銅の剣':3,'鉄の剣':6};
 const ARMORS={'旅人服':0,'革の旅装':2,'補強革鎧':4};
 const GOODS={
@@ -15,13 +18,25 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.appendChild(style);
 
 function bonusFor(type,name){return type==='weapon'?(WEAPONS[name]||0):(ARMORS[name]||0);}
+function knownGear(type,name){return type==='weapon'?(name in WEAPONS):(type==='armor'&&name in ARMORS);}
 function equip(type,name){
- if(!s.equipmentOwned.includes(name)||!GOODS[name])return false;
- if(type==='weapon'){const base=s.atk-bonusFor('weapon',s.weapon);s.atk=Math.max(1,base+WEAPONS[name]);s.weapon=name;}
- else{const base=(s.def||0)-bonusFor('armor',s.armor);s.def=Math.max(0,base+ARMORS[name]);s.armor=name;}
+ if(!s.equipmentOwned.includes(name)||!knownGear(type,name))return false;
+ if(type==='weapon'){
+   const base=s.atk-bonusFor('weapon',s.weapon);
+   s.atk=Math.max(1,base+bonusFor('weapon',name));
+   s.weapon=name;
+ }else{
+   const base=(s.def||0)-bonusFor('armor',s.armor);
+   s.def=Math.max(0,base+bonusFor('armor',name));
+   s.armor=name;
+ }
  save();render();return true;
 }
-const equipBase=window.lqEquipGear;window.lqEquipGear=function(type,name){if(GOODS[name])return equip(type,name);return equipBase?.(type,name);};
+const equipBase=window.lqEquipGear;
+window.lqEquipGear=function(type,name){
+ if(knownGear(type,name))return equip(type,name);
+ return equipBase?.(type,name);
+};
 window.lqBuyTier2=function(name){const g=GOODS[name];if(!g||s.equipmentOwned.includes(name)||s.gold<g.price)return;s.gold-=g.price;s.equipmentOwned.push(name);if(g.type==='weapon'){const base=s.atk-bonusFor('weapon',s.weapon);s.weapon=name;s.atk=base+g.bonus;}else{const base=(s.def||0)-bonusFor('armor',s.armor);s.armor=name;s.def=base+g.bonus;}save();window.LQ_sfx?.('menu');render();};
 window.lqSellTier2=function(name){const g=GOODS[name];if(!g||!s.equipmentOwned.includes(name)||s.weapon===name||s.armor===name)return;s.equipmentOwned=s.equipmentOwned.filter(x=>x!==name);s.gold+=g.sell;save();render();};
 
@@ -35,5 +50,5 @@ function addEquip(){
 function addSell(){
  if(!s.shopOpen)return;const sell=app.querySelector('.lqSellSection');if(!sell||sell.querySelector('.lqTier2SellRows'))return;const owned=Object.keys(GOODS).filter(n=>s.equipmentOwned.includes(n));if(!owned.length)return;const rows=document.createElement('div');rows.className='lqSellRows lqTier2SellRows';rows.innerHTML=owned.map(n=>{const g=GOODS[n],equipped=s.weapon===n||s.armor===n;return`<div class=lqSellRow><div><div class=lqSellName>${n}</div><div class=lqSellMeta>買取 ${g.sell}G${equipped?'・装備中':''}</div></div><button class=lqTier2Sell ${equipped?'disabled':''} onclick="lqSellTier2('${n}')">売る</button></div>`}).join('');sell.querySelector('.lqSellRows')?.after(rows);
 }
-const worldE=world;world=function(){worldE();addShop();addEquip();addSell();};const renderE=render;render=function(){const r=renderE();addShop();addEquip();addSell();return r;};window.LQ_EQUIPMENT_STATUS=Object.assign({},window.LQ_EQUIPMENT_STATUS,{tier2:['鉄の剣','補強革鎧'],tier2Sell:true});addShop();addEquip();addSell();
+const worldE=world;world=function(){worldE();addShop();addEquip();addSell();};const renderE=render;render=function(){const r=renderE();addShop();addEquip();addSell();return r;};window.LQ_EQUIPMENT_STATUS=Object.assign({},window.LQ_EQUIPMENT_STATUS,{tier2:['鉄の剣','補強革鎧'],tier2Sell:true,crossTierDeltaSafe:true});addShop();addEquip();addSell();
 })();
