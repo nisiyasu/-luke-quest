@@ -65,6 +65,7 @@ setTimeout(()=>{
     const reason=err&&err.message||String(err);
     console.error('REQ-031 runtime smoke failure',reason);
     marker(false,{reason});
+    setTimeout(()=>{throw new ReferenceError(`REQ031_RUNTIME_SMOKE: ${reason}`);},0);
   }finally{
     stopMoving();
     s.screen=snapshot.screen;s.map=snapshot.map;s.x=snapshot.x;s.y=snapshot.y;s.dir=snapshot.dir;s.dialog=snapshot.dialog;s.flags=snapshot.flags;
