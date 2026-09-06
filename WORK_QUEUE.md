@@ -40,6 +40,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 28 | REQ-028 | P1 | VERIFY | 王都アルディア・王城上階回廊 | `requirements/REQ-028_ALDIA_CASTLE_UPPER_GALLERY.md` | 玄関ホール大階段→上階回廊entry/walk/guard+map/boundary/returnをruntime probeで固定。旧REQ-027 smokeのforward-compatibility defectも自己修復。Pages run 34004233876 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 29 | REQ-029 | P1 | VERIFY | 王都近郊・石灰洞 | `requirements/REQ-029_FIELD_LIMESTONE_CAVE.md` | field→cave entry/walk/environment interactions/depth boundary/safe exitをruntime probeで固定。公開前spawn collisionも自己検知修正。Pages run 34004420157 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 30 | REQ-030 | P1 | VERIFY | 王都近郊・高地の登山道 | `requirements/REQ-030_ALDIA_HIGHLAND_TRAIL.md` | field→highland entry/walk/sign+cairn/high-altitude boundary/safe exitをruntime probeで固定。Pages run 34004585120 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 31 | REQ-031 | P1 | VERIFY | 石灰洞・旧測量坑道 | `requirements/REQ-031_LIMESTONE_SURVEY_DUNGEON.md` | 分岐坑道 + 永続lever/gate + 奥区画 + safe exitをassembled browserで固定。test-only `canWalk()` defectを自己診断・修復。Pages run 34005199926 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
