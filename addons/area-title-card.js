@@ -3,7 +3,7 @@
 
 /* Collision-safe add-on: cinematic location title cards for clearer PS1-era map presentation. */
 const SUB={
- town:'王国南部の城郭都市',field:'王都と魔物の森を結ぶ街道',forest:'レオンを追う最初の森',deepForest:'森の気配が濃くなる深部',mistTrail:'足跡が霧へ消える追跡路',observation:'魔王軍が何かを監視している区域',evacuation:'北へ延びる古い退避路',evacRoute:'北へ延びる古い退避路',cliff:'風の強い北方崖道',cliffRoad:'風の強い北方崖道',northCliffRoad:'退避路の先へ続く風の強い北方崖道',windcutPass:'北尾根へ続く風の強い高所峠',northRidgeApproach:'風切り峠の先へ伸びる細い北尾根',
+ town:'王国南部の城郭都市',field:'王都と魔物の森を結ぶ街道',forest:'レオンを追う最初の森',deepForest:'森の気配が濃くなる深部',mistTrail:'足跡が霧へ消える追跡路',observation:'魔王軍が何かを監視している区域',evacuation:'北へ延びる古い退避路',evacRoute:'北へ延びる古い退避路',cliff:'風の強い北方崖道',cliffRoad:'風の強い北方崖道',northCliffRoad:'退避路の先へ続く風の強い北方崖道',windcutPass:'北尾根へ続く風の強い高所峠',northRidgeApproach:'風切り峠の先へ伸びる細い北尾根',windShelf:'北尾根のさらに高みへ続く風蝕の岩棚',
  innInterior:'南門に近い旅人の宿',innGuestRoom:'静かな二階の客室',shopInterior:'旅支度を整える小さな店',shopStockRoom:'薬草と旅用品の在庫倉庫',templeInterior:'勇者選定の祭壇がある礼拝堂',templeRecordRoom:'王都と旅人の一般閲覧記録室',residenceInterior:'王都で暮らす人々の住まい',
  wayfarerShrine:'街道を行く旅人が祈りを置く小祠',forestClearing:'木々の間に光が落ちる静かな空地',trainingYard:'王都守備兵が基本を磨く訓練場',
  innInside:'南門に近い旅人の宿',shopInside:'旅支度を整える小さな店',templeInside:'勇者選定の祭壇がある礼拝堂',residenceInside:'王都で暮らす人々の住まい'
