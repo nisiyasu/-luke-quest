@@ -1,11 +1,11 @@
 (() => {
 'use strict';
 
-/* REQ-022 / REQ-034 — iPhone fullscreen world UI.
+/* REQ-022 / REQ-034 / REQ-091 — iPhone fullscreen world UI.
    Presentation-only: world/status/controls are reflowed into one viewport-sized
    gameShell. Map coordinates, collision, story flags and save semantics remain
-   untouched. REQ-034 additionally hardens the world plane against an opaque
-   full-screen controls layer and adds iPhone-sized visual-liveness assertions. */
+   untouched. REQ-034 hardens world liveness. REQ-091 keeps top overlays from
+   colliding and keeps the player inside a camera-safe visible region below them. */
 
 const STYLE_ID='lq-iphone-fullscreen-world-style';
 const WORLD_CLASS='lqWorldFullscreen';
@@ -22,30 +22,33 @@ html.${WORLD_CLASS},body.${WORLD_CLASS}{width:100%;height:100%;margin:0;overflow
 body.${WORLD_CLASS}{padding:0!important}
 body.${WORLD_CLASS} #app{width:100%;max-width:720px;height:100dvh;min-height:100dvh;margin:0 auto;padding:0!important;overflow:hidden;position:relative}
 @supports not (height:100dvh){body.${WORLD_CLASS} #app{height:100vh;min-height:100vh}}
-body.${WORLD_CLASS} .gameShell{width:100%!important;height:100dvh!important;max-height:none!important;aspect-ratio:auto!important;margin:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;position:relative!important;overflow:hidden!important;background:#000}
+body.${WORLD_CLASS} .gameShell{--lq-status-bottom:calc(env(safe-area-inset-top,0px) + 62px);--lq-hud-bottom:calc(env(safe-area-inset-top,0px) + 91px);--lq-player-safe-top:calc(env(safe-area-inset-top,0px) + 128px);width:100%!important;height:100dvh!important;max-height:none!important;aspect-ratio:auto!important;margin:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;position:relative!important;overflow:hidden!important;background:#000}
 @supports not (height:100dvh){body.${WORLD_CLASS} .gameShell{height:100vh!important}}
 body.${WORLD_CLASS} .gameShell>.world{display:block!important;visibility:visible!important;z-index:1!important;overflow:visible!important}
-body.${WORLD_CLASS} .lqWorldStatusOverlay{position:absolute!important;z-index:58;top:calc(env(safe-area-inset-top,0px) + 7px);left:calc(env(safe-area-inset-left,0px) + 7px);right:calc(env(safe-area-inset-right,0px) + 74px);margin:0!important;padding:5px 6px!important;border:1px solid #ffffff24!important;border-radius:11px!important;background:#07111fba!important;box-shadow:0 3px 12px #0007!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);pointer-events:none!important}
-body.${WORLD_CLASS} .lqWorldStatusOverlay .status{grid-template-columns:repeat(auto-fit,minmax(44px,1fr))!important;gap:3px!important}
-body.${WORLD_CLASS} .lqWorldStatusOverlay .stat{padding:4px 3px!important;background:#091525a8!important;border-radius:7px!important}
-body.${WORLD_CLASS} .lqWorldStatusOverlay .stat small{font-size:9px!important;line-height:1.05!important}
-body.${WORLD_CLASS} .lqWorldStatusOverlay .stat b{font-size:13px!important;line-height:1.2!important}
-body.${WORLD_CLASS} .hud{top:calc(env(safe-area-inset-top,0px) + 49px)!important;left:calc(env(safe-area-inset-left,0px) + 8px)!important;right:calc(env(safe-area-inset-right,0px) + 8px)!important;z-index:56!important}
-body.${WORLD_CLASS} .hud .chip{padding:4px 7px!important;font-size:10px!important;background:#07111fb8!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-body.${WORLD_CLASS} .questGuide{top:calc(env(safe-area-inset-top,0px) + 78px)!important;left:calc(env(safe-area-inset-left,0px) + 8px)!important;right:calc(env(safe-area-inset-right,0px) + 8px)!important;z-index:55!important;padding:6px 8px!important;font-size:10px!important;background:#0b172ebd!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+body.${WORLD_CLASS} .lqWorldStatusOverlay{position:absolute!important;z-index:58;top:calc(env(safe-area-inset-top,0px) + 7px);left:calc(env(safe-area-inset-left,0px) + 7px);right:calc(env(safe-area-inset-right,0px) + 88px);margin:0!important;padding:4px 5px!important;border:1px solid #ffffff24!important;border-radius:11px!important;background:#07111fb3!important;box-shadow:0 3px 12px #0007!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);pointer-events:none!important}
+body.${WORLD_CLASS} .lqWorldStatusOverlay .status{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:2px!important}
+body.${WORLD_CLASS} .lqWorldStatusOverlay .stat{min-width:0!important;padding:3px 2px!important;background:#0915259c!important;border-radius:6px!important}
+body.${WORLD_CLASS} .lqWorldStatusOverlay .stat small{font-size:8px!important;line-height:1!important;white-space:nowrap!important}
+body.${WORLD_CLASS} .lqWorldStatusOverlay .stat b{font-size:11px!important;line-height:1.15!important;white-space:nowrap!important}
+body.${WORLD_CLASS} #lq-music-toggle{top:calc(env(safe-area-inset-top,0px) + 8px)!important;right:calc(env(safe-area-inset-right,0px) + 7px)!important;min-width:72px!important;max-width:78px!important;height:31px!important;padding:0 6px!important;font-size:9px!important;line-height:29px!important}
+body.${WORLD_CLASS} .hud{top:var(--lq-status-bottom)!important;left:calc(env(safe-area-inset-left,0px) + 8px)!important;right:calc(env(safe-area-inset-right,0px) + 8px)!important;z-index:56!important}
+body.${WORLD_CLASS} .hud .chip{padding:3px 6px!important;font-size:9px!important;background:#07111fa6!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+body.${WORLD_CLASS} .questGuide{top:var(--lq-hud-bottom)!important;left:calc(env(safe-area-inset-left,0px) + 8px)!important;right:calc(env(safe-area-inset-right,0px) + 8px)!important;z-index:55!important;padding:5px 8px!important;font-size:10px!important;background:#0b172eae!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 body.${WORLD_CLASS} .lqWorldControlsOverlay{position:absolute!important;inset:0!important;z-index:76!important;display:block!important;margin:0!important;padding:0!important;pointer-events:none!important;background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important}
-body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad{position:absolute!important;left:calc(env(safe-area-inset-left,0px) + 9px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:grid!important;grid-template-columns:42px 42px 42px!important;grid-template-rows:42px 42px 42px!important;width:126px!important;height:126px!important;opacity:.34!important;pointer-events:auto!important;transition:opacity .12s ease}
-body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad:active{opacity:.72!important}
-body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad button{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;border-radius:13px!important;font-size:18px!important;padding:0!important;background:#1029439e!important;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad{position:absolute!important;left:calc(env(safe-area-inset-left,0px) + 9px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:grid!important;grid-template-columns:42px 42px 42px!important;grid-template-rows:42px 42px 42px!important;width:126px!important;height:126px!important;opacity:.18!important;pointer-events:auto!important;transition:opacity .12s ease}
+body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad:active{opacity:.48!important}
+body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad button{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;border-radius:13px!important;font-size:18px!important;padding:0!important;background:#10294378!important;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
 body.${WORLD_CLASS} .lqWorldControlsOverlay .actionPad{position:absolute!important;right:calc(env(safe-area-inset-right,0px) + 10px);bottom:calc(env(safe-area-inset-bottom,0px) + 13px);display:flex!important;flex-direction:column!important;align-items:center!important;gap:8px!important;pointer-events:auto!important}
-body.${WORLD_CLASS} .lqWorldControlsOverlay .actionPad button{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;margin:0!important;border-radius:50%!important;font-size:15px!important;background:#102943b8!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);box-shadow:0 3px 11px #0008!important}
-body.${WORLD_CLASS} .lqWorldControlsOverlay .actionPad .a{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;font-size:20px!important;background:#6f4a9bc9!important}
+body.${WORLD_CLASS} .lqWorldControlsOverlay .actionPad button{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;margin:0!important;border-radius:50%!important;font-size:15px!important;background:#102943a5!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);box-shadow:0 3px 11px #0008!important}
+body.${WORLD_CLASS} .lqWorldControlsOverlay .actionPad .a{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;font-size:20px!important;background:#6f4a9bb0!important}
 body.${WORLD_CLASS} .dialogBox{left:calc(env(safe-area-inset-left,0px) + 8px)!important;right:calc(env(safe-area-inset-right,0px) + 8px)!important;bottom:calc(env(safe-area-inset-bottom,0px) + 8px)!important;max-height:min(43dvh,330px);overflow:auto;z-index:90!important;background:#07111fe8!important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 body.${WORLD_CLASS} .foot{display:none!important}
 body.${WORLD_CLASS}.${DIALOGUE_CLASS} .lqWorldControlsOverlay .dpad,body.${WORLD_CLASS}.${DIALOGUE_CLASS} .lqWorldControlsOverlay .actionPad{opacity:0!important;pointer-events:none!important}
 body.${WORLD_CLASS} #lq-floating-touch-controller{z-index:110!important}
 @media(max-width:430px){
- body.${WORLD_CLASS} .lqWorldStatusOverlay{right:calc(env(safe-area-inset-right,0px) + 67px)}
+ body.${WORLD_CLASS} .lqWorldStatusOverlay{right:calc(env(safe-area-inset-right,0px) + 86px)}
+ body.${WORLD_CLASS} .lqWorldStatusOverlay .stat small{font-size:7.5px!important}
+ body.${WORLD_CLASS} .lqWorldStatusOverlay .stat b{font-size:10.5px!important}
  body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad{grid-template-columns:38px 38px 38px!important;grid-template-rows:38px 38px 38px!important;width:114px!important;height:114px!important}
  body.${WORLD_CLASS} .lqWorldControlsOverlay .dpad button{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;font-size:16px!important}
  body.${WORLD_CLASS} .lqWorldControlsOverlay .actionPad button{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
@@ -62,6 +65,40 @@ function setWorldClasses(enabled,dialogue){
   document.body.classList.toggle(DIALOGUE_CLASS,enabled&&dialogue);
 }
 
+function rectIntersects(a,b){
+  return !!a&&!!b&&a.width>0&&a.height>0&&b.width>0&&b.height>0&&a.right>b.left&&a.left<b.right&&a.bottom>b.top&&a.top<b.bottom;
+}
+
+function relativeBottom(el,shellRect){
+  if(!el)return 0;
+  const cs=getComputedStyle(el);
+  if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity||1)<=.02)return 0;
+  const r=el.getBoundingClientRect();
+  if(!r.width||!r.height)return 0;
+  return Math.max(0,Math.round(r.bottom-shellRect.top));
+}
+
+function refreshTopSafeZone(shell,statusCard){
+  if(!shell)return 0;
+  const shellRect=shell.getBoundingClientRect();
+  const statusBottom=relativeBottom(statusCard,shellRect);
+  const music=document.getElementById('lq-music-toggle');
+  const musicBottom=relativeBottom(music,shellRect);
+  const statusBand=Math.max(statusBottom,musicBottom)+5;
+  shell.style.setProperty('--lq-status-bottom',`${Math.max(48,statusBand)}px`);
+
+  const hud=document.querySelector('.hud');
+  const hudBottom=Math.max(statusBand,relativeBottom(hud,shellRect))+5;
+  shell.style.setProperty('--lq-hud-bottom',`${Math.max(statusBand+24,hudBottom)}px`);
+
+  const quest=document.querySelector('.questGuide');
+  const blockingBottom=Math.max(statusBand,hudBottom,relativeBottom(quest,shellRect));
+  const safeTop=Math.min(Math.round(shellRect.height*.34),Math.max(92,blockingBottom+10));
+  shell.style.setProperty('--lq-player-safe-top',`${safeTop}px`);
+  shell.dataset.lqPlayerSafeTop=String(safeTop);
+  return safeTop;
+}
+
 function recenterCamera(){
   if(typeof s==='undefined'||!s||s.screen!=='world'||typeof MAPS==='undefined'||typeof TS==='undefined')return;
   const shell=document.querySelector('.gameShell');
@@ -74,14 +111,21 @@ function recenterCamera(){
   const vw=shell.clientWidth||innerWidth;
   const vh=shell.clientHeight||innerHeight;
   const px=s.x*TS+5,py=s.y*TS+3;
+  const safeTop=Number(shell.dataset.lqPlayerSafeTop)||Math.min(150,Math.round(vh*.22));
+  const playerClearance=22;
   let cx=vw/2-px-19,cy=vh/2-py-21;
   cx=mapWidth<=vw?Math.round((vw-mapWidth)/2):Math.min(0,Math.max(vw-mapWidth,cx));
-  cy=mapHeight<=vh?Math.round((vh-mapHeight)/2):Math.min(0,Math.max(vh-mapHeight,cy));
-  worldEl.style.transform=`translate(${cx}px,${cy}px)`;
-}
-
-function rectIntersects(a,b){
-  return !!a&&!!b&&a.width>0&&a.height>0&&b.width>0&&b.height>0&&a.right>b.left&&a.left<b.right&&a.bottom>b.top&&a.top<b.bottom;
+  if(mapHeight<=vh){
+    cy=Math.round((vh-mapHeight)/2);
+    if(py+cy<safeTop+playerClearance)cy=Math.min(safeTop+playerClearance-py,Math.max(0,vh-mapHeight));
+  }else{
+    cy=Math.min(0,Math.max(vh-mapHeight,cy));
+    if(py+cy<safeTop+playerClearance){
+      const needed=safeTop+playerClearance-py;
+      cy=Math.max(cy,Math.min(safeTop+playerClearance,needed));
+    }
+  }
+  worldEl.style.transform=`translate(${Math.round(cx)}px,${Math.round(cy)}px)`;
 }
 
 function isTransparentBackground(el){
@@ -107,6 +151,10 @@ function smokeMarker(shell,statusCard,controls){
   const player=worldEl&&worldEl.querySelector('.player');
   const worldRect=worldEl&&worldEl.getBoundingClientRect();
   const playerRect=player&&player.getBoundingClientRect();
+  const music=document.getElementById('lq-music-toggle');
+  const musicRect=music&&music.getBoundingClientRect();
+  const statusRect=statusCard&&statusCard.getBoundingClientRect();
+  const safeTop=Number(shell.dataset.lqPlayerSafeTop)||0;
   const visibleTileGeometry=worldEl?[...worldEl.querySelectorAll('.tile')].filter(tile=>{
     const r=tile.getBoundingClientRect();
     const cs=getComputedStyle(tile);
@@ -123,11 +171,13 @@ function smokeMarker(shell,statusCard,controls){
     controlsAbsolute:!!controls&&getComputedStyle(controls).position==='absolute',
     controlsTransparent:isTransparentBackground(controls),
     statusAbsolute:!!statusCard&&getComputedStyle(statusCard).position==='absolute',
+    topPrimaryNonOverlap:!musicRect||!statusRect||!rectIntersects(musicRect,statusRect),
     shellGeometry:shellRect.width>250&&shellRect.height>400,
     worldGeometry:!!worldRect&&worldRect.width>100&&worldRect.height>100,
     playerGeometry:!!playerRect&&playerRect.width>10&&playerRect.height>10,
     worldIntersectsViewport:rectIntersects(worldRect,shellRect),
     playerIntersectsViewport:rectIntersects(playerRect,shellRect),
+    playerBelowTopSafeZone:!!playerRect&&playerRect.top>=shellRect.top+Math.max(0,safeTop-6),
     visibleWorldTiles:visibleTileGeometry.length>=8,
     paintedWorldTiles:paintedTiles.length>=8
   };
@@ -139,11 +189,12 @@ function smokeMarker(shell,statusCard,controls){
   marker.dataset.worldHeight=worldRect?String(Math.round(worldRect.height)):'0';
   marker.dataset.playerX=playerRect?String(Math.round(playerRect.left)):'missing';
   marker.dataset.playerY=playerRect?String(Math.round(playerRect.top)):'missing';
+  marker.dataset.playerSafeTop=String(safeTop);
   const failed=Object.entries(data).find(([,v])=>!v);
   if(failed&&!smokeFailureRaised){
     smokeFailureRaised=true;
     const key=failed[0].replace(/[^A-Za-z0-9_$]/g,'_');
-    setTimeout(()=>{eval(`LQ_REQ034_VISUAL_FAIL_${key}()`);},0);
+    setTimeout(()=>{eval(`LQ_REQ091_VISUAL_FAIL_${key}()`);},0);
   }
 }
 
@@ -163,8 +214,11 @@ function applyWorldLayout(){
   if(controls&&controls.parentElement!==shell)shell.appendChild(controls);
   if(controls)controls.classList.add('lqWorldControlsOverlay');
 
-  recenterCamera();
-  smokeMarker(shell,statusCard,controls);
+  requestAnimationFrame(()=>{
+    refreshTopSafeZone(shell,statusCard);
+    recenterCamera();
+    smokeMarker(shell,statusCard,controls);
+  });
 }
 
 function scheduleRecenter(){
@@ -186,5 +240,5 @@ window.addEventListener('orientationchange',scheduleRecenter,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleRecenter,{passive:true});
 applyWorldLayout();
 
-window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.4',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,pseudoPaintAware:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
+window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.1.0',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,topOverlayNonOverlap:true,playerSafeCameraRegion:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,pseudoPaintAware:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
 })();
