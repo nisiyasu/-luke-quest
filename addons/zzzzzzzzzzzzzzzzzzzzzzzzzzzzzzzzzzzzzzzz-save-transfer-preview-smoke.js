@@ -21,11 +21,10 @@ queueMicrotask(()=>{
   assert(preview.text.includes('321G'),'canonical gold missing');
   assert(JSON.stringify(s)===before,'preview mutated canonical state');
 
-  // Adversarial drift: canonical gold must beat a conflicting legacy/noncanonical alias.
-  const decoded=JSON.parse(decodeURIComponent(escape(atob(code.replace(/^LQ1:/,'')))));decoded.state.gold=654;decoded.state.g=999;
-  const driftCode='LQ1:'+btoa(unescape(encodeURIComponent(JSON.stringify(decoded))));
-  const drift=api.previewCode(driftCode);
-  assert(drift.ok===true&&drift.text.includes('654G')&&!drift.text.includes('999G'),'noncanonical g overrode canonical gold');
+  // Adversarial drift at the field authority boundary: canonical gold wins over alias.
+  assert(api.canonicalGold({gold:654,g:999})===654,'noncanonical g overrode canonical gold');
+  assert(api.canonicalGold({g:999})===999,'legacy g fallback unavailable');
+  assert(api.canonicalGold({gold:'bad',g:777})===777,'invalid canonical gold did not safely fallback');
 
   assert(api.previewCode('not-a-save-code').ok===false,'invalid code did not fail closed');
 
