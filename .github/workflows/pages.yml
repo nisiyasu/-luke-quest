@@ -171,7 +171,7 @@ jobs:
             exit 1
           fi
           echo "LUKE QUEST headless title + world + movement + interaction + optional/interior transitions + battle + save + Demon Army outpost smoke PASS (chrome status $world_status)"
-      - name: Browser smoke floating touch controller
+      - name: Browser smoke floating touch + iPhone world visual liveness
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
@@ -181,7 +181,7 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           sleep 1
           set +e
-          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --virtual-time-budget=2600 --dump-dom 'http://127.0.0.1:8124/?lqTouchSmoke=1' >/tmp/lq-touch-dom.html 2>/tmp/lq-touch-chrome.log
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=2600 --dump-dom 'http://127.0.0.1:8124/?lqTouchSmoke=1' >/tmp/lq-touch-dom.html 2>/tmp/lq-touch-chrome.log
           touch_status=$?
           set -e
           test -s /tmp/lq-touch-dom.html
@@ -194,20 +194,28 @@ jobs:
             'data-up-active="true"' \
             'data-released-hidden="true"' \
             'data-stopped-after-release="true"' \
-            'data-fallback-cleared="true"'; do
+            'data-fallback-cleared="true"' \
+            'lqFullscreenWorldRuntimeSmokeMarker' \
+            'data-controls-transparent="true"' \
+            'data-shell-geometry="true"' \
+            'data-world-geometry="true"' \
+            'data-player-geometry="true"' \
+            'data-world-intersects-viewport="true"' \
+            'data-player-intersects-viewport="true"' \
+            'data-visible-world-tiles="true"'; do
             if ! grep -q "$needle" /tmp/lq-touch-dom.html; then
-              echo "Floating touch smoke missing: $needle"
-              grep -o 'lqFloatingTouchRuntimeSmokeMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-touch-dom.html | tail -60 || true
+              echo "iPhone touch/visual smoke missing: $needle"
+              grep -o 'lqFloatingTouchRuntimeSmokeMarker[^<]*\|lqFullscreenWorldRuntimeSmokeMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-touch-dom.html | tail -100 || true
               cat /tmp/lq-touch-chrome.log
               exit 1
             fi
           done
-          if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-touch-chrome.log; then
-            echo 'Floating touch browser runtime error detected'
+          if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html || grep -E 'LQ_REQ034_VISUAL_FAIL|Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-touch-chrome.log; then
+            echo 'iPhone touch/visual browser runtime error detected'
             cat /tmp/lq-touch-chrome.log
             exit 1
           fi
-          echo "LUKE QUEST floating touch pointer-drag smoke PASS (chrome status $touch_status)"
+          echo "LUKE QUEST iPhone-sized touch + visible world geometry smoke PASS (chrome status $touch_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
