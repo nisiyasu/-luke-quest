@@ -1,6 +1,6 @@
 # REQ-059 — Autonomous Generated Image Pipeline Capability Test
 
-STATUS: READY
+STATUS: BLOCKED
 PRIORITY: P0
 OWNER_REQUEST: DIRECT_OWNER_HOT_INSERT
 MODE: CAPABILITY_TEST / IMPLEMENTATION_IF_PROVEN / CONTINUE_AFTER_RESULT
@@ -20,7 +20,7 @@ Owner intent:
 
 This Owner P0 was originally registered as `REQ-058` by direct hot insert. Before the next autonomous boot completed, the ongoing autonomous loop independently allocated `REQ-058` to `Accessory Equipment Foundation`, implemented it, published it, and synchronized queue/CURRENT around that ID.
 
-Fresh boot detected two distinct requirement files carrying the same logical ID. To preserve already-published accessory history without rewriting its implementation lineage, this Owner P0 is repair-forward renumbered to `REQ-059`. The original Owner intent, priority and required result semantics are unchanged. The duplicate old filename is to be removed after this repaired copy is committed.
+Fresh boot detected two distinct requirement files carrying the same logical ID. To preserve already-published accessory history without rewriting its implementation lineage, this Owner P0 is repair-forward renumbered to `REQ-059`. The original Owner intent, priority and required result semantics are unchanged. The duplicate old filename was removed after this repaired copy was committed.
 
 ## 1. IMMEDIATE QUEUE CONTROL
 
@@ -176,16 +176,42 @@ REQ-059 is not considered fully proven until all of the following observed facts
 
 - [ ] generated raster image created by the autonomous execution environment
 - [ ] generated raster bytes/file acquired by that execution environment
-- [ ] binary-safe transport to GitHub succeeded
-- [ ] real raster asset exists in LUKE QUEST repository
-- [ ] application wiring loads that exact asset
-- [ ] regression/assembled acceptance passes
-- [ ] Pages result recorded if applicable
-- [ ] RESULT section written with evidence
+- [x] binary-safe transport to GitHub succeeded
+- [x] real raster asset exists in LUKE QUEST repository
+- [ ] application wiring loads that exact generated asset
+- [ ] regression/assembled acceptance passes for generated asset wiring
+- [ ] Pages result recorded for generated asset wiring if applicable
+- [x] RESULT section written with evidence
 - [ ] execution continued through GATE C after the result checkpoint when safe work remained
 
 ## RESULT
 
-RESULT: PENDING_EXECUTION
+RESULT: PARTIAL / BLOCKED_AT_GENERATED_BYTE_HANDOFF
 
-This section MUST be replaced/extended by the autonomous executor with observed evidence from the actual capability test.
+TESTED_HEAD_BEFORE_PROBE: `80029681da34b1cad819302bdb3b1bf6ac8b9051`
+BINARY_TRANSPORT_COMMIT: `ab3493740d3bedd122601290f53a6f5eda342ee5`
+EXECUTION_TIMESTAMP_JST: `2026-09-06 14:50 JST`
+
+### Observed facts
+
+- Queue hot-insert behavior: PASS. REQ-059 was registered at ORDER 0, P0, IN_PROGRESS in `WORK_QUEUE.md` by commit `80029681da34b1cad819302bdb3b1bf6ac8b9051` without deleting the already-published Accessory Equipment Foundation REQ-058.
+- Requirement-ID collision recovery: PASS. The Owner image-pipeline requirement was repair-forward renumbered from the conflicting REQ-058 to REQ-059; the accessory requirement kept REQ-058 so already-published implementation lineage did not need to be rewritten.
+- Image-generation step: NOT COUNTED AS PASS. The image-generation interface available to this execution is not exposed as a chainable repository subroutine that returns a downstream-consumable local file path, raw bytes, or base64 payload to the GitHub tools. Therefore invoking image generation alone would not prove the requested end-to-end autonomous path.
+- Generated-byte/file acquisition: FAIL / BLOCKED. No tool contract available in this run exposes generated-image bytes/file content for subsequent GitHub blob creation. This is the missing bridge.
+- GitHub binary-safe transport after bytes/base64 are available: PASS, independently proven in this run. Existing `assets/characters/transport-test.png.b64` was read, then passed to GitHub blob creation with `encoding=base64`, producing real binary blob `26a8c68efad2a094e8fe6d850426b651d353c568`.
+- Resulting independent transport probe asset: `assets/images/transport-capability-probe-REQ-059.png`.
+- Fresh recursive tree verification: PASS. The probe exists as a `blob`, SHA `26a8c68efad2a094e8fe6d850426b651d353c568`, size `68` bytes at HEAD `ab3493740d3bedd122601290f53a6f5eda342ee5`.
+- Direct contents fetch of the binary file through the text-only GitHub fetch wrapper returned a UTF-8/binary rejection. This does not invalidate the blob; the Git tree verifies the binary object/path. It confirms that binary READ through that wrapper is not a usable generated-byte bridge.
+- Historical LUKE QUEST evidence also exists for `.webp.b64` assets (`assets/characters/luke/dialogue-neutral.webp.b64` and four field strips), so base64 runtime transport is already repository-proven; however those assets were not newly generated in this execution and therefore cannot satisfy the generation criterion.
+- Transport path used for the independent post-byte proof: PATH A from known base64 bytes → Git blob → tree → commit.
+- Application wiring of the generated asset: NOT EXECUTED because no generated raster bytes were acquired. The 68-byte transport probe is deliberately not misrepresented as generated art and was not wired player-visible.
+- Assembled/generated-art regression: NOT APPLICABLE yet; no generated asset was wired.
+- Pages result for generated-art wiring: NOT APPLICABLE yet.
+
+### Root cause / smallest missing architecture
+
+The repository/GitHub half is not the blocker. Binary-safe Git blob creation and commit are operational. The blocker is specifically the handoff boundary between image generation and the autonomous executor: the image-generation result needs a durable file reference, mounted file path, byte stream, or base64 output that can be consumed by the GitHub transport step in the same or recoverable subsequent run.
+
+Smallest architecture change: expose generated image output to the autonomous execution as a file/bytes artifact or connector file reference, then feed that output into the already-proven Git blob path. Once that bridge exists, rerun this requirement from generation → bytes → blob → wiring → acceptance → Pages.
+
+REQ-059 is blocked only on that bridge. Under the Owner no-stop rule and GATE C, this blocker must not stop independent safe LUKE QUEST development.
