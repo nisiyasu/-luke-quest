@@ -279,6 +279,42 @@ jobs:
             exit 1
           fi
           echo "REQ-081 north cliff gate + walk + interaction + save + return smoke PASS (chrome status $cliff_status)"
+      - name: Browser smoke REQ-082 north cliff encounters
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8126 >/tmp/lq-north-cliff-encounter-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=2500 --dump-dom 'http://127.0.0.1:8126/?lqNorthCliffEncounterSmoke=1' >/tmp/lq-north-cliff-encounter-dom.html 2>/tmp/lq-north-cliff-encounter-chrome.log
+          encounter_status=$?
+          set -e
+          test -s /tmp/lq-north-cliff-encounter-dom.html
+          for needle in \
+            'lqNorthCliffEncounterSmokeMarker' \
+            'data-encounter-enabled="true"' \
+            'data-exact-pool="true"' \
+            'data-no-new-enemies="true"' \
+            'data-entry-grace="true"' \
+            'data-return-grace="true"' \
+            'data-battle-uses-existing-pool="true"' \
+            'data-status-contract="true"'; do
+            if ! grep -q "$needle" /tmp/lq-north-cliff-encounter-dom.html; then
+              echo "REQ-082 browser smoke missing: $needle"
+              grep -o 'lqNorthCliffEncounterSmokeMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-north-cliff-encounter-dom.html | tail -80 || true
+              cat /tmp/lq-north-cliff-encounter-chrome.log
+              exit 1
+            fi
+          done
+          if grep -q 'lqNorthCliffEncounterSmokeFailure' /tmp/lq-north-cliff-encounter-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-north-cliff-encounter-chrome.log; then
+            echo 'REQ-082 north cliff encounter runtime error detected'
+            cat /tmp/lq-north-cliff-encounter-chrome.log
+            exit 1
+          fi
+          echo "REQ-082 north cliff encounter authority + grace + battle smoke PASS (chrome status $encounter_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
