@@ -39,6 +39,8 @@ function sideQuests(){
  else if(s.flags?.forestBountyAccepted){const kills=Math.min(3,Number(s.forestBountyKills)||0);rows.push({text:'森の討伐依頼',detail:kills>=3?'討伐掲示板で報酬を受け取る':`森の魔物を討伐する ${kills}/3`,progress:`${kills}/3`});}
  if(s.flags?.lqHerbSampleQuestDone)rows.push({done:true,text:'森の薬草標本',detail:'神殿見習いへ届けた'});
  else if(s.flags?.lqHerbSampleQuestAsked)rows.push({text:'森の薬草標本',detail:s.flags?.forestClearingHerbHarvested?'森の薬草標本を神殿見習いへ届ける':'森入口の木漏れ日の空地で薬草を探す'});
+ if(s.flags?.forestMiniBossDefeated)rows.push({done:true,text:'苔角の森王',detail:'森の主を討伐した'});
+ else if(s.flags?.forestMiniBossWarned)rows.push({text:'巨大な蹄跡',detail:'魔物の森・入口で巨大な蹄跡をもう一度調べる'});
  return rows;
 }
 
@@ -54,6 +56,7 @@ function addJournal(){
 }
 function defer(){queueMicrotask(addJournal);}
 const worldJ=world;world=function(){worldJ();defer();};const renderJ=render;render=function(){const r=renderJ();defer();return r;};
-window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample'],spoilerSafe:true,menuIntegrated:true};
+window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true,menuIntegrated:true};
+window.LQ_ADVENTURE_JOURNAL_TEST={sideQuests};
 defer();
 })();
