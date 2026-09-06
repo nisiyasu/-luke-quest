@@ -77,7 +77,7 @@ function caveAhead(){
   return MAPS[CAVE].npcs.find(n=>n.x===p.x&&n.y===p.y)||null;
 }
 function enterCave(){
-  stopMoving();s.map=CAVE;s.x=8;s.y=11;s.dir='up';
+  stopMoving();s.map=CAVE;s.x=8;s.y=12;s.dir='up';
   s.dialog={name:'王都近郊・石灰洞',text:'洞口をくぐると、外の風音がすっと遠くなった。岩肌から落ちる水滴だけが響いている。\nルーク「任意探索ですよね？ “奥に勇者の義務があります”とか後から言わないですよね？」'};
   render();
 }
@@ -120,5 +120,5 @@ const baseRender=render;
 render=function(){const r=baseRender();decorate();return r;};
 
 window.LQ_BUILDING_INTERIORS=Object.assign({},window.LQ_BUILDING_INTERIORS,{aldiaLimestoneCave:{entryMap:FIELD,map:CAVE,exitMap:FIELD,type:'natural-cave'}});
-window.LQ_LIMESTONE_CAVE_STATUS={version:'1.0',map:CAVE,entry:[MOUTH_X,MOUTH_Y],interactionCount:5,storyFlagsAdded:0,protectedCanonChanged:false,iosPhysicalVerification:'PENDING'};
+window.LQ_LIMESTONE_CAVE_STATUS={version:'1.0.1',map:CAVE,entry:[MOUTH_X,MOUTH_Y],spawn:[8,12],interactionCount:5,storyFlagsAdded:0,protectedCanonChanged:false,iosPhysicalVerification:'PENDING'};
 })();
