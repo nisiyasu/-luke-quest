@@ -11,6 +11,10 @@ function marker(data){
 function failure(reason){
   const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeFailure';el.dataset.reason=String(reason||'unknown');el.hidden=true;document.body.appendChild(el);return el;
 }
+function walkable(mapId,x,y){
+  const m=MAPS[mapId], row=m?.tiles?.[y]||'', c=row[x];
+  return !!m&&x>=0&&y>=0&&x<m.w&&y<m.h&&c!==undefined&&c!=='#'&&c!=='^';
+}
 
 setTimeout(()=>{
   const snapshot=structuredClone(s);
@@ -58,14 +62,16 @@ setTimeout(()=>{
     render();
     const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
     if(deferredError){
-      // Dedicated CI probe owns this page. Strip unrelated runtime DOM so the
-      // workflow's existing data-*=true checks cannot be satisfied by another marker.
-      // Force one canonical assertion false so the workflow prints this isolated DOM,
-      // including data-reason, before its generic runtime-error branch exits.
-      document.body.replaceChildren();
-      failure(deferredError.message);
+      // This only runs on the dedicated CI probe page. Replacing the complete
+      // document prevents workflow grep from accidentally matching assertion
+      // strings that live inside script source instead of the runtime marker.
+      const reason=deferredError.message;
+      document.documentElement.replaceChildren();
+      const head=document.createElement('head');
+      const body=document.createElement('body');
+      document.documentElement.append(head,body);
+      failure(reason);
       marker({...data,statusContract:false});
-      setTimeout(()=>{throw deferredError;},0);
     }else marker(data);
   }
 },700);
