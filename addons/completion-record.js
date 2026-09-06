@@ -9,7 +9,8 @@ document.head.appendChild(style);
 const COMPLETION_DEFS=[
  {flag:'elderCharmComplete',type:'SIDE QUEST',name:'旅人の銀留め具'},
  {flag:'forestBountyComplete',type:'BOUNTY',name:'魔物の森・安全確認'},
- {flag:'lqHerbSampleQuestDone',type:'SIDE QUEST',name:'森の薬草標本'}
+ {flag:'lqHerbSampleQuestDone',type:'SIDE QUEST',name:'森の薬草標本'},
+ {flag:'forestMiniBossDefeated',type:'OPTIONAL BOSS',name:'苔角の森王'}
 ];
 
 function completionRows(flags=s.flags||{}){
@@ -37,7 +38,7 @@ render=function(){const r=renderC();addCompletionRecord();return r;};
 window.LQ_COMPLETION_RECORD_STATUS={
  presentationOnly:true,
  canonicalFlags:COMPLETION_DEFS.map(x=>x.flag),
- supports:{elderCharm:true,forestBounty:true,forestHerbSample:true},
+ supports:{elderCharm:true,forestBounty:true,forestHerbSample:true,forestMiniBoss:true},
  rowBuilder:completionRows,
  noQuestMutation:true
 };
