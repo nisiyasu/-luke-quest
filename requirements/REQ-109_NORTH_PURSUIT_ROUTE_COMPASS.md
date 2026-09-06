@@ -1,6 +1,6 @@
 # REQ-109 — 北追跡ルート・コンパス
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYABILITY / ORIENTATION / JOURNAL UX
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -140,9 +140,16 @@ Before VERIFY:
 
 ## 10. COMPLETION STATE
 
-IMPLEMENTATION_COMPLETE: NO
-PAGES_VERIFIED: NO
+IMPLEMENTATION_COMPLETE: YES
+PAGES_VERIFIED: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+Implementation checkpoint: `b8199732e36c9c3cf1f13513ccf44852661c475f`
+Pages workflow: `34046783044` / SUCCESS
+
+Implemented as `addons/north-route-compass.js`, injected by the existing Pages add-on assembly. The compass is Journal-only, derives its current area from canonical `MAPS`, reuses the spoiler-safe Adventure Journal objective for later route maps, switches evacuation guidance immediately after `withdrawProofSeen`, adds no world pointer authority, adds no save schema, and preserves the P0 Touch/Fullscreen surface.
+
+Automated public gate confirmed JavaScript/add-on validation, static regression, assembled browser smoke, 390x844 floating Touch/Fullscreen smoke, REQ-081 north-cliff regression, REQ-082 encounter regression, artifact upload and Pages deploy all SUCCESS. Physical iPhone confirmation remains Owner-only and is not claimed.
 
 ## 11. NO-STOP
 
