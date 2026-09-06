@@ -6,17 +6,19 @@ const style=document.createElement('style');style.textContent=`
 .lqAdventureJournalSection{position:relative;overflow:hidden}.lqJournalLead{margin:2px 0 7px;color:#8299aa;font-size:7px;letter-spacing:.08em}.lqJournalBlock{margin:6px 0;padding:8px;border-radius:9px;background:linear-gradient(145deg,#0a1b29,#10283a);border:1px solid #ffffff12;box-shadow:inset 0 1px #ffffff08}.lqJournalBlock.main{border-color:#d4b75f44;background:linear-gradient(145deg,#242013,#15283a)}.lqJournalLabel{display:flex;align-items:center;gap:5px;margin-bottom:4px;color:#8299aa;font-size:6px;font-weight:950;letter-spacing:.13em}.lqJournalLabel .mark{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#203e56;color:#dbe7ed;font-size:8px}.lqJournalBlock.main .mark{background:#5a4c20;color:#ffe797}.lqJournalMainText{color:#f0e3b2;font-size:10px;font-weight:850;line-height:1.55}.lqJournalRows{display:grid;gap:5px}.lqJournalRow{position:relative;padding:6px 7px 6px 23px;border-radius:7px;background:#081620;border:1px solid #ffffff0d;color:#c5d2da;font-size:8px;line-height:1.45}.lqJournalRow:before{content:'◆';position:absolute;left:8px;top:7px;color:#62869d;font-size:7px}.lqJournalRow.done{color:#9fc9a6;border-color:#5e9c6b22}.lqJournalRow.done:before{content:'✓';color:#74b981}.lqJournalEmpty{padding:6px 7px;border-radius:7px;background:#081620;color:#667f90;font-size:8px}.lqJournalProgress{display:inline-block;margin-left:5px;padding:1px 5px;border-radius:99px;background:#173349;color:#91b8cf;font-size:6px;font-weight:900}@media(max-width:390px){.lqJournalBlock{padding:7px}.lqJournalMainText{font-size:9px}.lqJournalRow,.lqJournalEmpty{font-size:7px}}
 `;document.head.appendChild(style);
 
-function mainGoal(){
- if(s.flags?.withdrawProofSeen)return'北の崖道へ向かい、レオンを追う。';
- if(s.flags?.evacEntered)return'北の退避路でレオンと魔王軍の痕跡を調べる。';
- if(s.flags?.glennSeen)return'北の封鎖線を越えてレオンを追う。';
- if(s.flags?.observationEntered)return'監視区域でグレン隊長を探す。';
- if(s.flags?.glennTraceSeen)return'北の魔王軍監視区域へ進む。';
- if(s.flags?.mistEntered)return'霧の追跡路で魔王軍の痕跡を調べる。';
- if(s.flags?.leonSeen)return'レオンを追って北の霧へ入る。';
- if((s.wins||0)<2)return'王都近郊で2勝し、魔物の森へ入る。';
- if(s.map==='field')return'北東の魔物の森へ向かう。';
- if(s.map==='forest')return'森の北側から深部へ進む。';
+function mainGoal(state=s){
+ const flags=state?.flags||{};
+ if(flags.withdrawProofSeen&&state?.map==='northCliffRoad')return'北の崖道で新しい足跡を追い、北側へ続く道を確認する。';
+ if(flags.withdrawProofSeen)return'北の崖道へ向かい、レオンを追う。';
+ if(flags.evacEntered)return'北の退避路でレオンと魔王軍の痕跡を調べる。';
+ if(flags.glennSeen)return'北の封鎖線を越えてレオンを追う。';
+ if(flags.observationEntered)return'監視区域でグレン隊長を探す。';
+ if(flags.glennTraceSeen)return'北の魔王軍監視区域へ進む。';
+ if(flags.mistEntered)return'霧の追跡路で魔王軍の痕跡を調べる。';
+ if(flags.leonSeen)return'レオンを追って北の霧へ入る。';
+ if((state?.wins||0)<2)return'王都近郊で2勝し、魔物の森へ入る。';
+ if(state?.map==='field')return'北東の魔物の森へ向かう。';
+ if(state?.map==='forest')return'森の北側から深部へ進む。';
  return'深部でレオンの痕跡を追う。';
 }
 
@@ -56,7 +58,7 @@ function addJournal(){
 }
 function defer(){queueMicrotask(addJournal);}
 const worldJ=world;world=function(){worldJ();defer();};const renderJ=render;render=function(){const r=renderJ();defer();return r;};
-window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true,menuIntegrated:true};
-window.LQ_ADVENTURE_JOURNAL_TEST={sideQuests};
+window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true,menuIntegrated:true,northCliffLocationAware:true};
+window.LQ_ADVENTURE_JOURNAL_TEST={sideQuests,mainGoal};
 defer();
 })();
