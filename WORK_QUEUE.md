@@ -72,6 +72,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 59 | REQ-060 | P1 | VERIFY | Cross-Browser Save Transfer | `requirements/REQ-060_CROSS_BROWSER_SAVE_TRANSFER.md` | SAVE CODE export/import、fresh browser title IMPORT、Unicode round-trip、invalid/dangerous payload fail-closed、manual backup保持。Pages run 34015168161 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 60 | REQ-061 | P1 | VERIFY | Fresh-Browser Continue Validity | `requirements/REQ-061_FRESH_BROWSER_CONTINUE_VALIDITY.md` | bootstrap DEFAULT/title autosaveを実進行と誤認する偽Continueを修正。intro/world/legacy/REQ-060 importはContinue維持。fail-closed smoke + Pages run 34015384336 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 61 | REQ-062 | P1 | VERIFY | Save Transfer Existing-Progress Overwrite Guard | `requirements/REQ-062_SAVE_TRANSFER_OVERWRITE_GUARD.md` | existing resumable progressではvalid SAVE CODE importを二段確認化。fresh/non-resumable browserは一段。code変更/12秒expiryでdisarm。dedicated/assembled/390x844 + Pages run 34015640423 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 62 | REQ-063 | P1 | VERIFY | Canonical Autosave Bootstrap Hardening | `requirements/REQ-063_CANONICAL_AUTOSAVE_BOOTSTRAP_HARDENING.md` | malformed/primitive canonical autosaveをpre-bootstrap quarantineし、dangerous keysをbase merge前sanitize。dedicated acceptance + assembled prelude-order gate + title/world + 390x844 + Pages run 34016458577 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
