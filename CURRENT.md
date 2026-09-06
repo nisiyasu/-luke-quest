@@ -1,125 +1,120 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 03:05 JST
+- UPDATED_AT: 2026-09-07 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `347294528ed0a32d86878766dd3494d24ecbe8ca`
-- LATEST_GAMEPLAY_IMPLEMENTATION_COMMIT_SHA: `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c` / REQ-116 complete implementation
-- LATEST_STORY_CANON_COMMIT_SHA: `5fd43a687e23ffb6a391639ae80ac819b22ef784`
-- LATEST_MANAGEMENT_RECOVERY_COMMIT_SHA: `049f072403ec38086ac2daee64bf1e34466077e7`
-- LATEST_TESTED_HEAD_SHA: `347294528ed0a32d86878766dd3494d24ecbe8ca`
-- LATEST_PAGES_RUN: `34050434067` / SUCCESS on REQ-116 implementation HEAD `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c`; requirement-status descendant contains no gameplay change
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / P0 INPUT+FULLSCREEN AUTOMATED PUBLIC GATE PASS / WIND STAIR PRESENTATION CONTINUITY PASS / STORY PURSUIT EXTENSION FROZEN AT OWNER CANON CHECKPOINT / OWNER IPHONE CHECK PENDING`
-- BOOT_REALITY_AUDIT: `REPAIRED / prior CURRENT was stale behind REQ-113 implementation and STORY_CANON; recovered commits, workflow state, duplicate requirement collision and concurrent queue drift from fresh HEAD`
-- OWNER_PRIORITY_AUDIT: `REPAIRED_PASS / REQ-021 -> REQ-022 -> REQ-001 fresh code re-audited; latest Pages assembled browser + 390x844 touch/fullscreen smoke PASS; IOS_PHYSICAL_VERIFICATION remains PENDING`
-- CONTINUE_GATE_LAST_RESULT: `CONTINUE / story-specific work blocked does not block independent canon-safe work`
-- EXECUTION_DEGRADATION_STATUS: `CONCURRENT_MANAGEMENT_DRIFT_DETECTED_REPAIRED / QUEUE_PROJECTION_STILL_STALE_NONDESTRUCTIVE`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / P0 INPUT+FULLSCREEN AUTOMATED PUBLIC GATE PASS / STORY PURSUIT EXTENSION FROZEN / OWNER-APPROVED OPENING + VISUAL RICHNESS QUEUED / OWNER IPHONE CHECK PENDING`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
-- PREEMPTED_REQUIREMENT: `REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION -> BLOCKED by newer Owner-approved STORY_CANON governance`
-- SELF_REPAIR_ACTIONS: `Recovered REQ-113 north-route commits; preserved published windStairRidge instead of destructive rollback; blocked further generic Leon pursuit extension; repaired duplicate REQ-113 story-wiring authority drift; registered REQ-114 as BLOCKED until Chapter 1/2 story design; fresh re-audited P0 touch/fullscreen; completed canon-safe presentation integrations REQ-115 and REQ-116.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
+- READY_REQUIREMENTS: `REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE; REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING`
+- VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- KNOWN_ISSUES: `WORK_QUEUE.md contains a concurrent stale READY row for duplicate REQ-113 story wiring even though its target requirement file is SUPERSEDED. Do not execute that row. Queue history is large and prior connector retrieval has truncated it; do not destructively replace the queue from incomplete content. Repair forward when a byte-safe/full-content update path is available.`
-- BLOCKERS: `Main-story continuation is intentionally blocked at STORY_CANON partial checkpoint: Chapter 1 stopping role remains PENDING_OWNER_DECISION and Chapter 2 remains NOT_DESIGNED. This does not block non-main-story UX/system/bug/polish work.`
-- NEXT_ACTION: `Fresh-audit existing systems for canon-safe player-visible gaps. Do not extend Leon pursuit north and do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE yet. Prefer already-published-map integration, UX, accessibility, input safety, bugfixes or presentation work that does not imply a new Story Beat.`
-- NEXT_ACTION_COMPLETION_CONDITION: `fresh HEAD grounded requirement; Story Canon boundary preserved; P0 input/fullscreen protected; no unapproved plot invention; relevant fail-closed regression PASS; assembled browser PASS; 390x844 touch/fullscreen PASS; Pages SUCCESS before VERIFY.`
-- DO_NOT_REPEAT: `Do not create another generic north pursuit map from Leon traces. Do not treat Leon's sister stopping the clash as confirmed. Do not create/name/age/characterize Leon's sister as canon. Do not invent Chapter 2. Do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE until Chapter 1 and Chapter 2 are Owner-approved enough to satisfy REQ-114 unblock conditions. Do not execute duplicate queue row REQ-113 Story Canon Autonomous Wiring. Do not claim physical iPhone PASS from CI. Do not reimplement REQ-115 or REQ-116 without fresh defect evidence.`
+- QUEUE_PROJECTION_STATUS: `REPAIRED_FORWARD / WORK_QUEUE.md now includes canonical REQ-113..REQ-118 state through latest Owner requests.`
+- STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
+- NEXT_ACTION: `Select work under WORK_MANAGER rules from fresh reality. Owner-approved REQ-118 Opening is the newest P1 direct request; REQ-117 remains READY. Do not extend Leon pursuit north. Do not execute REQ-114 until Chapter 2 is Owner-designed.`
+- NEXT_ACTION_COMPLETION_CONDITION: `fresh HEAD grounded requirement; STORY_CANON preserved; P0 input/fullscreen protected; no unapproved Chapter 2 invention; relevant regression PASS; assembled browser PASS; 390x844 touch/fullscreen PASS; Pages SUCCESS before VERIFY.`
+- DO_NOT_REPEAT: `Do not create another generic north pursuit map. Do not revert Leon-sister interruption to PENDING: it is Owner-confirmed in STORY_CANON. Do not invent Chapter 2. Do not wire STORY_CANON globally through REQ-114 before Chapter 2 design. Do not execute superseded duplicate REQ-113 story-wiring file. Do not claim physical iPhone PASS from CI.`
 
-## P0 INPUT / FULLSCREEN — FRESH RE-AUDIT 2026-09-07
+## OWNER-APPROVED STORY REALITY — 2026-09-07
+
+### STORY_CANON.md
+
+Fresh Owner authority now records:
+
+- Leon is Eleanor's son.
+- Leon has a sister; her name, age and detailed personality remain undecided.
+- Eleanor has long boasted publicly that she gave birth to the hero.
+- Leon was raised believing he would become the hero.
+- Leon is highly capable across many fields but is not uniquely first in all of them.
+- Unmotivated Luke has beaten Leon in school combat.
+- Leon expected a future awakening that never arrived.
+- Leon fled before hero selection because he feared the crystal would not respond to him and his identity/family expectations would collapse.
+
+### Opening / Prologue — CONFIRMED
+
+Owner approved a high-quality playable Opening:
+
+1. cold open / Aldia hero-selection morning;
+2. Luke's natural, under-motivated introduction and playable walk through Aldia;
+3. school-era Luke-vs-Leon mock battle flashback, with Luke winning;
+4. Leon private anxiety scene showing effort, repeated near-top achievement and fear that the crystal will not respond;
+5. public hero-selection ceremony where Leon is absent;
+6. Luke touches the hero crystal and triggers an abnormal reaction far beyond a normal selection;
+7. Luke is recognized as hero and reacts with natural confusion rather than heroic swagger;
+8. Eleanor publicly congratulates Luke while privately showing unexplained shock;
+9. report arrives that Leon left toward the monster forest;
+10. Luke receives his first mission: retrieve Leon;
+11. title / Chapter 1 handoff into the existing playable route.
+
+Protected late-game truths remain unrevealed.
+
+### Chapter 1 climax — CONFIRMED
+
+- Luke eventually reaches Leon.
+- Leon learns Luke was chosen as hero.
+- Leon's accumulated resentment and identity collapse erupt.
+- Leon attacks Luke.
+- Luke has no desire to fight and only defends, remaining naturally confused/non-hostile.
+- Leon's sister physically steps between them.
+- Leon accidentally wounds his sister.
+- The injury is not fatal at this point.
+- Leon immediately regains awareness of what he is doing.
+- Luke prioritizes helping the injured sister rather than condemning Leon.
+- Eleanor remains outwardly benevolent and does not reveal her hidden past.
+- Luke, Leon, Leon's sister and Eleanor return to the kingdom.
+- This return is the end of Chapter 1.
+
+### Chapter 2
+
+- STATUS: `NOT_DESIGNED`.
+- Do not invent it autonomously.
+- REQ-114 global Story Canon wiring remains BLOCKED until Chapter 2 is sufficiently Owner-designed.
+
+## REQ-117 — WORLD / CHARACTER VISUAL RICHNESS UPGRADE
+
+- STATUS: `READY`.
+- Owner-directed major presentation improvement.
+- Scope includes character foot shadows, restrained idle animation, interaction popup easing, map edge blending, depth/drop shadows, ambient air particles and field-sprite richness principles.
+- Preserve canonical touch/input/collision/save/story authorities.
+- Do not replace approved Luke art with a lower-quality placeholder simply for convenience.
+
+## REQ-118 — HIGH-QUALITY HERO SELECTION OPENING
+
+- STATUS: `READY`.
+- Latest Owner-approved story implementation request.
+- Dedicated requirement: `requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md`.
+- Fresh NEW GAME should receive the playable Opening through a safe integration with actual title/newGame architecture.
+- Existing progressed saves must not be forced backward through the Opening.
+- Opening implementation should use staged recoverable checkpoints rather than one opaque mega-write.
+- Must preserve REQ-021 Tap Anywhere Action, REQ-022 iPhone Fullscreen World UI and REQ-001 Dynamic Touch Controller.
+- Must end in a valid existing Chapter 1 playable state.
+- IOS_PHYSICAL_VERIFICATION: `PENDING` until Owner confirms actual device.
+
+## P0 INPUT / FULLSCREEN — PROTECTED
 
 ### REQ-021 — Tap Anywhere Action
 
 - STATUS: `VERIFY`.
-- Fresh implementation: `addons/floating-touch-controller.js`.
-- Unified world pointer surface remains active.
-- Short touch/pen tap inside `.gameShell`, within 18px dead zone and 420ms, calls the final canonical `action()` at most once.
-- Drag/hold movement marks the gesture moved and cannot fire Action on release.
-- Explicit controls are excluded through the shared interactive selector.
-- pointercancel, blur, visibility hidden, dialogue start and map/screen transition cleanup remain tied to central movement stop/reset.
+- Canonical short-tap Action remains protected.
+- Drag/cancel/stale release must not become Action.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 
 ### REQ-022 — iPhone Fullscreen World UI
 
 - STATUS: `VERIFY`.
-- Fresh implementation: `addons/zzzz-iphone-fullscreen-world-ui.js`.
-- `100dvh` viewport-primary world remains active with safe-area-aware status/HUD/quest/control/dialogue overlays.
-- Controls plane remains transparent and pointer-transparent except actual dpad/action controls.
-- Portrait camera scale remains 0.88 with visual-liveness assertions for world/player/painted tiles.
-- No map coordinates, collision, story flags or save semantics changed by the layout layer.
+- `100dvh`, safe-area-aware viewport-primary world and floating overlays remain protected.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 
 ### REQ-001 — Dynamic Touch Controller
 
 - STATUS: `VERIFY`.
-- Same `addons/floating-touch-controller.js` owns unified tap/drag distinction.
-- pointerId ownership, dead zone, live dominant-axis direction change, window-level pointerup/pointercancel, blur/visibility cleanup, render transition stop, dialogue start cleanup and central `stopMoving()` remain present.
-- Dynamic pad remains 168px presentation with fallback fixed controls retained.
-- IOS_PHYSICAL_VERIFICATION: `PENDING`.
-
-### PUBLIC GATE
-
-- REQ-115 implementation commit `f97e306d2e6beb2e13e72062eec943cb5348348c`: Pages run `34050169291` SUCCESS.
-- REQ-116 complete implementation commit `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c`: Pages run `34050434067` SUCCESS.
-- Latest relevant public gates passed sequential JavaScript validation, collision-safe add-on validation, static regression guard, add-on contract guard, autosave bootstrap, PWA, raster transport probe, approved Luke asset, injection, assembled browser smoke, floating touch + iPhone world visual-liveness smoke, REQ-081 north-route smoke, REQ-082 encounter smoke, upload and deployment.
-- No physical-device claim is made from CI.
-
-## STORY GOVERNANCE RECOVERY — 2026-09-07
-
-### STORY_CANON.md
-
-- STATUS: `PARTIAL / CHAPTER_01_DESIGN_IN_PROGRESS / CHAPTER_02_NOT_DESIGNED`.
-- Owner-approved additions preserved: Leon is Eleanor's son; Eleanor has long boasted that she gave birth to the hero; Leon was raised under hero expectations, is highly capable but not uniquely first, sometimes loses school matches to unmotivated Luke, expected a future awakening, and fled before hero selection from fear the crystal would not respond.
-- Chapter 1 confirmed core preserved: Luke reaches Leon; Leon learns Luke was chosen as hero; Leon's accumulated resentment explodes; Leon attacks; Luke refuses to attack back and only defends while remaining naturally confused/non-hostile.
-- Chapter 1 stopping role remains `PENDING_OWNER_DECISION`: Eleanor vs Leon's sister path is not yet canon.
-- Chapter 2 remains `NOT_DESIGNED`.
-- `AUTONOMOUS_DEV_DIRECTIVE.md` is intentionally NOT yet wired to STORY_CANON; Owner-approved sequencing is Chapter 1 + Chapter 2 design first, wiring afterward.
-
-### REQ-113 — Cloudbreak North Playable Continuation
-
-- Historical implementation is present and published: `windStairRidge` / `北尾根・風鳴りの石段`.
-- Hardening culminated at `7360b6279280193f76cfbe579e059a51ddeef0b7`, making its standalone registration data-only and keeping new global wrappers off the protected REQ-082 authority chain.
-- Original acceptance requested `EVAC_ENEMIES` encounter integration, but stabilized implementation intentionally deferred that integration; therefore original acceptance is not falsely claimed complete.
-- STATUS repaired to `BLOCKED` because newer Owner Story Canon forbids continuing the main pursuit by repeatedly adding another north route.
-- Existing published map is preserved; no destructive rollback merely to erase history.
-
-### Duplicate REQ-113 Story Wiring Collision
-
-- A concurrent session created `requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md` after REQ-113 already existed.
-- It also incorrectly treated immediate Directive wiring and the Leon-sister interruption outcome as approved.
-- File repaired to `SUPERSEDED`; it must not execute.
-- Successor `requirements/REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02.md` created as `BLOCKED` with correct sequencing.
-- Concurrent `WORK_QUEUE.md` row still says duplicate REQ-113 is READY. Treat this as known stale projection, not execution authority over fresh requirement reality and latest Owner instruction.
-
-## REQ-115 — WIND STAIR RIDGE PRESENTATION POLISH
-
-- STATUS: `VERIFY`.
-- Existing `windStairRidge` had fallen back to generic `LUKE QUEST` subtitle in `area-title-card.js`.
-- Added spoiler-safe map subtitle: `風鳴りが石段を抜ける北尾根の高所`.
-- No story flag, route authority, battle, save or input changes.
-- Implementation commit `f97e306d2e6beb2e13e72062eec943cb5348348c`.
-- Pages run `34050169291`: SUCCESS.
-- IOS_PHYSICAL_VERIFICATION: `PENDING`.
-
-## REQ-116 — WIND STAIR RIDGE ENVIRONMENT CONTINUITY
-
-- STATUS: `VERIFY`.
-- Fresh cross-system audit found the already-published map missing from four established high-altitude presentation systems.
-- Added `fog` regional ambience, `mist` cloud-shadow class, `mist` footsteps and three presentation-only landmark glints at existing coordinates.
-- No new map, clue, dialogue, Story Beat, save schema, collision, canonical Action or encounter authority.
-- Complete implementation commit `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c`.
-- Pages run `34050434067`: SUCCESS.
-- IOS_PHYSICAL_VERIFICATION: `PENDING`.
-
-## REQ-023 — NORTH EVAC ROUTE GUIDANCE
-
-- STATUS: `VERIFY`.
-- Before `withdrawProofSeen`, objective directs the player to the required withdrawal-order clue and presents a visible marker.
-- After acquisition, objective immediately changes toward the north exit.
+- pointerId ownership, dead zone, live direction switching and central stop/cleanup remain protected.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 
 ## RECENT VERIFIED PLAYER-VISIBLE CHECKPOINTS
@@ -133,12 +128,10 @@
 - REQ-112 first-touch gesture coach: VERIFY / published.
 - REQ-115 windStair area title: VERIFY / published.
 - REQ-116 windStair environmental continuity: VERIFY / published.
-- These must not be reimplemented without fresh defect evidence.
-
-## QUEUE / RECOVERY NOTE
-
-Fresh HEAD, latest direct Owner authority, and actual requirement contents outrank stale queue projections. `WORK_QUEUE.md` contains one known incorrect concurrent READY row for the superseded duplicate REQ-113. Do not select it merely from the row. Do not destructively replace the large queue from truncated connector output. Repair forward once the full queue can be safely transformed without losing historical rows.
+- Do not reimplement these without fresh defect evidence.
 
 ## MANDATORY CONTINUATION
 
-Every future execution must fresh-load repository metadata, actual default branch, HEAD, `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, active/re-audit requirements, relevant implementation files, recent commits/workflow/Pages state, and detect whether Owner has updated `STORY_CANON.md`. WIP remains one IN_PROGRESS. VERIFY does not block independent work. Story-specific blockers do not block safe non-story development. Commits, Pages success and CURRENT autosaves are checkpoints, not autonomous stop conditions.
+Every future execution must fresh-load repository metadata, actual default branch, HEAD, `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, active/re-audit requirements, relevant implementation files, recent commits/workflow/Pages state, and current `STORY_CANON.md` when story-related work is selected.
+
+Fresh HEAD and actual requirement contents outrank stale projections. WIP remains one IN_PROGRESS. VERIFY does not block independent work. A blocked story-continuation item does not block approved Opening or canon-safe presentation work. Commits, Pages success and CURRENT autosaves are checkpoints, not autonomous stop conditions.
