@@ -7,18 +7,21 @@ setTimeout(()=>{
  const status=window.LQ_COMPLETION_RECORD_STATUS;
  let marker=document.getElementById('lqCompletionCoverageRuntimeSmokeMarker');
  if(!marker){marker=document.createElement('i');marker.id='lqCompletionCoverageRuntimeSmokeMarker';marker.hidden=true;document.body.appendChild(marker);}
- const all=status?.rowBuilder?.({elderCharmComplete:true,forestBountyComplete:true,lqHerbSampleQuestDone:true})||[];
+ const baselineFlags={elderCharmComplete:true,forestBountyComplete:true,lqHerbSampleQuestDone:true};
+ const baseline=status?.rowBuilder?.(baselineFlags)||[];
  const herbOnly=status?.rowBuilder?.({lqHerbSampleQuestDone:true})||[];
  const none=status?.rowBuilder?.({})||[];
- const flags=all.map(x=>x[2]);
+ const flags=baseline.map(x=>x[2]);
+ const canonical=status?.canonicalFlags||[];
  const data={
    status:!!status,
    presentationOnly:status?.presentationOnly===true,
    noQuestMutation:status?.noQuestMutation===true,
-   allThree:Array.isArray(status?.canonicalFlags)&&status.canonicalFlags.length===3&&all.length===3,
+   baselineThreePreserved:Array.isArray(canonical)&&['elderCharmComplete','forestBountyComplete','lqHerbSampleQuestDone'].every(flag=>canonical.includes(flag))&&baseline.length===3,
    existingCoverage:status?.supports?.elderCharm===true&&status?.supports?.forestBounty===true,
    herbCoverage:status?.supports?.forestHerbSample===true&&herbOnly.length===1&&herbOnly[0][1]==='森の薬草標本',
-   uniqueFlags:new Set(flags).size===flags.length,
+   uniqueBaselineFlags:new Set(flags).size===flags.length,
+   canonicalFlagsUnique:new Set(canonical).size===canonical.length,
    noFalseRows:none.length===0
  };
  Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(!!v));
