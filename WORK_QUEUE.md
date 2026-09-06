@@ -54,6 +54,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 42 | REQ-042 | P1 | VERIFY | Adventure Record Accuracy | `requirements/REQ-042_ADVENTURE_RECORD_ACCURACY.md` | OPTIONAL DONEを3件へ整合、TREASURE FINDSをlegacy + chest + hidden-find + item-cache statusから動的dedupe集計。Pages run 34009625492 SUCCESS。Owner iPhone readability確認待ち |
 | 43 | REQ-043 | P1 | VERIFY | Poison Defeat Cleanup | `requirements/REQ-043_POISON_DEFEAT_CLEANUP.md` | battle-only poisonが敗北搬送後にworldへ漏れる整合性バグを修復。battle→world transition cleanup + fail-closed acceptance。Pages run 34009787755 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 44 | REQ-044 | P1 | VERIFY | Battle-Only Poison Save Sanitization | `requirements/REQ-044_BATTLE_ONLY_POISON_SAVE_SANITIZATION.md` | stale/legacy saveからbattle-only poisonがworldへ復元・再保存される境界をcanonical save sanitizationで修復。Pages run 34010063196 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 45 | REQ-045 | P1 | VERIFY | Critical-Hit ATK Persistence Safety | `requirements/REQ-045_CRITICAL_HIT_ATK_PERSISTENCE.md` | critical killing blow中の一時+5 ATK保存汚染とlevel-up +3消失を修復。canonical attack/win維持、save normalization + delta-preserving cleanup。Pages run 34010189516 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
