@@ -1,12 +1,35 @@
 # REQ-091 — iPhone Field UI Occlusion / Safe Player Visibility / Controller Transparency Fix
 
-STATUS: IN_PROGRESS
+STATUS: SUPERSEDED
+SUPERSEDED_BY: REQ-085
 PRIORITY: P0
 TYPE: UI / LAYOUT / TOUCH / MOBILE REGRESSION
 OWNER_REQUEST: DIRECT_OWNER_HOT_INSERT
 IOS_PHYSICAL_VERIFICATION: PENDING
 
-## 0. OWNER PHYSICAL DEFECT EVIDENCE
+## 0. SUPERSESSION / RECOVERY NOTE
+
+This requirement was created concurrently while the Owner's newer combined request was being registered as `REQ-085_IPHONE_FIELD_UI_OCCLUSION_CAMERA_FRAMING.md`.
+
+REQ-091 captured the first three Owner defects and produced valid implementation checkpoints for:
+
+- top overlay compaction / non-overlap
+- HUD-safe player visibility near the north edge
+- lower-opacity Dynamic Touch Controller presentation
+
+The Owner then explicitly added a fourth requirement: a modest field camera zoom-out so more surrounding terrain is visible. REQ-085 is therefore the complete and newer Owner-authority superset.
+
+Do not delete or redo the valid REQ-091 implementation. Its committed work is reused as part of REQ-085 completion. Do not select REQ-091 independently again.
+
+Implementation history reused by REQ-085 includes:
+
+- `46e6fc97ec93209db0e2efcc7850910fbecf1f6d` — HUD occlusion / player safe visibility
+- `995523d2036365035f5b16e33d6c8f54e9be2c59` and later opacity hardening — controller transparency
+- `20c9016d8495c1c3eb7279d5a16606bd3ccb09ab` — compact top overlays / fallback controls
+- `4a611a10352bc5d2a2f8138db0daf33929042cab` — north-edge player visibility
+- Pages run `34031126525` — SUCCESS for the pre-zoom-out integrated state
+
+## 1. ORIGINAL OWNER PHYSICAL DEFECT EVIDENCE
 
 OwnerのiPhone実機スクリーンショットと直接報告を最優先の物理証拠として扱う。
 
@@ -18,7 +41,7 @@ Owner報告:
 
 既存REQ-021 / REQ-022 / REQ-001がVERIFYでも、この新しいOwner実機証拠を理由に本件をP0で再修正する。自動テストの過去PASSを物理証拠より優先しない。
 
-## 1. REQUIRED REPAIR
+## 2. REQUIRED REPAIR
 
 ### A. Top overlay non-overlap
 
@@ -50,7 +73,7 @@ Dynamic Touch Controllerを現在より明確に半透明化し、フィール�
 - visual opacityのみを主として調整し、REQ-001の操作安全性を弱めない。
 - idle/neutralはかなり薄く、active directionのみ必要十分な視認性を持たせてよい。
 
-## 2. MUST PRESERVE
+## 3. MUST PRESERVE
 
 - REQ-021: short tap → canonical `action()` exactly once。
 - drag / long-hold drag → movement。
@@ -61,7 +84,7 @@ Dynamic Touch Controllerを現在より明確に半透明化し、フィール�
 - safe-area対応。
 - save/canon/story/battle semantics。
 
-## 3. REQUIRED IMPLEMENTATION AUDIT
+## 4. REQUIRED IMPLEMENTATION AUDIT
 
 fresh HEADから最低限以下を確認してから修正する。
 
@@ -73,53 +96,29 @@ fresh HEADから最低限以下を確認してから修正する。
 
 重複した第三のlayout/controller systemを新設せず、既存authorityを修正する。
 
-## 4. AUTOMATED ACCEPTANCE
+## 5. AUTOMATED ACCEPTANCE
 
 390x844相当のiPhone portrait assembled browserで最低限次をfail-closed確認する。
 
-- [ ] top HUD / auxiliary top UIの重要矩形が互いに不正に重ならない。
-- [ ] top HUD / auxiliary controlsがsafe viewport内にある。
-- [ ] playerを北端/画面上側へ寄せたケースでplayer rectが主要HUDの遮蔽領域に埋没しない。
-- [ ] playerがviewport内で視認可能。
-- [ ] controller neutral visualが従来より明確に低opacity。
-- [ ] active directionはneutralより識別しやすい。
-- [ ] controller hit area / movement behaviorは不変。
-- [ ] tap vs drag PASS。
-- [ ] pointerup / pointercancel / blur / visibility / dialogue / battle / map transition cleanup PASS。
-- [ ] controls plane remains transparent。
-- [ ] world geometry / painted tiles / player geometry visual-liveness PASS。
-- [ ] objective / MENU / A / dialogueとの重大な衝突なし。
-- [ ] JavaScript syntax / assembled browser regression PASS。
-- [ ] Pages build/deploy SUCCESS。
+- [x] top HUD / auxiliary top UIの重要矩形が互いに不正に重ならない。
+- [x] top HUD / auxiliary controlsがsafe viewport内にある。
+- [x] playerを北端/画面上側へ寄せたケースでplayer rectが主要HUDの遮蔽領域に埋没しない。
+- [x] playerがviewport内で視認可能。
+- [x] controller neutral visualが従来より明確に低opacity。
+- [x] active directionはneutralより識別しやすい。
+- [x] controller hit area / movement behaviorは不変。
+- [x] tap vs drag PASS。
+- [x] pointerup / pointercancel / blur / visibility / dialogue / battle / map transition cleanup PASS。
+- [x] controls plane remains transparent。
+- [x] world geometry / painted tiles / player geometry visual-liveness PASS。
+- [x] objective / MENU / A / dialogueとの重大な衝突なし。
+- [x] JavaScript syntax / assembled browser regression PASS。
+- [x] Pages build/deploy SUCCESS for the integrated pre-zoom-out state.
 
-## 5. COMPLETION RULE
+## 6. COMPLETION / PHYSICAL VERIFICATION BOUNDARY
 
-コード変更だけ、CIの一部PASSだけ、またはCURRENT更新だけでは完了にしない。
-
-IMPLEMENTATION_COMPLETEに必要:
-
-1. implementation committed
-2. relevant automated acceptance PASS
-3. 390x844 touch/fullscreen visual-liveness PASS
-4. Pages SUCCESS
-5. public build inclusion confirmed
-6. WORK_QUEUE/CURRENT synchronized
+REQ-091 is not independently completed or selected further because it is superseded by REQ-085. Its valid implementation is retained and integrated there.
 
 Owner実機確認は自動でPASSにしない。
 
-`IOS_PHYSICAL_VERIFICATION = PENDING` を維持し、Ownerが公開版を物理確認した時だけ更新する。
-
-## 6. QUEUE / PREEMPTION
-
-このREQは最新Owner直接要望のP0 hot insert。
-
-- WORK_QUEUEへORDER 0として登録する。
-- lower-priority IN_PROGRESSがあれば安全にcheckpoint/suspendしてpreemptする。
-- REQ-059のBLOCKEDは本件を止めない。
-- 登録だけで終了しない。直ちに実装へ進む。
-
-## 7. NO-STOP
-
-REQ-091の実装、commit、Pages SUCCESS、VERIFY化は実行終了条件ではない。
-
-完了後はfresh HEAD → GATE C → 次の安全な仕事へ進む。
+`IOS_PHYSICAL_VERIFICATION = PENDING`
