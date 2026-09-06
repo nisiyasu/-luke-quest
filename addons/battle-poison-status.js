@@ -13,12 +13,17 @@ const style=document.createElement('style');style.textContent=`
 
 function clearPoison(){s.status=s.status||{};s.status.poison=0;}
 function battleEnded(beforeScreen,afterScreen){return beforeScreen==='battle'&&afterScreen!=='battle';}
+function shouldSanitizePoison(screen){return screen!=='battle';}
+function sanitizeBattleOnlyPoison(){if(shouldSanitizePoison(s.screen)&&s.status?.poison>0){clearPoison();return true;}return false;}
 function showTick(){if(s.screen!=='battle')return;const scene=app.querySelector('.battleScene');if(!scene)return;const e=document.createElement('div');e.className='lqPoisonTick';e.textContent=`POISON -${POISON_DAMAGE}`;scene.appendChild(e);setTimeout(()=>e.remove(),700);}
 function addPoisonUi(){
  if(s.status?.poison<=0)return;
  if(s.screen==='battle'){const line=app.querySelector('.battlePlayerLine');if(line&&!line.querySelector('.lqStatusPoison')){const c=document.createElement('span');c.className='lqStatusPoison';c.textContent=`あと${s.status.poison}T`;line.appendChild(c);}}
  if(s.pauseOpen){const hero=app.querySelector('.lqPauseHeroCopy');if(hero&&!hero.querySelector('.lqStatusPoison')){const c=document.createElement('span');c.className='lqStatusPoison';c.textContent='戦闘毒';hero.appendChild(c);}}
 }
+
+const savePoisonBase=save;save=function(...args){sanitizeBattleOnlyPoison();return savePoisonBase.apply(this,args);};
+sanitizeBattleOnlyPoison();
 
 const enemyTurnPoisonBase=enemyTurn;enemyTurn=function(g=false){
  const beforeScreen=s.screen;
@@ -38,12 +43,12 @@ const winPoisonBase=win;win=function(){clearPoison();return winPoisonBase();};
 const runPoisonBase=runAway;runAway=function(){const before=s.screen,r=runPoisonBase();if(battleEnded(before,s.screen))clearPoison();return r;};
 if(window.lqUseSmokeBomb){const smokeBase=window.lqUseSmokeBomb;window.lqUseSmokeBomb=function(){const before=s.screen,r=smokeBase();if(battleEnded(before,s.screen))clearPoison();return r;};}
 const battlePoisonBase=battle;battle=function(){const r=battlePoisonBase();addPoisonUi();return r;};
-const renderPoisonBase=render;render=function(){const r=renderPoisonBase();addPoisonUi();return r;};
+const renderPoisonBase=render;render=function(){sanitizeBattleOnlyPoison();const r=renderPoisonBase();addPoisonUi();return r;};
 window.LQ_STATUS_AILMENT_STATUS={
  poison:{
   enemies:[...POISON_ENEMIES],chance:POISON_CHANCE,damage:POISON_DAMAGE,turns:POISON_TURNS,nonlethal:true,herbCures:true,
-  battleOnly:true,cleanup:{victory:true,escape:true,smokeEscape:true,defeat:true},
-  battleEnded
+  battleOnly:true,cleanup:{victory:true,escape:true,smokeEscape:true,defeat:true,nonBattleSave:true,nonBattleLoad:true},
+  battleEnded,shouldSanitizePoison
  }
 };
 save();addPoisonUi();
