@@ -1,18 +1,18 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 23:58 JST
+- UPDATED_AT: 2026-09-07 00:02 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `efddd6b92fdc9decf11f356690d704f6a79eaebd`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `986c4dfa0a7989b3776d10a00ce6b404d043aa1f`
-- LATEST_TESTED_HEAD_SHA: `a3d5b20519689328e5aebceaede97a60830febdb`
-- LATEST_REQUIREMENT_CHECKPOINT: `2e9fd4d58dee4a3958498e680122229c6e1db093` / REQ-103 moved to VERIFY after public gate PASS
-- LATEST_QUEUE_CHECKPOINT: `efddd6b92fdc9decf11f356690d704f6a79eaebd` / REQ-098..REQ-101 drift repaired and REQ-103 synchronized VERIFY
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-103 PUBLIC GATE PASS / OWNER IPHONE CHECK PENDING`
-- LATEST_PAGES_RUN: `34040588718` / SUCCESS on HEAD `a3d5b20519689328e5aebceaede97a60830febdb`
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `cc5b79249b9831cff791ebada162aa938c91f419`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `b8d9a1fe19662f83f8b4d9e014528fe33787fe8c`
+- LATEST_TESTED_HEAD_SHA: `af73134232a9bb4a23272397abe48cf18e2e508e`
+- LATEST_REQUIREMENT_CHECKPOINT: `02f2d48323bb9e2f1a73d2cec88e1f15c804545a` / REQ-104 moved to VERIFY after public gate PASS
+- LATEST_QUEUE_CHECKPOINT: `cc5b79249b9831cff791ebada162aa938c91f419` / REQ-104 synchronized VERIFY
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-104 PUBLIC GATE PASS / OWNER IPHONE CHECK PENDING`
+- LATEST_PAGES_RUN: `34040880074` / SUCCESS on HEAD `af73134232a9bb4a23272397abe48cf18e2e508e`
 - BOOT_REALITY_AUDIT: `PASS / fresh HEAD recovered prior REQ-102 evidence, queue drift repaired, P0 touch/fullscreen controller code re-audited on fresh HEAD`
 - OWNER_PRIORITY_AUDIT: `PASS / REQ-021 -> REQ-022 -> REQ-001 current code re-audited before lower-priority autonomous work`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -22,9 +22,9 @@
 - BLOCKED_REQUIREMENTS: `REQ-059` only; generated-raster chainable handoff remains nonblocking.
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art; do not fabricate final formal art without suitable Owner-quality source authority.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091`
-- KNOWN_MANAGEMENT_DRIFT: `NONE / prior REQ-098..REQ-101 omission repaired at 2dade29a3a6c3e73972fbc03323775a35e202f67; REQ-103 queue projection added at efddd6b92fdc9decf11f356690d704f6a79eaebd.`
-- NEXT_ACTION: fresh-audit the adjacent northCliffRoad landmark-lighting coverage gap and, only if confirmed, register/implement the next safe player-visible continuity requirement under WIP=1.
-- NEXT_ACTION_COMPLETION_CONDITION: any selected next requirement must reach implementation + fail-closed regression + assembled browser + 390x844 touch/fullscreen + Pages SUCCESS before VERIFY. Physical iPhone verification remains explicit PENDING unless Owner confirms.
+- KNOWN_MANAGEMENT_DRIFT: `NONE / REQ-098..REQ-101 omission repaired; REQ-103 and REQ-104 both synchronized VERIFY.`
+- NEXT_ACTION: fresh-audit a higher-value player-experience gap beyond the now-complete northCliffRoad/windcutPass landmark-light continuity, prioritizing playable progression/readability over cosmetic micro-fragmentation.
+- NEXT_ACTION_COMPLETION_CONDITION: selected work must be grounded in fresh code, protected canon must remain unchanged, WIP=1, and any implementation must reach fail-closed regression + assembled browser + 390x844 touch/fullscreen + Pages SUCCESS before VERIFY. Physical iPhone verification remains explicit PENDING unless Owner confirms.
 
 ## OWNER P0 — REQ-102
 
@@ -80,6 +80,28 @@
 - Pages deployment: PASS.
 - IOS_PHYSICAL_VERIFICATION: PENDING.
 
+## REQ-104 — NORTH CLIFF LANDMARK LIGHTING
+
+- STATUS: `VERIFY`.
+- Fresh adjacent-route audit confirmed canonical `northCliffRoad` still had zero landmark-light coverage after REQ-103.
+- Added two restrained `cliff` glints to existing canonical route landmarks only: broken safety stake `(15,12)` and north-turn boundary `(10,1)`.
+- No gameplay gate, clue meaning, collision, encounter, save, story or pointer behavior changed.
+- REQ-103 windcutPass=2 wind glints and existing town=4 / forest=1 / observation=4 coverage remain protected by a late fail-closed smoke.
+- Requirement checkpoint: `e2ebe30695b0dbb60d82b14bb68aa9808fcc77f4`.
+- Implementation checkpoint: `b8d9a1fe19662f83f8b4d9e014528fe33787fe8c`.
+- Smoke checkpoint: `af73134232a9bb4a23272397abe48cf18e2e508e`.
+- Requirement close checkpoint: `02f2d48323bb9e2f1a73d2cec88e1f15c804545a`.
+- Queue sync checkpoint: `cc5b79249b9831cff791ebada162aa938c91f419`.
+- Pages run `34040880074`: SUCCESS on smoke-containing HEAD `af73134232a9bb4a23272397abe48cf18e2e508e`.
+- JavaScript/static regression: PASS.
+- add-on contract: PASS.
+- assembled browser smoke: PASS.
+- 390x844 floating touch + iPhone visual-liveness: PASS.
+- REQ-081 north-cliff road browser smoke: PASS.
+- REQ-082 north-cliff encounters browser smoke: PASS.
+- Pages deployment: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
+
 ## REQ-101 RECOVERY
 
 - Requirement file was still `IN_PROGRESS` even though implementation commit `dd4e444e9d69094b66136f651330623a2a7582f3` and Pages run `34035907648` had already succeeded.
@@ -110,7 +132,7 @@ Every future execution must fresh-load repository metadata, actual default branc
 
 - do not re-run/reimplement REQ-102 merely because an older CURRENT snapshot said it was pending
 - do not re-run/reimplement REQ-101; its implementation and Pages success are already proven
-- do not re-run REQ-103 after its public gate PASS unless a fresh regression is found
+- do not re-run REQ-103 or REQ-104 after public gate PASS unless a fresh regression is found
 - no physical-iPhone PASS from headless/browser CI
 - never regress REQ-034 Owner-confirmed physical PASS
 - do not weaken REQ-021/022/001/023 while adding later capabilities
