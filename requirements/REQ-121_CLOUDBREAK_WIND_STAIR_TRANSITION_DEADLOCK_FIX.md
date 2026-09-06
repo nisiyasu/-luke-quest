@@ -1,6 +1,6 @@
 # REQ-121 — Cloudbreak → Wind Stair Transition Deadlock Fix
 
-STATUS: READY
+STATUS: IN_PROGRESS
 PRIORITY: P0
 TYPE: SEVERE_GAMEPLAY_BUG / STORY_PROGRESSION_BLOCKER / OWNER_IPHONE_REPRODUCED
 OWNER_REQUEST_DATE: 2026-09-07 JST
@@ -81,5 +81,9 @@ WIP remains 1. If a genuinely active IN_PROGRESS requirement exists at fresh boo
 Implementation may move to VERIFY only after the public build contains the fix and automated progression/regression gates pass.
 
 `IOS_PHYSICAL_VERIFICATION: PENDING` until Owner retries the published build and confirms the stone-step transition works.
+
+## 6. EXECUTION CHECKPOINT
+
+- 2026-09-07 JST: selected under latest Owner P0 authority after fresh HEAD/QUEUE/CURRENT recovery. Implementation work started.
 
 EOF
