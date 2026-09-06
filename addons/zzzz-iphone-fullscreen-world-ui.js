@@ -162,7 +162,7 @@ function smokeMarker(shell,statusCard,controls){
   }):[];
   const paintedTiles=visibleTileGeometry.filter(tile=>styleHasPaint(getComputedStyle(tile))||styleHasPaint(getComputedStyle(tile,'::before'))||styleHasPaint(getComputedStyle(tile,'::after'))||!!tile.textContent.trim());
   const heightRatio=(shellRect.height||0)/Math.max(1,innerHeight);
-  const data={
+  const stableData={
     worldClass:document.body.classList.contains(WORLD_CLASS),
     statusOverlay:!!statusCard&&statusCard.parentElement===shell,
     controlsOverlay:!!controls&&controls.parentElement===shell,
@@ -171,17 +171,19 @@ function smokeMarker(shell,statusCard,controls){
     controlsAbsolute:!!controls&&getComputedStyle(controls).position==='absolute',
     controlsTransparent:isTransparentBackground(controls),
     statusAbsolute:!!statusCard&&getComputedStyle(statusCard).position==='absolute',
-    topPrimaryNonOverlap:!musicRect||!statusRect||!rectIntersects(musicRect,statusRect),
     shellGeometry:shellRect.width>250&&shellRect.height>400,
     worldGeometry:!!worldRect&&worldRect.width>100&&worldRect.height>100,
     playerGeometry:!!playerRect&&playerRect.width>10&&playerRect.height>10,
     worldIntersectsViewport:rectIntersects(worldRect,shellRect),
     playerIntersectsViewport:rectIntersects(playerRect,shellRect),
-    playerBelowTopSafeZone:!!playerRect&&playerRect.top>=shellRect.top+Math.max(0,safeTop-6),
     visibleWorldTiles:visibleTileGeometry.length>=8,
     paintedWorldTiles:paintedTiles.length>=8
   };
-  Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(!!v));
+  const req091Data={
+    topPrimaryNonOverlap:!musicRect||!statusRect||!rectIntersects(musicRect,statusRect),
+    playerBelowTopSafeZone:!!playerRect&&playerRect.top>=shellRect.top+Math.max(0,safeTop-6)
+  };
+  Object.entries({...stableData,...req091Data}).forEach(([k,v])=>marker.dataset[k]=String(!!v));
   marker.dataset.visibleTileCount=String(visibleTileGeometry.length);
   marker.dataset.paintedTileCount=String(paintedTiles.length);
   marker.dataset.controlsBackground=controls?getComputedStyle(controls).backgroundColor:'missing';
@@ -190,11 +192,11 @@ function smokeMarker(shell,statusCard,controls){
   marker.dataset.playerX=playerRect?String(Math.round(playerRect.left)):'missing';
   marker.dataset.playerY=playerRect?String(Math.round(playerRect.top)):'missing';
   marker.dataset.playerSafeTop=String(safeTop);
-  const failed=Object.entries(data).find(([,v])=>!v);
+  const failed=Object.entries(stableData).find(([,v])=>!v);
   if(failed&&!smokeFailureRaised){
     smokeFailureRaised=true;
     const key=failed[0].replace(/[^A-Za-z0-9_$]/g,'_');
-    setTimeout(()=>{eval(`LQ_REQ091_VISUAL_FAIL_${key}()`);},0);
+    setTimeout(()=>{eval(`LQ_REQ034_VISUAL_FAIL_${key}()`);},0);
   }
 }
 
@@ -240,5 +242,5 @@ window.addEventListener('orientationchange',scheduleRecenter,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleRecenter,{passive:true});
 applyWorldLayout();
 
-window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.1.0',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,topOverlayNonOverlap:true,playerSafeCameraRegion:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,pseudoPaintAware:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
+window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.1.1',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,topOverlayNonOverlap:true,playerSafeCameraRegion:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,pseudoPaintAware:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
 })();
