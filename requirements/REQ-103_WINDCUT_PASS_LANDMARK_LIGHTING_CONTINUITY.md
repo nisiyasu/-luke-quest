@@ -1,6 +1,6 @@
 # REQ-103 — Windcut Pass Landmark Lighting Continuity
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 OWNER_SOURCE: AUTONOMOUS_DEV_DIRECTIVE / WORK_QUEUE selection rule 8 after fresh audit of player-visible unfinished coverage
 CREATED_AT: 2026-09-06 Asia/Tokyo
@@ -11,11 +11,11 @@ CANONICAL_BRANCH: main
 
 `windcutPass` is already a canonical walkable continuation area with route guidance, regional battle background, area title, ambient layer, cloud shadows, terrain footsteps, and journal continuity.
 
-Fresh HEAD audit found that `addons/world-landmark-lighting.js` only covers `town`, `forest`, and `observation`.
+Fresh HEAD audit found that `addons/world-landmark-lighting.js` only covered `town`, `forest`, and `observation`.
 
-Therefore the newest first-chapter route can visually lose the landmark-lighting depth language used elsewhere, even though its actual clue / sign / north-boundary objects are already canonical and player-visible.
+Therefore the newest first-chapter route could visually lose the landmark-lighting depth language used elsewhere, even though its actual clue / sign / north-boundary objects were already canonical and player-visible.
 
-This is a presentation continuity gap, not a gameplay-gate defect.
+This was a presentation continuity gap, not a gameplay-gate defect.
 
 ## 2. Goal
 
@@ -50,34 +50,41 @@ Preserve all existing `world-landmark-lighting.js` behavior:
 
 ## 5. Verification contract
 
-Add a late fail-closed smoke contract that verifies at minimum:
+A late fail-closed smoke contract verifies:
 
 - runtime landmark-light status API is present
-- `windcutPass` has the intended cold landmark coverage
+- `windcutPass` has exactly two intended cold `wind` landmark glints
+- glints are attached to the canonical tilted sign `(15,13)` and north boundary `(10,1)` positions
 - existing town / forest / observation counts are unchanged
 - unknown map fallback remains empty
 - coverage is presentation-only / pointer-safe
 
-The smoke must not mutate gameplay state.
+The smoke does not mutate gameplay state.
 
 ## 6. Public completion gate
 
-Do not claim IMPLEMENTATION_COMPLETE merely because source code exists.
+Implementation checkpoints:
 
-Required before moving to VERIFY:
+- requirement registration: `76c9aeb9b479268efc98b25af0b97c10995aa3f9`
+- landmark-light implementation: `986c4dfa0a7989b3776d10a00ce6b404d043aa1f`
+- fail-closed smoke: `a3d5b20519689328e5aebceaede97a60830febdb`
 
-- JavaScript / static guards PASS
-- add-on contract PASS
-- assembled browser smoke PASS
-- 390x844 touch/fullscreen regression PASS
-- GitHub Pages workflow SUCCESS on a HEAD containing this implementation
-- deployed build includes the updated landmark-lighting add-on and smoke
+GitHub Pages workflow:
 
-IOS_PHYSICAL_VERIFICATION may remain PENDING for subjective visual feel.
+- run: `34040588718`
+- tested HEAD: `a3d5b20519689328e5aebceaede97a60830febdb`
+- conclusion: SUCCESS
+- static regression guard: PASS
+- add-on contract guard: PASS
+- assembled browser smoke: PASS
+- 390x844 floating touch + iPhone world visual-liveness smoke: PASS
+- Pages deploy: PASS
+
+IOS_PHYSICAL_VERIFICATION remains PENDING for subjective visual feel.
 
 ## 7. Protected boundaries
 
-Do not change:
+Unchanged:
 
 - protected story canon
 - `withdrawProofSeen` authority
@@ -89,6 +96,6 @@ Do not change:
 
 ## 8. Completion state
 
-IMPLEMENTATION_COMPLETE: NO
-PAGES_VERIFIED: NO
+IMPLEMENTATION_COMPLETE: YES
+PAGES_VERIFIED: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
