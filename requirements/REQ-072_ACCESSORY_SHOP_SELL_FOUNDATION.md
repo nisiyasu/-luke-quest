@@ -53,9 +53,11 @@ Completion is a checkpoint, not a stop condition. Run GATE C and continue if saf
 - Successful sale removes the owned accessory, adds exactly 30G, calls canonical `save()`, re-renders, and allows re-buy through the existing REQ-058 purchase authority.
 - SELL UI appears only for owned accessories, shows ACCESSORY + 30G, disables sale while equipped, and deduplicates on repeated render/world calls.
 - Added `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-accessory-shop-sell-smoke.js` covering unowned/equipped rejection, exact sell value, unrelated-state preservation, re-buy, duplicate-row prevention and equipped-button disablement.
+- Self-audit then found the first acceptance revision protected a fabricated `s.inventory` object instead of LUKE QUEST's canonical consumable fields. Fresh `consumable-shop-sell.js` reality confirmed canonical `potions` and `smokeBombs`; the smoke was hardened to preserve/assert those real fields.
 - Checkpoints:
   - `8b655777fedf8c35e73bbb53bccbd712a95c498a` — requirement registration.
   - `14d354e37a05df8fdfa965bdc74b6e078255568b` — implementation.
   - `f1538687015c4255dae1bf97c478564ddc17ac60` — dedicated acceptance.
-- Pages workflow run `34018459925`: SUCCESS. Sequential patch validation, collision-safe add-ons, static/add-on contracts, autosave/raster/Luke asset gates, assembled browser smoke, 390x844 floating-touch + iPhone world visual-liveness, upload and Pages deploy all passed.
+  - `dfb4421f25ce9c090bd93b03116eb98578b4d2fd` — canonical consumable acceptance hardening.
+- Pages workflow run `34018553794`: SUCCESS after the hardened acceptance. Sequential patch validation, collision-safe add-ons, static/add-on contracts, autosave/raster/Luke asset gates, assembled browser smoke, 390x844 floating-touch + iPhone world visual-liveness, upload and Pages deploy all passed.
 - `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
