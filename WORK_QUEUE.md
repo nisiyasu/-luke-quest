@@ -112,6 +112,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 98 | REQ-099 | P1 | VERIFY | 風切り峠・terrain footstep演出の連続性 | `requirements/REQ-099_WINDCUT_PASS_FOOTSTEP_CONTINUITY.md` | windcutPassを既存footstep OUTDOOR/mist分類へ接続。transition/reduced-motion/unknown fallback保持。Pages run 34033788915 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 | 99 | REQ-100 | P1 | VERIFY | 風切り峠・cross-system coverage self-audit guard | `requirements/REQ-100_WINDCUT_PASS_CROSS_SYSTEM_COVERAGE_GUARD.md` | canonical windcutPassのguidance/battle/title/ambient/cloud/footstep coverageをlate-loading fail-closed smokeで固定。Pages run 34033921077 SUCCESS。IOS_PHYSICAL_VERIFICATION=NOT_REQUIRED_FOR_GATE。 |
 | 100 | REQ-101 | P1 | VERIFY | 風切り峠・冒険ジャーナル目的地整合 | `requirements/REQ-101_WINDCUT_PASS_JOURNAL_OBJECTIVE_CONTINUITY.md` | windcutPass到着後のMAIN OBJECTIVEを現在地に整合。northCliffRoad/generic fallback保持。Pages run 34035907648 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
+| 101 | REQ-103 | P1 | VERIFY | 風切り峠・ランドマーク照明の連続性 | `requirements/REQ-103_WINDCUT_PASS_LANDMARK_LIGHTING_CONTINUITY.md` | 傾いた道標と北尾根境界へcold wind glintを追加。既存town/forest/observation lightingを保持し、late fail-closed smokeで固定。Pages run 34040588718 SUCCESS on `a3d5b205...`。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 
 ## STATUS DEFINITIONS
 
