@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 14:36 JST
+- UPDATED_AT: 2026-09-06 14:40 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,12 +8,12 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `5eef990aa04e81dc35ddf345064301c393f1588f`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `ffa0a2b046e7fa1fdc3fbfade92e694338e4a654`
-- LATEST_REQUIREMENT_CHECKPOINT: `b9e15165f717602e99e09a998d416f8131255de7`
-- LATEST_QUEUE_CHECKPOINT: `5eef990aa04e81dc35ddf345064301c393f1588f`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-057 AUTOMATED ACCEPTANCE SUCCESS`
-- LATEST_PAGES_RUN: `34014292725` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `be77d975d4b01158126a1fdb9ee9b8a9393ebe9c`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `916a700ddb40dafd6201ef8e8d1b3bdef8383697`
+- LATEST_REQUIREMENT_CHECKPOINT: `5d0a633268a5cce63e4c0c1685b762282f8119d8`
+- LATEST_QUEUE_CHECKPOINT: `be77d975d4b01158126a1fdb9ee9b8a9393ebe9c`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-058 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34014440476` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -24,7 +24,7 @@
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-055`, `REQ-056`, `REQ-057`
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-056`, `REQ-057`, `REQ-058`
 - NEXT_ACTION: fresh-audit existing final-game capability inventory for the next non-duplicate player-visible defect/capability; register/execute it under WIP=1, verify, publish, synchronize, then continue
 - NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
@@ -125,12 +125,21 @@
 
 ### REQ-057 — Stackable Shop Sell Quantity
 - STATUS: `VERIFY`
-- REQ-055 single sell authority now supports explicit x1/x3 quantities for herbs and smoke bombs.
+- REQ-055 single sell authority supports explicit x1/x3 quantities for herbs and smoke bombs.
 - x3 rejects insufficient inventory rather than silently clamping; unsupported qty and out-of-shop calls also reject without save/gold mutation.
 - x1 compatibility and existing x1/x3 buying remain intact.
-- dedicated REQ-057 acceptance plus REQ-055 regression, assembled browser and 390x844 touch/fullscreen all PASS.
-- Pages run `34014292725` SUCCESS.
+- Pages run `34014292725` SUCCESS including REQ-055 regression, assembled browser and 390x844 touch/fullscreen.
 - physical/subjective iPhone shop feel verification PENDING.
+
+### REQ-058 — Accessory Equipment Foundation
+- STATUS: `VERIFY`
+- a real third equipment slot now exists with `旅人の護符` (60G, DEF +1 while equipped).
+- ownership/equipped state uses canonical persisted flags while active accessory bonus reconciles through canonical DEF arithmetic.
+- shop purchase, auto-equip, explicit `はずす`, re-equip and no-double-stack behavior are implemented.
+- cross-tier armor swapping preserves the accessory bonus; dedicated acceptance verifies 補強革鎧 + accessory -> 革の旅装 yields DEF3 rather than dropping or duplicating the +1.
+- existing weapon/armor/Tier II regressions remain PASS.
+- Pages run `34014440476` SUCCESS: syntax/add-on/static/equipment/assembled browser/390x844 touch+visual/upload/deploy all PASS.
+- physical/subjective iPhone equipment-menu/shop readability PENDING.
 
 ## SELF_REPAIR_ACTIONS THIS EXECUTION
 
@@ -142,8 +151,11 @@
 6. Fresh equipment/shop audit found Tier II comparison existed while base-shop comparison did not; registered/implemented REQ-056 as UI-only comparison with full regressions PASS.
 7. Fresh shop UX audit found x1/x3 buying but only x1 selling; registered/implemented REQ-057 by extending REQ-055's same authority rather than duplicating economy logic.
 8. REQ-057 dedicated acceptance, REQ-055 regression, assembled browser, 390x844 touch/fullscreen and Pages deploy all passed in run `34014292725`.
-9. REQ-055/056/057 are VERIFY; physical iPhone checks remain PENDING.
-10. CONTINUE remains required because safe directive-authorized final-game work still exists.
+9. Fresh equipment audit confirmed accessory was the directive-listed missing third equipment capability and that existing armor delta reconciliation could safely preserve an independent accessory DEF bonus.
+10. Registered/implemented REQ-058 with persistent ownership/equip flags, shop/menu integration and delta-safe DEF reconciliation.
+11. REQ-058 dedicated accessory acceptance, existing equipment regression, assembled browser, 390x844 touch/fullscreen and Pages deploy all passed in run `34014440476`.
+12. REQ-055/056/057/058 are VERIFY; physical iPhone checks remain PENDING.
+13. CONTINUE remains required because safe directive-authorized final-game work still exists.
 
 ## MANDATORY BOOT / RECOVERY
 
@@ -172,5 +184,6 @@ Every future execution must freshly obtain and apply repository metadata/default
 - do not let corrupt canonical numeric types reach runtime arithmetic/UI assumptions
 - do not bind deferred player feedback only to transient DOM when canonical flow can replace it synchronously
 - do not weaken an older fail-closed P0 gate to make a new acceptance pass
+- do not double-apply accessory stat bonus on load/render/re-equip
 - do not use CURRENT as implementation truth when fresh HEAD differs
 - do not self-terminate while safe executable work remains
