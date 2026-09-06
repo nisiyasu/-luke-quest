@@ -10,7 +10,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | ORDER | ID | PRIORITY | STATUS | TITLE | REQUIREMENT | NOTE |
 |---:|---|---|---|---|---|---|
-| 0 | REQ-085 | P0 | READY | iPhone Field UI Occlusion / Camera Framing Fix | `requirements/REQ-085_IPHONE_FIELD_UI_OCCLUSION_CAMERA_FRAMING.md` | 最新Owner実機報告。上部UI重なり、playerがHUD裏へ隠れる、Dynamic Touchが濃すぎる、field cameraがアップ過ぎる問題を一体修正。390x844 + Pages + public build必須、Owner実機最終確認はPENDING。 |
+| 0 | REQ-092 | P0 | VERIFY | iPhone Field UI Occlusion / Camera Framing Fix | `requirements/REQ-092_IPHONE_FIELD_UI_OCCLUSION_CAMERA_FRAMING.md` | 最新Owner実機報告4点を統合。上部UI重なり、playerのHUD裏隠れ、Dynamic Touch透明化、portrait camera 0.88 zoom-outを実装。Pages run 34031527694 SUCCESS。Owner実機最終確認はPENDING。旧誤登録REQ-085はID衝突をfresh inventoryで検知しREQ-092へ復旧。 |
 | 1 | REQ-059 | P0 | BLOCKED | Autonomous Generated Raster Image Pipeline Capability Test | `requirements/REQ-059_AUTONOMOUS_GENERATED_IMAGE_PIPELINE_CAPABILITY_TEST.md` | RESULT=PARTIAL/BLOCKED_AT_GENERATED_BYTE_HANDOFF。GitHub binary-safe blob transportは実証済み。生成画像→bytes/file/base64のchainable handoffのみ未提供。単一blockerとして開発を止めない。 |
 | 2 | REQ-034 | P0 | DONE | iPhone公開版 world/map 黒画面修正 | `requirements/REQ-034_IPHONE_BLACK_WORLD_SCREEN.md` | fullscreen world plane geometry + transparent controls planeをhardening。390x844 visual-liveness + integrated touch gate追加。Pages run 34006670133 SUCCESS。Owner iPhone実機で「うん、直った」と確認、IOS_PHYSICAL_VERIFICATION=PASS |
 | 3 | REQ-021 | P0 | VERIFY | 画面のどこを短くタップしてもAアクション | `requirements/REQ-021_TAP_ANYWHERE_ACTION.md` | unified pointer surfaceをfresh再監査。tap=canonical Action 1回、drag/cancel/stale transition=no Action。dialogue開始途中のpointer cleanupも再監査・hardening。390x844 integrated touch gate Pages run 34024686626 SUCCESS。Owner iPhone実機確認待ち |
@@ -95,6 +95,13 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 82 | REQ-082 | P1 | VERIFY | 北の崖道・通常エンカウント統合 | `requirements/REQ-082_NORTH_CLIFF_ENCOUNTER_INTEGRATION.md` | northCliffRoadを既存canonical random encounterへ接続しEVAC_ENEMIESを再利用。entry/return grace、dedicated browser、390x844 touch/fullscreen、Pages run 34025554356 SUCCESS。Owner実機確認待ち。 |
 | 83 | REQ-083 | P1 | VERIFY | 北の崖道・ローカル進行導線 | `requirements/REQ-083_NORTH_CLIFF_LOCAL_GUIDANCE.md` | 新しい足跡→北へ曲がる崖道をcompact objective + presentation-only markerで案内。canonical action/save/story/encounter非変更。初回CIでtest-order競合を自己検知・修復。Pages run 34026070789 SUCCESS。Owner iPhone導線感確認待ち。 |
 | 84 | REQ-084 | P1 | VERIFY | 北の崖道・冒険ジャーナル目的地整合 | `requirements/REQ-084_NORTH_CLIFF_JOURNAL_OBJECTIVE_CONTINUITY.md` | 到着後も「北の崖道へ向かう」と出るstale objectiveをlocation-aware化。pure helper acceptance、既存s.wins contract維持、HTML escape drift自己修復。Pages run 34026388737 SUCCESS。Owner iPhone可読性確認待ち。 |
+| 85 | REQ-085 | P1 | VERIFY | 北の崖道・地域別戦闘背景の連続性 | `requirements/REQ-085_NORTH_CLIFF_BATTLE_BACKGROUND_CONTINUITY.md` | Fresh requirement inventory recovery。canonical northCliffRoadをregional battle backdropへ統合済み。requirement自身のSTATUS=VERIFY、Owner実機見た目確認PENDING。 |
+| 86 | REQ-086 | P1 | VERIFY | 北の崖道・エリアタイトル演出の連続性 | `requirements/REQ-086_NORTH_CLIFF_AREA_TITLE_CARD_CONTINUITY.md` | Fresh requirement inventory recovery。canonical northCliffRoadのarea-title continuityを実装済み。requirement自身のSTATUS=VERIFY。 |
+| 87 | REQ-087 | P1 | VERIFY | 北の崖道・world ambient演出の連続性 | `requirements/REQ-087_NORTH_CLIFF_WORLD_AMBIENT_CONTINUITY.md` | Fresh requirement inventory recovery。northCliffRoadをworld ambient registryへ統合済み。requirement自身のSTATUS=VERIFY。 |
+| 88 | REQ-088 | P1 | VERIFY | 北の崖道・cloud shadow演出の連続性 | `requirements/REQ-088_NORTH_CLIFF_CLOUD_SHADOW_CONTINUITY.md` | Fresh requirement inventory recovery。northCliffRoadのoutdoor/cloud-shadow coverageを統合済み。requirement自身のSTATUS=VERIFY。 |
+| 89 | REQ-089 | P1 | VERIFY | 北の崖道・terrain footstep演出の連続性 | `requirements/REQ-089_NORTH_CLIFF_FOOTSTEP_CONTINUITY.md` | Fresh requirement inventory recovery。northCliffRoadのterrain-aware footstep coverageを統合済み。requirement自身のSTATUS=VERIFY。 |
+| 90 | REQ-090 | P1 | VERIFY | 北の崖道・cross-system coverage self-audit guard | `requirements/REQ-090_NORTH_CLIFF_CROSS_SYSTEM_COVERAGE_GUARD.md` | Fresh requirement inventory recovery。canonical northCliffRoadの主要presentation/導線coverage driftをPages前にfail-closed検知するguard。STATUS=VERIFY。 |
+| 91 | REQ-091 | P0 | SUPERSEDED | iPhone Field UI Occlusion / Safe Player Visibility / Controller Transparency Fix | `requirements/REQ-091_IPHONE_FIELD_UI_OCCLUSION_FIX.md` | 最初の3 defectを並行実装した有効履歴。Owner追加のzoom-outを含む完全版REQ-092へSUPERSEDED。実装commitはREQ-092へ再利用。 |
 
 ## STATUS DEFINITIONS
 
