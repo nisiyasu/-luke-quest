@@ -1,6 +1,6 @@
 # REQ-047 — Critical Final-Blow Feedback
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: BUGFIX / BATTLE / FEEDBACK / PLAYER-VISIBLE
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,48 +8,74 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## PLAYER-VISIBLE GAP FOUND BY FRESH AUDIT
 
-Fresh inspection of `addons/critical-hit.js` after REQ-045 confirms the critical stat path is now persistence-safe, but its visible cue can disappear exactly on a critical killing blow.
+Fresh inspection of `addons/critical-hit.js` after REQ-045 confirmed the critical stat path was persistence-safe, but its visible cue could disappear exactly on a critical killing blow.
 
-Current sequence:
+Previous sequence:
 
-1. critical wrapper calls canonical `attack()`;
-2. if enemy HP reaches zero, canonical `attack()` synchronously calls `win()`;
-3. canonical `win()` switches to world and `render()` replaces the battle DOM;
-4. only after the attack returns, critical wrapper schedules `requestAnimationFrame(flash)`;
-5. `flash()` immediately returns unless `s.screen==='battle'`, and also requires `.battleScene` to still exist.
+1. critical wrapper called canonical `attack()`;
+2. if enemy HP reached zero, canonical `attack()` synchronously called `win()`;
+3. canonical `win()` switched to world and `render()` replaced the battle DOM;
+4. only after attack returned, the critical wrapper scheduled `requestAnimationFrame(flash)`;
+5. `flash()` returned unless `s.screen==='battle'` and required `.battleScene` to still exist.
 
-Therefore a non-killing critical can show `CRITICAL!`, while the more important final critical hit can lose its dedicated visual feedback because the battle scene has already been destroyed.
+Therefore a non-killing critical could show `CRITICAL!`, while the more important final critical hit could lose its dedicated visual feedback because the battle scene had already been destroyed.
 
-This requirement repairs presentation only. REQ-045 remains the authority for critical ATK persistence safety.
+REQ-045 remains the authority for critical ATK persistence safety.
 
-## REQUIRED REPAIR
+## IMPLEMENTED REPAIR
 
-1. Preserve critical rate 10% and temporary ATK bonus +5.
-2. Preserve REQ-045 save-safety and canonical-delta preservation.
-3. Do not delay or duplicate canonical victory/progression.
-4. Make the critical cue survive the synchronous battle -> world transition on a killing blow.
-5. Keep the cue pointer-safe, non-stacking and self-cleaning.
-6. Prefer a document-level fixed presentation layer so it is not destroyed with `.battleScene`.
-7. Preserve reduced-motion accessibility.
-8. Do not show the cue for non-critical attacks.
-9. Expose a read-only presentation contract / smoke preview for fail-closed acceptance.
+`addons/critical-hit.js` now keeps the critical presentation independent of battle DOM while preserving all REQ-045 stat safety:
 
-## AUTOMATED ACCEPTANCE
+- critical rate remains 10%;
+- temporary ATK bonus remains +5;
+- save-safe temporary ATK normalization and canonical-delta preservation remain unchanged;
+- critical cue now renders as a document-level fixed layer rather than inside `.battleScene`;
+- the cue no longer requires `s.screen==='battle'` when its deferred frame runs, so a synchronous killing blow/victory transition cannot erase it before presentation;
+- each presentation removes an older cue first, preventing stacking;
+- cue remains `pointer-events:none`;
+- animation-end cleanup plus timeout fallback are retained;
+- reduced-motion duration is shortened;
+- canonical victory/progression remains synchronous and is not delayed or duplicated.
 
-Acceptance must prove:
+Implementation commit: `4641ae8fb2c9130e183ed55b135f9ef3a6adaaeb`.
 
-- critical rate and +5 bonus unchanged;
-- REQ-045 save/delta safety remains declared;
-- presentation is battle-DOM-independent / final-blow-safe;
-- cue layer is pointer-safe and self-cleaning;
-- smoke preview can render the cue even when current screen is not battle;
-- repeated preview does not stack multiple cue layers;
-- assembled browser smoke and 390x844 iPhone world/touch liveness remain PASS;
-- Pages deployment succeeds.
+## DEDICATED ACCEPTANCE
+
+Added:
+
+`addons/zzzzzzzzzzzzzzzzzzzzzzzzzzz-critical-final-blow-feedback-smoke.js`
+
+Commit: `0b7daa50e895baf1df317f47da117205f3f2ebf1`.
+
+Under `lqTouchSmoke` it fails closed unless:
+
+- rate remains 0.10;
+- bonus remains +5;
+- REQ-045 save safety remains declared;
+- canonical ATK delta preservation remains declared;
+- presentation declares final-blow safety and battle-DOM independence;
+- rendered cue is pointer-safe;
+- two immediate previews still produce exactly one active cue layer;
+- reduced-motion support remains declared;
+- preview can render without changing the current screen.
+
+## VERIFICATION EVIDENCE
+
+Pages workflow run `34010537279`: SUCCESS.
+
+PASS steps include:
+
+- sequential JavaScript validation;
+- collision-safe add-on validation;
+- static regression guard;
+- add-on contract guard;
+- assembled browser smoke;
+- 390x844 floating-touch + iPhone world visual-liveness smoke;
+- Pages upload/deploy.
 
 ## COMPLETION CONDITION
 
-Requirement + minimal presentation repair + dedicated acceptance committed, relevant CI/browser/touch tests PASS, Pages SUCCESS, queue/current synchronized.
+Automated implementation completion is satisfied.
 
 Physical/subjective feel remains `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
