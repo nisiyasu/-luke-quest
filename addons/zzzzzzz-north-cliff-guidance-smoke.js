@@ -1,10 +1,12 @@
 (() => {
 'use strict';
 
-/* REQ-083 browser acceptance. Reuses the existing 390x844 lqTouchSmoke gate. */
+/* REQ-083 browser acceptance. Reuses the existing 390x844 lqTouchSmoke gate,
+   but must never mutate shared runtime state while the canonical REQ-001/021
+   input smoke is still exercising pointer sequences. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
-setTimeout(()=>{
+function runReq083Smoke(){
   const snapshot=structuredClone(s);
   let entryObjective=false,footMarker=false,canonicalInteraction=false,northObjective=false,northMarker=false,footGone=false,outsideGone=false;
   try{
@@ -35,11 +37,22 @@ setTimeout(()=>{
 
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
     const marker=document.createElement('i');marker.id='lqNorthCliffGuidanceSmokeMarker';marker.hidden=true;
-    marker.dataset.entryObjective=String(entryObjective);marker.dataset.footMarker=String(footMarker);marker.dataset.canonicalInteraction=String(canonicalInteraction);marker.dataset.northObjective=String(northObjective);marker.dataset.northMarker=String(northMarker);marker.dataset.footGone=String(footGone);marker.dataset.outsideGone=String(outsideGone);
+    marker.dataset.entryObjective=String(entryObjective);marker.dataset.footMarker=String(footMarker);marker.dataset.canonicalInteraction=String(canonicalInteraction);marker.dataset.northObjective=String(northObjective);marker.dataset.northMarker=String(northMarker);marker.dataset.footGone=String(footGone);marker.dataset.outsideGone=String(outsideGone);marker.dataset.serializedAfterCoreTouch='true';
     document.body.appendChild(marker);
   }catch(err){
     const failure=document.createElement('i');failure.id='lqFloatingTouchSmokeFailure';failure.dataset.reason='REQ-083 north cliff guidance smoke exception: '+String(err?.message||err);failure.hidden=true;document.body.appendChild(failure);
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
   }
-},420);
+}
+
+let polls=0;
+const waitForCoreTouch=setInterval(()=>{
+  polls++;
+  const core=document.getElementById('lqFloatingTouchRuntimeSmokeMarker');
+  if(core){clearInterval(waitForCoreTouch);setTimeout(runReq083Smoke,40);return;}
+  if(polls>=45){
+    clearInterval(waitForCoreTouch);
+    const failure=document.createElement('i');failure.id='lqFloatingTouchSmokeFailure';failure.dataset.reason='REQ-083 waited for canonical touch smoke marker but it never completed';failure.hidden=true;document.body.appendChild(failure);
+  }
+},40);
 })();
