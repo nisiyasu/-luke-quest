@@ -1,6 +1,6 @@
 # REQ-110 — Mobile Resume Orientation Toast
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: MOBILE UX / ORIENTATION / PRESENTATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -64,7 +64,7 @@ REQ-021 / REQ-022 / REQ-001 remain protected:
 
 ## 7. ACCEPTANCE
 
-Fail-closed runtime acceptance must verify:
+Fail-closed runtime acceptance verifies:
 
 - canonical current area is used
 - Adventure Journal main objective is reused
@@ -77,11 +77,9 @@ Fail-closed runtime acceptance must verify:
 - save/story/gate authority is not mutated
 - P0 input/fullscreen status remains present
 
-Broken REQ-110 must emit a dedicated failure marker and fail assembled browser smoke before Pages upload.
+Broken REQ-110 emits a dedicated failure marker and throws during assembled browser smoke before Pages upload.
 
 ## 8. PUBLIC GATE
-
-Before VERIFY:
 
 - JavaScript syntax PASS
 - static regression PASS
@@ -93,9 +91,16 @@ Before VERIFY:
 
 ## 9. COMPLETION STATE
 
-IMPLEMENTATION_COMPLETE: NO
-PAGES_VERIFIED: NO
+IMPLEMENTATION_COMPLETE: YES
+PAGES_VERIFIED: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+Implementation checkpoint: `d7be318418b624a7e2a741bb306d2153f91d9985`
+Pages workflow: `34046939401` / SUCCESS
+
+Implemented as `addons/mobile-resume-orientation-toast.js`, injected through the existing Pages add-on assembly. It listens only to `visibilitychange`, preserves the existing hidden-state movement stop authority, and on a later visible transition shows a transient pointer-safe orientation toast only when the current game screen is world. Area derives from canonical `MAPS`; NOW reuses Adventure Journal `mainGoal` authority. It adds no Action or movement authority, no save schema, no story flag, and no permanent viewport panel.
+
+Automated public gate confirmed add-on syntax, static regression, add-on contract, assembled browser self-acceptance, 390x844 Touch/Fullscreen regression, REQ-081/REQ-082 north-route regressions, artifact upload and Pages deploy all SUCCESS. Physical iPhone resume behavior remains Owner-only and is not claimed.
 
 ## 10. NO-STOP
 
