@@ -241,6 +241,44 @@ jobs:
             exit 1
           fi
           echo "LUKE QUEST iPhone-sized touch + visible world geometry smoke PASS (chrome status $touch_status)"
+      - name: Browser smoke REQ-081 north cliff road
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8125 >/tmp/lq-north-cliff-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=2500 --dump-dom 'http://127.0.0.1:8125/?lqNorthCliffSmoke=1' >/tmp/lq-north-cliff-dom.html 2>/tmp/lq-north-cliff-chrome.log
+          cliff_status=$?
+          set -e
+          test -s /tmp/lq-north-cliff-dom.html
+          for needle in \
+            'lqNorthCliffRuntimeSmokeMarker' \
+            'data-blocked-without-proof="true"' \
+            'data-entered-with-proof="true"' \
+            'data-safe-spawn="true"' \
+            'data-walkable="true"' \
+            'data-footprint-interaction="true"' \
+            'data-boundary-interaction="true"' \
+            'data-return-safe="true"' \
+            'data-save-round-trip="true"' \
+            'data-canon-safe="true"'; do
+            if ! grep -q "$needle" /tmp/lq-north-cliff-dom.html; then
+              echo "REQ-081 browser smoke missing: $needle"
+              grep -o 'lqNorthCliffRuntimeSmokeMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-north-cliff-dom.html | tail -80 || true
+              cat /tmp/lq-north-cliff-chrome.log
+              exit 1
+            fi
+          done
+          if grep -q 'lqNorthCliffRuntimeSmokeFailure' /tmp/lq-north-cliff-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-north-cliff-chrome.log; then
+            echo 'REQ-081 north cliff browser runtime error detected'
+            cat /tmp/lq-north-cliff-chrome.log
+            exit 1
+          fi
+          echo "REQ-081 north cliff gate + walk + interaction + save + return smoke PASS (chrome status $cliff_status)"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
