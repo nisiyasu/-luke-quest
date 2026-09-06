@@ -1,10 +1,10 @@
 # REQ-034 — iPhone public build world/map black screen
 
-STATUS: VERIFY
+STATUS: DONE
 PRIORITY: P0
 OWNER_AUTHORITY: LATEST_DIRECT_OWNER_DEFECT_REPORT
 TYPE: BLOCKING_PUBLIC_VISUAL_RUNTIME_DEFECT
-IOS_PHYSICAL_VERIFICATION: PENDING
+IOS_PHYSICAL_VERIFICATION: PASS
 
 ## Owner report
 
@@ -84,6 +84,7 @@ The runtime/CI acceptance fails if any of the following occur in an iPhone-sized
 - assembled browser smoke: SUCCESS
 - iPhone-sized floating touch + visible world geometry/paint smoke: SUCCESS
 - Pages upload/deploy: SUCCESS
+- Owner physical-iPhone confirmation on 2026-09-06 after deployment: 「うん、直った」
 
 ## Completion conditions
 
@@ -95,8 +96,11 @@ Automated implementation completion is satisfied:
 - public build contains the repair
 - REQ-021 tap Action / REQ-001 Dynamic Touch integrated smoke remains PASS
 
-Physical completion remains:
-- `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner confirms the world/map is actually visible and playable on iPhone.
+Physical completion is also satisfied:
+- `IOS_PHYSICAL_VERIFICATION=PASS`
+- Owner physically confirmed on iPhone that the previously black world/map is visible again: 「うん、直った」
+
+Therefore REQ-034 is `DONE`.
 
 ## Preemption / concurrency note
 
@@ -106,6 +110,6 @@ REQ-033 was completed enough for automated VERIFY before preemption and was clos
 
 - do not treat structural DOM existence as proof of visible world presentation
 - do not default to Service Worker/cache as the root cause of a controls-visible/world-dark screenshot
-- do not mark iPhone physical PASS from headless Chrome
+- do not mark iPhone physical PASS from headless Chrome; this PASS is based on explicit Owner physical confirmation
 - do not allow a future fullscreen controls container to paint an opaque viewport background
 - do not remove explicit world-plane geometry without an equivalent tested compositor contract
