@@ -11,7 +11,7 @@ Requirement bodies and detailed evidence live in each `requirements/REQ-xxx_*.md
 
 - IN_PROGRESS: `NONE`
 - BLOCKED: `REQ-059`, `REQ-113`, `REQ-114`, `REQ-119`
-- NEWEST_VERIFY: `REQ-124` gamepad input foundation; Pages `34064096831` SUCCESS
+- NEWEST_VERIFY: `REQ-125` gamepad discoverability / connection feedback; Pages `34064306307` SUCCESS
 - OWNER_PHYSICAL_PRIORITY: `REQ-121` Cloudbreak → Wind Stair progression retry
 - OPENING: `REQ-120` VERIFY
 - WIP_AVAILABLE: `YES`
@@ -137,6 +137,7 @@ Requirement bodies and detailed evidence live in each `requirements/REQ-xxx_*.md
 | 112 | REQ-122 | P1 | VERIFY | Keyboard Gameplay Completeness | `requirements/REQ-122_KEYBOARD_GAMEPLAY_COMPLETENESS.md` |
 | 113 | REQ-123 | P2 | VERIFY | Keyboard Shortcut Discoverability | `requirements/REQ-123_KEYBOARD_SHORTCUT_DISCOVERABILITY.md` |
 | 114 | REQ-124 | P2 | VERIFY | Gamepad Input Foundation | `requirements/REQ-124_GAMEPAD_INPUT_FOUNDATION.md` |
+| 115 | REQ-125 | P2 | VERIFY | Gamepad Discoverability / Connection Feedback | `requirements/REQ-125_GAMEPAD_DISCOVERABILITY_CONNECTION_FEEDBACK.md` |
 
 ## STATE / SELECTION
 
