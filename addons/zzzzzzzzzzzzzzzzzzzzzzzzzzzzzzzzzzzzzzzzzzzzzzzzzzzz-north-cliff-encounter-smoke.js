@@ -50,6 +50,10 @@ setTimeout(()=>{
     }
   }catch(err){
     console.error('lqNorthCliffEncounterSmokeFailure',err);
+    // Keep the failure path machine-visible even if all assertions had already
+    // become true before a later exception. This also makes the existing CI
+    // data-* diagnostic dump include the failure marker's data-reason.
+    statusContract=false;
     deferredError=new TypeError(`REQ-082 north cliff encounter smoke failed: ${err&&err.message}`);
   }
   finally{
