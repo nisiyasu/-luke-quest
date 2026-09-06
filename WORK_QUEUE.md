@@ -44,6 +44,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 32 | REQ-031 | P1 | VERIFY | 石灰洞・旧測量坑道 | `requirements/REQ-031_LIMESTONE_SURVEY_DUNGEON.md` | 分岐坑道 + 永続lever/gate + 奥区画 + safe exitをassembled browserで固定。test-only `canWalk()` defectを自己診断・修復。Pages run 34005199926 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 33 | REQ-032 | P1 | VERIFY | 既存武器・防具・装備システム正式監査 | `requirements/REQ-032_EQUIPMENT_SYSTEM.md` | 既存v0.31/v0.40/Tier II装備chainを再監査。重複実装を撤去し、Tier II→下位装備でATK/DEF bonusが残る実バグを修正。Pages run 34005710946 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 34 | REQ-033 | P1 | VERIFY | 高地・放棄された魔王軍監視所 | `requirements/REQ-033_ABANDONED_DEMON_ARMY_OUTPOST.md` | optional walkable Demon Army outpost実装 + dedicated runtime acceptance済み。checkpoint `283a0b4...` Pages SUCCESS。Owner実機/見た目確認待ち |
+| 35 | REQ-035 | P1 | SUPERSEDED | Original Audio Feedback / SE foundation | `requirements/REQ-035_ORIGINAL_AUDIO_FEEDBACK.md` | deeper inventoryで既存 `ux-v83.js` + `ux-v138.js` + audio dedup実装を発見。重複実装せず監査履歴としてSUPERSEDED |
+| 36 | REQ-036 | P1 | VERIFY | Original Ambient Music Foundation | `requirements/REQ-036_ORIGINAL_AMBIENT_MUSIC.md` | external assetなしWeb Audio original safe/wild music + explicit MUSIC toggle。autoplay OFF、既存SE非干渉、390x844 integrated smoke含むPages run 34006935671 SUCCESS。Owner iPhone音量/雰囲気確認待ち |
 
 ## STATUS DEFINITIONS
 
