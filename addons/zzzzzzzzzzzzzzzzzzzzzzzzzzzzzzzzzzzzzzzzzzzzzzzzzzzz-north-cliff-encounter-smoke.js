@@ -14,6 +14,12 @@ function failure(reason,data){
   const el=document.createElement('i');el.id='lqReq082SmokeFailureDetail';el.dataset.reason=String(reason||'unknown');
   Object.entries(data||{}).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);return el;
 }
+function resetProbeDom(){
+  document.documentElement.replaceChildren();
+  const head=document.createElement('head');
+  const body=document.createElement('body');
+  document.documentElement.append(head,body);
+}
 
 setTimeout(()=>{
   const snapshot=structuredClone(s);
@@ -56,23 +62,9 @@ setTimeout(()=>{
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);
     if(rawBefore===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',rawBefore);
     const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
-    if(failureReason){
-      document.documentElement.replaceChildren();
-      const head=document.createElement('head');
-      const body=document.createElement('body');
-      document.documentElement.append(head,body);
-      failure(failureReason,data);
-    }else{
-      try{render();}catch(err){
-        document.documentElement.replaceChildren();
-        const head=document.createElement('head');
-        const body=document.createElement('body');
-        document.documentElement.append(head,body);
-        failure(`REQ-082 cleanup render exception ${err&&err.message}`,data);
-        return;
-      }
-      marker(data);
-    }
+    resetProbeDom();
+    if(failureReason)failure(failureReason,data);
+    else marker(data);
   }
 },700);
 })();
