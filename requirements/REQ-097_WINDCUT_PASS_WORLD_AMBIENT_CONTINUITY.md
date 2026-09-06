@@ -1,6 +1,6 @@
 # REQ-097 — 風切り峠・world ambient演出の連続性
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PRESENTATION / WORLD-AMBIENCE / WORLD-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -28,16 +28,26 @@ fresh `addons/world-ambient-layer.js` のregional TYPE registryは `northCliffRo
 
 ## ACCEPTANCE
 
-- [ ] windcutPass maps to fog
-- [ ] northCliffRoad and legacy cliffRoad mappings remain
-- [ ] unknown map remains unmapped
-- [ ] presentation-only/reduced-motion preserved
-- [ ] fail-closed coverage smoke PASS
-- [ ] JS/static/add-on regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] windcutPass maps to fog
+- [x] northCliffRoad and legacy cliffRoad mappings remain
+- [x] unknown map remains unmapped
+- [x] presentation-only/reduced-motion preserved
+- [x] fail-closed coverage smoke PASS
+- [x] JS/static/add-on regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone visual feel remains PENDING
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `b5ed2ebb5640e9aa9d2fa097b17ee333c38de592`.
+- Ambient implementation: `8bf9caed7a4c13a72df7b8218dd74b77a333ec5f` in `addons/world-ambient-layer.js`.
+- Fail-closed coverage guard: `f51811c2c67d50371cf33b160977e7f97b34349c`.
+- `windcutPass`, `northCliffRoad`, and legacy `cliffRoad` resolve to existing lightweight `fog`; unknown maps remain unmapped.
+- GitHub Pages workflow run `34033532905` on `f51811c2c67d50371cf33b160977e7f97b34349c`: SUCCESS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## NO-STOP
 
