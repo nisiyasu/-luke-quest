@@ -14,17 +14,13 @@ function failure(reason,data){
   const el=document.createElement('i');el.id='lqReq082SmokeFailureDetail';el.dataset.reason=String(reason||'unknown');
   Object.entries(data||{}).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);return el;
 }
-function walkable(mapId,x,y){
-  const m=MAPS[mapId], row=m?.tiles?.[y]||'', c=row[x];
-  return !!m&&x>=0&&y>=0&&x<m.w&&y<m.h&&c!==undefined&&c!=='#'&&c!=='^';
-}
 
 setTimeout(()=>{
   const snapshot=structuredClone(s);
   const rawBefore=localStorage.getItem('lukeQuestV2');
   const originalGrace=encounterGrace;
   let encounterEnabled=false,exactPool=false,noNewEnemies=false,entryGrace=false,returnGrace=false,battleUsesExistingPool=false,statusContract=false;
-  let deferredError=null;
+  let failureReason='';
   try{
     stopMoving();
     s.screen='world';s.map='northCliffRoad';s.x=10;s.y=16;s.dir='up';s.dialog=null;render();
@@ -49,26 +45,34 @@ setTimeout(()=>{
     statusContract=window.LQ_NORTH_CLIFF_ROAD_STATUS?.encounterEnabled===true&&window.LQ_NORTH_CLIFF_ROAD_STATUS?.encounterPool==='EVAC_ENEMIES'&&window.LQ_NORTH_CLIFF_ROAD_STATUS?.newEnemyIdentities===0;
 
     if(!(encounterEnabled&&exactPool&&noNewEnemies&&entryGrace&&returnGrace&&battleUsesExistingPool&&statusContract)){
-      const detail=JSON.stringify({encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract,map:s.map,screen:s.screen,grace:encounterGrace});
-      throw new Error(`REQ-082 assertion false ${detail}`);
+      failureReason=`REQ-082 assertion false ${JSON.stringify({encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract,map:s.map,screen:s.screen,grace:encounterGrace})}`;
     }
   }catch(err){
-    console.error('LQ_REQ082_SMOKE_FAILURE_DETAIL',err);
-    deferredError=new TypeError(`REQ-082 north cliff encounter smoke failed: ${err&&err.message}`);
+    failureReason=`REQ-082 exception ${err&&err.message}`;
   }
   finally{
-    stopMoving();encounterGrace=originalGrace;Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);
+    try{stopMoving();}catch(_){ }
+    encounterGrace=originalGrace;
+    Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);
     if(rawBefore===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',rawBefore);
-    render();
     const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
-    if(deferredError){
-      const reason=deferredError.message;
+    if(failureReason){
       document.documentElement.replaceChildren();
       const head=document.createElement('head');
       const body=document.createElement('body');
       document.documentElement.append(head,body);
-      failure(reason,data);
-    }else marker(data);
+      failure(failureReason,data);
+    }else{
+      try{render();}catch(err){
+        document.documentElement.replaceChildren();
+        const head=document.createElement('head');
+        const body=document.createElement('body');
+        document.documentElement.append(head,body);
+        failure(`REQ-082 cleanup render exception ${err&&err.message}`,data);
+        return;
+      }
+      marker(data);
+    }
   }
 },700);
 })();
