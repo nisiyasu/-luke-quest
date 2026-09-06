@@ -4,15 +4,15 @@
 /* Collision-safe add-on: two manual backup slots alongside continuous autosave. */
 const SLOT_KEYS=['lukeQuestManualSlot1','lukeQuestManualSlot2'];
 function isPlainStateObject(value){return !!value&&typeof value==='object'&&!Array.isArray(value);}
+function classifyPayload(value){return isPlainStateObject(value)?'valid':'invalid';}
 function slotRecord(i){
  try{
   const raw=localStorage.getItem(SLOT_KEYS[i]);
   if(raw===null)return{kind:'empty',data:null};
   const data=JSON.parse(raw);
-  return isPlainStateObject(data)?{kind:'valid',data}:{kind:'invalid',data:null};
+  return classifyPayload(data)==='valid'?{kind:'valid',data}:{kind:'invalid',data:null};
  }catch{return{kind:'invalid',data:null};}
 }
-function slotData(i){const record=slotRecord(i);return record.kind==='valid'?record.data:null;}
 function snapshot(){const copy=JSON.parse(JSON.stringify(s));copy.pauseOpen=false;copy.shopOpen=false;copy.victoryResult=null;copy.lqDefeatResult=false;copy.dialog=null;copy.screen='world';copy.savedAt=new Date().toISOString();return copy;}
 function slotSummary(record){
  if(record.kind==='empty')return'EMPTY';
@@ -36,5 +36,5 @@ function addMenuSlots(){
 function addTitleSlots(){
  if(s.screen!=='title')return;const stage=app.querySelector('.lqTitleStage');if(!stage||stage.querySelector('.lqTitleBackup'))return;const found=SLOT_KEYS.map((_,i)=>[i,slotRecord(i)]).filter(([,r])=>r.kind!=='empty');if(!found.length)return;const box=document.createElement('div');box.className='lqTitleBackup';box.innerHTML=`<small>MANUAL BACKUP</small>${found.map(([i,r])=>r.kind==='valid'?`<button onclick="lqManualLoad(${i})">SLOT ${i+1}　${slotSummary(r)}</button>`:`<button class=invalid disabled disabled>SLOT ${i+1}　INVALID BACKUP</button>`).join('')}`;const buttons=stage.querySelector('.lqTitleButtons')||stage;buttons.appendChild(box);
 }
-const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true};addMenuSlots();addTitleSlots();
+const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true,classifyPayload,isPlainStateObject};addMenuSlots();addTitleSlots();
 })();
