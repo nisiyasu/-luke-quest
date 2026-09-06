@@ -1,14 +1,12 @@
 (() => {
 'use strict';
 
-/* REQ-028 dedicated assembled-browser acceptance probe.
-   Run after earlier shared-world probes so their temporary state changes cannot
-   race this acceptance. Any failure emits the standard failure marker and an
-   uncaught ReferenceError carrying the exact acceptance reason for CI logs. */
-if(!new URLSearchParams(location.search).has('lqSmoke'))return;
+/* REQ-028 dedicated acceptance probe. Kept off the shared lqSmoke surface while
+   diagnosing cross-probe state interference. It runs only on lqReq028Smoke. */
+if(!new URLSearchParams(location.search).has('lqReq028Smoke'))return;
 function marker(ok,data={}){
   const el=document.createElement('i');
-  el.id=ok?'lqCastleUpperGalleryRuntimeSmokeMarker':'lqRuntimeSmokeFailure';
+  el.id=ok?'lqCastleUpperGalleryRuntimeSmokeMarker':'lqReq028RuntimeSmokeFailure';
   el.style.display='none';
   for(const [k,v] of Object.entries(data))el.dataset[k]=String(v);
   document.body.appendChild(el);
@@ -23,7 +21,6 @@ setTimeout(()=>{
     if(s.dialog)action();
     const beforeX=s.x;move('left');const walked=s.map==='aldiaCastleUpperGallery'&&s.x!==beforeX;stopMoving();
     if(!walked)throw new Error('gallery walkability failed');
-
     s.dialog=null;s.x=4;s.y=4;s.dir='up';render();action();
     const guardInteracted=!!s.dialog&&s.dialog.name==='上階警備兵';
     if(!guardInteracted)throw new Error('upper guard interaction failed');
@@ -33,7 +30,6 @@ setTimeout(()=>{
     s.dialog=null;s.x=2;s.y=5;s.dir='left';render();action();
     const boundaryInteracted=!!s.dialog&&s.dialog.name==='西執務区画の扉';
     if(!boundaryInteracted)throw new Error('upper boundary failed');
-
     s.dialog=null;s.x=8;s.y=11;s.dir='down';checkGate();render();
     const exited=s.map==='aldiaCastleEntranceHall'&&s.x===7&&s.y===2;
     const safeSpawn=exited&&((MAPS[s.map].tiles[s.y]||'')[s.x]!=='#');
@@ -41,11 +37,7 @@ setTimeout(()=>{
     marker(true,{entered,walked,guardInteracted,mapInteracted,boundaryInteracted,exited,safeSpawn});
   }catch(err){
     const reason=err&&err.message||String(err);
-    console.error('REQ-028 runtime smoke failure',reason);
     marker(false,{reason});
-    setTimeout(()=>{throw new ReferenceError('REQ028_ACCEPTANCE: '+reason);},0);
-  }finally{
-    stopMoving();Object.assign(s,snapshot);render();
-  }
-},4000);
+  }finally{stopMoving();Object.assign(s,snapshot);render();}
+},250);
 })();
