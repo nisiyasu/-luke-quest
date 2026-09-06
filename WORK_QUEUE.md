@@ -41,7 +41,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 29 | REQ-029 | P1 | VERIFY | 王都近郊・石灰洞 | `requirements/REQ-029_FIELD_LIMESTONE_CAVE.md` | field→cave entry/walk/environment interactions/depth boundary/safe exitをruntime probeで固定。公開前spawn collisionも自己検知修正。Pages run 34004420157 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 30 | REQ-030 | P1 | VERIFY | 王都近郊・高地の登山道 | `requirements/REQ-030_ALDIA_HIGHLAND_TRAIL.md` | field→highland entry/walk/sign+cairn/high-altitude boundary/safe exitをruntime probeで固定。Pages run 34004585120 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 31 | REQ-031 | P1 | VERIFY | 石灰洞・旧測量坑道 | `requirements/REQ-031_LIMESTONE_SURVEY_DUNGEON.md` | 分岐坑道 + 永続lever/gate + 奥区画 + safe exitをassembled browserで固定。test-only `canWalk()` defectを自己診断・修復。Pages run 34005199926 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
-| 32 | REQ-032 | P1 | IN_PROGRESS | 武器・防具・装備システム | `requirements/REQ-032_EQUIPMENT_SYSTEM.md` | persistent weapon/armor slots + equipment UI + gatehouse acquisition + old-save migrationを実装中 |
+| 32 | REQ-032 | P1 | VERIFY | 既存武器・防具・装備システム正式監査 | `requirements/REQ-032_EQUIPMENT_SYSTEM.md` | 既存v0.31/v0.40/Tier II装備chainを再監査。重複実装を撤去し、Tier II→下位装備でATK/DEF bonusが残る実バグを修正。Pages run 34005710946 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
