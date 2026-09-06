@@ -12,9 +12,9 @@ setTimeout(()=>{
  try{
   save=()=>{saveCalls++;};render=()=>{};window.LQ_sfx=()=>{};
   s.screen='world';s.map='shopInterior';s.shopOpen=true;s.gold=100;s.def=5;
-  s.weapon='鉄の剣';s.armor='補強革鎧';s.inventory={herb:2,smoke:1};
+  s.weapon='鉄の剣';s.armor='補強革鎧';s.potions=2;s.smokeBombs=1;
   s.flags.lqAccessoryOwned=[];s.flags.lqAccessoryEquipped='';
-  const protectedState={weapon:s.weapon,armor:s.armor,inventory:JSON.stringify(s.inventory)};
+  const protectedState={weapon:s.weapon,armor:s.armor,potions:s.potions,smokeBombs:s.smokeBombs};
 
   let before=saveCalls,ok=window.lqSellAccessory('旅人の護符');
   assert(ok===false&&s.gold===100&&saveCalls===before,'unowned sell not rejected');
@@ -27,7 +27,7 @@ setTimeout(()=>{
   assert(ok===true&&s.def===4&&accessory.equipped()==='','unequip prerequisite failed');
   before=saveCalls;const goldBefore=s.gold;ok=window.lqSellAccessory('旅人の護符');
   assert(ok===true&&s.gold===goldBefore+30&&!accessory.owned().includes('旅人の護符')&&s.def===4&&saveCalls===before+1,'unequipped accessory sell contract failed');
-  assert(s.weapon===protectedState.weapon&&s.armor===protectedState.armor&&JSON.stringify(s.inventory)===protectedState.inventory,'sale mutated unrelated equipment/inventory');
+  assert(s.weapon===protectedState.weapon&&s.armor===protectedState.armor&&s.potions===protectedState.potions&&s.smokeBombs===protectedState.smokeBombs,'sale mutated canonical equipment/consumables');
 
   s.gold=100;before=saveCalls;ok=window.lqBuyAccessory('旅人の護符');
   assert(ok===true&&accessory.owned().includes('旅人の護符')&&accessory.equipped()==='旅人の護符'&&s.gold===40&&s.def===5&&saveCalls===before+1,'sold accessory could not be re-bought via REQ-058');
