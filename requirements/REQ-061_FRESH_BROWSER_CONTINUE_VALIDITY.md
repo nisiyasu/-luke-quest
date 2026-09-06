@@ -1,6 +1,6 @@
 # REQ-061 — Fresh-Browser Continue Validity
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / TITLE / INTEGRITY / PLAYER-VISIBLE
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FROM_RECENT_SAVE_TRANSFER_AUDIT
@@ -38,36 +38,74 @@ Required:
 
 Do not require a new marker as the sole authority if doing so would hide existing users' legitimate pre-marker saves.
 
-Prefer a migration-safe predicate over stored state. A stored save may be considered resumable when it is a valid plain object and represents a legitimate playable/intro state or otherwise clearly differs from untouched default-title bootstrap state.
+Implemented migration-safe predicate over stored state. A stored save is resumable when it parses as a plain object and uses a known resumable runtime screen (`intro`, `world`, `battle`). The untouched bootstrap `screen:'title'` state is not resumable.
 
-The exact predicate must fail closed for malformed state while preserving known legitimate legacy saves.
+## 3. IMPLEMENTATION
 
-## 3. IMPLEMENTATION CONSTRAINTS
+### `addons/title-continue-validity.js`
 
-- Preserve canonical `save()` unless changing it is demonstrably necessary.
-- Keep this fix isolated in an add-on if possible.
-- It is acceptable for the base bootstrap to continue writing the harmless default-title snapshot; the player-visible Continue decision must not treat that bootstrap snapshot as progress.
-- REQ-060 title SAVE TRANSFER import UI must remain visible even when Continue is hidden.
+- keeps canonical `save()` unchanged;
+- parses the stored autosave fail-closed;
+- distinguishes resumable screens from bootstrap title state;
+- removes only the false `つづきから` affordance when the stored payload is non-resumable;
+- does not delete stored data merely to hide the button;
+- wraps the already-composed title/render path late enough to preserve REQ-060 SAVE TRANSFER title UI.
 
-## 4. ACCEPTANCE
+### `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-title-continue-validity-smoke.js`
 
-Automated acceptance must prove at least:
+Runtime acceptance covers:
+- truly fresh bootstrap through `render()`;
+- untouched DEFAULT/title payload;
+- intro save;
+- world save;
+- representative legacy progressed world save;
+- malformed JSON;
+- array payload;
+- primitive payload;
+- REQ-060 export/import then Continue availability;
+- fresh-title SAVE TRANSFER import visibility;
+- existing manual-backup contract preservation.
 
-1. no storage before first render → first title render may create bootstrap storage but Continue is absent;
-2. untouched DEFAULT/title stored snapshot → Continue absent;
-3. valid intro save → Continue present;
-4. valid world save → Continue present;
-5. representative progressed legacy world save → Continue present;
-6. malformed JSON/primitive/array → Continue absent and no runtime crash;
-7. REQ-060 imported save → Continue present;
-8. SAVE TRANSFER import remains visible on fresh title;
-9. existing manual-backup contract remains intact;
-10. assembled browser smoke PASS;
-11. 390x844 touch/fullscreen regression PASS;
-12. Pages deploy SUCCESS.
+## 4. CHECKPOINTS
 
-Physical iPhone observation remains PENDING unless actually observed.
+- requirement registration: `76af2a95ba46c4329b811fb48fcb2eb12cd7c04b`
+- implementation: `76fe6757ba1fdd65a02804e959dcc1c609b6c77f`
+- fail-closed acceptance: `ced6bc6ac3645fad6e91c1409f9a6f8e9d04e223`
 
-## 5. NO-STOP
+## 5. VERIFICATION
 
-Completing REQ-061 is a checkpoint, not a stop condition. Fresh-fetch HEAD, synchronize queue/CURRENT as needed, run GATE C, and continue another safe useful requirement when available.
+GitHub Pages workflow run `34015384336`: SUCCESS.
+
+Observed successful stages:
+- sequential JavaScript validation: PASS;
+- collision-safe add-on validation: PASS;
+- static regression guard: PASS;
+- add-on contract guard: PASS;
+- PWA/raster/Luke asset validation: PASS;
+- assembled browser smoke including REQ-061 fail-closed runtime acceptance: PASS;
+- 390x844 floating-touch + iPhone world visual-liveness regression: PASS;
+- Pages upload: PASS;
+- Pages deploy: PASS.
+
+The published assembled build therefore suppresses false Continue on bootstrap title while retaining Continue for legitimate intro/world/imported saves.
+
+Physical iPhone observation remains `IOS_PHYSICAL_VERIFICATION=PENDING` and is not claimed from automation.
+
+## 6. ACCEPTANCE
+
+1. no storage before first render → bootstrap storage may be created but Continue absent — PASS
+2. untouched DEFAULT/title stored snapshot → Continue absent — PASS
+3. valid intro save → Continue present — PASS
+4. valid world save → Continue present — PASS
+5. representative progressed legacy world save → Continue present — PASS
+6. malformed JSON/primitive/array → Continue absent in the title validity path without runtime failure — PASS
+7. REQ-060 imported save → Continue present — PASS
+8. SAVE TRANSFER import remains visible on fresh title — PASS
+9. existing manual-backup contract remains intact — PASS
+10. assembled browser smoke — PASS
+11. 390x844 touch/fullscreen regression — PASS
+12. Pages deploy — PASS (`34015384336`)
+
+## 7. NO-STOP
+
+REQ-061 automated completion is a checkpoint, not a stop condition. Fresh-fetch HEAD, synchronize queue/CURRENT as needed, run GATE C, and continue another safe useful requirement when available.
