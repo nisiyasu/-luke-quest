@@ -84,6 +84,9 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 71 | REQ-072 | P1 | VERIFY | Accessory Shop Sell Foundation | `requirements/REQ-072_ACCESSORY_SHOP_SELL_FOUNDATION.md` | 旅人の護符を未装備時のみ30Gで売却可能。REQ-058 authority再利用、canonical consumable preservation hardening済み。Pages run 34018553794 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 72 | REQ-073 | P1 | VERIFY | Optional Boss Completion Record Coverage | `requirements/REQ-073_OPTIONAL_BOSS_COMPLETION_RECORD_COVERAGE.md` | 苔角の森王撃破をADVENTURE RECORD OPTIONAL DONEとCOMPLETEDへread-only反映。REQ-041 smokeをforward-compatible化。Pages run 34018645505 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 73 | REQ-074 | P1 | VERIFY | Optional Boss Adventure Journal Tracking | `requirements/REQ-074_OPTIONAL_BOSS_ADVENTURE_JOURNAL_TRACKING.md` | 巨大蹄跡を発見後だけSIDE QUESTSへ表示し、再調査を案内。撃破後は苔角の森王の完了行へ遷移。発見前ネタバレなし、read-only、assembled smoke + 390x844 + Pages run 34019148578 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 74 | REQ-075 | P1 | VERIFY | Optional Boss Objective Chip Tracking | `requirements/REQ-075_OPTIONAL_BOSS_OBJECTIVE_CHIP_TRACKING.md` | 巨大蹄跡を発見後だけworld SIDE chipへ再調査導線を表示。撃破後は消える。既存3 optional objective precedence保持、Pages run 34019286555 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 75 | REQ-076 | P1 | VERIFY | Optional Boss Autosave Pulse Coverage | `requirements/REQ-076_OPTIONAL_BOSS_AUTOSAVE_PULSE_COVERAGE.md` | `forestMiniBossDefeated`を既存autosave progress signatureへ追加。warning-onlyは除外。途中の無関係CSS driftを自己検知・修復。Pages run 34019432206 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 76 | REQ-077 | P1 | VERIFY | Forest Lord Key Item Visibility Guard | `requirements/REQ-077_FOREST_LORD_KEY_ITEM_VISIBILITY_GUARD.md` | unrelated keyItemsがあるだけで森王の角を誤表示するlegacy条件をexact ownership final-state guardで修復。assembled smoke + 390x844 + Pages run 34019534573 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
