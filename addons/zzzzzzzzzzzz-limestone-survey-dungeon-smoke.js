@@ -10,6 +10,7 @@ function marker(ok,data={}){
   el.style.display='none';
   for(const [k,v] of Object.entries(data))el.dataset[k]=String(v);
   document.body.appendChild(el);
+  return el;
 }
 setTimeout(()=>{
   const snapshot={screen:s.screen,map:s.map,x:s.x,y:s.y,dir:s.dir,dialog:s.dialog,flags:Object.assign({},s.flags||{})};
@@ -46,7 +47,7 @@ setTimeout(()=>{
     const deepInteracted=!!s.dialog&&s.dialog.name==='奥区画の測量標';
     if(!deepInteracted)throw new Error('deep survey interaction failed');
 
-    /* Simulate load-like projection by re-inserting stale gate DOM model data,
+    /* Simulate load-like projection by re-inserting stale gate model data,
        then render from persistent flag and require it to be removed again. */
     if(!MAPS.aldiaSurveyDungeon.npcs.some(n=>n.kind==='lqSurveyGate')){
       MAPS.aldiaSurveyDungeon.npcs.push({x:9,y:7,e:'',name:'stale gate',kind:'lqSurveyGate',text:'stale'});
@@ -63,9 +64,12 @@ setTimeout(()=>{
     marker(true,{entered,spawnSafe,gateClosed,blockedClosed,flagOpened,gateRemoved,persistedAfterRender,passableOpen,deepInteracted,reconstructedOpen,exited,exitSafe});
   }catch(err){
     const reason=err&&err.message||String(err);
+    const slug=reason.replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,120)||'unknown';
     console.error('REQ-031 runtime smoke failure',reason);
-    marker(false,{reason});
-    setTimeout(()=>{throw new ReferenceError(`REQ031_RUNTIME_SMOKE: ${reason}`);},0);
+    const fail=marker(false,{reason});
+    fail.id=`lqRuntimeSmokeFailure_REQ031_${slug}`;
+    const core=document.getElementById('lqRuntimeSmokeMarker');
+    if(core)core.id='lqCoreSmokeMarkerSuppressedByREQ031Failure';
   }finally{
     stopMoving();
     s.screen=snapshot.screen;s.map=snapshot.map;s.x=snapshot.x;s.y=snapshot.y;s.dir=snapshot.dir;s.dialog=snapshot.dialog;s.flags=snapshot.flags;
