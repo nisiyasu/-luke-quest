@@ -16,7 +16,7 @@ function injectStyle(){
   style.id=STYLE_ID;
   style.textContent=`
 .${COACH_CLASS}{position:absolute;left:50%;bottom:max(78px,calc(env(safe-area-inset-bottom) + 68px));transform:translateX(-50%);z-index:24;display:flex;gap:7px;align-items:center;justify-content:center;max-width:calc(100% - 32px);padding:7px 10px;border:1px solid #d8edff42;border-radius:999px;background:#07111fd9;color:#edf7ff;box-shadow:0 5px 16px #0008;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);font-size:10px;font-weight:850;line-height:1.2;letter-spacing:.01em;white-space:nowrap;pointer-events:none;user-select:none;-webkit-user-select:none;animation:lqCoachIn .18s ease-out}
-.${COACH_CLASS} b{color:#ffe58a;font-size:10px}. ${COACH_CLASS} .lqCoachSep{color:#8da5b8}
+.${COACH_CLASS} b{color:#ffe58a;font-size:10px}.${COACH_CLASS} .lqCoachSep{color:#8da5b8}
 @keyframes lqCoachIn{from{opacity:0;transform:translate(-50%,5px)}to{opacity:1;transform:translate(-50%,0)}}
 @media(max-width:380px){.${COACH_CLASS}{font-size:9px;gap:5px;padding:6px 8px}.${COACH_CLASS} b{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.${COACH_CLASS}{animation:none}}
