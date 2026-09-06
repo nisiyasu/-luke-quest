@@ -1,6 +1,6 @@
 # REQ-027 — 王都アルディア・王城玄関ホール
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / CASTLE / INTERIOR / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -99,6 +99,17 @@ canonical `action()` chain経由で調べられること。
 9. protected canon先出しなし
 10. JavaScript/static/add-on/browser regression PASS
 11. Pages deploy SUCCESS
+
+## AUTOMATED / PUBLIC VERIFICATION
+
+- Requirement registration checkpoint: `510a8d6af7d71cee436ce6c3d402a53e0c359ca3`.
+- Entrance-hall implementation checkpoint: `db5e9dcc488c380b04b062fea58c346e6db8771f`.
+- Dedicated runtime acceptance checkpoint: `ac46b29e9c663022c8126c9df2a135feaad7e2cd`.
+- Queue-synchronized public build checkpoint: `f86eafa82d6f4d65e2d3b840881a686495e30eec`.
+- Pages workflow run `34003902302`: SUCCESS.
+- The assembled browser test includes `addons/zzzzzzzz-aldia-castle-entrance-hall-smoke.js`, which exercises canonical courtyard-door entry, hall walkability, guard interaction, guide-board interaction, deep-castle boundary interaction, hall exit, and safe courtyard spawn. Any failure emits the workflow-recognized `lqRuntimeSmokeFailure` marker.
+- The same successful pipeline also re-ran sequential JavaScript syntax, collision-safe add-ons, static regression, add-on contract, PWA/assets, approved Luke art, existing world/browser regressions, strengthened floating-touch regression, upload, and Pages deploy.
+- `IOS_PHYSICAL_VERIFICATION = PENDING`.
 
 ## COMPLETION CONDITION
 
