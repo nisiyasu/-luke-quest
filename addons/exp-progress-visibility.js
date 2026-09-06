@@ -7,12 +7,13 @@ if(!document.getElementById(STYLE_ID)){
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
-.lqExpProgress{min-width:86px;max-width:118px;pointer-events:none;display:flex;flex-direction:column;gap:3px;justify-content:center;padding:0 2px}
-.lqExpProgressText{display:flex;align-items:baseline;justify-content:space-between;gap:5px;font-size:10px;line-height:1.05;color:#d7e9f6;white-space:nowrap}
-.lqExpProgressText b{font-size:11px;color:#f7fbff;font-variant-numeric:tabular-nums}
+.status.lqExpStatusGrid{grid-template-columns:repeat(6,minmax(0,1fr))}
+.status.lqExpStatusGrid .lqExpProgress{min-width:0;max-width:none;width:100%;pointer-events:none;display:flex;flex-direction:column;gap:3px;justify-content:center;padding:0 1px;overflow:hidden}
+.lqExpProgressText{display:flex;align-items:baseline;justify-content:space-between;gap:3px;font-size:9px;line-height:1.05;color:#d7e9f6;white-space:nowrap;min-width:0}
+.lqExpProgressText b{font-size:10px;color:#f7fbff;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:clip}
 .lqExpProgressTrack{height:4px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .lqExpProgressFill{height:100%;border-radius:inherit;background:linear-gradient(90deg,#5bb8ff,#a9e1ff);transform-origin:left center}
-@media(max-width:430px){.lqExpProgress{min-width:72px;max-width:92px}.lqExpProgressText{font-size:9px}.lqExpProgressText b{font-size:10px}}
+@media(max-width:430px){.status.lqExpStatusGrid{gap:3px}.status.lqExpStatusGrid .stat{padding-left:2px;padding-right:2px}.lqExpProgressText{font-size:8px;gap:2px}.lqExpProgressText b{font-size:9px}}
 `;
   document.head.appendChild(style);
 }
@@ -32,7 +33,8 @@ function markup(xp,nx){
 
 const statusExpBase=status;
 status=function(...args){
-  const base=statusExpBase.apply(this,args);
+  let base=statusExpBase.apply(this,args);
+  base=base.replace('<div class="status">','<div class="status lqExpStatusGrid">');
   const insert=markup(s?.xp,s?.nx);
   const close='</div></div>';
   const at=base.lastIndexOf(close);
@@ -46,6 +48,8 @@ window.LQ_EXP_PROGRESS_STATUS={
   saveMutation:false,
   pointerSafe:true,
   fullscreenLayer:false,
+  integratedStatusColumns:6,
+  mpCompatibleSingleRow:true,
   normalize:normalized,
   sampleMarkup:markup,
   read(){return normalized(s?.xp,s?.nx);}
