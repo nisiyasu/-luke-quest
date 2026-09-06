@@ -1,9 +1,10 @@
 # REQ-026 — 王都アルディア・王城前庭
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / CASTLE / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
+IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY THIS WORK EXISTS
 
@@ -92,6 +93,15 @@ Owner-only formal artや保護された物語秘密を要求せず、既存の�
 8. protected canon先出しなし
 9. JavaScript/static/add-on/browser regression PASS
 10. Pages deploy SUCCESS
+
+## AUTOMATED / PUBLIC VERIFICATION
+
+- Implementation checkpoint: `e9528163efa2fbf0bdd6d094257193da66090bd9`.
+- Dedicated runtime acceptance probe: `addons/zzzzzzz-aldia-castle-courtyard-smoke.js` at `01f4f47b2e36212f08ae5cbcf11c0af30ad86cec`.
+- Probe verifies gatehouse→courtyard entry, walkability, fountain/banner landmark render, canonical optional interaction, world-consistent main-castle boundary, courtyard→gatehouse return and non-colliding spawn.
+- Queue-synchronized public build at `a5598d3e9b04e03b658a50607150f5de7dc2b03d` completed Pages workflow run `34001268066` successfully.
+- That run passed JS validation, static/add-on contracts, assembled browser smoke including REQ-025/026 runtime probes, strengthened REQ-001/021 floating-touch smoke, upload and Pages deploy.
+- Owner physical iPhone / subjective visual verification remains pending.
 
 ## COMPLETION CONDITION
 
