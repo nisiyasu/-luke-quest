@@ -1,6 +1,6 @@
 # REQ-090 — 北の崖道・cross-system coverage self-audit guard
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: QUALITY-GATE / SELF-AUDIT / MAP-INTEGRATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -38,18 +38,27 @@ assembled smoke時に最低限、以下を同時に確認する。
 
 ## ACCEPTANCE
 
-- [ ] dedicated late-loading fail-closed smoke exists
-- [ ] canonical map existence checked
-- [ ] local guidance checked
-- [ ] journal location awareness checked
-- [ ] battle backdrop checked
-- [ ] area title checked
-- [ ] ambient checked
-- [ ] cloud shadow checked
-- [ ] footstep checked
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen regression PASS
-- [ ] Pages SUCCESS
+- [x] dedicated late-loading fail-closed smoke exists
+- [x] canonical map existence checked
+- [x] local guidance checked
+- [x] journal location awareness checked
+- [x] battle backdrop checked
+- [x] area title checked
+- [x] ambient checked
+- [x] cloud shadow checked
+- [x] footstep checked
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen regression PASS
+- [x] Pages SUCCESS
+
+## VERIFIED EVIDENCE
+
+- Requirement registration checkpoint: `3d0be92ae86357cbad1c28d166dfdf845471da57`.
+- Cross-system fail-closed smoke checkpoint: `06ad6bedbc4f1b3af75f45bfad0381c8e4c3a6a9` (`Gate REQ-090 north cliff cross-system coverage`).
+- Smoke is active only under `?lqSmoke=1`; ordinary play receives no state/gameplay mutation from the guard.
+- The guard checks canonical map existence plus local guidance, journal location awareness, regional battle backdrop, area title, world ambience, cloud shadow and terrain footstep coverage in one assembled runtime.
+- Pages workflow run `34028025355`: SUCCESS. Collision-safe add-ons, static regression, add-on contract, assembled browser, 390x844 touch/fullscreen visual-liveness, north-cliff road/encounter browser smokes, upload and Pages deploy all SUCCESS.
+- This quality gate does not claim Owner physical iPhone verification and does not require it for automated VERIFY.
 
 ## NO-STOP
 
