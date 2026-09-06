@@ -17,6 +17,7 @@ setTimeout(()=>{
   const rawBefore=localStorage.getItem('lukeQuestV2');
   const originalGrace=encounterGrace;
   let encounterEnabled=false,exactPool=false,noNewEnemies=false,entryGrace=false,returnGrace=false,battleUsesExistingPool=false,statusContract=false;
+  let deferredError=null;
   try{
     stopMoving();
     s.screen='world';s.map='northCliffRoad';s.x=10;s.y=16;s.dir='up';s.dialog=null;render();
@@ -43,13 +44,21 @@ setTimeout(()=>{
 
     statusContract=window.LQ_NORTH_CLIFF_ROAD_STATUS?.encounterEnabled===true&&window.LQ_NORTH_CLIFF_ROAD_STATUS?.encounterPool==='EVAC_ENEMIES'&&window.LQ_NORTH_CLIFF_ROAD_STATUS?.newEnemyIdentities===0;
 
-    if(!(encounterEnabled&&exactPool&&noNewEnemies&&entryGrace&&returnGrace&&battleUsesExistingPool&&statusContract))throw new Error('REQ-082 assertion false');
-  }catch(err){console.error('lqNorthCliffEncounterSmokeFailure',err);failure(err&&err.message);}
+    if(!(encounterEnabled&&exactPool&&noNewEnemies&&entryGrace&&returnGrace&&battleUsesExistingPool&&statusContract)){
+      const detail=JSON.stringify({encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract,map:s.map,screen:s.screen,grace:encounterGrace});
+      throw new Error(`REQ-082 assertion false ${detail}`);
+    }
+  }catch(err){
+    console.error('lqNorthCliffEncounterSmokeFailure',err);
+    failure(err&&err.message);
+    deferredError=new TypeError(`REQ-082 north cliff encounter smoke failed: ${err&&err.message}`);
+  }
   finally{
     stopMoving();encounterGrace=originalGrace;Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);
     if(rawBefore===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',rawBefore);
     render();
     marker({encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract});
+    if(deferredError)setTimeout(()=>{throw deferredError;},0);
   }
 },700);
 })();
