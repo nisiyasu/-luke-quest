@@ -150,6 +150,10 @@ function onPointerDown(event){
 function onPointerMove(event){
   if(event.pointerId!==pointerId)return;
   event.preventDefault();
+  // State may change after pointerdown but before the gesture crosses the dead
+  // zone. Dialogue/map/screen transitions must revoke movement ownership even
+  // when activeDir has not started yet.
+  if(typeof s==='undefined'||!s||s.screen!=='world'||s.dialog||s.map!==pointerStartMap){stop();return;}
   const dx=event.clientX-originX,dy=event.clientY-originY;
   const distance=Math.hypot(dx,dy);
   if(distance>=DEAD_ZONE)gestureMoved=true;
@@ -192,7 +196,7 @@ function armShell(){
 function mustStopForRender(){
   if(typeof s==='undefined'||!s)return false;
   if(s.screen!=='world')return true;
-  if(s.dialog&&activeDir)return true;
+  if(s.dialog&&pointerId!==null)return true;
   return pointerId!==null&&lastRenderedMap!==null&&s.map!==lastRenderedMap;
 }
 
@@ -215,5 +219,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.5',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.5',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
