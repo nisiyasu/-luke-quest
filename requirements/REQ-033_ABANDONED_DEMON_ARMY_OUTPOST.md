@@ -1,6 +1,6 @@
 # REQ-033 — 高地・放棄された魔王軍監視所
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / DEMON_ARMY_FACILITY / EXPLORATION / INTERIOR
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -140,6 +140,13 @@ late-SFC / early-PS1 2D JRPGのplayer-visible densityを目標にする。
 - protected canon / existing gameplay / input / save compatibility維持
 - automated browser regression PASS
 - Owner physical iPhone / subjective visual verification前はVERIFYでよい
+
+## VERIFICATION CHECKPOINT
+
+- Implementation and dedicated browser acceptance are present at fresh HEAD history.
+- Pages workflow for checkpoint `283a0b419365332a2c86c96bf081b283e027592e` completed successfully.
+- Automated implementation is therefore VERIFY, not active WIP.
+- Owner physical iPhone / subjective visual verification remains PENDING.
 
 ## DO NOT REPEAT
 
