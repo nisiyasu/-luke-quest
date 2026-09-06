@@ -12,6 +12,14 @@ function marker(ok,data={}){
   document.body.appendChild(el);
   return el;
 }
+function tilePassable(mapName,x,y){
+  const map=MAPS[mapName];
+  if(!map||x<0||y<0||x>=map.w||y>=map.h)return false;
+  const tile=((map.tiles[y]||'')[x]||'#');
+  const solidTile=tile==='#';
+  const occupied=(map.npcs||[]).some(n=>n.x===x&&n.y===y);
+  return !solidTile&&!occupied;
+}
 setTimeout(()=>{
   const snapshot={screen:s.screen,map:s.map,x:s.x,y:s.y,dir:s.dir,dialog:s.dialog,flags:Object.assign({},s.flags||{})};
   try{
@@ -30,7 +38,7 @@ setTimeout(()=>{
     const gateClosed=MAPS.aldiaSurveyDungeon.npcs.some(n=>n.kind==='lqSurveyGate'&&n.x===9&&n.y===7);
     if(!gateClosed)throw new Error('gate not projected closed');
     s.x=9;s.y=8;s.dir='up';s.dialog=null;
-    const blockedClosed=!canWalk(9,7);
+    const blockedClosed=!tilePassable('aldiaSurveyDungeon',9,7);
     if(!blockedClosed)throw new Error('closed gate is walkable');
 
     s.x=5;s.y=12;s.dir='up';s.dialog=null;render();action();
@@ -40,7 +48,7 @@ setTimeout(()=>{
 
     s.dialog=null;render();
     const persistedAfterRender=!!s.flags.lqSurveyGateOpen&&!MAPS.aldiaSurveyDungeon.npcs.some(n=>n.kind==='lqSurveyGate');
-    const passableOpen=canWalk(9,7);
+    const passableOpen=tilePassable('aldiaSurveyDungeon',9,7);
     if(!persistedAfterRender||!passableOpen)throw new Error('open gate did not persist/project');
 
     s.x=14;s.y=4;s.dir='up';s.dialog=null;render();action();
