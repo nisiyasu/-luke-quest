@@ -1,9 +1,10 @@
 # REQ-025 — 王都アルディア・王城門衛詰所
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / INTERIOR / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
+IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY THIS WORK EXISTS
 
@@ -88,6 +89,15 @@ OWNER_REQUEST: DIRECTIVE_AUTHORIZED
 9. protected story secretを先出ししない
 10. static/add-on/browser regression PASS
 11. Pages deploy SUCCESS
+
+## AUTOMATED / PUBLIC VERIFICATION
+
+- Implementation checkpoint: `5cfdeec127b1fcd4c38ff4a15c26742bf9ea3cf7`.
+- Dedicated runtime acceptance probe added at `e69e22efe5c82012cd388f2cff8e75088d1d1ddf` in `addons/zzzzzz-aldia-castle-gatehouse-smoke.js`.
+- The probe exercises canonical entry, walkability, guard interaction, environment-prop interaction, exit and safe town spawn, then restores the smoke-test state.
+- Pages workflow run `34001139669` passed JavaScript validation, add-on/static contracts, assembled browser runtime smoke including the REQ-025 probe, the strengthened Dynamic Touch/Tap Anywhere smoke, upload and deploy.
+- Dynamic Touch v1.5, Tap Anywhere Action and fullscreen overlay regressions remained green in the same public build.
+- Owner physical iPhone / subjective visual verification remains pending.
 
 ## COMPLETION CONDITION
 
