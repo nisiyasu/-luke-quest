@@ -11,7 +11,7 @@ Requirement bodies and detailed evidence live in each `requirements/REQ-xxx_*.md
 
 - IN_PROGRESS: `NONE`
 - BLOCKED: `REQ-059`, `REQ-113`, `REQ-114`, `REQ-119`
-- NEWEST_VERIFY: `REQ-125` gamepad discoverability / connection feedback; Pages `34064306307` SUCCESS
+- NEWEST_VERIFY: `REQ-126` ambient music volume control; Pages `34064647550` SUCCESS
 - OWNER_PHYSICAL_PRIORITY: `REQ-121` Cloudbreak → Wind Stair progression retry
 - OPENING: `REQ-120` VERIFY
 - WIP_AVAILABLE: `YES`
@@ -138,6 +138,7 @@ Requirement bodies and detailed evidence live in each `requirements/REQ-xxx_*.md
 | 113 | REQ-123 | P2 | VERIFY | Keyboard Shortcut Discoverability | `requirements/REQ-123_KEYBOARD_SHORTCUT_DISCOVERABILITY.md` |
 | 114 | REQ-124 | P2 | VERIFY | Gamepad Input Foundation | `requirements/REQ-124_GAMEPAD_INPUT_FOUNDATION.md` |
 | 115 | REQ-125 | P2 | VERIFY | Gamepad Discoverability / Connection Feedback | `requirements/REQ-125_GAMEPAD_DISCOVERABILITY_CONNECTION_FEEDBACK.md` |
+| 116 | REQ-126 | P2 | VERIFY | Ambient Music Volume Control | `requirements/REQ-126_AMBIENT_MUSIC_VOLUME_CONTROL.md` |
 
 ## STATE / SELECTION
 
