@@ -1,9 +1,10 @@
 (() => {
 'use strict';
 
-/* REQ-060: explicit portable save-code transfer across browser-local storage boundaries. */
+/* REQ-060 + REQ-064: portable save-code transfer across browser-local storage boundaries, with optional file carriage. */
 const FORMAT='LUKE_QUEST_SAVE_TRANSFER';
 const VERSION=1;
+const MAX_TRANSFER_FILE_BYTES=256*1024;
 const DANGEROUS_KEYS=new Set(['__proto__','constructor','prototype']);
 const manual=window.LQ_MANUAL_SAVE_STATUS||{};
 const isPlain=value=>manual.isPlainStateObject?manual.isPlainStateObject(value):!!value&&typeof value==='object'&&!Array.isArray(value);
@@ -68,18 +69,55 @@ function importFromUi(root){
  if(!result.ok){setFeedback(root,result.error||'読み込みに失敗しました');return false;}
  render();return true;
 }
+function exportFilePayload(){return `${exportCode()}\n`;}
+function transferFileName(now=new Date()){
+ const stamp=now.toISOString().replace(/[:.]/g,'-');
+ return `luke-quest-save-${stamp}.lqsave.txt`;
+}
+function downloadTransferFile(root){
+ let payload;
+ try{payload=exportFilePayload();}catch(err){setFeedback(root,String(err?.message||err));return false;}
+ try{
+  const blob=new Blob([payload],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=transferFileName();a.hidden=true;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),0);
+  setFeedback(root,'SAVE FILEを作成しました。別ブラウザ/端末でLOADしてください。',true);return true;
+ }catch(err){setFeedback(root,`SAVE FILEを作成できません: ${String(err?.message||err)}`);return false;}
+}
+async function loadTransferFile(root,file,{triggerImport=true}={}){
+ if(!file){setFeedback(root,'SAVE FILEを選択してください');return{ok:false,error:'no-file'};}
+ if(!Number.isFinite(file.size)||file.size<=0){setFeedback(root,'SAVE FILEが空です');return{ok:false,error:'empty-file'};}
+ if(file.size>MAX_TRANSFER_FILE_BYTES){setFeedback(root,'SAVE FILEが大きすぎます');return{ok:false,error:'file-too-large'};}
+ let text;
+ try{text=String(await file.text()).trim();}catch{setFeedback(root,'SAVE FILEを読み取れません');return{ok:false,error:'file-read-failed'};}
+ if(!text){setFeedback(root,'SAVE FILEが空です');return{ok:false,error:'empty-file'};}
+ try{prepareImportedState(text);}catch(err){const message=String(err?.message||err);setFeedback(root,message);return{ok:false,error:message};}
+ const input=currentInput(root);if(!input){setFeedback(root,'SAVE TRANSFER入力欄が見つかりません');return{ok:false,error:'missing-transfer-input'};}
+ input.value=text;
+ input.dispatchEvent(new Event('input',{bubbles:true}));
+ setFeedback(root,'SAVE FILEを読み込みました。IMPORT処理へ進みます。',true);
+ if(triggerImport){
+  const button=root.querySelector('.import');
+  if(!button){setFeedback(root,'IMPORTボタンが見つかりません');return{ok:false,error:'missing-import-button'};}
+  button.click();
+ }
+ return{ok:true,code:text};
+}
 window.lqExportTransferCode=exportCode;
 window.lqPrepareImportedTransferState=prepareImportedState;
 window.lqImportTransferCode=code=>importCode(code);
 
 const style=document.createElement('style');style.textContent=`
-.lqTransfer{margin-top:8px;padding:8px;border-radius:10px;background:#0a1926;border:1px solid #7db9d733}.lqTransferTitle{font-size:8px;font-weight:950;color:#9bdcff;letter-spacing:.12em;margin-bottom:5px}.lqTransferHint{font-size:7px;line-height:1.45;color:#8fa6b7;margin-bottom:6px}.lqTransferCode{width:100%;min-height:62px;resize:vertical;border-radius:8px;border:1px solid #ffffff20;background:#07111f;color:#dceaf2;padding:7px;font:7px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}.lqTransferBtns{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px}.lqTransferBtns button{min-height:36px;border-radius:8px;border:1px solid #ffffff18;background:#1c4056;color:#d5edf9;font-size:8px;font-weight:950}.lqTransferFeedback{min-height:14px;margin-top:5px;font-size:7px;color:#e2a7a7;line-height:1.4}.lqTransferFeedback.ok{color:#9ed8ac}.lqTitleTransfer{position:relative;z-index:4;max-width:360px;margin:6px auto}.lqTitleTransfer .lqTransferBtns{grid-template-columns:1fr}.lqTitleTransfer .export{display:none}
+.lqTransfer{margin-top:8px;padding:8px;border-radius:10px;background:#0a1926;border:1px solid #7db9d733}.lqTransferTitle{font-size:8px;font-weight:950;color:#9bdcff;letter-spacing:.12em;margin-bottom:5px}.lqTransferHint{font-size:7px;line-height:1.45;color:#8fa6b7;margin-bottom:6px}.lqTransferCode{width:100%;min-height:62px;resize:vertical;border-radius:8px;border:1px solid #ffffff20;background:#07111f;color:#dceaf2;padding:7px;font:7px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}.lqTransferBtns{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px}.lqTransferBtns button{min-height:36px;border-radius:8px;border:1px solid #ffffff18;background:#1c4056;color:#d5edf9;font-size:8px;font-weight:950}.lqTransferFile{display:none}.lqTransferFeedback{min-height:14px;margin-top:5px;font-size:7px;color:#e2a7a7;line-height:1.4}.lqTransferFeedback.ok{color:#9ed8ac}.lqTitleTransfer{position:relative;z-index:4;max-width:360px;margin:6px auto}.lqTitleTransfer .lqTransferBtns{grid-template-columns:1fr}.lqTitleTransfer .export,.lqTitleTransfer .download-file{display:none}
 `;document.head.appendChild(style);
-function transferMarkup({title=false}={}){return `<div class="lqTransfer ${title?'lqTitleTransfer':''}"><div class=lqTransferTitle>SAVE TRANSFER</div><div class=lqTransferHint>${title?'別ブラウザ/端末のSAVE CODEを貼り付けて冒険を引き継げます。':'現在の冒険をSAVE CODEとしてコピーし、別ブラウザ/端末で読み込めます。'}</div><textarea class=lqTransferCode spellcheck=false autocapitalize=off autocomplete=off placeholder="SAVE CODEをここに貼り付け"></textarea><div class=lqTransferBtns><button class=export type=button>COPY SAVE CODE</button><button class=import type=button>IMPORT</button></div><div class=lqTransferFeedback aria-live=polite></div></div>`;}
+function transferMarkup({title=false}={}){return `<div class="lqTransfer ${title?'lqTitleTransfer':''}"><div class=lqTransferTitle>SAVE TRANSFER</div><div class=lqTransferHint>${title?'別ブラウザ/端末のSAVE CODEまたはSAVE FILEから冒険を引き継げます。':'現在の冒険をSAVE CODEまたはSAVE FILEで別ブラウザ/端末へ持ち運べます。'}</div><textarea class=lqTransferCode spellcheck=false autocapitalize=off autocomplete=off placeholder="SAVE CODEをここに貼り付け"></textarea><input class=lqTransferFile type=file accept=".lqsave,.txt,text/plain"><div class=lqTransferBtns><button class=export type=button>COPY SAVE CODE</button><button class=import type=button>IMPORT</button><button class=download-file type=button>DOWNLOAD SAVE FILE</button><button class=load-file type=button>LOAD SAVE FILE</button></div><div class=lqTransferFeedback aria-live=polite></div></div>`;}
 function bindBox(box){
  if(!box||box.dataset.bound==='1')return;box.dataset.bound='1';
  box.querySelector('.export')?.addEventListener('click',()=>exportFromUi(box));
  box.querySelector('.import')?.addEventListener('click',()=>importFromUi(box));
+ box.querySelector('.download-file')?.addEventListener('click',()=>downloadTransferFile(box));
+ const picker=box.querySelector('.lqTransferFile');
+ box.querySelector('.load-file')?.addEventListener('click',()=>picker?.click());
+ picker?.addEventListener('change',async()=>{const file=picker.files?.[0]||null;await loadTransferFile(box,file);picker.value='';});
 }
 function addTitleTransfer(){
  if(s.screen!=='title')return;const stage=app.querySelector('.lqTitleStage')||app.querySelector('.card');if(!stage||stage.querySelector('.lqTitleTransfer'))return;
@@ -92,6 +130,6 @@ function addMenuTransfer(){
 const titleBase=title;title=function(){const out=titleBase();addTitleTransfer();return out;};
 const worldBase=world;world=function(){const out=worldBase();addMenuTransfer();return out;};
 const renderBase=render;render=function(){const out=renderBase();addTitleTransfer();addMenuTransfer();return out;};
-window.LQ_SAVE_TRANSFER_STATUS={format:FORMAT,version:VERSION,crossBrowserCode:true,titleImportWithoutLocalSave:true,exportCode,decodeEnvelope,prepareImportedState,importCode,sanitize};
+window.LQ_SAVE_TRANSFER_STATUS={format:FORMAT,version:VERSION,crossBrowserCode:true,titleImportWithoutLocalSave:true,fileTransfer:true,maxTransferFileBytes:MAX_TRANSFER_FILE_BYTES,exportCode,exportFilePayload,transferFileName,decodeEnvelope,prepareImportedState,importCode,sanitize,loadTransferFile,downloadTransferFile};
 addTitleTransfer();addMenuTransfer();
 })();
