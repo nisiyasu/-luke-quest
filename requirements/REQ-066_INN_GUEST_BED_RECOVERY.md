@@ -1,6 +1,6 @@
 # REQ-066 — Inn Guest Bed Recovery
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: GAMEPLAY / INN / RECOVERY / PLAYER-VISIBLE
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FINAL_GAME_CAPABILITY
@@ -8,7 +8,7 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## 0. PURPOSE
 
-The South Gate Inn already has a walkable guest room and an interactable bed visual/prop, but the bed currently only displays flavor text. The game also already has one-time forest campfire recovery and shrine recovery semantics.
+The South Gate Inn already has a walkable guest room and an interactable bed visual/prop, but the bed currently only displayed flavor text. The game also already has one-time forest campfire recovery and shrine recovery semantics.
 
 Make the existing inn guest room function as a reliable repeatable recovery point without inventing a second inn, changing protected story canon, or duplicating recovery authority unnecessarily.
 
@@ -25,8 +25,8 @@ When the player is in `innGuestRoom`, facing the existing `窓辺のベッド` i
 - show a short recovery dialogue/feedback;
 - repeat use is allowed;
 - if HP/MP are already full and no recoverable status exists, interaction remains harmless and reports that the player is already rested;
-- existing anywhere-tap Action must reach this through canonical `action()` rather than a separate pointer handler;
-- leaving/entering the guest room must remain unchanged.
+- existing anywhere-tap Action reaches this through canonical `action()` rather than a separate pointer handler;
+- leaving/entering the guest room remains unchanged.
 
 ## 2. SAFETY
 
@@ -60,3 +60,20 @@ Automated acceptance must prove at minimum:
 - Flavor text alone is not a functional inn recovery point.
 - Do not claim iPhone physical PASS from CI.
 - Completion is a checkpoint, not a stop condition. Run GATE C and continue when safe work remains.
+
+## 5. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Existing `addons/inn-guest-room.js` was extended; no duplicate room or duplicate bed object was created.
+- The existing `窓辺のベッド` is resolved through the current `front()` + `currentNpcs()` interaction path, then handled inside canonical `action()`.
+- Bed rest calls `stopMoving()`, restores HP to `mh`, restores MP to `mmp` when applicable, clears battle-only `status.poison`, and persists via canonical `save()`.
+- Gold, inventory, equipment, map position, unrelated flags and unrelated status fields are preserved.
+- Repeat/full-state rest is harmless and gives a separate already-rested dialogue.
+- Non-bed guest-room props continue through the original action/flavor path.
+- Dedicated runtime acceptance: `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-inn-guest-bed-recovery-smoke.js`.
+- Checkpoints:
+  - `aa0f8f29bca06530c5db358704f8c97f46d52687` — requirement registration.
+  - `1631f1cb812a67e359430f5397071210899d7216` — bed recovery implementation.
+  - `9b3e6fcca0e26c528372655279aed57446777dcb` — dedicated runtime acceptance.
+- Pages workflow run `34017022991`: SUCCESS.
+- The run passed add-on syntax/contract/static gates, REQ-063 bootstrap regression, assembled title/world browser smoke including REQ-066 dedicated acceptance, 390x844 touch/fullscreen visual-liveness, upload and deployment.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
