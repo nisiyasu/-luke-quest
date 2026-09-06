@@ -60,6 +60,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 48 | REQ-048 | P1 | VERIFY | Autosave Pulse Progress Coverage | `requirements/REQ-048_AUTOSAVE_PULSE_PROGRESS_COVERAGE.md` | later chest/hidden/cache + `lqHerbSampleQuestDone` をdynamic dedupe signatureへ接続。canonical save非変更。Pages run 34010704113 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 49 | REQ-049 | P1 | VERIFY | Manual Backup Corruption Hardening | `requirements/REQ-049_MANUAL_BACKUP_CORRUPTION_HARDENING.md` | malformed/primitive/array backupを安全拒否、INVALID表示/LOAD無効化、valid legacy object保持。dedicated smoke + Pages run 34011257673 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 50 | REQ-050 | P1 | VERIFY | Manual Backup Dangerous-Key Sanitization | `requirements/REQ-050_MANUAL_BACKUP_DANGEROUS_KEY_SANITIZATION.md` | `__proto__` / `constructor` / `prototype` をstate+flags merge前に除外。REQ-049 contract保持。dedicated smoke + Pages run 34011382155 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 51 | REQ-051 | P1 | VERIFY | Manual Backup Numeric Type Hardening | `requirements/REQ-051_MANUAL_BACKUP_NUMERIC_TYPE_HARDENING.md` | runtime DEFAULT由来のcanonical numeric fieldsをdynamic type-normalize。REQ-049/050 contract保持。dedicated smoke + Pages run 34011542116 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
