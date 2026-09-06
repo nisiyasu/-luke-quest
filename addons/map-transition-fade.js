@@ -51,13 +51,16 @@ if(typeof checkGate==='function'){
 }
 
 window.addEventListener('pagehide',removeLayer,{passive:true});
+const smokeMode=typeof location!=='undefined'&&new URLSearchParams(location.search).has('lqTouchSmoke');
 window.LQ_MAP_TRANSITION_FADE_STATUS={
-  version:'1.0.0',
+  version:'1.0.1',
   presentationOnly:true,
   pointerEvents:'none',
   reducedMotion:true,
   cleanupFallbackMs:700,
   existingTransitionSfxOwnership:'ux-v139.js',
+  smokePreview:smokeMode?flash:undefined,
+  smokeCleanup:smokeMode?removeLayer:undefined,
   get activeLayers(){return document.querySelectorAll(`#${ID}`).length;},
   get transitions(){return transitionCount;}
 };
