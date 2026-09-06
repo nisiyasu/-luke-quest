@@ -1,6 +1,6 @@
 # REQ-062 — Save Transfer Existing-Progress Overwrite Guard
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / TRANSFER / DATA-SAFETY / PLAYER-VISIBLE
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FROM_REQ060_POST_AUDIT
@@ -8,48 +8,93 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## 0. DEFECT / RISK
 
-REQ-060 correctly rejects invalid transfer codes before state mutation, but a syntactically valid transfer code can currently replace an already-resumable local adventure immediately when IMPORT is pressed.
+REQ-060 correctly rejects invalid transfer codes before state mutation, but a syntactically valid transfer code could replace an already-resumable local adventure immediately when IMPORT was pressed.
 
-On iPhone this is a meaningful data-loss risk: a player testing/pasting the wrong valid SAVE CODE could overwrite the browser-local canonical autosave before realizing it.
+On iPhone this was a meaningful data-loss risk: a player testing/pasting the wrong valid SAVE CODE could overwrite the browser-local canonical autosave before realizing it.
 
 ## 1. REQUIRED BEHAVIOR
 
 - Fresh browser / no resumable local adventure: valid SAVE CODE imports in one deliberate IMPORT action.
-- Browser with an existing resumable adventure: first IMPORT action must NOT mutate `s` or canonical autosave.
-- First guarded action must clearly warn that the current local adventure will be replaced.
+- Browser with an existing resumable adventure: first IMPORT action does NOT mutate `s` or canonical autosave.
+- First guarded action clearly warns that the current local adventure will be replaced.
 - A second explicit IMPORT action within a bounded confirmation window may proceed.
-- Editing/replacing the code after arming must cancel the confirmation.
-- Confirmation must expire automatically.
-- Invalid transfer code remains rejected by REQ-060 and must never consume/skip the safety contract in a way that mutates state.
+- Editing/replacing the code after arming cancels confirmation.
+- Confirmation expires automatically.
+- Invalid transfer code remains rejected by REQ-060 without state mutation.
 - Existing COPY SAVE CODE, manual slots, title import, world/pause import, touch/fullscreen behavior remain intact.
 
-Do not use a modal flow that can strand touch/movement state. Prefer a compact two-step button confirmation in the existing transfer UI.
+## 2. IMPLEMENTATION
 
-## 2. COMPATIBILITY
+### `addons/transfer-import-overwrite-guard.js`
 
-Use REQ-061's resumable-save predicate when available rather than raw localStorage-key existence, because fresh bootstrap title storage is not actual progress.
+- confirmation window: 12 seconds;
+- uses REQ-061 `hasResumableStoredSave()` when available, with a fail-safe intro/world/battle fallback;
+- validates the incoming transfer through REQ-060 `prepareImportedState()` before arming overwrite confirmation;
+- capture-phase interception of `.lqTransfer .import` prevents the first valid overwrite from reaching the existing import listener;
+- first guarded press records a code hash + expiry and displays an explicit second-press warning;
+- second matching press inside the window disarms the guard and allows the canonical REQ-060 import path to execute;
+- editing the textarea disarms confirmation;
+- timeout expiry disarms confirmation and shows expiry feedback;
+- malformed/invalid codes never get promoted into an overwrite confirmation bypass.
 
-Fail safe if the validity helper is unavailable: do not silently weaken protection for a real current world/intro/battle state.
+### `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-transfer-overwrite-guard-smoke.js`
 
-## 3. ACCEPTANCE
+Fail-closed acceptance covers:
+- existing save first-click no-mutation interception;
+- visible warning;
+- second-click import;
+- input-change disarm;
+- expiry/re-arm logic;
+- malformed code REQ-060 fail-closed behavior;
+- fresh-title single-action import;
+- title/pause transfer UI presence;
+- manual backup preservation.
 
-Automated acceptance must prove:
+## 3. CHECKPOINTS
 
-1. fresh/non-resumable browser allows valid import without guard;
-2. existing world save first IMPORT is intercepted with no `s`/localStorage mutation;
-3. warning feedback is visible;
-4. second action within the confirmation window permits the existing REQ-060 import;
-5. code input change disarms the confirmation;
-6. confirmation expiry disarms it;
-7. malformed code still fails closed;
-8. title and pause transfer UIs remain available;
-9. manual backup contract remains intact;
-10. assembled browser smoke PASS;
-11. 390x844 touch/fullscreen regression PASS;
-12. Pages deploy SUCCESS.
+- requirement registration: `11ad46e6d1fbca43a40fe60618d2d1730bcd2fcf`
+- implementation: `634e6287b333ea2d7644df616a8f606a7757ec85`
+- dedicated acceptance: `38c3d61e399a51b81c4bf8e49ba33a0cd8495bc3`
+- exact queue-history self-repair + VERIFY synchronization: `8873fada6835ce7eb58c13191e792e96658945da`
 
-Physical iPhone feel remains PENDING unless genuinely observed.
+## 4. VERIFICATION
 
-## 4. NO-STOP
+Authoritative Pages workflow run `34015640423`: SUCCESS.
 
-Completion is a checkpoint, not a stop condition. Fresh-fetch HEAD, synchronize queue/CURRENT, run GATE C, and continue when safe work remains.
+Observed successful stages:
+- sequential JavaScript validation: PASS;
+- collision-safe add-on validation: PASS;
+- static regression guard: PASS;
+- add-on contract guard: PASS;
+- PWA/raster/Luke asset validation: PASS;
+- assembled browser smoke including REQ-062 dedicated fail-closed runtime acceptance: PASS;
+- 390x844 floating-touch + iPhone world visual-liveness regression: PASS;
+- Pages upload: PASS;
+- Pages deploy: PASS.
+
+Physical iPhone overwrite-confirmation feel remains `IOS_PHYSICAL_VERIFICATION=PENDING` and is not claimed by automation.
+
+## 5. ACCEPTANCE
+
+1. fresh/non-resumable browser allows valid import without guard — PASS
+2. existing world save first IMPORT intercepted with no `s`/localStorage mutation — PASS
+3. warning feedback visible — PASS
+4. second action within confirmation window permits REQ-060 import — PASS
+5. code input change disarms confirmation — PASS
+6. confirmation expiry/re-arm logic — PASS
+7. malformed code remains fail closed — PASS
+8. title and pause transfer UIs remain available — PASS
+9. manual backup contract remains intact — PASS
+10. assembled browser smoke — PASS
+11. 390x844 touch/fullscreen regression — PASS
+12. Pages deploy — PASS (`34015640423`)
+
+## 6. SELF-AUDIT / QUEUE REPAIR
+
+During REQ-062 queue synchronization, an update accidentally shortened/reworded historical NOTE cells for existing requirements. `EXECUTION_DEGRADATION_DETECTED` was raised immediately.
+
+Repair was performed from the known-good pre-REQ-062 `WORK_QUEUE.md` at commit `5e3c1b73acae03ef08157a222fc84ced8c1f75a9`: all prior rows and status/selection/invariant text were restored from that exact source, then only the REQ-062 row was added and advanced to VERIFY. The repair checkpoint is `8873fada6835ce7eb58c13191e792e96658945da`.
+
+## 7. NO-STOP
+
+Completion is a checkpoint, not a stop condition. Fresh-fetch HEAD, synchronize CURRENT, run GATE C, and continue when safe work remains.
