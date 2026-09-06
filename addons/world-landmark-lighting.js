@@ -36,7 +36,8 @@ const LIGHTS={
  northRidgeApproach:[{x:7,y:16,type:'cliff'},{x:10,y:1,type:'wind'}],
  windShelf:[{x:8,y:16,type:'cliff'},{x:15,y:13,type:'wind'},{x:10,y:1,type:'wind'}],
  skylineTraverse:[{x:9,y:16,type:'cliff'},{x:15,y:12,type:'wind'},{x:10,y:1,type:'wind'}],
- cloudbreakSaddle:[{x:11,y:16,type:'cliff'},{x:6,y:12,type:'cliff'},{x:10,y:1,type:'wind'}]
+ cloudbreakSaddle:[{x:11,y:16,type:'cliff'},{x:6,y:12,type:'cliff'},{x:10,y:1,type:'wind'}],
+ windStairRidge:[{x:11,y:16,type:'cliff'},{x:6,y:12,type:'wind'},{x:10,y:1,type:'wind'}]
 };
 
 function specsFor(mapId){return Array.isArray(LIGHTS[mapId])?LIGHTS[mapId]:[];}
@@ -63,5 +64,5 @@ world=function(){const r=worldBase();addLights();return r;};
 const renderBase=render;
 render=function(){const r=renderBase();addLights();return r;};
 if(s.screen==='world')addLights();
-window.LQ_WORLD_LANDMARK_LIGHT_STATUS={townLamps:4,forestCampGlow:1,campReflectsRestState:true,observationTorches:4,northCliffRoadGlints:2,northCliffRoadStyle:'cliff',windcutPassGlints:2,windcutPassStyle:'wind',northRidgeApproachGlints:2,northRidgeApproachStyles:['cliff','wind'],windShelfGlints:3,windShelfStyles:['cliff','wind','wind'],skylineTraverseGlints:3,skylineTraverseStyles:['cliff','wind','wind'],cloudbreakSaddleGlints:3,cloudbreakSaddleStyles:['cliff','cliff','wind'],presentationOnly:true,pointerSafe:true,hasMap,specsFor,countFor,typesFor};
+window.LQ_WORLD_LANDMARK_LIGHT_STATUS={townLamps:4,forestCampGlow:1,campReflectsRestState:true,observationTorches:4,northCliffRoadGlints:2,northCliffRoadStyle:'cliff',windcutPassGlints:2,windcutPassStyle:'wind',northRidgeApproachGlints:2,northRidgeApproachStyles:['cliff','wind'],windShelfGlints:3,windShelfStyles:['cliff','wind','wind'],skylineTraverseGlints:3,skylineTraverseStyles:['cliff','wind','wind'],cloudbreakSaddleGlints:3,cloudbreakSaddleStyles:['cliff','cliff','wind'],windStairRidgeGlints:3,windStairRidgeStyles:['cliff','wind','wind'],windStairRidgeIntegrated:true,presentationOnly:true,pointerSafe:true,hasMap,specsFor,countFor,typesFor};
 })();
