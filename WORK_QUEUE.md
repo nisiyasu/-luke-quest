@@ -66,6 +66,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 54 | REQ-054 | P1 | VERIFY | 王都アルディア・北の神殿内部 | `requirements/REQ-054_ALDIA_NORTH_TEMPLE_INTERIOR.md` | canonical神殿設定をwalkable interior化。正門/侍祭/祈祷水晶/奉納棚/安全退出、報酬・回復・protected canon変更なし。dedicated smoke + Pages run 34012131433 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 55 | REQ-055 | P1 | VERIFY | Consumable Shop Sell Foundation | `requirements/REQ-055_CONSUMABLE_SHOP_SELL_FOUNDATION.md` | 薬草4G/煙玉9Gの1個売却を既存shop stateへ追加。初回touch-smoke timing collisionを自己修復し、dedicated smoke + assembled browser + 390x844 touch/fullscreen + Pages run 34013983279 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 56 | REQ-056 | P1 | VERIFY | Base Equipment Shop Comparison | `requirements/REQ-056_BASE_EQUIPMENT_SHOP_COMPARISON.md` | 青銅の剣/革の旅装へ現在ATK/DEF→購入後のsigned delta比較をUI-only追加。Tier II downgradeも明示。dedicated/assembled/equipment/390x844 regressions + Pages run 34014165812 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 57 | REQ-057 | P1 | VERIFY | Stackable Shop Sell Quantity | `requirements/REQ-057_STACKABLE_SHOP_SELL_QUANTITY.md` | REQ-055の同一sell authorityを×1/×3へ拡張。在庫不足/不正qty/店外はreject、buy×1/×3と旧x1 sell保持。dedicated/assembled/390x844 + Pages run 34014292725 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
