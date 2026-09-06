@@ -7,7 +7,7 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.appendChild(style);
 
 const LEGACY_TREASURE_FLAGS=['fieldChestOpened','forestCacheOpened','deepCacheOpened','fieldSparkleFound','forestSparkleFound'];
-const OPTIONAL_FLAGS=['elderCharmComplete','forestBountyComplete','lqHerbSampleQuestDone'];
+const OPTIONAL_FLAGS=['elderCharmComplete','forestBountyComplete','lqHerbSampleQuestDone','forestMiniBossDefeated'];
 
 function treasureFlagList(source=window){
  const dynamic=[
