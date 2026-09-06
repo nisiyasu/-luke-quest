@@ -42,7 +42,7 @@ jobs:
             for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           fi
 
-      - name: Capture iPhone-sized world screenshot
+      - name: Capture proven iPhone-sized world screenshot
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
@@ -52,7 +52,7 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           sleep 1
           set +e
-          timeout 35 "$BROWSER" \
+          timeout 40 "$BROWSER" \
             --headless=new \
             --no-sandbox \
             --disable-dev-shm-usage \
@@ -63,23 +63,43 @@ jobs:
             --hide-scrollbars \
             --force-device-scale-factor=1 \
             --window-size=390,844 \
-            --virtual-time-budget=4200 \
+            --virtual-time-budget=6200 \
             --run-all-compositor-stages-before-draw \
+            --dump-dom \
             --screenshot=/tmp/lq-world-390x844.png \
-            'http://127.0.0.1:8130/?lqTouchSmoke=1' \
-            >/tmp/lq-render-stdout.log 2>/tmp/lq-render-chrome.log
+            'http://127.0.0.1:8130/?lqSmoke=1' \
+            >/tmp/lq-render-dom.html 2>/tmp/lq-render-chrome.log
           chrome_status=$?
           set -e
+          test -s /tmp/lq-render-dom.html
           test -s /tmp/lq-world-390x844.png
-          echo "Chrome screenshot status: $chrome_status"
+          echo "Chrome world capture status: $chrome_status"
           ls -lh /tmp/lq-world-390x844.png
+
+          # Never accept a title/menu screenshot as visual-liveness evidence.
+          for needle in \
+            'lqRuntimeSmokeMarker' \
+            'data-screen="world"' \
+            'data-shell="true"' \
+            'data-player="true"'; do
+            if ! grep -q "$needle" /tmp/lq-render-dom.html; then
+              echo "Rendered-pixel preflight did not prove world state: $needle"
+              grep -o 'lqRuntimeSmokeMarker[^<]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"' /tmp/lq-render-dom.html | tail -40 || true
+              exit 1
+            fi
+          done
+          if grep -q 'lqRuntimeSmokeFailure' /tmp/lq-render-dom.html; then
+            echo 'Runtime world smoke reported failure during render capture'
+            exit 1
+          fi
           if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-render-chrome.log; then
-            echo 'Browser runtime error detected during screenshot capture'
+            echo 'Browser runtime error detected during world screenshot capture'
             cat /tmp/lq-render-chrome.log
             exit 1
           fi
+          echo 'REQ-127 world-state preflight PASS before pixel analysis'
 
-      - name: Analyze rendered pixels for black-screen regression
+      - name: Analyze rendered world pixels for black-screen regression
         run: python3 tools/lq-png-black-check.py /tmp/lq-world-390x844.png | tee /tmp/lq-render-metrics.txt
 
       - name: Upload render evidence
@@ -90,7 +110,8 @@ jobs:
           path: |
             /tmp/lq-world-390x844.png
             /tmp/lq-render-metrics.txt
+            /tmp/lq-render-dom.html
             /tmp/lq-render-chrome.log
-            /tmp/lq-render-stdout.log
+            /tmp/lq-render-http.log
           if-no-files-found: warn
           retention-days: 14
