@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 13:31 JST
+- UPDATED_AT: 2026-09-06 14:22 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,30 +8,32 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `7d87d943cd9e5e82402d3fa3b2d5b70ee96feae3`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `50a269157b3153e24376c138732f181865fd1fa0`
-- LATEST_REQUIREMENT_CHECKPOINT: `6b555d4972e4e2aeadb4f2be069ad83f5f96f9ed`
-- LATEST_QUEUE_CHECKPOINT: `7d87d943cd9e5e82402d3fa3b2d5b70ee96feae3`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-051 PAGES SUCCESS`
-- LATEST_PAGES_RUN: `34011542116` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `2febf15fbd1666776db1a62eb66e2aa73e768024`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `b6ae4f13161148aab6cfd518f682d59f1ab335ee`
+- LATEST_REQUIREMENT_CHECKPOINT: `b6ae4f13161148aab6cfd518f682d59f1ab335ee`
+- LATEST_QUEUE_CHECKPOINT: `2febf15fbd1666776db1a62eb66e2aa73e768024`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-054 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34012131433` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
-- EXECUTION_DEGRADATION_STATUS: `SELF_REPAIR ACTIVE / NO OWNER REMINDER REQUIRED`
+- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED / PREVIOUS INTERRUPTED HANDOFF RECOVERED`
+- PREEMPTED_REQUIREMENT: `NONE`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous consistency work is `REQ-043` through `REQ-051`
-- NEXT_ACTION: fresh-audit canonical autosave bootstrap integrity and other existing final-game systems; do not duplicate existing add-ons; register/execute the next concrete safe defect/capability under WIP=1
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-052`, `REQ-053`, `REQ-054`
+- NEXT_ACTION: after fresh P0 automated/public re-audit, deep-audit existing final-game capability inventory, register the next concrete non-duplicate player-visible defect/capability under WIP=1, implement, regress, publish, synchronize, then continue
 - NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
 ## CURRENT VERIFIED REALITY
 
 ### Owner-confirmed P0 reality
 - REQ-034 remains `DONE / IOS_PHYSICAL_VERIFICATION=PASS` after Owner physical-iPhone confirmation `うん、直った`.
-- REQ-021 / REQ-022 / REQ-001 / REQ-023 remain `VERIFY`; later integrated 390x844 browser regressions continue to pass, but no false physical PASS is claimed.
+- REQ-021 / REQ-022 / REQ-001 / REQ-023 remain `VERIFY`; latest assembled 390x844 browser regressions continue to exercise tap/action, floating movement and fullscreen visual-liveness contracts, but no false physical PASS is claimed.
+- Fresh P0 requirement files were reloaded during this recovery execution rather than trusting old VERIFY labels alone.
 
 ### REQ-043 — Poison Defeat Cleanup
 - STATUS: `VERIFY`
@@ -87,16 +89,37 @@
 - Pages run `34011542116` SUCCESS including assembled browser smoke and 390x844 floating-touch + iPhone world visual-liveness.
 - iPhone subjective verification PENDING.
 
+### REQ-052 — Readable Normal Enemy Behavior
+- STATUS: `VERIFY`
+- ordinary enemies expose readable PRESSURE / BURST / STEADY behavior while preserving the canonical enemy-turn, guard, poison and boss-AI chains.
+- dedicated smoke + Pages run `34011798629` SUCCESS.
+- iPhone subjective verification PENDING.
+
+### REQ-053 — Recovery Magic Foundation
+- STATUS: `VERIFY`
+- `癒光` adds a 5 MP battle heal with deterministic level scaling, no poison cure, no-cost/no-turn rejection at full HP or insufficient MP, and canonical enemy response on a valid cast.
+- dedicated smoke + Pages run `34011930589` SUCCESS.
+- iPhone subjective verification PENDING.
+
+### REQ-054 — Aldia North Temple Interior
+- STATUS: `VERIFY`
+- canonical North Temple setting is now a walkable Aldia interior with a safe entrance/exit, attendant, prayer crystal and environmental prop.
+- no reward, healing, progression gate or protected-canon reveal was added.
+- first acceptance probe caught its own exit-coordinate mistake and was repaired before completion claim.
+- Pages run `34012131433` SUCCESS; fresh Actions re-check confirms `completed / success` on the acceptance-coordinate repair checkpoint.
+- physical/subjective iPhone temple look/feel verification PENDING.
+
 ## SELF_REPAIR_ACTIONS THIS EXECUTION
 
-1. Fresh boot found HEAD ahead of CURRENT around REQ-044; recovered committed repository reality rather than repeating work.
-2. Preserved REQ-044 legacy poison shape hardening and continued from fresh HEAD.
-3. Found/fixed REQ-049 malformed manual-backup payload acceptance and added visible invalid-slot recovery UX + fail-closed smoke.
-4. Found/fixed REQ-050 dangerous manual-backup merge keys at state/flags boundaries without weakening REQ-049.
-5. Found/fixed REQ-051 canonical numeric-type corruption at manual-load boundary using current runtime DEFAULT as the dynamic numeric schema.
-6. Each REQ reached dedicated regression PASS, assembled browser PASS, 390x844 touch/world visual-liveness PASS and Pages SUCCESS before VERIFY.
-7. Queue is synchronized through REQ-051; Owner-only formal art backlog was not fabricated or bypassed.
-8. Physical checks remain PENDING unless explicitly confirmed by Owner; REQ-034 physical PASS remains preserved.
+1. Fresh boot found implementation HEAD at REQ-054 while CURRENT was still synchronized only through REQ-051.
+2. Fresh WORK_QUEUE was also behind implementation reality, ending at REQ-052 and omitting completed REQ-053/REQ-054.
+3. Inspected REQ-053, REQ-054, the REQ-054 final diff, implementation add-on and fresh Pages workflow evidence rather than repeating committed work.
+4. Repaired WORK_QUEUE forward by registering REQ-053 and REQ-054 as VERIFY with their actual successful Pages evidence.
+5. Repaired CURRENT forward to the latest committed implementation reality while preserving physical verification as PENDING.
+6. Reloaded REQ-021 / REQ-022 / REQ-001 / REQ-023 and re-audited latest integrated smoke coverage instead of treating historical VERIFY as immunity from review.
+7. Confirmed latest integrated touch smoke still checks stationary tap -> canonical Action exactly once, dialogue tap/drag distinction, drag no Action, pointercancel, UI exclusion, rerender hold safety, blur cleanup, map-transition cleanup, dead zone, live direction changes and release stop.
+8. Confirmed latest fullscreen visual-liveness CI still guards transparent controls plus shell/world/player geometry and viewport intersection at 390x844.
+9. Previous premature/interrupted handoff was repaired without Owner intervention; CONTINUE remains required.
 
 ## MANDATORY BOOT / RECOVERY
 
