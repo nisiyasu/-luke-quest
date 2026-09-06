@@ -1,12 +1,18 @@
 (() => {
 'use strict';
 
-/* REQ-068: read-only preview over REQ-060 canonical transfer validation. */
+/* REQ-068/071: read-only preview over REQ-060 canonical transfer validation. */
 const transfer=window.LQ_SAVE_TRANSFER_STATUS;
 if(!transfer?.prepareImportedState)return;
 
 function mapLabel(mapId){
  try{return MAPS?.[mapId]?.name||MAPS?.[mapId]?.label||String(mapId||'UNKNOWN');}catch{return String(mapId||'UNKNOWN');}
+}
+function canonicalGold(next){
+ const gold=Number(next?.gold);
+ if(Number.isFinite(gold))return gold;
+ const legacy=Number(next?.g);
+ return Number.isFinite(legacy)?legacy:0;
 }
 function previewCode(code){
  try{
@@ -14,8 +20,8 @@ function previewCode(code){
   const lv=Number.isFinite(Number(next.lv))?Number(next.lv):1;
   const hp=`${Number(next.hp)||0}/${Number(next.mh)||0}`;
   const mp=`${Number(next.mp)||0}/${Number(next.mmp)||0}`;
-  const g=Number(next.g)||0;
-  return{ok:true,text:`LV ${lv} · ${mapLabel(next.map)} · HP ${hp} · MP ${mp} · ${g}G`,state:next};
+  const gold=canonicalGold(next);
+  return{ok:true,text:`LV ${lv} · ${mapLabel(next.map)} · HP ${hp} · MP ${mp} · ${gold}G`,state:next};
  }catch(err){return{ok:false,text:'',error:String(err?.message||err)};}
 }
 function ensurePreview(box){
@@ -48,6 +54,6 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.appendChild(style);
 const renderBase=render;
 render=function(){const out=renderBase();enhanceAll();return out;};
-window.LQ_SAVE_TRANSFER_PREVIEW_STATUS={enabled:true,previewCode,refreshBox,enhanceAll,mapLabel};
+window.LQ_SAVE_TRANSFER_PREVIEW_STATUS={enabled:true,previewCode,refreshBox,enhanceAll,mapLabel,canonicalGold};
 enhanceAll();
 })();
