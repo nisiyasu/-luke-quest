@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-/* REQ-117 Checkpoint A — presentation-only character grounding.
+/* REQ-119 Checkpoint A — presentation-only character grounding.
    Adds a separate visual body wrapper + elliptical foot shadow so canonical
    entity left/top coordinates, collision, facing, pointer and save authority
    remain untouched. Also gives existing semantic interaction cues a restrained
@@ -84,8 +84,8 @@ if(typeof world==='function'){
 if(typeof s!=='undefined'&&s?.screen==='world')sync();
 
 function fail(reason){
-  const el=document.createElement('i');el.className='lqReq117CheckpointASmokeFailure';el.hidden=true;el.dataset.reason=String(reason);document.body.appendChild(el);
-  throw new TypeError(`REQ-117 checkpoint A smoke failed: ${reason}`);
+  const el=document.createElement('i');el.className='lqReq119CheckpointASmokeFailure';el.hidden=true;el.dataset.reason=String(reason);document.body.appendChild(el);
+  throw new TypeError(`REQ-119 checkpoint A smoke failed: ${reason}`);
 }
 function assert(ok,reason){if(!ok)fail(reason);}
 function smoke(){
@@ -105,14 +105,14 @@ function smoke(){
     assert(JSON.stringify(s.flags||{})===flagsBefore,'story flags unchanged');
     assert(window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.tapAnywhereAction===true,'tap authority preserved');
     assert(window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS?.worldViewportPrimary===true,'fullscreen authority preserved');
-    const marker=document.createElement('i');marker.className='lqReq117CheckpointASmokeMarker';marker.hidden=true;
+    const marker=document.createElement('i');marker.className='lqReq119CheckpointASmokeMarker';marker.hidden=true;
     marker.dataset.playerShadow='true';marker.dataset.npcShadow='true';marker.dataset.idle='true';marker.dataset.interactionEasing='true';marker.dataset.presentationOnly='true';document.body.appendChild(marker);
   } finally {
     s.screen=snapshot.screen;s.map=snapshot.map;s.x=snapshot.x;s.y=snapshot.y;s.dir=snapshot.dir;s.dialog=snapshot.dialog;s.flags=snapshot.flags;render();
   }
 }
 
-window.LQ_REQ117_CHECKPOINT_A_STATUS={requirement:'REQ-117',checkpoint:'A',presentationOnly:true,footShadows:true,idleMotion:true,interactionEaseIn:true,inputAuthority:false,saveSchemaChange:false,storyChange:false,iosPhysicalVerification:'PENDING'};
-window.LQ_REQ117_CHECKPOINT_A_TEST={sync,smoke};
+window.LQ_REQ119_CHECKPOINT_A_STATUS={requirement:'REQ-119',checkpoint:'A',presentationOnly:true,footShadows:true,idleMotion:true,interactionEaseIn:true,inputAuthority:false,saveSchemaChange:false,storyChange:false,iosPhysicalVerification:'PENDING'};
+window.LQ_REQ119_CHECKPOINT_A_TEST={sync,smoke};
 setTimeout(()=>{if(new URLSearchParams(location.search).has('lqSmoke'))smoke();},0);
 })();
