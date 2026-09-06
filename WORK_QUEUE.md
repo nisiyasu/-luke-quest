@@ -120,6 +120,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 106 | REQ-115 | P2 | VERIFY | Wind Stair Ridge Presentation Polish | `requirements/REQ-115_WIND_STAIR_RIDGE_PRESENTATION_POLISH.md` | Published-map area-title continuity repaired; Pages SUCCESS; iPhone physical check PENDING. |
 | 107 | REQ-116 | P2 | VERIFY | Wind Stair Ridge Environment Continuity | `requirements/REQ-116_WIND_STAIR_RIDGE_ENVIRONMENT_CONTINUITY.md` | Published-map ambient/cloud/footstep/landmark presentation continuity repaired; Pages SUCCESS; iPhone physical check PENDING. |
 | 108 | REQ-117 | P1 | READY | World / Character Visual Richness Upgrade | `requirements/REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE.md` | Owner-directed presentation upgrade: character foot shadows, restrained idle motion, interaction popup easing, map edge blending/depth shadows/ambient air, and field-sprite outline/3-tone/detail/eye richness. Preserve input/collision/save/story authorities. |
+| 109 | REQ-118 | P1 | READY | High-Quality Hero Selection Opening / Playable Prologue | `requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md` | Owner-approved playable Opening: Aldia hero-selection morning -> Luke playable intro -> school mock-battle flashback -> Leon anxiety -> ceremony -> abnormal crystal response -> Leon escape report -> Chapter 1 handoff. Existing saves must not rewind; protect Story Canon and P0 input/fullscreen. |
 
 ## STATUS DEFINITIONS
 
