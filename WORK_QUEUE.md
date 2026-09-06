@@ -70,6 +70,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 57 | REQ-057 | P1 | VERIFY | Stackable Shop Sell Quantity | `requirements/REQ-057_STACKABLE_SHOP_SELL_QUANTITY.md` | REQ-055の同一sell authorityを×1/×3へ拡張。在庫不足/不正qty/店外はreject、buy×1/×3と旧x1 sell保持。dedicated/assembled/390x844 + Pages run 34014292725 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 58 | REQ-058 | P1 | VERIFY | Accessory Equipment Foundation | `requirements/REQ-058_ACCESSORY_EQUIPMENT_FOUNDATION.md` | 3枠目ACCESSORYを追加。旅人の護符60G/DEF+1、購入・装備・はずす・再装備・Tier II防具跨ぎdelta安全を実装。dedicated/equipment/assembled/390x844 + Pages run 34014440476 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 59 | REQ-060 | P1 | VERIFY | Cross-Browser Save Transfer | `requirements/REQ-060_CROSS_BROWSER_SAVE_TRANSFER.md` | SAVE CODE export/import、fresh browser title IMPORT、Unicode round-trip、invalid/dangerous payload fail-closed、manual backup保持。Pages run 34015168161 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 60 | REQ-061 | P1 | VERIFY | Fresh-Browser Continue Validity | `requirements/REQ-061_FRESH_BROWSER_CONTINUE_VALIDITY.md` | bootstrap DEFAULT/title autosaveを実進行と誤認する偽Continueを修正。intro/world/legacy/REQ-060 importはContinue維持。fail-closed smoke + Pages run 34015384336 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
