@@ -83,6 +83,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 70 | REQ-071 | P1 | VERIFY | Save Transfer Preview Canonical Gold Fix | `requirements/REQ-071_SAVE_TRANSFER_PREVIEW_CANONICAL_GOLD_FIX.md` | import previewの誤った`g`参照をcanonical `gold`優先へ修復。adversarial smoke + Pages run 34018266479 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 71 | REQ-072 | P1 | VERIFY | Accessory Shop Sell Foundation | `requirements/REQ-072_ACCESSORY_SHOP_SELL_FOUNDATION.md` | 旅人の護符を未装備時のみ30Gで売却可能。REQ-058 authority再利用、canonical consumable preservation hardening済み。Pages run 34018553794 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 72 | REQ-073 | P1 | VERIFY | Optional Boss Completion Record Coverage | `requirements/REQ-073_OPTIONAL_BOSS_COMPLETION_RECORD_COVERAGE.md` | 苔角の森王撃破をADVENTURE RECORD OPTIONAL DONEとCOMPLETEDへread-only反映。REQ-041 smokeをforward-compatible化。Pages run 34018645505 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 73 | REQ-074 | P1 | VERIFY | Optional Boss Adventure Journal Tracking | `requirements/REQ-074_OPTIONAL_BOSS_ADVENTURE_JOURNAL_TRACKING.md` | 巨大蹄跡を発見後だけSIDE QUESTSへ表示し、再調査を案内。撃破後は苔角の森王の完了行へ遷移。発見前ネタバレなし、read-only、assembled smoke + 390x844 + Pages run 34019148578 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
