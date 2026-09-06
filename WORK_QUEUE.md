@@ -16,7 +16,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 4 | REQ-023 | P0 | VERIFY | 北の退避路・進行必須手掛かりの導線修正 | `requirements/REQ-023_EVAC_ROUTE_CRITICAL_GUIDANCE.md` | 左下の撤収命令を具体的objective+pulse markerで案内。取得後は北端へ即誘導。既存gate/story不変。Pages run 33996304585 SUCCESS。Owner実機導線確認待ち |
 | 5 | REQ-024 | P1 | VERIFY | 王都アルディア・民家内部 | `requirements/REQ-024_ALDIA_CIVILIAN_HOME_INTERIOR.md` | walkable民家・住民/小物interaction・安全な退出を実装。修復checkpoint `43ba4e88...` のPages run 33997076846 SUCCESS。Owner実機/見た目確認待ち |
 | 6 | REQ-025 | P1 | VERIFY | 王都アルディア・王城門衛詰所 | `requirements/REQ-025_ALDIA_CASTLE_GATEHOUSE_INTERIOR.md` | canonical entry/walk/guard+prop interaction/exit/safe spawnを専用runtime probeで固定。Pages run 34001139669 SUCCESS。Owner実機/見た目確認待ち |
-| 7 | REQ-026 | P1 | IN_PROGRESS | 王都アルディア・王城前庭 | `requirements/REQ-026_ALDIA_CASTLE_COURTYARD.md` | 門衛詰所奥からwalkable前庭へ拡張。runtime acceptance + Pages検証中。王城本館完成とは扱わない |
+| 7 | REQ-026 | P1 | VERIFY | 王都アルディア・王城前庭 | `requirements/REQ-026_ALDIA_CASTLE_COURTYARD.md` | 門衛詰所→前庭entry/walk/landmark/interaction/本館境界/returnをruntime probeで固定。Pages run 34001268066 SUCCESS。Owner実機/見た目確認待ち |
 | 8 | REQ-002 | P0 | VERIFY | ルーク会話グラフィックを承認済み生成画像へ正式化 | `requirements/REQ-002_LUKE_DIALOGUE_ART.md` | 正式WebP transport + dialogue guard + Pages CI成功を確認。Owner実機/見た目確認待ち |
 | 9 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
 | 10 | REQ-016 | P1 | VERIFY | MP / 戦闘技システム | `requirements/REQ-016_MP_SKILL_SYSTEM.md` | 永続MP 10/10 + 初期技「蒼閃」4MP。旧save migration、level-up/敗北回復、static/browser/touch/Pages run 33992924664 SUCCESS。Owner iPhone戦闘感確認待ち |
@@ -81,7 +81,7 @@ Future polish, optional content and non-urgent enhancement.
 
 1. Recover existing `IN_PROGRESS` first.
 2. If none exists, select highest-priority `READY`.
-3. Within equal priority, explicit ORDER wins.
+3. Within equal priority, explicit Owner order wins.
 4. Owner's newest direct request may be promoted/reordered immediately.
 5. `VERIFY` does not block selecting new `READY` work.
 6. A single `BLOCKED` item does not stop development.
