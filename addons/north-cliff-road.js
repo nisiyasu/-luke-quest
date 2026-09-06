@@ -1,11 +1,14 @@
 (() => {
 'use strict';
 
-/* REQ-081 — continue the existing first-chapter pursuit one walkable region
-   beyond evacRoute. Reuses withdrawProofSeen as the only progression authority;
-   no protected reveal or new required story flag is introduced. */
+/* REQ-081 + REQ-082 — continue the existing first-chapter pursuit one walkable
+   region beyond evacRoute and keep it inside the canonical exploration/battle
+   rhythm. Reuses withdrawProofSeen and EVAC_ENEMIES; no protected reveal, new
+   required story flag, duplicate battle loop, or placeholder enemy is added. */
 const EVAC='evacRoute';
 const CLIFF='northCliffRoad';
+const ENTRY_GRACE=5;
+const RETURN_GRACE=4;
 if(!MAPS[EVAC])return;
 
 MAPS[CLIFF]={
@@ -78,6 +81,7 @@ function cliffAhead(){
 }
 function enterCliff(){
   stopMoving();
+  encounterGrace=ENTRY_GRACE;
   s.map=CLIFF;s.x=10;s.y=16;s.dir='up';
   s.dialog={name:'北の崖道',text:'退避路の北端を越えると、道は急に細くなった。岩壁に沿って新しい足跡が続いている。\nルーク「“北へ行け”は分かりやすいんですけど、崖までセットとは聞いてません。」'};
 }
@@ -100,12 +104,19 @@ checkGate=function(){
     return;
   }
   if(s.map===CLIFF&&c==='V'){
-    stopMoving();s.map=EVAC;s.x=14;s.y=1;s.dir='down';
+    stopMoving();
+    encounterGrace=RETURN_GRACE;
+    s.map=EVAC;s.x=14;s.y=1;s.dir='down';
     s.dialog={name:'北の退避路',text:'崖道から退避路へ戻った。北へ続く足跡は、まだ岩壁の向こうに残っている。'};
     return;
   }
   return baseCheckGate();
 };
+
+const baseEncounterMap=encounterMap;
+encounterMap=function(){return s.map===CLIFF?true:baseEncounterMap();};
+const baseEnemyPool=enemyPool;
+enemyPool=function(){return s.map===CLIFF?EVAC_ENEMIES:baseEnemyPool();};
 
 function decorate(){
   if(s.screen!=='world'||s.map!==CLIFF)return;
@@ -119,5 +130,5 @@ world=function(){const r=baseWorld();decorate();return r;};
 const baseRender=render;
 render=function(){const r=baseRender();decorate();return r;};
 
-window.LQ_NORTH_CLIFF_ROAD_STATUS={version:'1.0',map:CLIFF,entryAuthority:'withdrawProofSeen',entrySpawn:[10,16],returnSpawn:[14,1],interactionCount:4,newRequiredStoryFlags:0,protectedCanonChanged:false,iosPhysicalVerification:'PENDING'};
+window.LQ_NORTH_CLIFF_ROAD_STATUS={version:'1.1',map:CLIFF,entryAuthority:'withdrawProofSeen',entrySpawn:[10,16],returnSpawn:[14,1],interactionCount:4,newRequiredStoryFlags:0,protectedCanonChanged:false,encounterEnabled:true,encounterPool:'EVAC_ENEMIES',entryEncounterGrace:ENTRY_GRACE,returnEncounterGrace:RETURN_GRACE,newEnemyIdentities:0,iosPhysicalVerification:'PENDING'};
 })();
