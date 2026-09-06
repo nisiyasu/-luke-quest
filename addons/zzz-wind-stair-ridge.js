@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-/* REQ-113 — load-order-safe playable continuation north from Cloudbreak Saddle. */
+/* REQ-113 — conservative playable continuation north from Cloudbreak Saddle. */
 const FROM='cloudbreakSaddle';
 const RIDGE='windStairRidge';
 const ENTRY_GRACE=5;
@@ -28,10 +28,10 @@ const actionBase=action;
 action=function(){if(!s.dialog&&s.screen==='world'){if(s.map===FROM){const n=aheadNpc(FROM);if(n?.kind==='lqCloudbreakBoundary'){enterRidge(n);return;}}if(s.map===RIDGE){const n=aheadNpc(RIDGE);if(n){stopMoving();if(n.kind==='lqWindStairBoot')guidePhase='north';s.dialog=n;render();return;}}}return actionBase();};
 const checkGateBase=checkGate;
 checkGate=function(){if(s.map===RIDGE){const row=MAPS[RIDGE]?.tiles?.[s.y]||'';if(row[s.x]==='V'){stopMoving();encounterGrace=RETURN_GRACE;s.map=FROM;s.x=10;s.y=2;s.dir='down';guidePhase='clue';s.dialog={name:'北尾根・雲上の鞍部',text:'風鳴りの石段を下り、雲上の鞍部へ戻った。岩壁に入ると横風が急に弱くなる。'};return;}}return checkGateBase();};
-const encounterMapBase=encounterMap;
-encounterMap=function(){return s.map===RIDGE?true:encounterMapBase();};
-const enemyPoolBase=enemyPool;
-enemyPool=function(){return s.map===RIDGE?EVAC_ENEMIES:enemyPoolBase();};
 
-window.LQ_WIND_STAIR_RIDGE_STATUS={version:'1.3',requirement:'REQ-113',map:RIDGE,displayName:'北尾根・風鳴りの石段',entryFrom:FROM,entrySpawn:[10,18],returnSpawn:[10,2],interactionCount:4,firstClue:{kind:'lqWindStairBoot',x:11,y:16},northBoundary:{kind:'lqWindStairBoundary',x:10,y:1},guidance:'visible canonical interactables: 👣 south clue -> ⬆️ north boundary',newRequiredStoryFlags:0,protectedCanonChanged:false,encounterEnabled:true,encounterPool:'EVAC_ENEMIES',entryEncounterGrace:ENTRY_GRACE,returnEncounterGrace:RETURN_GRACE,canonicalAction:true,canonicalCheckGate:true,saveSchemaChanged:false,pointerAuthority:false,loadOrderBand:'zzz-before-north-cliff-finalizers',iosPhysicalVerification:'PENDING',guidePhase:()=>guidePhase};
+/* Random encounters are intentionally not wrapped here. REQ-082 proved the
+   late global encounter chain is sensitive to one more wrapper. This interval
+   remains a safe exploration segment until encounter authority is integrated
+   through a registry/non-wrapping mechanism. */
+window.LQ_WIND_STAIR_RIDGE_STATUS={version:'1.4',requirement:'REQ-113',map:RIDGE,displayName:'北尾根・風鳴りの石段',entryFrom:FROM,entrySpawn:[10,18],returnSpawn:[10,2],interactionCount:4,firstClue:{kind:'lqWindStairBoot',x:11,y:16},northBoundary:{kind:'lqWindStairBoundary',x:10,y:1},guidance:'visible canonical interactables: 👣 south clue -> ⬆️ north boundary',newRequiredStoryFlags:0,protectedCanonChanged:false,encounterEnabled:false,encounterIntegrationDeferred:'avoid REQ-082 authority-chain regression',entryEncounterGrace:ENTRY_GRACE,returnEncounterGrace:RETURN_GRACE,canonicalAction:true,canonicalCheckGate:true,saveSchemaChanged:false,pointerAuthority:false,iosPhysicalVerification:'PENDING',guidePhase:()=>guidePhase};
 })();
