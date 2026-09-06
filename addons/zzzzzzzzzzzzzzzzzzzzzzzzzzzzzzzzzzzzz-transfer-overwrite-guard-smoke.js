@@ -17,7 +17,7 @@ setTimeout(()=>{
   return box;
  };
  try{
-  data.status=!!guard&&guard.confirmMs>=5000&&!!transfer;
+  data.status=!!guard&&guard.confirmMs>=5000&&!!transfer&&typeof guard.comparisonMessage==='function';
   s=Object.assign({},DEFAULT,{screen:'world',map:'mistTrail',x:8,y:15,lv:8,hp:36,mh:52,gold:123,dialog:null,flags:Object.assign({},DEFAULT.flags,{glennTraceSeen:true})});
   const incoming=transfer.exportCode();
 
@@ -25,7 +25,12 @@ setTimeout(()=>{
   const beforeS=JSON.stringify(s),beforeStorage=localStorage.getItem('lukeQuestV2');
   click(button);
   data.firstIntercept=JSON.stringify(s)===beforeS&&localStorage.getItem('lukeQuestV2')===beforeStorage&&!!box.dataset.lqTransferGuardHash;
-  data.warning=/もう一度IMPORT/.test(box.querySelector('.lqTransferFeedback')?.textContent||'');
+  const warning=box.querySelector('.lqTransferFeedback')?.textContent||'';
+  data.warning=/もう一度IMPORT/.test(warning);
+  data.comparison=/CURRENT LV3/.test(warning)&&/王都アルディア/.test(warning)&&/44G/.test(warning)&&/IMPORT LV8/.test(warning)&&/霧の追跡路/.test(warning)&&/123G/.test(warning);
+  data.comparisonReadOnly=JSON.stringify(s)===beforeS&&localStorage.getItem('lukeQuestV2')===beforeStorage;
+  const prepared=transfer.prepareImportedState(incoming);
+  data.preparationAuthority=guard.comparisonMessage(incoming).includes(`IMPORT LV${prepared.lv}`);
   click(button);
   data.secondImports=s.map==='mistTrail'&&s.lv===8&&s.gold===123&&JSON.parse(localStorage.getItem('lukeQuestV2')||'{}').map==='mistTrail';
 
@@ -57,6 +62,7 @@ setTimeout(()=>{
  }
  Object.entries(data).filter(([k])=>k!=='error').forEach(([k,v])=>marker.dataset[k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())]=String(v===true));
  const failed=Object.entries(data).find(([k,v])=>k!=='error'&&v!==true);
- if(failed){const key=failed[0].replace(/[^A-Za-z0-9_$]/g,'_');setTimeout(()=>{eval(`LQ_REQ062_TRANSFER_OVERWRITE_GUARD_FAIL_${key}()`);},0);}
+ if(failed){const key=failed[0].replace(/[^A-Za-z0-9_$]/g,'_');setTimeout(()=>{eval(`LQ_REQ080_TRANSFER_OVERWRITE_COMPARISON_FAIL_${key}()`);},0);}
+ window.LQ_REQ080_SMOKE_PASS=!failed;
 },4800);
 })();
