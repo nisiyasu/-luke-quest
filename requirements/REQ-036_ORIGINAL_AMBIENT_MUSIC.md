@@ -1,6 +1,6 @@
 # REQ-036 — Original Ambient Music Foundation
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: AUDIO / MUSIC / ATMOSPHERE / POLISH
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -20,11 +20,11 @@ fresh inventoryで既存SE実装 `ux-v83.js` / `ux-v138.js` / `addons/audio-dedu
 
 Web Audio APIのみで、外部音源なしの短いオリジナルambient loopを生成する。
 
-最初のcheckpointでは最低限2系統:
+実装済み2系統:
 - town / safe interior系: 明るく静かな短いpattern
 - field / forest / route系: 少し緊張感のある短いpattern
 
-battle専用BGMは今回必須ではない。battle/non-worldへ入ったらworld ambientを安全に停止またはduckする。
+battle/non-worldへ入ったらworld ambientを安全に停止する。
 
 ## AUTOPLAY / MOBILE SAFETY
 
@@ -32,62 +32,79 @@ battle専用BGMは今回必須ではない。battle/non-worldへ入ったらworl
 - user gestureで明示的に MUSIC ON にした後だけ開始
 - Safari autoplay restrictionを尊重
 - AudioContext unsupportedでもgameplay継続
-- visibility hidden / pagehideで停止またはsuspend
-- repeated renderでtimer/oscillatorを増殖させない
-- map transitionでtheme切替しても古いschedulerを残さない
+- visibility hidden / pagehideで停止/suspend
+- repeated renderでtimer/oscillatorを増殖させない generation token方式
+- map theme切替時に旧scheduler/voiceを停止
 - SEの既存AudioContext ownershipや `LQ_sfx` を上書きしない
 
 ## UI
 
-world viewportを縮めない小型 `MUSIC` toggleをmap上へoverlayする。
+`addons/original-ambient-music.js` が worldの `gameShell` 内に小型 `MUSIC` buttonをoverlayする。
 
-- default OFF
-- ON/OFFが明確
-- explicit controlなのでREQ-021 world tap Actionから除外されるbutton要素を使う
-- REQ-022 fullscreen UIを壊さない
-- localStorageにmusic preferenceを保存してよいが、autoplay禁止のためreload後もuser gestureなしに鳴らさない
+- default playback OFF
+- ON/OFF明示
+- button要素なのでworld Actionのexplicit-control exclusion対象
+- world viewportをdocument flowで縮めない
+- preferenceはlocalStorageへ保存可能だが、reload後もsession user gesture前には再生しない
 
 ## ORIGINALITY
 
-- sampled/external asset禁止
-- copyrighted melody引用禁止
-- simple arpeggio/pad/tone envelopeから構成
-- LUKE QUEST独自の短いpatternとして実装
+- sampled/external assetなし
+- copyrighted melody引用なし
+- oscillator + gain envelopeのみ
+- safe / wild の独自短尺pattern
 
 ## GAMEPLAY SAFETY
 
-- story / save / reward / battle state変更禁止
-- movement/input semantics変更禁止
-- canonical action()をwrapしない
+- story / save / reward / battle state変更なし
+- movement/input semantics変更なし
+- canonical `action()` をwrapしない
+- existing `LQ_sfx` ownership不変
 - musicはpresentation-only
 
-## TEST REQUIREMENTS
+## TEST / VERIFICATION
 
-1. JS syntax PASS
-2. AudioContext unavailableでもfatalなし
-3. initial stateでAudioContext未生成・music未再生
-4. explicit MUSIC buttonが存在
-5. toggle ONでengineをuser-gesture内からunlock可能
-6. toggle OFFでscheduler/active voices停止
-7. theme分類2系統以上
-8. repeated render/map transitionでduplicate schedulerなし
-9. hidden/pagehide cleanup
-10. REQ-021/001/022/034 regression PASS
-11. Pages deploy SUCCESS
+Implemented:
+- `addons/original-ambient-music.js`
+- `addons/zzzzzzzzzzzz-original-ambient-music-smoke.js`
+
+Smoke checks in the existing iPhone-sized `lqTouchSmoke` harness:
+- status export exists
+- original synth / external audio false
+- initial autoplay false / playing false
+- pre-gesture unlocked false
+- safe + wild themes exist
+- explicit MUSIC button exists inside gameShell
+- gameShell remains >80% viewport height
+- input wrappers untouched
+- existing SFX ownership preserved
+
+Checkpoint:
+- implementation `fd85e8e4386af22538e3798c7bf705875e3a5257`
+- browser acceptance `0803395d9fe7e39668cdcdfc1814520a3e38066c`
+- Pages run `34006935671`: SUCCESS
+- sequential JS/add-ons/static/add-on/PWA/assets: SUCCESS
+- assembled browser gameplay smoke: SUCCESS
+- iPhone-sized floating touch + world visual liveness + ambient music acceptance: SUCCESS
+- upload/deploy: SUCCESS
 
 ## COMPLETION CONDITION
 
-- public Pagesへoriginal ambient music foundationが含まれる
-- explicit user opt-inで2系統以上のworld themeを再生可能
-- OFF/visibility/non-worldで安全停止
-- existing SE ownership不変
+Automated completion is satisfied:
+- public Pages includes original ambient music foundation
+- explicit user opt-in supports two world theme classes
+- OFF/hidden/non-world cleanup exists
+- existing SE ownership remains intact
 - browser/Pages regressions PASS
-- iPhone音量/雰囲気の主観確認前はVERIFYでよい
+
+Physical/subjetive completion remains:
+- `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner checks actual iPhone sound/volume/feel.
 
 ## DO NOT REPEAT
 
 - v83/v138のSEを再実装しない
 - autoplayしない
-- renderごとにsetIntervalを増やさない
+- renderごとにschedulerを増殖させない
 - world入力surfaceへmusic用pointer handlerを追加しない
 - MUSIC UIのためにworld表示領域を削らない
+- headless browser successをiPhone音量/音質の実機PASSと扱わない
