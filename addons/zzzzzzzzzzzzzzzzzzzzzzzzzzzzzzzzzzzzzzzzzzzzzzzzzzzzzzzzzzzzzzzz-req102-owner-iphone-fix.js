@@ -2,7 +2,8 @@
 'use strict';
 
 /* REQ-102 — Owner iPhone hot-fix bundle.
-   1) Keep the first forest step usable after the field -> forest transition.
+   1) Keep the first forest step usable after the field -> forest transition,
+      including an already-saved legacy entry position.
    2) Re-stack the iPhone top HUD without overlap and allow the Owner to collapse it.
    3) Route Luke dialogue portrait to the Owner-uploaded source image using a face crop.
    Gameplay collision remains canonical; this changes only the entry spawn lane and presentation. */
@@ -12,6 +13,7 @@ const STYLE_ID='lq-req102-owner-iphone-style';
 const TOGGLE_ID='lqTopHudToggle';
 const COLLAPSED_CLASS='lqReq102HudCollapsed';
 let hudCollapsed=false;
+let legacyForestEntryNormalized=false;
 
 function injectStyle(){
   if(document.getElementById(STYLE_ID))return;
@@ -151,6 +153,23 @@ function applyHudState(){
   }
 }
 
+function normalizeLegacyForestEntry(){
+  if(legacyForestEntryNormalized)return false;
+  if(typeof s==='undefined'||!s||s.screen!=='world'||s.map!=='forest'||s.x!==11||s.y!==18)return false;
+  const forest=typeof MAPS!=='undefined'&&MAPS&&MAPS.forest;
+  const row17=forest&&forest.tiles&&forest.tiles[17];
+  if(!row17)return false;
+  const blockedSymbols=new Set(['#','H','~','*','^']);
+  const legacyNorthBlocked=blockedSymbols.has(row17[11]);
+  const repairedNorthOpen=!blockedSymbols.has(row17[12]);
+  if(!legacyNorthBlocked||!repairedNorthOpen)return false;
+  s.x=12;
+  s.y=18;
+  legacyForestEntryNormalized=true;
+  window.LQ_REQ102_LEGACY_FOREST_ENTRY_REPAIRED={from:{x:11,y:18},to:{x:12,y:18},northOpen:true};
+  return true;
+}
+
 /* The canonical forest collision map remains unchanged. The previous field->forest
    spawn was (11,18), directly below a blocked tree at (11,17), so an Owner swipe
    toward the north objective looked like total movement failure. Shift the entry
@@ -163,6 +182,7 @@ if(typeof checkGate==='function'){
     if(fromMap==='field'&&s&&s.map==='forest'&&s.x===11&&s.y===18){
       s.x=12;
       s.y=18;
+      legacyForestEntryNormalized=true;
       window.LQ_REQ102_LAST_FOREST_ENTRY={x:s.x,y:s.y,northOpen:typeof blocked==='function'?!blocked(12,17):null};
     }
     return result;
@@ -179,6 +199,7 @@ injectStyle();
 if(typeof render==='function'){
   const beforeReq102Render=render;
   render=function(){
+    normalizeLegacyForestEntry();
     const result=beforeReq102Render();
     decorate();
     return result;
@@ -186,11 +207,14 @@ if(typeof render==='function'){
 }
 window.addEventListener('resize',()=>requestAnimationFrame(decorate),{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>requestAnimationFrame(decorate),{passive:true});
+const repairedExistingSave=normalizeLegacyForestEntry();
 decorate();
+if(repairedExistingSave&&typeof render==='function')setTimeout(()=>render(),0);
 
 window.LQ_REQ102_STATUS={
-  version:'1.0.0',
+  version:'1.1.0',
   forestEntryNorthLane:true,
+  legacySavedForestEntryRepair:true,
   forestCanonicalCollisionPreserved:true,
   topHudRestacked:true,
   topHudToggle:true,
