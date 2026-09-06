@@ -1,6 +1,6 @@
 # REQ-099 — 風切り峠・terrain footstep演出の連続性
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PRESENTATION / FOOTSTEP / WORLD-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -29,17 +29,27 @@ canonical `windcutPass` を既存footstep-particle systemへ接続し、霧と�
 
 ## ACCEPTANCE
 
-- [ ] windcutPass is outdoor-covered
-- [ ] windcutPass resolves to mist
-- [ ] northCliffRoad and legacy cliff/cliffRoad coverage remain
-- [ ] unknown map remains uncovered
-- [ ] transition/reduced-motion/presentation-only behavior preserved
-- [ ] fail-closed coverage smoke PASS
-- [ ] JS/static/add-on regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] windcutPass is outdoor-covered
+- [x] windcutPass resolves to mist
+- [x] northCliffRoad and legacy cliff/cliffRoad coverage remain
+- [x] unknown map remains uncovered
+- [x] transition/reduced-motion/presentation-only behavior preserved
+- [x] fail-closed coverage smoke PASS
+- [x] JS/static/add-on regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone visual feel remains PENDING
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `506c03fb7b8b64b377eeb47d7b7d4f312cb9dff0`.
+- Footstep implementation: `0ad86ab21c352b24648eca111d42b20f2434e34b` in `addons/footstep-particles.js`.
+- Fail-closed coverage guard: `a590301d2254a45d83e7664c5d41c33a79f0b075`.
+- `windcutPass` now resolves to existing lightweight `mist` terrain step FX; `northCliffRoad`, legacy `cliff` / `cliffRoad`, unknown-map fallback and no-transition-FX behavior are preserved.
+- GitHub Pages workflow run `34033788915` on `a590301d2254a45d83e7664c5d41c33a79f0b075`: SUCCESS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## NO-STOP
 
