@@ -87,6 +87,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 74 | REQ-075 | P1 | VERIFY | Optional Boss Objective Chip Tracking | `requirements/REQ-075_OPTIONAL_BOSS_OBJECTIVE_CHIP_TRACKING.md` | 巨大蹄跡を発見後だけworld SIDE chipへ再調査導線を表示。撃破後は消える。既存3 optional objective precedence保持、Pages run 34019286555 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 75 | REQ-076 | P1 | VERIFY | Optional Boss Autosave Pulse Coverage | `requirements/REQ-076_OPTIONAL_BOSS_AUTOSAVE_PULSE_COVERAGE.md` | `forestMiniBossDefeated`を既存autosave progress signatureへ追加。warning-onlyは除外。途中の無関係CSS driftを自己検知・修復。Pages run 34019432206 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 76 | REQ-077 | P1 | VERIFY | Forest Lord Key Item Visibility Guard | `requirements/REQ-077_FOREST_LORD_KEY_ITEM_VISIBILITY_GUARD.md` | unrelated keyItemsがあるだけで森王の角を誤表示するlegacy条件をexact ownership final-state guardで修復。assembled smoke + 390x844 + Pages run 34019534573 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 77 | REQ-078 | P1 | VERIFY | Key Item Collection Type Hardening | `requirements/REQ-078_KEY_ITEM_COLLECTION_TYPE_HARDENING.md` | autosave/SAVE CODE/manual backupでkeyItemsをstring-only ordered unique arrayへnormalize。malformed collectionをsafe empty arrayへ。assembled + bootstrap + Pages run 34019919393 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
