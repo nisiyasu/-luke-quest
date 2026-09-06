@@ -60,9 +60,11 @@ setTimeout(()=>{
     if(deferredError){
       // Dedicated CI probe owns this page. Strip unrelated runtime DOM so the
       // workflow's existing data-*=true checks cannot be satisfied by another marker.
+      // Force one canonical assertion false so the workflow prints this isolated DOM,
+      // including data-reason, before its generic runtime-error branch exits.
       document.body.replaceChildren();
       failure(deferredError.message);
-      marker(data);
+      marker({...data,statusContract:false});
       setTimeout(()=>{throw deferredError;},0);
     }else marker(data);
   }
