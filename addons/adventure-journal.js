@@ -9,6 +9,7 @@ const style=document.createElement('style');style.textContent=`
 function mainGoal(state=s){
  const flags=state?.flags||{};
  const wins=state===s?s.wins:state?.wins;
+ if(flags.withdrawProofSeen&&state?.map==='windcutPass')return'風切り峠でレオンの痕跡を追い、北へ続く尾根道を確認する。';
  if(flags.withdrawProofSeen&&state?.map==='northCliffRoad')return'北の崖道で新しい足跡を追い、北側へ続く道を確認する。';
  if(flags.withdrawProofSeen)return'北の崖道へ向かい、レオンを追う。';
  if(flags.evacEntered)return'北の退避路でレオンと魔王軍の痕跡を調べる。';
@@ -59,7 +60,7 @@ function addJournal(){
 }
 function defer(){queueMicrotask(addJournal);}
 const worldJ=world;world=function(){worldJ();defer();};const renderJ=render;render=function(){const r=renderJ();defer();return r;};
-window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true,menuIntegrated:true,northCliffLocationAware:true};
+window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true,menuIntegrated:true,northCliffLocationAware:true,windcutPassLocationAware:true};
 window.LQ_ADVENTURE_JOURNAL_TEST={sideQuests,mainGoal};
 defer();
 })();
