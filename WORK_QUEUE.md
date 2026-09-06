@@ -103,6 +103,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 90 | REQ-090 | P1 | VERIFY | 北の崖道・cross-system coverage self-audit guard | `requirements/REQ-090_NORTH_CLIFF_CROSS_SYSTEM_COVERAGE_GUARD.md` | Fresh requirement inventory recovery。canonical northCliffRoadの主要presentation/導線coverage driftをPages前にfail-closed検知するguard。STATUS=VERIFY。 |
 | 91 | REQ-091 | P0 | SUPERSEDED | iPhone Field UI Occlusion / Safe Player Visibility / Controller Transparency Fix | `requirements/REQ-091_IPHONE_FIELD_UI_OCCLUSION_FIX.md` | 最初の3 defectを並行実装した有効履歴。Owner追加のzoom-outを含む完全版REQ-092へSUPERSEDED。実装commitはREQ-092へ再利用。 |
 | 92 | REQ-093 | P1 | VERIFY | 北の崖道・風切り峠への追跡ルート継続 | `requirements/REQ-093_NORTH_CLIFF_WINDCUT_PASS_CONTINUATION.md` | northCliffRoad北境界→walkable風切り峠→安全帰還、4 canonical interactions、EVAC_ENEMIES再利用、save round-trip、protected canon非変更。Pages run 34032450470 SUCCESS on `6b1dd56e...`。IOS_PHYSICAL_VERIFICATION=PENDING。 |
+| 93 | REQ-094 | P1 | VERIFY | 風切り峠・ローカル進行導線 | `requirements/REQ-094_WINDCUT_PASS_LOCAL_GUIDANCE.md` | compact objective + phase markerで岩陰の靴跡→北へ続く尾根道を案内。canonical action/gameplay/save/story非変更。Pages run 34032985334 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
+| 94 | REQ-095 | P1 | IN_PROGRESS | 風切り峠・地域別戦闘背景の連続性 | `requirements/REQ-095_WINDCUT_PASS_BATTLE_BACKGROUND_CONTINUITY.md` | Fresh auditでregional battle backdrop registryがnorthCliffRoadまでの7地域で止まりwindcutPass未登録を確認。既存single-sourceへ追加して公開検証する。 |
 
 ## STATUS DEFINITIONS
 
