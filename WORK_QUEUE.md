@@ -92,7 +92,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 79 | REQ-080 | P1 | VERIFY | Save Transfer Overwrite Comparison | `requirements/REQ-080_SAVE_TRANSFER_OVERWRITE_COMPARISON.md` | existing resumable progressの上書き初回確認でCURRENT vs IMPORTのLV/location/Gを表示。REQ-060 preparation authorityとREQ-062 confirm authorityを再利用、invalid/fresh-browser/code-change/expiry挙動保持。Pages run 34022037838 SUCCESS、subsequent full HEAD run 34022100887 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 80 | REQ-081 | P1 | VERIFY | 北の崖道・第一章追跡ルート継続 | `requirements/REQ-081_NORTH_CLIFF_ROAD_CONTINUATION.md` | `withdrawProofSeen` gate authority維持。evacRoute北端→walkable北の崖道→安全帰還、4 canonical interactions、save round-trip、protected canon非変更を専用assembled browserで固定。Pages run 34025050191 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 | 81 | REQ-082 | P1 | VERIFY | 北の崖道・通常エンカウント統合 | `requirements/REQ-082_NORTH_CLIFF_ENCOUNTER_INTEGRATION.md` | northCliffRoadを既存canonical random encounterへ接続しEVAC_ENEMIESを再利用。entry/return grace、dedicated browser、390x844 touch/fullscreen、Pages run 34025554356 SUCCESS。Owner実機確認待ち。 |
-| 82 | REQ-083 | P1 | IN_PROGRESS | 北の崖道・ローカル進行導線 | `requirements/REQ-083_NORTH_CLIFF_LOCAL_GUIDANCE.md` | 新しい足跡→北へ曲がる崖道をcompact objective + presentation-only markerで案内。canonical action/save/story/encounter非変更。browser acceptanceとPages検証中。 |
+| 82 | REQ-083 | P1 | VERIFY | 北の崖道・ローカル進行導線 | `requirements/REQ-083_NORTH_CLIFF_LOCAL_GUIDANCE.md` | 新しい足跡→北へ曲がる崖道をcompact objective + presentation-only markerで案内。canonical action/save/story/encounter非変更。初回CIでtest-order競合を自己検知・修復。Pages run 34026070789 SUCCESS。Owner iPhone導線感確認待ち。 |
 
 ## STATUS DEFINITIONS
 
