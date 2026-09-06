@@ -48,5 +48,5 @@ setTimeout(()=>{
  Object.entries(data).filter(([k])=>!k.endsWith('Error')&&k!=='error').forEach(([k,v])=>marker.dataset[k]=String(!!v));
  const failed=Object.entries(data).find(([k,v])=>!k.endsWith('Error')&&k!=='error'&&v!==true);
  if(failed){const key=failed[0].replace(/[^A-Za-z0-9_$]/g,'_');setTimeout(()=>{eval(`LQ_REQ055_CONSUMABLE_SHOP_SELL_FAIL_${key}()`);},0);}
-},600);
+},1800);
 })();
