@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 13:09 JST
+- UPDATED_AT: 2026-09-06 13:31 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,12 +8,12 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `fddbbe0435e5e2aaa199ea0156b9eb0e585c4a5b`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `1c69e5f849430193abf760ed14ad697eb1506c81`
-- LATEST_REQUIREMENT_CHECKPOINT: `b0add3040f7c1614dd0850510608ad1513e17c4c`
-- LATEST_QUEUE_CHECKPOINT: `fddbbe0435e5e2aaa199ea0156b9eb0e585c4a5b`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-048 PAGES SUCCESS`
-- LATEST_PAGES_RUN: `34010704113` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `7d87d943cd9e5e82402d3fa3b2d5b70ee96feae3`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `50a269157b3153e24376c138732f181865fd1fa0`
+- LATEST_REQUIREMENT_CHECKPOINT: `6b555d4972e4e2aeadb4f2be069ad83f5f96f9ed`
+- LATEST_QUEUE_CHECKPOINT: `7d87d943cd9e5e82402d3fa3b2d5b70ee96feae3`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-051 PAGES SUCCESS`
+- LATEST_PAGES_RUN: `34011542116` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -23,9 +23,9 @@
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous consistency/presentation work is `REQ-043` through `REQ-048`
-- NEXT_ACTION: fresh-inventory the next highest-value player-visible final-game capability or concrete consistency defect; do not duplicate existing add-ons; register/execute under WIP=1
-- NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted regression where appropriate + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous consistency work is `REQ-043` through `REQ-051`
+- NEXT_ACTION: fresh-audit canonical autosave bootstrap integrity and other existing final-game systems; do not duplicate existing add-ons; register/execute the next concrete safe defect/capability under WIP=1
+- NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
 ## CURRENT VERIFIED REALITY
 
@@ -56,30 +56,47 @@
 
 ### REQ-047 — Critical Final-Blow Feedback
 - STATUS: `VERIFY`
-- `CRITICAL!` is now document-level, fixed, pointer-safe, non-stacking and able to survive synchronous battle -> world victory DOM replacement.
-- REQ-045 rate/bonus/save safety remains unchanged.
+- `CRITICAL!` is document-level, fixed, pointer-safe, non-stacking and survives synchronous battle -> world victory DOM replacement.
 - Pages run `34010537279` SUCCESS.
 
 ### REQ-048 — Autosave Pulse Progress Coverage
 - STATUS: `VERIFY`
-- fresh audit found the AUTOSAVE pulse signature covered only an older fixed subset of persistent progress while later chest / hidden-find / item-cache systems and `lqHerbSampleQuestDone` could save without changing that signature.
-- `autosave-pulse.js` now dynamically resolves later canonical status flag arrays at signature time, retains legacy coverage, includes current optional-completion flags and deduplicates names.
-- canonical `save()` remains untouched; this is presentation/projection only.
-- dedicated fail-closed smoke proves dynamic chest/hidden/cache inclusion, dedupe, herb-sample completion coverage and stable no-change signatures.
-- Pages run `34010704113` SUCCESS including assembled browser smoke and 390x844 floating-touch + iPhone world visual-liveness.
-- iPhone subjective feedback verification PENDING.
+- later chest / hidden-find / item-cache and herb-sample completion progress are included in the dynamic deduped autosave-feedback signature.
+- canonical `save()` remains unchanged.
+- Pages run `34010704113` SUCCESS.
+
+### REQ-049 — Manual Backup Corruption Hardening
+- STATUS: `VERIFY`
+- malformed JSON, primitives, arrays and null are rejected before state merge.
+- corrupt slots are visibly `INVALID BACKUP`, cannot LOAD, and retain explicit overwrite/delete recovery paths.
+- valid legacy object payloads remain loadable through canonical migration/fallback.
+- Pages run `34011257673` SUCCESS.
+
+### REQ-050 — Manual Backup Dangerous-Key Sanitization
+- STATUS: `VERIFY`
+- `__proto__`, `constructor`, and `prototype` own keys are removed from top-level manual state and nested flags before merge.
+- REQ-049 shape rejection remains active.
+- Pages run `34011382155` SUCCESS.
+
+### REQ-051 — Manual Backup Numeric Type Hardening
+- STATUS: `VERIFY`
+- present canonical numeric fields are normalized dynamically against current runtime `DEFAULT`; non-number/non-finite values fall back to canonical defaults.
+- later add-ons extending DEFAULT with numeric resources are covered without a hard-coded obsolete list.
+- unknown extension keys remain untouched and source payloads are not mutated.
+- REQ-049/050 contracts remain green.
+- Pages run `34011542116` SUCCESS including assembled browser smoke and 390x844 floating-touch + iPhone world visual-liveness.
+- iPhone subjective verification PENDING.
 
 ## SELF_REPAIR_ACTIONS THIS EXECUTION
 
-1. Fresh boot found HEAD ahead of CURRENT/QUEUE at REQ-043; recovered committed implementation rather than repeating it.
-2. Recovered/verified REQ-043 and repaired metadata forward.
-3. Found/fixed REQ-044 legacy poison persistence via non-battle save/manual restore.
-4. Found/fixed REQ-045 critical temporary ATK save pollution and legitimate level-up ATK loss.
-5. Found/fixed REQ-046 stale post-defeat enemy state, then reopened the first green repair after legacy/manual-backup restoration proved the live-transition detector incomplete; hardened and re-verified.
-6. Found/fixed REQ-047 critical final-blow feedback loss caused by transient battle DOM destruction.
-7. Found/fixed REQ-048 autosave-feedback projection drift after later exploration/optional progress systems were added.
-8. Queue is synchronized through REQ-048; Owner-only formal art backlog was not fabricated or bypassed.
-9. Physical checks remain PENDING unless explicitly confirmed by Owner; REQ-034 physical PASS remains preserved.
+1. Fresh boot found HEAD ahead of CURRENT around REQ-044; recovered committed repository reality rather than repeating work.
+2. Preserved REQ-044 legacy poison shape hardening and continued from fresh HEAD.
+3. Found/fixed REQ-049 malformed manual-backup payload acceptance and added visible invalid-slot recovery UX + fail-closed smoke.
+4. Found/fixed REQ-050 dangerous manual-backup merge keys at state/flags boundaries without weakening REQ-049.
+5. Found/fixed REQ-051 canonical numeric-type corruption at manual-load boundary using current runtime DEFAULT as the dynamic numeric schema.
+6. Each REQ reached dedicated regression PASS, assembled browser PASS, 390x844 touch/world visual-liveness PASS and Pages SUCCESS before VERIFY.
+7. Queue is synchronized through REQ-051; Owner-only formal art backlog was not fabricated or bypassed.
+8. Physical checks remain PENDING unless explicitly confirmed by Owner; REQ-034 physical PASS remains preserved.
 
 ## MANDATORY BOOT / RECOVERY
 
@@ -103,7 +120,9 @@ Every future execution must freshly obtain and apply repository metadata/default
 - do not add duplicate systems when a canonical implementation already exists
 - do not let temporary combat modifiers leak into canonical saves or erase legitimate progression deltas
 - do not treat live-path success as proof that legacy/manual backup migration paths are covered
+- do not treat JSON parse success or object shape alone as sufficient save-state integrity
+- do not merge dangerous object keys from legacy/manual backups
+- do not let corrupt canonical numeric types reach runtime arithmetic/UI assumptions
 - do not bind deferred player feedback only to transient DOM when canonical flow can replace it synchronously
-- do not let projection/feedback systems hard-code obsolete subsets of later canonical progress flags
 - do not use CURRENT as implementation truth when fresh HEAD differs
 - do not self-terminate while safe executable work remains
