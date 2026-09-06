@@ -1,30 +1,54 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 00:02 JST
+- UPDATED_AT: 2026-09-07 00:34 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `cc5b79249b9831cff791ebada162aa938c91f419`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `b8d9a1fe19662f83f8b4d9e014528fe33787fe8c`
-- LATEST_TESTED_HEAD_SHA: `af73134232a9bb4a23272397abe48cf18e2e508e`
-- LATEST_REQUIREMENT_CHECKPOINT: `02f2d48323bb9e2f1a73d2cec88e1f15c804545a` / REQ-104 moved to VERIFY after public gate PASS
-- LATEST_QUEUE_CHECKPOINT: `cc5b79249b9831cff791ebada162aa938c91f419` / REQ-104 synchronized VERIFY
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-104 PUBLIC GATE PASS / OWNER IPHONE CHECK PENDING`
-- LATEST_PAGES_RUN: `34040880074` / SUCCESS on HEAD `af73134232a9bb4a23272397abe48cf18e2e508e`
-- BOOT_REALITY_AUDIT: `PASS / fresh HEAD recovered prior REQ-102 evidence, queue drift repaired, P0 touch/fullscreen controller code re-audited on fresh HEAD`
-- OWNER_PRIORITY_AUDIT: `PASS / REQ-021 -> REQ-022 -> REQ-001 current code re-audited before lower-priority autonomous work`
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `754834c2a5f728fd8dd31a63ed426c11230d8e82`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `c8a7411d462b2995823e2fc828c9d291b80228ff`
+- LATEST_TESTED_HEAD_SHA: `754834c2a5f728fd8dd31a63ed426c11230d8e82`
+- LATEST_REQUIREMENT_CHECKPOINT: `754834c2a5f728fd8dd31a63ed426c11230d8e82` / REQ-105 moved to VERIFY after public gate PASS
+- LATEST_QUEUE_CHECKPOINT: `cc5b79249b9831cff791ebada162aa938c91f419` / queue is stale and still missing REQ-105 at this autosave; repair remains mandatory
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-105 PUBLIC GATE PASS / OWNER IPHONE CHECK PENDING`
+- LATEST_PAGES_RUN: `34042614779` / SUCCESS on HEAD `754834c2a5f728fd8dd31a63ed426c11230d8e82`
+- BOOT_REALITY_AUDIT: `PASS / stale REQ-104-era CURRENT detected; fresh HEAD recovered REQ-105 implementation chain; historical REQ-081 smoke incompatibility repaired without weakening production behavior`
+- OWNER_PRIORITY_AUDIT: `PASS / REQ-021 -> REQ-022 -> REQ-001 remain protected; latest direct continuous-development authority followed`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
-- EXECUTION_DEGRADATION_STATUS: `REPAIRED`
+- EXECUTION_DEGRADATION_STATUS: `REPAIRED_CURRENT / QUEUE_REPAIR_PENDING`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - BLOCKED_REQUIREMENTS: `REQ-059` only; generated-raster chainable handoff remains nonblocking.
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art; do not fabricate final formal art without suitable Owner-quality source authority.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091`
-- KNOWN_MANAGEMENT_DRIFT: `NONE / REQ-098..REQ-101 omission repaired; REQ-103 and REQ-104 both synchronized VERIFY.`
-- NEXT_ACTION: fresh-audit a higher-value player-experience gap beyond the now-complete northCliffRoad/windcutPass landmark-light continuity, prioritizing playable progression/readability over cosmetic micro-fragmentation.
-- NEXT_ACTION_COMPLETION_CONDITION: selected work must be grounded in fresh code, protected canon must remain unchanged, WIP=1, and any implementation must reach fail-closed regression + assembled browser + 390x844 touch/fullscreen + Pages SUCCESS before VERIFY. Physical iPhone verification remains explicit PENDING unless Owner confirms.
+- KNOWN_MANAGEMENT_DRIFT: `WORK_QUEUE.md is stale: it ends at REQ-104 and does not yet inventory the fresh HEAD-backed REQ-105 requirement. Fresh HEAD/requirement reality wins; queue must be repaired forward before relying on queue selection.`
+- NEXT_ACTION: repair WORK_QUEUE.md to register REQ-105 as VERIFY, then fresh-audit the next highest-value player-visible safe improvement. Do not reopen REQ-105 unless a fresh regression is found.
+- NEXT_ACTION_COMPLETION_CONDITION: queue reflects REQ-105 reality; next selected work is grounded in fresh code, protected canon remains unchanged, WIP=1, and implementation reaches fail-closed regression + assembled browser + 390x844 touch/fullscreen + Pages SUCCESS before VERIFY. Physical iPhone verification remains explicit PENDING unless Owner confirms.
+
+## REQ-105 — NORTH RIDGE PLAYABLE CONTINUATION
+
+- STATUS: `VERIFY`.
+- Canonical path: `requirements/REQ-105_NORTH_RIDGE_PLAYABLE_CONTINUATION.md`.
+- Fresh boot recovered a seven-checkpoint implementation chain that was ahead of the stale CURRENT snapshot; no already-committed REQ-105 work was repeated.
+- Added canonical walkable map `northRidgeApproach` / `北尾根・岩棚道` beyond the Windcut Pass north boundary.
+- Safe entry `(10,18)`, safe south return to Windcut `(10,2)`, four canonical route-readability interactables, existing `EVAC_ENEMIES`, and entry/return encounter grace are integrated.
+- Existing cross-system coverage recovered from HEAD: area title, ambient fog, cloud mist, terrain footsteps, Adventure Journal objective.
+- Landmark-light gap found during fresh audit and repaired with two pointer-safe route glints: `cliff` near the trail clue and `wind` at the north boundary. Checkpoint `6e992d20d74bf88aaca39a573da07fabe2d13e57`.
+- Historical REQ-081/093 browser smoke was stale because it required Windcut north boundary to remain dialogue-only. It was repaired to accept either the historical endpoint or the valid REQ-105 continuation while preserving all old south-return and interaction assertions. Checkpoint `08a88ad07cc372481422027331beb298316b67ce`.
+- Fresh cross-system audit found the North Ridge regional battle background was still missing. Added dedicated original-vector, presentation-only North Ridge battle backdrop. Checkpoint `f1251dd8d0d953eb80072b77bd1060805ec77a60`.
+- Added late-loading fail-closed REQ-105 assembled acceptance covering map shape, four interactions, entry/walk/return, exact EVAC_ENEMIES reuse, canon/save/input safety, area-title/ambient/cloud/footstep/journal/landmark/battle coverage and pointer-safe presentation. Checkpoint `c8a7411d462b2995823e2fc828c9d291b80228ff`.
+- Dedicated REQ-105 smoke is attached to the existing public North Cliff encounter browser-gate query and emits the already-fatal gate failure marker on any REQ-105 assertion failure, so a broken REQ-105 blocks Pages upload/deployment.
+- Pages run `34042539057`: SUCCESS on complete implementation/guard HEAD `c8a7411d462b2995823e2fc828c9d291b80228ff`.
+- Requirement close checkpoint `754834c2a5f728fd8dd31a63ed426c11230d8e82`; descendant Pages run `34042614779` also SUCCESS.
+- JavaScript/add-on validation: PASS.
+- Static regression: PASS.
+- Add-on contract: PASS.
+- Assembled browser smoke: PASS.
+- 390x844 floating touch + fullscreen visual-liveness smoke: PASS.
+- Existing REQ-081/082 route regressions: PASS.
+- PUBLIC_BUILD_INCLUSION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## OWNER P0 — REQ-102
 
@@ -130,6 +154,7 @@ Every future execution must fresh-load repository metadata, actual default branc
 
 ## DO_NOT_REPEAT
 
+- do not re-run/reimplement REQ-105 after public gate PASS unless a fresh regression is found
 - do not re-run/reimplement REQ-102 merely because an older CURRENT snapshot said it was pending
 - do not re-run/reimplement REQ-101; its implementation and Pages success are already proven
 - do not re-run REQ-103 or REQ-104 after public gate PASS unless a fresh regression is found
