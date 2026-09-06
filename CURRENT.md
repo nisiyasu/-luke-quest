@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 14:28 JST
+- UPDATED_AT: 2026-09-06 14:32 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,12 +8,12 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `386f3424c33a0b95f6255bed91517fb14c16ad79`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `4d344310df36355d42b8ed59899a978dcfc78510`
-- LATEST_REQUIREMENT_CHECKPOINT: `eeb474f8385385e966579f7caa5da076fdf93b90`
-- LATEST_QUEUE_CHECKPOINT: `386f3424c33a0b95f6255bed91517fb14c16ad79`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-055 AUTOMATED ACCEPTANCE SUCCESS`
-- LATEST_PAGES_RUN: `34013983279` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `22c00432f878f1e80caba02ff930b9f594a3ab09`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `908db4fe113fa60249b36e73e60c38035851397e`
+- LATEST_REQUIREMENT_CHECKPOINT: `9ac1d3ca8a33e13d1966c6f60d158ebc76740215`
+- LATEST_QUEUE_CHECKPOINT: `22c00432f878f1e80caba02ff930b9f594a3ab09`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-056 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34014165812` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -24,7 +24,7 @@
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-053`, `REQ-054`, `REQ-055`
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-054`, `REQ-055`, `REQ-056`
 - NEXT_ACTION: fresh-audit existing final-game capability inventory for the next non-duplicate player-visible defect/capability; register/execute it under WIP=1, verify, publish, synchronize, then continue
 - NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
@@ -117,6 +117,14 @@
 - final Pages run `34013983279` SUCCESS: syntax/add-on/static/assembled browser/390x844 touch+visual/upload/deploy all PASS.
 - physical/subjective iPhone shop feel verification PENDING.
 
+### REQ-056 — Base Equipment Shop Comparison
+- STATUS: `VERIFY`
+- base-shop 青銅の剣 / 革の旅装 now show current ATK/DEF -> projected stat with signed delta before purchase.
+- projection uses the same audited Tier-I/Tier-II bonus chain as REQ-032, so downgrades from 鉄の剣 / 補強革鎧 are explicitly shown rather than hidden.
+- implementation is UI-only and does not call save or mutate state/prices.
+- Pages run `34014165812` SUCCESS: syntax/add-on/static/assembled browser/390x844 touch+visual/upload/deploy all PASS.
+- physical/subjective iPhone comparison readability PENDING.
+
 ## SELF_REPAIR_ACTIONS THIS EXECUTION
 
 1. Fresh boot found implementation HEAD at REQ-054 while CURRENT was synchronized only through REQ-051 and WORK_QUEUE omitted REQ-053/054.
@@ -124,10 +132,13 @@
 3. Reloaded REQ-021 / REQ-022 / REQ-001 / REQ-023 and re-audited latest integrated 390x844 smoke coverage.
 4. Deep capability inventory found the item shop remained buy-only for stackable consumables while the directive explicitly calls out sell as a shop expansion.
 5. Registered and implemented REQ-055 under WIP=1.
-6. New acceptance initially collided with the pre-existing touch test timeline; CI caught it before publish.
+6. New REQ-055 acceptance initially collided with the pre-existing touch test timeline; CI caught it before publish.
 7. Kept the old P0 gate intact, delayed/isolated the REQ-055 state-mutating acceptance, reran the full workflow and obtained Pages SUCCESS.
-8. REQ-055 requirement and queue advanced to VERIFY; physical iPhone verification remains PENDING.
-9. CONTINUE remains required because safe directive-authorized final-game work still exists.
+8. Fresh equipment/shop audit then found Tier II cards had projection comparison while base-shop equipment did not.
+9. Registered and implemented REQ-056 as a UI-only comparison layer, preserving canonical equipment behavior and save state.
+10. REQ-056 dedicated/assembled/equipment/touch/fullscreen regressions and Pages deployment all passed in run `34014165812`.
+11. REQ-055 and REQ-056 are VERIFY; physical iPhone checks remain PENDING.
+12. CONTINUE remains required because safe directive-authorized final-game work still exists.
 
 ## MANDATORY BOOT / RECOVERY
 
