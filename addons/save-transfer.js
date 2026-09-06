@@ -15,6 +15,12 @@ function sanitize(value){
  return out;
 }
 function normalizeNumerics(value){return manual.normalizeCanonicalNumericTypes?manual.normalizeCanonicalNumericTypes(value,DEFAULT):manual.normalizeNumericStateFields?manual.normalizeNumericStateFields(value,DEFAULT):value;}
+function normalizeKeyItemsCollection(value){
+ if(!Array.isArray(value))return[];
+ const seen=new Set(),out=[];
+ for(const item of value){if(typeof item!=='string'||!item||seen.has(item))continue;seen.add(item);out.push(item);}
+ return out;
+}
 function bytesToBase64Url(bytes){
  let binary='';const step=0x8000;
  for(let i=0;i<bytes.length;i+=step)binary+=String.fromCharCode(...bytes.subarray(i,i+step));
@@ -44,6 +50,7 @@ function exportCode(){return encodeEnvelope({format:FORMAT,version:VERSION,creat
 function prepareImportedState(code){
  const envelope=decodeEnvelope(code),raw=sanitize(envelope.state),flags=sanitize(envelope.state.flags);
  const normalized=normalizeNumerics(raw);
+ if(Object.prototype.hasOwnProperty.call(raw,'keyItems'))normalized.keyItems=normalizeKeyItemsCollection(raw.keyItems);
  const next=Object.assign({},DEFAULT,normalized);next.flags=Object.assign({},DEFAULT.flags,flags);
  next.screen='world';next.pauseOpen=false;next.shopOpen=false;next.victoryResult=null;next.lqDefeatResult=false;next.dialog=null;next.enemy=null;next.ehp=0;next.log=[];
  if(!MAPS[next.map]){next.map='town';next.x=9;next.y=12;}
@@ -130,6 +137,6 @@ function addMenuTransfer(){
 const titleBase=title;title=function(){const out=titleBase();addTitleTransfer();return out;};
 const worldBase=world;world=function(){const out=worldBase();addMenuTransfer();return out;};
 const renderBase=render;render=function(){const out=renderBase();addTitleTransfer();addMenuTransfer();return out;};
-window.LQ_SAVE_TRANSFER_STATUS={format:FORMAT,version:VERSION,crossBrowserCode:true,titleImportWithoutLocalSave:true,fileTransfer:true,maxTransferFileBytes:MAX_TRANSFER_FILE_BYTES,exportCode,exportFilePayload,transferFileName,decodeEnvelope,prepareImportedState,importCode,sanitize,loadTransferFile,downloadTransferFile};
+window.LQ_SAVE_TRANSFER_STATUS={format:FORMAT,version:VERSION,crossBrowserCode:true,titleImportWithoutLocalSave:true,fileTransfer:true,maxTransferFileBytes:MAX_TRANSFER_FILE_BYTES,exportCode,exportFilePayload,transferFileName,decodeEnvelope,prepareImportedState,importCode,sanitize,normalizeKeyItemsCollection,loadTransferFile,downloadTransferFile};
 addTitleTransfer();addMenuTransfer();
 })();
