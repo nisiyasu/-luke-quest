@@ -1,29 +1,30 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 23:32 JST
+- UPDATED_AT: 2026-09-06 23:39 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `8da1309cc5f60f35dc2556304f9cbfcd3cd56447`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `d3318687ae8e7a50421a08eab47467ed68baedcd`
-- LATEST_TEST_CHECKPOINT_SHA: `d3318687ae8e7a50421a08eab47467ed68baedcd`
-- LATEST_REQUIREMENT_CHECKPOINT: `b68ad5b0112f05224f099642cd1fa0c8a2fdad91` / REQ-102 VERIFY
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `ed95e00f5034c2d7b4ee2e05cf7f77407d5954cd`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `5e4a84706737b4056d9fc9914b5f2a5e85094852`
+- LATEST_TESTED_HEAD_SHA: `ed95e00f5034c2d7b4ee2e05cf7f77407d5954cd`
+- LATEST_REQUIREMENT_CHECKPOINT: `ed95e00f5034c2d7b4ee2e05cf7f77407d5954cd` / REQ-101 recovered to VERIFY; REQ-102 remains VERIFY
 - LATEST_QUEUE_CHECKPOINT: `8da1309cc5f60f35dc2556304f9cbfcd3cd56447` / REQ-102 synchronized VERIFY
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-102 AUTOMATED ACCEPTANCE PASS / OWNER IPHONE CHECK PENDING`
-- LATEST_PAGES_RUN: `34039338259` / SUCCESS on implementation HEAD `d3318687ae8e7a50421a08eab47467ed68baedcd`
-- BOOT_REALITY_AUDIT: `PASS / fresh HEAD selected REQ-102; prior register-only stop pattern detected and repaired by actual implementation`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-102 LEGACY-SAVE HARDENING PASS / OWNER IPHONE CHECK PENDING`
+- LATEST_PAGES_RUN: `34039773189` / SUCCESS on HEAD `ed95e00f5034c2d7b4ee2e05cf7f77407d5954cd`
+- BOOT_REALITY_AUDIT: `PASS / prior register-only REQ-102 stop recovered; hidden REQ-101 IN_PROGRESS projection also recovered from proven implementation evidence`
 - OWNER_PRIORITY_AUDIT: `PASS / newest direct four-part iPhone report handled before lower-priority work`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
-- EXECUTION_DEGRADATION_STATUS: `REPAIRED / previous REQ-102 registration-only state advanced through implementation, test and Pages publication`
+- EXECUTION_DEGRADATION_STATUS: `REPAIRED`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - BLOCKED_REQUIREMENTS: `REQ-059` only; generated-raster chainable handoff remains nonblocking.
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art; do not fabricate final formal art without suitable Owner-quality source authority.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091`
-- NEXT_ACTION: fresh-audit post-REQ-102 public reality and requirement inventory; do not repeat REQ-102 while its requirement and queue are VERIFY. Select the highest-value safe executable gap under WIP=1, preserving Owner P0 input/fullscreen fixes and protected canon.
-- NEXT_ACTION_COMPLETION_CONDITION: one safe requirement selected/registered if needed, implementation and targeted acceptance PASS, assembled browser + 390x844 regression as relevant, Pages SUCCESS, queue/CURRENT synchronized, physical iPhone not falsely claimed.
+- KNOWN_MANAGEMENT_DRIFT: `WORK_QUEUE.md currently omits already-existing REQ-098..REQ-101 inventory rows even though their requirement files exist. REQ-098/099/100 are VERIFY; REQ-101 was recovered to VERIFY this run. Fresh requirement files/HEAD remain authoritative until queue projection is reconciled.`
+- NEXT_ACTION: reconcile WORK_QUEUE requirement inventory drift without deleting or compressing existing requests, then fresh-audit the highest-value safe executable player-visible gap under WIP=1.
+- NEXT_ACTION_COMPLETION_CONDITION: queue contains REQ-098..REQ-101 with their fresh verified states; then next safe requirement is selected/implemented/tested with Pages SUCCESS. Physical iPhone verification must remain explicit PENDING unless Owner confirms.
 
 ## OWNER P0 — REQ-102
 
@@ -31,13 +32,15 @@
 - Canonical path: `requirements/REQ-102_OWNER_IPHONE_FOREST_INPUT_HUD_TOGGLE_DIALOGUE_PORTRAIT_FIX.md`.
 - Owner evidence: actual iPhone report that 魔物の森 felt immobile, top overlays still overlapped, upper display needed ON/OFF, and Owner uploaded a new dialogue-image source.
 - Forest diagnosis: canonical field -> forest spawn was `(11,18)` and immediate north `(11,17)` was a blocked tree. The displayed objective directs north, so the natural first swipe appeared completely ineffective.
-- Forest repair: preserve canonical collision map; shift only field -> forest entry spawn to `(12,18)`, where `(12,17)` is passable.
+- Forest repair: preserve canonical collision map; new field -> forest entries shift to `(12,18)`, where `(12,17)` is passable.
+- Legacy-save hardening: if an existing saved session loads at the old forest entry `(11,18)`, normalize once per page session to `(12,18)` so the Owner's already-saved game is not left on the old blocked-north lane. Checkpoint `5e4a84706737b4056d9fc9914b5f2a5e85094852`.
 - HUD repair: restack status/location/objective/MUSIC without the previous top-row collision.
-- HUD toggle: compact `HUD ▲ / HUD ▼`; collapsed mode materially hides top overlays and restores upper-world view. Button is excluded from world Action / Dynamic Touch capture.
-- Dialogue portrait: Luke dialogue presentation now uses Owner source `assets/images/03334052-E944-4DE4-9C61-48F011193E46.png` with aspect-preserving cover crop. Original source remains untouched; no generated substitute.
-- Implementation checkpoint: `58f56708cc493e2d176fc283ea6850b995a30510`.
+- HUD toggle: compact `HUD ▲ / HUD ▼`; collapsed mode hides top overlays and restores upper-world view. Button is excluded from world Action / Dynamic Touch capture.
+- Dialogue portrait: Luke dialogue presentation uses Owner source `assets/images/03334052-E944-4DE4-9C61-48F011193E46.png` with aspect-preserving cover crop. Original source remains untouched; no generated substitute.
+- Initial implementation checkpoint: `58f56708cc493e2d176fc283ea6850b995a30510`.
 - Regression gate checkpoint: `d3318687ae8e7a50421a08eab47467ed68baedcd`.
-- Pages run `34039338259`: SUCCESS.
+- Legacy-save hardening checkpoint: `5e4a84706737b4056d9fc9914b5f2a5e85094852`.
+- Pages run `34039773189`: SUCCESS on descendant HEAD containing all REQ-102 code.
 - JavaScript/add-on validation: PASS.
 - Static regression: PASS.
 - Add-on contract: PASS.
@@ -48,6 +51,13 @@
 - PUBLIC_BUILD_INCLUSION: PASS.
 - IOS_PHYSICAL_VERIFICATION: PENDING.
 - OWNER_DIALOGUE_FACE_FRAMING_VERIFICATION: PENDING.
+
+## REQ-101 RECOVERY
+
+- Requirement file was still `IN_PROGRESS` even though implementation commit `dd4e444e9d69094b66136f651330623a2a7582f3` and Pages run `34035907648` had already succeeded.
+- Requirement state repaired to `VERIFY` at `ed95e00f5034c2d7b4ee2e05cf7f77407d5954cd`.
+- No implementation was repeated.
+- IOS_PHYSICAL_VERIFICATION remains PENDING.
 
 ## OWNER-CONFIRMED / OWNER-PRIORITY P0 REALITY
 
@@ -71,6 +81,7 @@ Every future execution must fresh-load repository metadata, actual default branc
 ## DO_NOT_REPEAT
 
 - do not re-run/reimplement REQ-102 merely because an older CURRENT snapshot said it was pending
+- do not re-run/reimplement REQ-101; its implementation and Pages success are already proven
 - no physical-iPhone PASS from headless/browser CI
 - never regress REQ-034 Owner-confirmed physical PASS
 - do not weaken REQ-021/022/001/023 while adding later capabilities
