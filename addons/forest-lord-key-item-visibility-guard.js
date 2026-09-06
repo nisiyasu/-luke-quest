@@ -12,6 +12,6 @@ function enforceForestLordKeyItemVisibility(){
 const worldBase=world;world=function(){const r=worldBase();enforceForestLordKeyItemVisibility();return r;};
 const renderBase=render;render=function(){const r=renderBase();enforceForestLordKeyItemVisibility();return r;};
 window.LQ_FOREST_LORD_KEY_ITEM_GUARD_STATUS={exactOwnershipRequired:true,item:'森王の角',presentationOnly:true};
-window.LQ_FOREST_LORD_KEY_ITEM_GUARD_TEST={ownsForestLordHorn};
+window.LQ_FOREST_LORD_KEY_ITEM_GUARD_TEST={ownsForestLordHorn,enforceForestLordKeyItemVisibility};
 if(s.screen==='world')enforceForestLordKeyItemVisibility();
 })();
