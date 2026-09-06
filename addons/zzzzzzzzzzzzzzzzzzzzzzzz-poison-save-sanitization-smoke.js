@@ -8,7 +8,9 @@ setTimeout(()=>{
  let marker=document.getElementById('lqPoisonSaveSanitizationSmokeMarker');
  if(!marker){marker=document.createElement('i');marker.id='lqPoisonSaveSanitizationSmokeMarker';marker.hidden=true;document.body.appendChild(marker);}
  const should=status?.shouldSanitizePoison;
+ const normalize=status?.normalizedPoisonValue;
  const cleanup=status?.cleanup||{};
+ const migration=status?.migration||{};
  const data={
   status:!!status,
   battleOnly:status?.battleOnly===true,
@@ -17,7 +19,14 @@ setTimeout(()=>{
   nonBattleLoadCleanup:cleanup.nonBattleLoad===true,
   worldSanitized:typeof should==='function'&&should('world')===true,
   titleSanitized:typeof should==='function'&&should('title')===true,
-  battlePreserved:typeof should==='function'&&should('battle')===false
+  battlePreserved:typeof should==='function'&&should('battle')===false,
+  ensuresStatusObject:migration.ensuresStatusObject===true,
+  malformedNormalization:migration.normalizesMalformedPoison===true,
+  preservesOtherStatus:migration.preservesOtherStatusFields===true,
+  missingStatusSafe:typeof normalize==='function'&&normalize(undefined,'world')===0&&normalize(undefined,'battle')===0,
+  malformedStatusSafe:typeof normalize==='function'&&normalize('legacy','battle')===0&&normalize({poison:'bad'},'battle')===0,
+  battleTurnsPreserved:typeof normalize==='function'&&normalize({poison:'3.9'},'battle')===3,
+  nonBattleCleared:typeof normalize==='function'&&normalize({poison:3},'world')===0
  };
  Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(!!v));
  const failed=Object.entries(data).find(([,v])=>!v);
