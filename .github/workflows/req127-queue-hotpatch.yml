@@ -1,0 +1,48 @@
+name: REQ-127 queue hotpatch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req127-queue-hotpatch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-queue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Insert REQ-127 as absolute P0 WIP
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('WORK_QUEUE.md')
+          text=p.read_text()
+          row='| -2 | REQ-127 | P0 | IN_PROGRESS | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md` | Owner direct absolute priority. Persistent iPhone Home Screen PWA black screen; machine-side visual-liveness, runtime diagnostics, screenshot/black-frame detection, resume regression, deterministic Service Worker/cache handling, and autonomous recovery. Do not require repeated Owner checks for speculative iterations. IOS_PHYSICAL_VERIFICATION=PENDING. |\n'
+          if 'REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md' not in text:
+              marker='|---:|---|---|---|---|---|---|\n'
+              if marker not in text:
+                  raise SystemExit('queue header marker not found')
+              text=text.replace(marker, marker+row, 1)
+              p.write_text(text)
+          PY
+      - name: Verify WIP invariant and commit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('WORK_QUEUE.md').read_text()
+          assert t.count('REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md') == 1
+          assert '| -2 | REQ-127 | P0 | IN_PROGRESS |' in t
+          PY
+          if git diff --quiet -- WORK_QUEUE.md; then
+            echo 'Queue already patched.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md
+          git commit -m 'queue: promote REQ-127 black-screen recovery to absolute P0'
+          git push origin HEAD:main
