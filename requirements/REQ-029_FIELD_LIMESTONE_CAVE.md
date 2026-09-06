@@ -1,6 +1,6 @@
 # REQ-029 — 王都近郊・石灰洞
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / CAVE / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,9 +8,9 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY THIS WORK EXISTS
 
-`AUTONOMOUS_DEV_DIRECTIVE.md` の最終完成像には「洞窟」が含まれる。fresh repository inventoryでは王都、近郊、森、魔王軍監視区域、北の退避路、複数建物内部、王城内部は存在する一方、独立したwalkable cave mapは確認できない。
+`AUTONOMOUS_DEV_DIRECTIVE.md` の最終完成像には「洞窟」が含まれる。fresh repository inventoryでは王都、近郊、森、魔王軍監視区域、北の退避路、複数建物内部、王城内部は存在する一方、独立したwalkable cave mapは確認できなかった。
 
-城の部屋を連続追加するだけでは地理的な完成度が偏るため、次の安全なplayer-visible checkpointとして王都近郊に小規模な石灰洞を追加する。
+城の部屋を連続追加するだけでは地理的な完成度が偏るため、安全なplayer-visible checkpointとして王都近郊に小規模な石灰洞を追加した。
 
 ## PURPOSE
 
@@ -46,13 +46,13 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 - 地底水 / 崩落跡 / 石筍等の環境小物
 
 すべてcanonical `action()` chain経由。
-重要story flag、秘密設定、強制報酬は勝手に追加しない。
+重要story flag、秘密設定、強制報酬は追加しない。
 
 ## OPTIONAL DEPTH BOUNDARY
 
-洞窟奥にはさらに深い亀裂または崩落区域があることを示してよい。
+洞窟奥にはさらに深い亀裂があることを示す。
 未実装領域へ落とさず、自然なworld-side boundaryで止める。
-「開発中」等のメタ文言は禁止。
+「開発中」等のメタ文言は出さない。
 
 ## CANON SAFETY
 
@@ -94,6 +94,16 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 9. existing story/save regressionなし
 10. JavaScript/static/add-on/browser regression PASS
 11. Pages deploy SUCCESS
+
+## AUTOMATED / PUBLIC VERIFICATION
+
+- Requirement registration checkpoint: `8f9c5140d595590e6162dbbf88b600673c920fd2`.
+- Cave implementation checkpoint: `880b62ba1934c588893879fc0554b4285c2c08b2`.
+- Pre-public self-audit found that the first cave spawn `(8,11)` landed on a wall tile; checkpoint `7180208674f561b08a5f9cda5e6d1b1f8a3d9638` repaired spawn to safe floor `(8,12)` before public verification.
+- Dedicated assembled-browser acceptance checkpoint: `a4c4e4ef6a595358ba3c46eef912360f3decf3ac`.
+- Pages workflow run `34004420157`: SUCCESS through JavaScript syntax, collision-safe add-ons, static regression, add-on contract, PWA/assets, approved Luke art, assembled browser smoke including cave entry/walk/interactions/depth-boundary/safe-exit, Dynamic Touch smoke, upload and Pages deploy.
+- Runtime acceptance verifies the visible field cave mouth, canonical Action entry, safe cave spawn, walkability, survey-mark interaction, crystal interaction, deep crack boundary, safe return to `field`, and cave visual/status integration.
+- `IOS_PHYSICAL_VERIFICATION = PENDING`.
 
 ## COMPLETION CONDITION
 
