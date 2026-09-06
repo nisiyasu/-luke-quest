@@ -75,7 +75,7 @@ setTimeout(()=>{
    window.LQ_FOOTSTEP_PARTICLE_STATUS?.hasMap?.(UNKNOWN)===false&&window.LQ_FOOTSTEP_PARTICLE_STATUS?.kindFor?.(UNKNOWN)===null&&
    window.LQ_WORLD_LANDMARK_LIGHT_STATUS?.hasMap?.(UNKNOWN)===false&&window.LQ_WORLD_LANDMARK_LIGHT_STATUS?.countFor?.(UNKNOWN)===0;
 
-  s.screen='battle';s.map=SKY;render();
+  s.screen='battle';s.map=SKY;
   const battleStatus=window.LQ_SKYLINE_BATTLE_BACKGROUND_STATUS;
   result.battleBackground=!!battleStatus&&battleStatus.map===SKY&&battleStatus.presentationOnly===true&&battleStatus.protectedCanonChanged===false&&battleStatus.saveSchemaChanged===false&&battleStatus.apply()===true;
   const bg=app.querySelector('.lqSkylineBattleBackdrop');
