@@ -17,60 +17,82 @@ Fresh inventory of the current default-branch implementation found that canonica
 - max HP increases by 9 and current HP is restored to max
 - ATK increases by 3
 
-Fresh code search and filename/tree inventory found no dedicated level-up presentation module or explicit LEVEL UP feedback surface.
+The existing `addons/mp-skill-system.js` also extends the canonical win chain so a level-up increases max MP by 2 and fully restores MP.
 
-Therefore the progression mechanic itself was not duplicated or changed. The player-visible gap was that a level increase was folded into the normal victory transition without a clear reward moment or before/after stat feedback.
+The progression mechanics were not duplicated or changed. The player-visible gap was that a level increase was folded into the normal victory transition without a clear reward moment or integrated before/after stat feedback.
 
 ## IMPLEMENTATION
 
-`addons/level-up-feedback.js` adds a presentation-only level-up cue while keeping canonical `win()` as the sole owner of EXP/level/stat mutation.
+`addons/level-up-feedback.js` adds a presentation-only level-up cue while keeping the canonical win/progression wrapper chain as the sole owner of EXP/level/stat mutation.
 
 Behavior:
 
-1. captures pre-win `lv` / `mh` / `atk`;
-2. invokes the current final `win()` unchanged and preserves its return value;
-3. reads post-win `lv` / `mh` / `atk`;
-4. only when level increased, shows a short fixed non-interactive overlay;
-5. displays the actual new level and actual max-HP / ATK deltas observed from canonical state;
-6. does not award or mutate EXP, HP, ATK, MP, gold, items, skills, equipment or story state itself;
-7. overlay is `pointer-events:none`;
-8. repeated presentations replace the prior layer rather than stack;
-9. animation-end cleanup and timed fallback cleanup are both present;
-10. `prefers-reduced-motion` shortens the cue.
+1. captures pre-win `lv` / `mh` / `atk` / `mmp`;
+2. invokes the prior canonical `win()` unchanged and preserves its return value;
+3. detects the level increase;
+4. defers the final post-win snapshot to `requestAnimationFrame`, after later outer progression wrappers have finished;
+5. shows a short fixed non-interactive overlay only when level increased;
+6. displays the actual new level and actual max-HP / ATK deltas, plus max-MP delta when present;
+7. does not award or mutate EXP, HP, ATK, MP, gold, items, skills, equipment or story state itself;
+8. overlay is `pointer-events:none`;
+9. repeated presentations replace the prior layer rather than stack;
+10. animation-end cleanup and timed fallback cleanup are both present;
+11. `prefers-reduced-motion` shortens the cue.
 
-Status surface:
+## INTEGRATED SELF-AUDIT REPAIR
 
-`window.LQ_LEVEL_UP_FEEDBACK_STATUS`
+After the first successful REQ-039 deployment, a deeper assembled add-on order audit found a real integration omission:
 
-records presentation-only ownership, canonical owner `index.html win()`, actual-delta rendering, pointer safety, reduced-motion support, cleanup fallback, active-layer count and smoke preview/cleanup hooks.
+- `level-up-feedback.js` loads before `mp-skill-system.js` in the add-on glob order;
+- the first REQ-039 implementation captured its post-win snapshot before the outer MP wrapper added max MP +2;
+- therefore the cue could show HP/ATK gains but omit the MP gain that actually occurred.
+
+This was repaired forward rather than waiting for Owner criticism:
+
+- checkpoint `4abf5a33b064c11b8e37a84a6399bc39a55e995e`: defer integrated final snapshot and include MP delta when present;
+- checkpoint `45e4fa1453475d60d2dca3d40d11814447908171`: extend fail-closed smoke to require `最大MP +2` in the integrated preview contract;
+- later assembled-head Pages run `34009469016`: SUCCESS, including JS/add-on/static checks, assembled browser smoke, 390x844 touch/world visual-liveness and deploy.
+
+## STATUS / ACCEPTANCE SURFACE
+
+`window.LQ_LEVEL_UP_FEEDBACK_STATUS` records:
+
+- presentation-only ownership;
+- canonical progression owner = `index.html win() + canonical progression wrappers`;
+- actual-delta rendering;
+- deferred integrated snapshot;
+- max-MP delta support when present;
+- pointer safety;
+- reduced-motion support;
+- cleanup fallback;
+- active-layer count and smoke preview/cleanup hooks.
 
 Dedicated acceptance:
 
 `addons/zzzzzzzzzzzzzzzzzzz-level-up-feedback-smoke.js`
 
-runs only under `?lqTouchSmoke=1`, drives two preview presentations, verifies one-layer behavior, fixed viewport, pointer safety, actual `LV 2 / +9 HP / +3 ATK` delta rendering, reduced-motion metadata and cleanup, and throws a fail-closed uncaught runtime marker on any contract failure.
+runs only under `?lqTouchSmoke=1`, drives two preview presentations, verifies one-layer behavior, fixed viewport, pointer safety, actual `LV 2 / 最大HP +9 / ATK +3 / 最大MP +2` delta rendering, reduced-motion metadata and cleanup, and throws a fail-closed uncaught runtime marker on any contract failure.
 
 ## CANONICAL MUTATION CONTRACT
 
-The presentation layer treats these as read-only evidence after `win()`:
-
-- `lv`
-- `mh`
-- `atk`
-
-If future canonical code changes the exact level-up gains, the player-facing cue renders the actual before/after delta rather than mutating or assuming progression rewards.
+The presentation layer treats post-win state as read-only evidence. If future canonical progression wrappers change exact gains, the cue reads the final integrated before/after delta instead of adding a second mutation path.
 
 ## VERIFICATION EVIDENCE
 
-Checkpoints:
+Initial checkpoints:
 
 - requirement registration: `be879ef2864a8083b4848dad12316f577b5739c9`
-- implementation: `5e4b3ad9354d994f2917a860fb65dcbc9b70a7a2`
-- dedicated browser acceptance: `4f37cbfbe18a8e850e9ec14fb60804b841f2ce3c`
+- initial implementation: `5e4b3ad9354d994f2917a860fb65dcbc9b70a7a2`
+- initial browser acceptance: `4f37cbfbe18a8e850e9ec14fb60804b841f2ce3c`
+- initial Pages run `34009085469`: SUCCESS
 
-Pages workflow run `34009085469`: SUCCESS.
+Integrated repair checkpoints:
 
-Verified in that run:
+- `4abf5a33b064c11b8e37a84a6399bc39a55e995e`
+- `45e4fa1453475d60d2dca3d40d11814447908171`
+- assembled-head Pages run `34009469016`: SUCCESS
+
+Verified in the latest integrated run:
 
 - sequential JavaScript syntax: SUCCESS
 - collision-safe add-ons syntax: SUCCESS
@@ -79,31 +101,25 @@ Verified in that run:
 - PWA/assets validation: SUCCESS
 - assembled browser world/movement/interaction/battle/save smoke: SUCCESS
 - 390x844 floating-touch + fullscreen visible-world regression: SUCCESS
-- level-up smoke ran under the same `lqTouchSmoke` assembled page and did not trip its fail-closed runtime marker
+- integrated level-up smoke did not trip its fail-closed runtime marker
 - Pages upload/deploy: SUCCESS
 
 ## COMPLETION CONDITION
 
-Automated implementation completion is satisfied:
-
-- requirement + implementation committed
-- JavaScript syntax PASS
-- add-on/static regression PASS
-- assembled browser smoke PASS
-- dedicated level-up feedback acceptance PASS
-- 390x844 floating-touch/world visual-liveness regression PASS
-- Pages deployment SUCCESS
+Automated implementation completion is satisfied after integrated repair.
 
 Physical/subjective completion remains:
 
 - `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner sees/feels the level-up cue on iPhone.
 
-Therefore REQ-039 is `VERIFY`, not DONE.
+Therefore REQ-039 remains `VERIFY`, not DONE.
 
 ## DO NOT REPEAT
 
 - do not add a second EXP/level system
 - do not mutate progression from the presentation add-on
-- do not hard-code a fake reward that can diverge from canonical `win()`
+- do not snapshot before later canonical progression wrappers finish
+- do not omit actual MP gain from the level-up cue when MP progression exists
+- do not hard-code a fake reward that can diverge from canonical progression
 - do not create an input-blocking overlay
 - do not mark iPhone physical feel PASS from headless CI
