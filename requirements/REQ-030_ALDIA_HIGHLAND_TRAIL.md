@@ -1,6 +1,6 @@
 # REQ-030 — 王都近郊・高地の登山道
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / MOUNTAIN / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,9 +8,9 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY THIS WORK EXISTS
 
-`AUTONOMOUS_DEV_DIRECTIVE.md` の最終完成像には「山」が含まれる。fresh repository inventoryでは王都、近郊、森、北の退避路、魔王軍監視区域、建物内部、王城、そしてREQ-029で洞窟まで存在する一方、独立したwalkable mountain/highland mapは確認できない。
+`AUTONOMOUS_DEV_DIRECTIVE.md` の最終完成像には「山」が含まれる。fresh repository inventoryでは王都、近郊、森、北の退避路、魔王軍監視区域、建物内部、王城、そしてREQ-029で洞窟まで存在する一方、独立したwalkable mountain/highland mapは確認できなかった。
 
-同一カテゴリの小部屋を増殖させず、ゲーム世界の地理的バリエーションを広げる安全なplayer-visible checkpointとして、王都近郊から立ち寄れる高地の登山道を追加する。
+同一カテゴリの小部屋を増殖させず、ゲーム世界の地理的バリエーションを広げる安全なplayer-visible checkpointとして、王都近郊から立ち寄れる高地の登山道を追加した。
 
 ## PURPOSE
 
@@ -50,7 +50,7 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## HEIGHT / DANGER BOUNDARY
 
-山道の奥にはさらに標高の高い尾根または崩れた登路があることを視覚的に示してよい。
+山道の奥にはさらに標高の高い尾根または崩れた登路があることを視覚的に示す。
 未実装領域へ落とさず、自然なworld-side boundaryで止める。
 「開発中」等のメタ文言は禁止。
 
@@ -93,6 +93,16 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 9. existing story/save regressionなし
 10. JavaScript/static/add-on/browser regression PASS
 11. Pages deploy SUCCESS
+
+## AUTOMATED / PUBLIC VERIFICATION
+
+- Requirement registration checkpoint: `235014265d0de6191b6f13670484e4268140d2bb`.
+- Highland implementation checkpoint: `f44f3c3092b1dd818d8450396cefb7b48119889d`.
+- Dedicated assembled-browser acceptance checkpoint: `c65486ad069e1df8741fe00ef3cf7b79f0c5b11c`.
+- Pre-public coordinate audit verified field trailhead `(19,14)`, highland spawn `(9,14)`, field return `(18,14)`, map row widths, and NPC non-overlap before runtime publication.
+- Pages workflow run `34004585120`: SUCCESS through sequential JavaScript validation, collision-safe add-ons, static regression, add-on contract, PWA/assets, approved Luke art, assembled browser smoke including highland entry/walk/interactions/high-altitude boundary/safe-exit, Dynamic Touch smoke, upload and Pages deploy.
+- Runtime acceptance verifies visible field trailhead, canonical Action entry, safe highland spawn, walkability, trail-sign interaction, cairn interaction, collapsed-ridge boundary, safe field return, and status integration.
+- `IOS_PHYSICAL_VERIFICATION = PENDING`.
 
 ## COMPLETION CONDITION
 
