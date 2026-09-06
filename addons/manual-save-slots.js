@@ -3,8 +3,15 @@
 
 /* Collision-safe add-on: two manual backup slots alongside continuous autosave. */
 const SLOT_KEYS=['lukeQuestManualSlot1','lukeQuestManualSlot2'];
+const DANGEROUS_KEYS=new Set(['__proto__','constructor','prototype']);
 function isPlainStateObject(value){return !!value&&typeof value==='object'&&!Array.isArray(value);}
 function classifyPayload(value){return isPlainStateObject(value)?'valid':'invalid';}
+function sanitizeStateObject(value){
+ const out={};
+ if(!isPlainStateObject(value))return out;
+ for(const key of Object.keys(value)){if(!DANGEROUS_KEYS.has(key))out[key]=value[key];}
+ return out;
+}
 function slotRecord(i){
  try{
   const raw=localStorage.getItem(SLOT_KEYS[i]);
@@ -23,7 +30,8 @@ window.lqManualSave=function(i){if(i<0||i>=SLOT_KEYS.length||s.screen!=='world')
 window.lqManualLoad=function(i){
  if(i<0||i>=SLOT_KEYS.length)return;
  const record=slotRecord(i);if(record.kind!=='valid')return;
- const data=record.data;stopMoving();s=Object.assign({},DEFAULT,data);s.flags=Object.assign({},DEFAULT.flags,isPlainStateObject(data.flags)?data.flags:{});if(!MAPS[s.map]){s.map='town';s.x=9;s.y=12;}s.screen='world';s.pauseOpen=false;s.shopOpen=false;s.dialog={name:'SYSTEM',text:`BACKUP SLOT ${i+1} をロードしました。`};encounterGrace=3;save();render();
+ const data=sanitizeStateObject(record.data),flags=sanitizeStateObject(record.data.flags);
+ stopMoving();s=Object.assign({},DEFAULT,data);s.flags=Object.assign({},DEFAULT.flags,flags);if(!MAPS[s.map]){s.map='town';s.x=9;s.y=12;}s.screen='world';s.pauseOpen=false;s.shopOpen=false;s.dialog={name:'SYSTEM',text:`BACKUP SLOT ${i+1} をロードしました。`};encounterGrace=3;save();render();
 };
 window.lqManualDelete=function(i){if(i<0||i>=SLOT_KEYS.length)return;localStorage.removeItem(SLOT_KEYS[i]);render();};
 
@@ -36,5 +44,5 @@ function addMenuSlots(){
 function addTitleSlots(){
  if(s.screen!=='title')return;const stage=app.querySelector('.lqTitleStage');if(!stage||stage.querySelector('.lqTitleBackup'))return;const found=SLOT_KEYS.map((_,i)=>[i,slotRecord(i)]).filter(([,r])=>r.kind!=='empty');if(!found.length)return;const box=document.createElement('div');box.className='lqTitleBackup';box.innerHTML=`<small>MANUAL BACKUP</small>${found.map(([i,r])=>r.kind==='valid'?`<button onclick="lqManualLoad(${i})">SLOT ${i+1}　${slotSummary(r)}</button>`:`<button class=invalid disabled disabled>SLOT ${i+1}　INVALID BACKUP</button>`).join('')}`;const buttons=stage.querySelector('.lqTitleButtons')||stage;buttons.appendChild(box);
 }
-const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true,classifyPayload,isPlainStateObject};addMenuSlots();addTitleSlots();
+const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true,sanitizesDangerousKeys:true,classifyPayload,isPlainStateObject,sanitizeStateObject};addMenuSlots();addTitleSlots();
 })();
