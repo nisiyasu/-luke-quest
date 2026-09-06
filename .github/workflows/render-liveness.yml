@@ -1,0 +1,96 @@
+name: LUKE QUEST Render Liveness Diagnostic
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "render-liveness"
+  cancel-in-progress: true
+
+jobs:
+  render-liveness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate diagnostic checker
+        run: python3 -m py_compile tools/lq-png-black-check.py
+
+      - name: Assemble public game order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          html = p.read_text()
+          marker = '<div id="app"></div><script>'
+          guard = '<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker) != 1:
+              raise SystemExit(f'expected exactly one base bootstrap marker, found {html.count(marker)}')
+          html = html.replace(marker, guard, 1)
+          p.write_text(html)
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          if compgen -G 'addons/*.js' > /dev/null; then
+            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          fi
+
+      - name: Capture iPhone-sized world screenshot
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8130 >/tmp/lq-render-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 35 "$BROWSER" \
+            --headless=new \
+            --no-sandbox \
+            --disable-dev-shm-usage \
+            --disable-background-networking \
+            --disable-extensions \
+            --disable-sync \
+            --no-first-run \
+            --hide-scrollbars \
+            --force-device-scale-factor=1 \
+            --window-size=390,844 \
+            --virtual-time-budget=4200 \
+            --run-all-compositor-stages-before-draw \
+            --screenshot=/tmp/lq-world-390x844.png \
+            'http://127.0.0.1:8130/?lqTouchSmoke=1' \
+            >/tmp/lq-render-stdout.log 2>/tmp/lq-render-chrome.log
+          chrome_status=$?
+          set -e
+          test -s /tmp/lq-world-390x844.png
+          echo "Chrome screenshot status: $chrome_status"
+          ls -lh /tmp/lq-world-390x844.png
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-render-chrome.log; then
+            echo 'Browser runtime error detected during screenshot capture'
+            cat /tmp/lq-render-chrome.log
+            exit 1
+          fi
+
+      - name: Analyze rendered pixels for black-screen regression
+        run: python3 tools/lq-png-black-check.py /tmp/lq-world-390x844.png | tee /tmp/lq-render-metrics.txt
+
+      - name: Upload render evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lq-render-liveness-${{ github.sha }}
+          path: |
+            /tmp/lq-world-390x844.png
+            /tmp/lq-render-metrics.txt
+            /tmp/lq-render-chrome.log
+            /tmp/lq-render-stdout.log
+          if-no-files-found: warn
+          retention-days: 14
