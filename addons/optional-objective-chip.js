@@ -7,8 +7,9 @@ function optionalText(){
  if(s.flags?.elderCharmQuest&&!s.flags?.elderCharmComplete)return s.flags.elderCharmFound?'銀留め具を老人へ返す':'王都近郊で銀留め具を探す';
  if(s.flags?.forestBountyAccepted&&!s.flags?.forestBountyComplete)return s.forestBountyKills>=3?'討伐掲示板で報酬を受け取る':`森の討伐 ${s.forestBountyKills||0}/3`;
  if(s.flags?.lqHerbSampleQuestAsked&&!s.flags?.lqHerbSampleQuestDone)return s.flags?.forestClearingHerbHarvested?'森の薬草標本を神殿見習いへ届ける':'森入口の木漏れ日の空地で薬草を探す';
+ if(s.flags?.forestMiniBossWarned&&!s.flags?.forestMiniBossDefeated)return'魔物の森・入口で巨大な蹄跡をもう一度調べる';
  return'';
 }
 function addChip(){if(s.screen!=='world'||s.dialog||s.pauseOpen||s.shopOpen||s.victoryResult)return;const text=optionalText();if(!text)return;const shell=app.querySelector('.gameShell');if(!shell||shell.querySelector('.lqOptionalObjective'))return;const e=document.createElement('div');e.className='lqOptionalObjective';e.innerHTML=`<b>SIDE</b>${text}`;shell.appendChild(e);}
-const worldO=world;world=function(){worldO();addChip();};const renderO=render;render=function(){const r=renderO();addChip();return r;};window.LQ_OPTIONAL_OBJECTIVE_STATUS={visible:true,tracks:['elderCharm','forestBounty','forestHerbSample']};if(s.screen==='world')addChip();
+const worldO=world;world=function(){worldO();addChip();};const renderO=render;render=function(){const r=renderO();addChip();return r;};window.LQ_OPTIONAL_OBJECTIVE_STATUS={visible:true,tracks:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true};window.LQ_OPTIONAL_OBJECTIVE_TEST={optionalText};if(s.screen==='world')addChip();
 })();
