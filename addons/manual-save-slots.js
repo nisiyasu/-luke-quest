@@ -12,6 +12,15 @@ function sanitizeStateObject(value){
  for(const key of Object.keys(value)){if(!DANGEROUS_KEYS.has(key))out[key]=value[key];}
  return out;
 }
+function normalizeNumericStateFields(value,defaults=DEFAULT){
+ const out=sanitizeStateObject(value);
+ const schema=isPlainStateObject(defaults)?defaults:{};
+ for(const [key,fallback] of Object.entries(schema)){
+  if(typeof fallback!=='number'||!Number.isFinite(fallback)||!Object.prototype.hasOwnProperty.call(out,key))continue;
+  if(typeof out[key]!=='number'||!Number.isFinite(out[key]))out[key]=fallback;
+ }
+ return out;
+}
 function slotRecord(i){
  try{
   const raw=localStorage.getItem(SLOT_KEYS[i]);
@@ -24,13 +33,13 @@ function snapshot(){const copy=JSON.parse(JSON.stringify(s));copy.pauseOpen=fals
 function slotSummary(record){
  if(record.kind==='empty')return'EMPTY';
  if(record.kind==='invalid')return'INVALID BACKUP';
- const data=record.data,map=MAPS[data.map]?.name||'王都アルディア',lv=data.lv||1,g=data.gold||0;return`LV ${lv} / ${g}G / ${map}`;
+ const data=record.data,map=MAPS[data.map]?.name||'王都アルディア',lv=typeof data.lv==='number'&&Number.isFinite(data.lv)?data.lv:1,g=typeof data.gold==='number'&&Number.isFinite(data.gold)?data.gold:0;return`LV ${lv} / ${g}G / ${map}`;
 }
 window.lqManualSave=function(i){if(i<0||i>=SLOT_KEYS.length||s.screen!=='world')return;localStorage.setItem(SLOT_KEYS[i],JSON.stringify(snapshot()));window.LQ_sfx?.('menu');render();};
 window.lqManualLoad=function(i){
  if(i<0||i>=SLOT_KEYS.length)return;
  const record=slotRecord(i);if(record.kind!=='valid')return;
- const data=sanitizeStateObject(record.data),flags=sanitizeStateObject(record.data.flags);
+ const data=normalizeNumericStateFields(record.data,DEFAULT),flags=sanitizeStateObject(record.data.flags);
  stopMoving();s=Object.assign({},DEFAULT,data);s.flags=Object.assign({},DEFAULT.flags,flags);if(!MAPS[s.map]){s.map='town';s.x=9;s.y=12;}s.screen='world';s.pauseOpen=false;s.shopOpen=false;s.dialog={name:'SYSTEM',text:`BACKUP SLOT ${i+1} をロードしました。`};encounterGrace=3;save();render();
 };
 window.lqManualDelete=function(i){if(i<0||i>=SLOT_KEYS.length)return;localStorage.removeItem(SLOT_KEYS[i]);render();};
@@ -44,5 +53,5 @@ function addMenuSlots(){
 function addTitleSlots(){
  if(s.screen!=='title')return;const stage=app.querySelector('.lqTitleStage');if(!stage||stage.querySelector('.lqTitleBackup'))return;const found=SLOT_KEYS.map((_,i)=>[i,slotRecord(i)]).filter(([,r])=>r.kind!=='empty');if(!found.length)return;const box=document.createElement('div');box.className='lqTitleBackup';box.innerHTML=`<small>MANUAL BACKUP</small>${found.map(([i,r])=>r.kind==='valid'?`<button onclick="lqManualLoad(${i})">SLOT ${i+1}　${slotSummary(r)}</button>`:`<button class=invalid disabled disabled>SLOT ${i+1}　INVALID BACKUP</button>`).join('')}`;const buttons=stage.querySelector('.lqTitleButtons')||stage;buttons.appendChild(box);
 }
-const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true,sanitizesDangerousKeys:true,classifyPayload,isPlainStateObject,sanitizeStateObject};addMenuSlots();addTitleSlots();
+const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true,sanitizesDangerousKeys:true,normalizesCanonicalNumericTypes:true,classifyPayload,isPlainStateObject,sanitizeStateObject,normalizeNumericStateFields};addMenuSlots();addTitleSlots();
 })();
