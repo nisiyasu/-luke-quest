@@ -26,6 +26,12 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 9. Do not claim physical iPhone PASS from Chromium or CI.
 10. Do not restore rolled-back post-04:00 feature commits until black-screen root cause is isolated.
 
+## Checkpoints
+- `c989f545a07096a894f67184aa6d3c93c69e3e5a`: deployed emergency service-worker cache purge + unregister; Pages SUCCESS.
+- `ddb925f8f0cc71e9367772415e2af9f738f2a780`: added dependency-free PNG rendered-pixel black-screen checker.
+- `bf51dd2a531a0cd0b7dccc67542819f783ceefbc`: added dedicated 390x844 render-liveness workflow using assembled Pages injection order, real Chromium screenshot, pixel metrics, and retained diagnostic artifact.
+- This checkpoint intentionally triggers the newly added diagnostic workflow on a subsequent push so its measured result can be inspected before further speculative gameplay rollback.
+
 ## Completion conditions
 - Automated rendered-pixel diagnostic exists and has run on the public-build assembly path.
 - Result is recorded as PASS/FAIL with measured evidence.
