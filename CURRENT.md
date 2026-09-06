@@ -1,34 +1,34 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 02:54 JST
+- UPDATED_AT: 2026-09-07 03:05 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `1f4a9ce8464873b9e4424be7a937076d74e5ac87`
-- LATEST_GAMEPLAY_IMPLEMENTATION_COMMIT_SHA: `7360b6279280193f76cfbe579e059a51ddeef0b7` / REQ-113 windStairRidge authority hardening
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `347294528ed0a32d86878766dd3494d24ecbe8ca`
+- LATEST_GAMEPLAY_IMPLEMENTATION_COMMIT_SHA: `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c` / REQ-116 complete implementation
 - LATEST_STORY_CANON_COMMIT_SHA: `5fd43a687e23ffb6a391639ae80ac819b22ef784`
 - LATEST_MANAGEMENT_RECOVERY_COMMIT_SHA: `049f072403ec38086ac2daee64bf1e34466077e7`
-- LATEST_TESTED_HEAD_SHA: `1f4a9ce8464873b9e4424be7a937076d74e5ac87`
-- LATEST_PAGES_RUN: `34049947164` / SUCCESS
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / P0 INPUT+FULLSCREEN AUTOMATED PUBLIC GATE PASS / STORY PURSUIT EXTENSION FROZEN AT OWNER CANON CHECKPOINT / OWNER IPHONE CHECK PENDING`
+- LATEST_TESTED_HEAD_SHA: `347294528ed0a32d86878766dd3494d24ecbe8ca`
+- LATEST_PAGES_RUN: `34050434067` / SUCCESS on REQ-116 implementation HEAD `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c`; requirement-status descendant contains no gameplay change
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / P0 INPUT+FULLSCREEN AUTOMATED PUBLIC GATE PASS / WIND STAIR PRESENTATION CONTINUITY PASS / STORY PURSUIT EXTENSION FROZEN AT OWNER CANON CHECKPOINT / OWNER IPHONE CHECK PENDING`
 - BOOT_REALITY_AUDIT: `REPAIRED / prior CURRENT was stale behind REQ-113 implementation and STORY_CANON; recovered commits, workflow state, duplicate requirement collision and concurrent queue drift from fresh HEAD`
 - OWNER_PRIORITY_AUDIT: `REPAIRED_PASS / REQ-021 -> REQ-022 -> REQ-001 fresh code re-audited; latest Pages assembled browser + 390x844 touch/fullscreen smoke PASS; IOS_PHYSICAL_VERIFICATION remains PENDING`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE / story-specific work blocked does not block independent canon-safe work`
-- EXECUTION_DEGRADATION_STATUS: `CONCURRENT_MANAGEMENT_DRIFT_DETECTED_REPAIRED`
+- EXECUTION_DEGRADATION_STATUS: `CONCURRENT_MANAGEMENT_DRIFT_DETECTED_REPAIRED / QUEUE_PROJECTION_STILL_STALE_NONDESTRUCTIVE`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - PREEMPTED_REQUIREMENT: `REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION -> BLOCKED by newer Owner-approved STORY_CANON governance`
-- SELF_REPAIR_ACTIONS: `Recovered REQ-113 north-route commits; preserved published windStairRidge instead of destructive rollback; blocked further generic Leon pursuit extension; detected duplicate REQ-113 story-wiring file and incorrect early-wiring/sister-canon inference; superseded that duplicate; registered REQ-114 as BLOCKED until Chapter 1/2 story design; fresh re-audited P0 touch/fullscreen implementation and public workflow.`
+- SELF_REPAIR_ACTIONS: `Recovered REQ-113 north-route commits; preserved published windStairRidge instead of destructive rollback; blocked further generic Leon pursuit extension; repaired duplicate REQ-113 story-wiring authority drift; registered REQ-114 as BLOCKED until Chapter 1/2 story design; fresh re-audited P0 touch/fullscreen; completed canon-safe presentation integrations REQ-115 and REQ-116.`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- KNOWN_ISSUES: `WORK_QUEUE.md contains a concurrent stale READY row for duplicate REQ-113 story wiring even though its target requirement file is now SUPERSEDED. Do not execute that row. Queue history is large and prior connector retrieval has truncated it; do not destructively replace the queue from incomplete content. Repair forward when a byte-safe/full-content update path is available.`
+- KNOWN_ISSUES: `WORK_QUEUE.md contains a concurrent stale READY row for duplicate REQ-113 story wiring even though its target requirement file is SUPERSEDED. Do not execute that row. Queue history is large and prior connector retrieval has truncated it; do not destructively replace the queue from incomplete content. Repair forward when a byte-safe/full-content update path is available.`
 - BLOCKERS: `Main-story continuation is intentionally blocked at STORY_CANON partial checkpoint: Chapter 1 stopping role remains PENDING_OWNER_DECISION and Chapter 2 remains NOT_DESIGNED. This does not block non-main-story UX/system/bug/polish work.`
-- NEXT_ACTION: `On next autonomous selection, fresh-load HEAD first. Do not extend Leon pursuit north and do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE yet. Select only independent canon-safe player-visible UX/system/bug/polish work unless Owner has since completed Chapter 1/2 Story Canon.`
+- NEXT_ACTION: `Fresh-audit existing systems for canon-safe player-visible gaps. Do not extend Leon pursuit north and do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE yet. Prefer already-published-map integration, UX, accessibility, input safety, bugfixes or presentation work that does not imply a new Story Beat.`
 - NEXT_ACTION_COMPLETION_CONDITION: `fresh HEAD grounded requirement; Story Canon boundary preserved; P0 input/fullscreen protected; no unapproved plot invention; relevant fail-closed regression PASS; assembled browser PASS; 390x844 touch/fullscreen PASS; Pages SUCCESS before VERIFY.`
-- DO_NOT_REPEAT: `Do not create another generic north pursuit map from Leon traces. Do not treat Leon's sister stopping the clash as confirmed. Do not create/name/age/characterize Leon's sister as canon. Do not invent Chapter 2. Do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE until Chapter 1 and Chapter 2 are Owner-approved enough to satisfy REQ-114 unblock conditions. Do not execute duplicate queue row REQ-113 Story Canon Autonomous Wiring. Do not claim physical iPhone PASS from CI.`
+- DO_NOT_REPEAT: `Do not create another generic north pursuit map from Leon traces. Do not treat Leon's sister stopping the clash as confirmed. Do not create/name/age/characterize Leon's sister as canon. Do not invent Chapter 2. Do not wire STORY_CANON into AUTONOMOUS_DEV_DIRECTIVE until Chapter 1 and Chapter 2 are Owner-approved enough to satisfy REQ-114 unblock conditions. Do not execute duplicate queue row REQ-113 Story Canon Autonomous Wiring. Do not claim physical iPhone PASS from CI. Do not reimplement REQ-115 or REQ-116 without fresh defect evidence.`
 
 ## P0 INPUT / FULLSCREEN — FRESH RE-AUDIT 2026-09-07
 
@@ -63,8 +63,9 @@
 
 ### PUBLIC GATE
 
-- Latest Pages run inspected: `34049947164` on HEAD `1f4a9ce8464873b9e4424be7a937076d74e5ac87`: `SUCCESS`.
-- Recent successful descendant run `34049703956` explicitly passed sequential JS validation, add-on validation, static regression guard, add-on contract guard, assembled browser smoke, floating touch + iPhone world visual-liveness smoke, REQ-081 north-route smoke, REQ-082 encounter smoke, upload and deploy.
+- REQ-115 implementation commit `f97e306d2e6beb2e13e72062eec943cb5348348c`: Pages run `34050169291` SUCCESS.
+- REQ-116 complete implementation commit `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c`: Pages run `34050434067` SUCCESS.
+- Latest relevant public gates passed sequential JavaScript validation, collision-safe add-on validation, static regression guard, add-on contract guard, autosave bootstrap, PWA, raster transport probe, approved Luke asset, injection, assembled browser smoke, floating touch + iPhone world visual-liveness smoke, REQ-081 north-route smoke, REQ-082 encounter smoke, upload and deployment.
 - No physical-device claim is made from CI.
 
 ## STORY GOVERNANCE RECOVERY — 2026-09-07
@@ -94,6 +95,26 @@
 - Successor `requirements/REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02.md` created as `BLOCKED` with correct sequencing.
 - Concurrent `WORK_QUEUE.md` row still says duplicate REQ-113 is READY. Treat this as known stale projection, not execution authority over fresh requirement reality and latest Owner instruction.
 
+## REQ-115 — WIND STAIR RIDGE PRESENTATION POLISH
+
+- STATUS: `VERIFY`.
+- Existing `windStairRidge` had fallen back to generic `LUKE QUEST` subtitle in `area-title-card.js`.
+- Added spoiler-safe map subtitle: `風鳴りが石段を抜ける北尾根の高所`.
+- No story flag, route authority, battle, save or input changes.
+- Implementation commit `f97e306d2e6beb2e13e72062eec943cb5348348c`.
+- Pages run `34050169291`: SUCCESS.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+## REQ-116 — WIND STAIR RIDGE ENVIRONMENT CONTINUITY
+
+- STATUS: `VERIFY`.
+- Fresh cross-system audit found the already-published map missing from four established high-altitude presentation systems.
+- Added `fog` regional ambience, `mist` cloud-shadow class, `mist` footsteps and three presentation-only landmark glints at existing coordinates.
+- No new map, clue, dialogue, Story Beat, save schema, collision, canonical Action or encounter authority.
+- Complete implementation commit `ca6f7e89e0412a91a501a48dcaf7a82803ff2c1c`.
+- Pages run `34050434067`: SUCCESS.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
 ## REQ-023 — NORTH EVAC ROUTE GUIDANCE
 
 - STATUS: `VERIFY`.
@@ -110,11 +131,13 @@
 - REQ-110 mobile resume orientation toast: VERIFY / published.
 - REQ-111 tap-first interaction affordance: VERIFY / published.
 - REQ-112 first-touch gesture coach: VERIFY / published.
+- REQ-115 windStair area title: VERIFY / published.
+- REQ-116 windStair environmental continuity: VERIFY / published.
 - These must not be reimplemented without fresh defect evidence.
 
 ## QUEUE / RECOVERY NOTE
 
-Fresh HEAD, latest direct Owner authority, and actual requirement contents outrank stale queue projections. `WORK_QUEUE.md` now contains one known incorrect concurrent READY row for the superseded duplicate REQ-113. Do not select it merely from the row. Do not destructively replace the large queue from truncated connector output. Repair forward once the full queue can be safely transformed without losing historical rows.
+Fresh HEAD, latest direct Owner authority, and actual requirement contents outrank stale queue projections. `WORK_QUEUE.md` contains one known incorrect concurrent READY row for the superseded duplicate REQ-113. Do not select it merely from the row. Do not destructively replace the large queue from truncated connector output. Repair forward once the full queue can be safely transformed without losing historical rows.
 
 ## MANDATORY CONTINUATION
 
