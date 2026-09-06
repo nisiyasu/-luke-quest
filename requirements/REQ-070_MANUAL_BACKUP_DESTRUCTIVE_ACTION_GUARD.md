@@ -1,6 +1,6 @@
 # REQ-070 — Manual Backup Destructive Action Guard
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / MANUAL-BACKUP / DATA-LOSS-PREVENTION / PLAYER-UX
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FOLLOW_THROUGH_FROM_SAVE_PORTABILITY
@@ -51,3 +51,19 @@ Automated acceptance must prove:
 ## 5. NO-STOP
 
 Completion is a checkpoint, not a stop condition. Run GATE C and continue if safe useful work remains.
+
+## 6. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Added `addons/zz-manual-backup-destructive-guard.js` as a confirmation-only wrapper over existing canonical `lqManualSave()` / `lqManualDelete()` authorities.
+- EMPTY slot SAVE remains one-tap.
+- Occupied or invalid/non-empty slot SAVE first tap preserves exact raw bytes and arms `overwrite`; second deliberate tap within 10 seconds delegates to canonical SAVE.
+- Non-empty DELETE first tap preserves exact raw bytes and arms `delete`; second deliberate tap delegates to canonical DELETE.
+- Confirmation is scoped to action + slot; selecting another slot/action replaces the previous arm without mutating either backup.
+- UI changes the armed action label and renders a compact warning in the corresponding manual slot.
+- Added dedicated runtime acceptance `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-manual-backup-destructive-guard-smoke.js` proving empty-slot one-tap behavior, byte-preserving first overwrite/delete taps, canonical second taps, and safe action/slot arm replacement.
+- Checkpoints:
+  - `574c695161ece6615df54c755eff70bdd5fcfa91` — requirement registration.
+  - `124c25471888157ac4422340b219b99e7d327886` — implementation.
+  - `4b9ad196b0e517677f152bb526cb278e5ae531d5` — dedicated acceptance.
+- Pages workflow run `34018181780`: SUCCESS. Sequential patch validation, collision-safe add-ons, static/add-on contracts, autosave guard, raster/Luke asset gates, assembled browser smoke, 390x844 floating-touch + iPhone world visual-liveness, upload and Pages deploy all passed.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
