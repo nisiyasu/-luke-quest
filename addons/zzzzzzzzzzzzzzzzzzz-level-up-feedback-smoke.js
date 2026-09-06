@@ -16,13 +16,15 @@ setTimeout(()=>{
  const data={
    status:!!status,
    presentationOnly:status?.presentationOnly===true,
-   canonicalOwner:status?.canonicalProgressionOwner==='index.html win()',
+   canonicalOwner:status?.canonicalProgressionOwner==='index.html win() + canonical progression wrappers',
    actualDelta:status?.actualDeltaRendering===true,
+   deferredIntegratedSnapshot:status?.deferredIntegratedSnapshot===true,
+   includesMpDelta:status?.includesMpDeltaWhenPresent===true,
    twoPresentations:(status?.presentations||0)===before+2,
    oneLayer:status?.activeLayers===1,
    pointerSafe:!!layer&&cs?.pointerEvents==='none',
    fixedViewport:!!layer&&cs?.position==='fixed'&&cs?.top==='0px'&&cs?.left==='0px',
-   visibleDelta:text.includes('LV 2')&&text.includes('+9')&&text.includes('+3'),
+   visibleDelta:text.includes('LV 2')&&text.includes('最大HP')&&text.includes('+9')&&text.includes('ATK')&&text.includes('+3')&&text.includes('最大MP')&&text.includes('+2'),
    reducedMotion:status?.reducedMotion===true,
    cleanupFallback:status?.cleanupFallbackMs===1740
  };
