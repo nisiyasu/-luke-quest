@@ -1,10 +1,10 @@
 (() => {
 'use strict';
 
-/* REQ-117 late-loading fail-closed integration guard. CI smoke only; no gameplay/state mutation. */
+/* REQ-118 late-loading fail-closed integration guard. CI smoke only; no gameplay/state mutation. */
 if(typeof location!=='undefined'&&!new URLSearchParams(location.search).has('lqSmoke'))return;
 
-function fail(message){throw new TypeError('REQ-117 '+message);}
+function fail(message){throw new TypeError('REQ-118 '+message);}
 if(typeof MAPS==='undefined'||!MAPS.windStairRidge)fail('canonical MAPS.windStairRidge missing');
 
 const title=window.LQ_AREA_TITLE_STATUS;
@@ -33,6 +33,7 @@ if(!light.hasMap('cloudbreakSaddle')||light.countFor('cloudbreakSaddle')<2)fail(
 
 window.LQ_WIND_STAIR_CROSS_SYSTEM_GUARD={
  pass:true,
+ requirement:'REQ-118',
  map:'windStairRidge',
  predecessor:'cloudbreakSaddle',
  checks:['map','areaTitle','subtitle','ambient','cloudShadow','footstep','landmarkLighting','predecessorContinuity'],
