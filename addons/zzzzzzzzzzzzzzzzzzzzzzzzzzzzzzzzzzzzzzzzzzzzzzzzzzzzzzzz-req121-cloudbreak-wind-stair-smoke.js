@@ -1,8 +1,14 @@
 (() => {
 'use strict';
 
-/* REQ-121 dedicated assembled-browser progression acceptance. Inert outside explicit probe. */
-if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqReq121Smoke'))return;
+/* REQ-121 assembled-browser progression acceptance.
+   Runs as a dedicated probe, and late in the existing lqSmoke regression so
+   failures are surfaced by the already-canonical browser runtime error gate. */
+if(typeof location==='undefined')return;
+const qs=new URLSearchParams(location.search);
+const dedicated=qs.has('lqReq121Smoke');
+const integrated=qs.has('lqSmoke');
+if(!dedicated&&!integrated)return;
 
 function marker(data){
   const el=document.createElement('i');el.id='lqReq121TransitionSmokeMarker';
@@ -45,5 +51,5 @@ setTimeout(()=>{
     const data={reached,safeSpawn,noFlag,returned,returnSafe,statusContract};
     if(deferredError){failure(deferredError.message);marker(data);setTimeout(()=>{throw deferredError;},0);}else marker(data);
   }
-},700);
+},dedicated?700:5000);
 })();
