@@ -1,12 +1,13 @@
 (() => {
 'use strict';
 
-/* REQ-028 dedicated acceptance probe. Kept off the shared lqSmoke surface while
-   diagnosing cross-probe state interference. It runs only on lqReq028Smoke. */
-if(!new URLSearchParams(location.search).has('lqReq028Smoke'))return;
+/* REQ-028 dedicated assembled-browser acceptance probe.
+   Runs after the REQ-027 hall probe. REQ-027 is now forward-compatible with
+   the published upper-gallery continuation, so both contracts can coexist. */
+if(!new URLSearchParams(location.search).has('lqSmoke'))return;
 function marker(ok,data={}){
   const el=document.createElement('i');
-  el.id=ok?'lqCastleUpperGalleryRuntimeSmokeMarker':'lqReq028RuntimeSmokeFailure';
+  el.id=ok?'lqCastleUpperGalleryRuntimeSmokeMarker':'lqRuntimeSmokeFailure';
   el.style.display='none';
   for(const [k,v] of Object.entries(data))el.dataset[k]=String(v);
   document.body.appendChild(el);
@@ -37,7 +38,8 @@ setTimeout(()=>{
     marker(true,{entered,walked,guardInteracted,mapInteracted,boundaryInteracted,exited,safeSpawn});
   }catch(err){
     const reason=err&&err.message||String(err);
+    console.error('REQ-028 runtime smoke failure',reason);
     marker(false,{reason});
   }finally{stopMoving();Object.assign(s,snapshot);render();}
-},250);
+},2600);
 })();
