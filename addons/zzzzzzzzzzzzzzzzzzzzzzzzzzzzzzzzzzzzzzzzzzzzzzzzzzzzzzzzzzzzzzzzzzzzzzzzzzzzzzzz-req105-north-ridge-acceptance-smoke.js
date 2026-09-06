@@ -8,6 +8,7 @@ if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqN
 
 const RIDGE='northRidgeApproach';
 const WIND='windcutPass';
+const UNKNOWN='__req105UnknownMap__';
 function add(id,data={}){
  const el=document.createElement('i');el.id=id;el.hidden=true;
  Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));
@@ -65,6 +66,14 @@ setTimeout(()=>{
   const lightTypes=window.LQ_WORLD_LANDMARK_LIGHT_STATUS?.typesFor?.(RIDGE)||[];
   result.landmarks=window.LQ_WORLD_LANDMARK_LIGHT_STATUS?.countFor?.(RIDGE)===2&&lightTypes.length===2&&lightTypes[0]==='cliff'&&lightTypes[1]==='wind';
 
+  result.unknownFallback=
+   window.LQ_AREA_TITLE_STATUS?.hasMap?.(UNKNOWN)===false&&window.LQ_AREA_TITLE_STATUS?.subtitle?.(UNKNOWN)==='LUKE QUEST'&&
+   window.LQ_WORLD_AMBIENT_STATUS?.hasMap?.(UNKNOWN)===false&&window.LQ_WORLD_AMBIENT_STATUS?.typeFor?.(UNKNOWN)===null&&
+   window.LQ_WORLD_CLOUD_STATUS?.hasMap?.(UNKNOWN)===false&&window.LQ_WORLD_CLOUD_STATUS?.classFor?.(UNKNOWN)===null&&
+   window.LQ_FOOTSTEP_PARTICLE_STATUS?.hasMap?.(UNKNOWN)===false&&window.LQ_FOOTSTEP_PARTICLE_STATUS?.kindFor?.(UNKNOWN)===null&&
+   window.LQ_WORLD_LANDMARK_LIGHT_STATUS?.hasMap?.(UNKNOWN)===false&&window.LQ_WORLD_LANDMARK_LIGHT_STATUS?.countFor?.(UNKNOWN)===0&&
+   (window.LQ_WORLD_LANDMARK_LIGHT_STATUS?.typesFor?.(UNKNOWN)||[]).length===0;
+
   const worldEl=app.querySelector('.world');
   const localMist=worldEl?.querySelectorAll('.lqNorthRidgeMist').length||0;
   const localWind=worldEl?.querySelectorAll('.lqNorthRidgeWind').length||0;
@@ -76,8 +85,10 @@ setTimeout(()=>{
   result.battleBackground=!!battleStatus&&battleStatus.map===RIDGE&&battleStatus.presentationOnly===true&&battleStatus.protectedCanonChanged===false&&battleStatus.saveSchemaChanged===false&&battleStatus.apply()===true;
   const bg=app.querySelector('.lqNorthRidgeBattleBackdrop');
   result.battleLayer=!!bg&&bg.dataset.map===RIDGE&&getComputedStyle(bg).pointerEvents==='none';
+  s.map=UNKNOWN;
+  result.battleUnknownFallback=battleStatus?.apply()===false;
 
-  const required=['mapShape','interactables','entry','walkable','footprints','stake','view','boundary','returnSafe','encounterReuse','contract','areaTitle','ambient','cloud','footstep','journal','landmarks','presentation','battleBackground','battleLayer'];
+  const required=['mapShape','interactables','entry','walkable','footprints','stake','view','boundary','returnSafe','encounterReuse','contract','areaTitle','ambient','cloud','footstep','journal','landmarks','unknownFallback','presentation','battleBackground','battleLayer','battleUnknownFallback'];
   const missing=required.filter(k=>result[k]!==true);
   if(missing.length)throw new Error(`acceptance false: ${missing.join(',')}`);
  }catch(err){console.error('lqReq105RuntimeSmokeFailure',err);fail(err&&err.message);}
