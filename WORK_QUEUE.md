@@ -90,6 +90,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 77 | REQ-078 | P1 | VERIFY | Key Item Collection Type Hardening | `requirements/REQ-078_KEY_ITEM_COLLECTION_TYPE_HARDENING.md` | autosave/SAVE CODE/manual backupでkeyItemsをstring-only ordered unique arrayへnormalize。malformed collectionをsafe empty arrayへ。assembled + bootstrap + Pages run 34019919393 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 78 | REQ-079 | P1 | VERIFY | Save Transfer Age Preview | `requirements/REQ-079_SAVE_TRANSFER_AGE_PREVIEW.md` | IMPORT PREVIEWへREQ-060 envelope `createdAt`由来の作成時刻を追加。invalid/missing timestampはneutral fallback。existing state不変、assembled + 390x844 + Pages run 34021747701 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 79 | REQ-080 | P1 | VERIFY | Save Transfer Overwrite Comparison | `requirements/REQ-080_SAVE_TRANSFER_OVERWRITE_COMPARISON.md` | existing resumable progressの上書き初回確認でCURRENT vs IMPORTのLV/location/Gを表示。REQ-060 preparation authorityとREQ-062 confirm authorityを再利用、invalid/fresh-browser/code-change/expiry挙動保持。Pages run 34022037838 SUCCESS、subsequent full HEAD run 34022100887 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 80 | REQ-081 | P1 | IN_PROGRESS | 北の崖道・第一章追跡ルート継続 | `requirements/REQ-081_NORTH_CLIFF_ROAD_CONTINUATION.md` | READY枯渇かつformal artはREQ-059 handoff待ちのためdirective ruleで登録。`withdrawProofSeen` gate authorityを維持し、evacRoute北端からwalkable北の崖道へ本線を1地域継続。protected canonは開示・変更しない。 |
 
 ## STATUS DEFINITIONS
 
