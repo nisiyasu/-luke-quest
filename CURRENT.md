@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 14:40 JST
+- UPDATED_AT: 2026-09-06 15:41 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,12 +8,12 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `be77d975d4b01158126a1fdb9ee9b8a9393ebe9c`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `916a700ddb40dafd6201ef8e8d1b3bdef8383697`
-- LATEST_REQUIREMENT_CHECKPOINT: `5d0a633268a5cce63e4c0c1685b762282f8119d8`
-- LATEST_QUEUE_CHECKPOINT: `be77d975d4b01158126a1fdb9ee9b8a9393ebe9c`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-058 AUTOMATED ACCEPTANCE SUCCESS`
-- LATEST_PAGES_RUN: `34014440476` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `85c5f9aba384049e0320f1f164c399fe18ba32b2`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `1631f1cb812a67e359430f5397071210899d7216`
+- LATEST_REQUIREMENT_CHECKPOINT: `a39197bee76921faa5529673f553039687862e82`
+- LATEST_QUEUE_CHECKPOINT: `85c5f9aba384049e0320f1f164c399fe18ba32b2`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-066 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34017022991` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -21,154 +21,116 @@
 - PREEMPTED_REQUIREMENT: `NONE`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
-- BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
+- BLOCKED_REQUIREMENTS: `REQ-059` (generated raster image pipeline blocked only at generated-image byte/file/base64 handoff; GitHub binary transport proven; nonblocking)
+- BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Leon/Glen art identity/assets; do not fabricate)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-056`, `REQ-057`, `REQ-058`
-- NEXT_ACTION: fresh-audit existing final-game capability inventory for the next non-duplicate player-visible defect/capability; register/execute it under WIP=1, verify, publish, synchronize, then continue
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-060` through `REQ-066`
+- NEXT_ACTION: fresh-audit the next non-duplicate player-visible final-game capability/consistency gap; register and execute it under WIP=1, publish, synchronize, then continue
 - NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
-## CURRENT VERIFIED REALITY
+## OWNER-CONFIRMED P0 REALITY
 
-### Owner-confirmed P0 reality
 - REQ-034 remains `DONE / IOS_PHYSICAL_VERIFICATION=PASS` after Owner physical-iPhone confirmation `うん、直った`.
-- REQ-021 / REQ-022 / REQ-001 / REQ-023 remain `VERIFY`; latest 390x844 browser regressions exercise tap/action, floating movement and fullscreen visual-liveness contracts, but no false physical PASS is claimed.
-- Fresh P0 requirement files were reloaded during this recovery execution rather than trusting old VERIFY labels alone.
+- REQ-021 tap-anywhere Action remains `VERIFY`; automated public-build regression passes but no false physical PASS is claimed.
+- REQ-022 iPhone fullscreen world UI remains `VERIFY`; automated 390x844 world-geometry/visual-liveness gate passes.
+- REQ-001 Dynamic Touch Controller remains `VERIFY`; integrated floating-touch movement/stop regression passes.
+- REQ-023 north-route guidance remains `VERIFY`; implementation/public Pages are complete, physical route feel remains PENDING.
 
-### REQ-043 — Poison Defeat Cleanup
-- STATUS: `VERIFY`
-- battle-only poison clears on canonical defeat transition while ordinary battle turns preserve it.
-- Pages run `34009787755` SUCCESS.
+## REQ-059 — AUTONOMOUS GENERATED RASTER IMAGE PIPELINE
 
-### REQ-044 — Battle-Only Poison Save Sanitization
-- STATUS: `VERIFY`
-- stale/legacy non-battle state can no longer persist positive battle-only poison through autosave/manual restore; battle poison remains intact.
-- Pages run `34010063196` SUCCESS.
+- STATUS: `BLOCKED` / RESULT=`PARTIAL / BLOCKED_AT_GENERATED_BYTE_HANDOFF`.
+- GitHub binary-safe blob/image transport is proven.
+- The remaining missing capability is a chainable runtime handoff from generated image output to bytes/file/base64 inside the autonomous scheduled execution environment.
+- This is explicitly a single nonblocking blocker. Do not stop independent development because of it.
+- Do not claim SVG fallback as proof of generated-raster completion.
 
-### REQ-045 — Critical-Hit ATK Persistence Safety
-- STATUS: `VERIFY`
-- critical temporary +5 ATK no longer leaks into canonical autosave on a killing blow and post-critical cleanup preserves legitimate canonical deltas such as level-up +3.
-- Pages run `34010189516` SUCCESS.
+## REQ-060 — CROSS-BROWSER SAVE TRANSFER
 
-### REQ-046 — Defeat Enemy-State Cleanup + Legacy Save Hardening
-- STATUS: `VERIFY`
-- stale `enemy` / `ehp` are cleared after canonical defeat recovery and sanitized at non-battle persistence boundaries, including legacy/manual-backup restoration.
-- live battle enemy state remains untouched.
-- final hardened Pages run `34010441091` SUCCESS.
+- STATUS: `VERIFY`.
+- Portable SAVE CODE export/import works across browser-local storage boundaries.
+- Fresh title can import without first creating local progress.
+- Unicode/state round-trip, malformed payload rejection, dangerous-key sanitization and canonical state migration are covered.
+- Pages run `34015168161` SUCCESS.
 
-### REQ-047 — Critical Final-Blow Feedback
-- STATUS: `VERIFY`
-- `CRITICAL!` is document-level, fixed, pointer-safe, non-stacking and survives synchronous battle -> world victory DOM replacement.
-- Pages run `34010537279` SUCCESS.
+## REQ-061 — FRESH-BROWSER CONTINUE VALIDITY
 
-### REQ-048 — Autosave Pulse Progress Coverage
-- STATUS: `VERIFY`
-- later chest / hidden-find / item-cache and herb-sample completion progress are included in the dynamic deduped autosave-feedback signature.
-- canonical `save()` remains unchanged.
-- Pages run `34010704113` SUCCESS.
+- STATUS: `VERIFY`.
+- Fresh/default/title bootstrap state no longer produces a false CONTINUE.
+- Real world/intro/legacy/imported resumable progress still enables CONTINUE.
+- Pages run `34015384336` SUCCESS.
 
-### REQ-049 — Manual Backup Corruption Hardening
-- STATUS: `VERIFY`
-- malformed JSON, primitives, arrays and null are rejected before state merge.
-- corrupt slots are visibly `INVALID BACKUP`, cannot LOAD, and retain explicit overwrite/delete recovery paths.
-- valid legacy object payloads remain loadable through canonical migration/fallback.
-- Pages run `34011257673` SUCCESS.
+## REQ-062 — SAVE TRANSFER EXISTING-PROGRESS OVERWRITE GUARD
 
-### REQ-050 — Manual Backup Dangerous-Key Sanitization
-- STATUS: `VERIFY`
-- `__proto__`, `constructor`, and `prototype` own keys are removed from top-level manual state and nested flags before merge.
-- REQ-049 shape rejection remains active.
-- Pages run `34011382155` SUCCESS.
+- STATUS: `VERIFY`.
+- Valid transfer into a browser that already has resumable progress requires two-step confirmation.
+- Fresh/non-resumable browser import remains one-step.
+- Code change / 12-second expiry disarms confirmation.
+- Pages run `34015640423` SUCCESS.
 
-### REQ-051 — Manual Backup Numeric Type Hardening
-- STATUS: `VERIFY`
-- present canonical numeric fields are normalized dynamically against current runtime `DEFAULT`; non-number/non-finite values fall back to canonical defaults.
-- later add-ons extending DEFAULT with numeric resources are covered without a hard-coded obsolete list.
-- unknown extension keys remain untouched and source payloads are not mutated.
-- Pages run `34011542116` SUCCESS including assembled browser smoke and 390x844 floating-touch + iPhone world visual-liveness.
-- iPhone subjective verification PENDING.
+## REQ-063 — CANONICAL AUTOSAVE BOOTSTRAP HARDENING
 
-### REQ-052 — Readable Normal Enemy Behavior
-- STATUS: `VERIFY`
-- ordinary enemies expose readable PRESSURE / BURST / STEADY behavior while preserving the canonical enemy-turn, guard, poison and boss-AI chains.
-- dedicated smoke + Pages run `34011798629` SUCCESS.
-- iPhone subjective verification PENDING.
+- STATUS: `VERIFY`.
+- Base runtime's formerly unguarded `JSON.parse(localStorage['lukeQuestV2'])` boundary is now protected by `prelude/autosave-bootstrap-guard.js` injected before the base inline runtime.
+- Malformed JSON and primitive/array/null roots are quarantined before canonical removal.
+- Dangerous top-level and nested `flags` keys are sanitized before the base merge.
+- Valid plain-object saves remain byte-preserved when no rewrite is required.
+- Pages run `34016458577` SUCCESS, including dedicated prelude unit acceptance and assembled script-order verification.
 
-### REQ-053 — Recovery Magic Foundation
-- STATUS: `VERIFY`
-- `癒光` adds a 5 MP battle heal with deterministic level scaling, no poison cure, no-cost/no-turn rejection at full HP or insufficient MP, and canonical enemy response on a valid cast.
-- dedicated smoke + Pages run `34011930589` SUCCESS.
-- iPhone subjective verification PENDING.
+## REQ-064 — SAVE TRANSFER FILE EXPORT / IMPORT
 
-### REQ-054 — Aldia North Temple Interior
-- STATUS: `VERIFY`
-- canonical North Temple setting is now a walkable Aldia interior with a safe entrance/exit, attendant, prayer crystal and environmental prop.
-- no reward, healing, progression gate or protected-canon reveal was added.
-- first acceptance probe caught its own exit-coordinate mistake and was repaired before completion claim.
-- Pages run `34012131433` SUCCESS.
-- physical/subjective iPhone temple look/feel verification PENDING.
+- STATUS: `VERIFY`.
+- Existing REQ-060 SAVE CODE can now be carried as `.lqsave.txt` without inventing a second save schema.
+- World/menu provides DOWNLOAD/LOAD SAVE FILE; title provides LOAD SAVE FILE.
+- File import validates through the existing transfer authority, populates the existing textarea and clicks the existing IMPORT action, preserving REQ-062 overwrite protection.
+- Empty/malformed/oversized files fail closed; 256 KiB limit.
+- Pages run `34016621862` SUCCESS.
 
-### REQ-055 — Consumable Shop Sell Foundation
-- STATUS: `VERIFY`
-- Aldia item shop supports one-unit selling for canonical stackable consumables: 薬草 4G and 煙玉 9G.
-- initial acceptance timing collision with the P0 touch smoke was caught by CI; the older gate was not weakened.
-- final Pages run `34013983279` SUCCESS.
-- physical/subjective iPhone shop feel verification PENDING.
+## REQ-065 — AUTOSAVE QUARANTINE RECOVERY UI
 
-### REQ-056 — Base Equipment Shop Comparison
-- STATUS: `VERIFY`
-- base-shop 青銅の剣 / 革の旅装 show current ATK/DEF -> projected stat with signed delta before purchase.
-- downgrades from 鉄の剣 / 補強革鎧 are explicitly shown.
-- implementation is UI-only and does not call save or mutate state/prices.
-- Pages run `34014165812` SUCCESS.
-- physical/subjective iPhone comparison readability PENDING.
+- STATUS: `VERIFY`.
+- A valid REQ-063 quarantine record now creates a title `SAVE RECOVERY` notice with reason/timestamp.
+- `DOWNLOAD QUARANTINE` exports the preserved raw payload/reason/timestamp as a versioned recovery JSON package.
+- `DISMISS NOTICE` hides only that quarantine signature; the preserved corrupt payload is not deleted.
+- Malformed quarantine metadata fails closed and does not crash title.
+- Existing title SAVE TRANSFER remains available.
+- Pages run `34016802177` SUCCESS.
 
-### REQ-057 — Stackable Shop Sell Quantity
-- STATUS: `VERIFY`
-- REQ-055 single sell authority supports explicit x1/x3 quantities for herbs and smoke bombs.
-- x3 rejects insufficient inventory rather than silently clamping; unsupported qty and out-of-shop calls also reject without save/gold mutation.
-- x1 compatibility and existing x1/x3 buying remain intact.
-- Pages run `34014292725` SUCCESS including REQ-055 regression, assembled browser and 390x844 touch/fullscreen.
-- physical/subjective iPhone shop feel verification PENDING.
+## REQ-066 — INN GUEST BED RECOVERY
 
-### REQ-058 — Accessory Equipment Foundation
-- STATUS: `VERIFY`
-- a real third equipment slot now exists with `旅人の護符` (60G, DEF +1 while equipped).
-- ownership/equipped state uses canonical persisted flags while active accessory bonus reconciles through canonical DEF arithmetic.
-- shop purchase, auto-equip, explicit `はずす`, re-equip and no-double-stack behavior are implemented.
-- cross-tier armor swapping preserves the accessory bonus; dedicated acceptance verifies 補強革鎧 + accessory -> 革の旅装 yields DEF3 rather than dropping or duplicating the +1.
-- existing weapon/armor/Tier II regressions remain PASS.
-- Pages run `34014440476` SUCCESS: syntax/add-on/static/equipment/assembled browser/390x844 touch+visual/upload/deploy all PASS.
-- physical/subjective iPhone equipment-menu/shop readability PENDING.
+- STATUS: `VERIFY`.
+- The existing South Gate Inn guest-room `窓辺のベッド` now functions as a repeatable recovery point through canonical `action()`.
+- Rest calls `stopMoving()`, restores HP to `mh`, MP to `mmp`, clears battle-only poison and persists through canonical `save()`.
+- Gold, inventory, equipment, map position, unrelated flags/status fields are preserved.
+- Full-state repeat rest is harmless and gives an already-rested message.
+- Non-bed guest-room props retain their original flavor interactions; room entry/exit remains unchanged.
+- Checkpoints: registration `aa0f8f29...`, implementation `1631f1cb...`, dedicated acceptance `9b3e6fcc...`, VERIFY `a39197be...`, queue sync `85c5f9ab...`.
+- Pages run `34017022991` SUCCESS: syntax/add-on/static, REQ-063 regression, assembled browser smoke, dedicated REQ-066 acceptance, 390x844 touch/fullscreen, upload/deploy all PASS.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
-## SELF_REPAIR_ACTIONS THIS EXECUTION
+## SELF-REPAIR ACTIONS THIS EXECUTION
 
-1. Fresh boot found implementation HEAD at REQ-054 while CURRENT was synchronized only through REQ-051 and WORK_QUEUE omitted REQ-053/054.
-2. Repaired WORK_QUEUE and CURRENT forward from fresh HEAD rather than repeating committed work.
-3. Reloaded REQ-021 / REQ-022 / REQ-001 / REQ-023 and re-audited latest integrated 390x844 smoke coverage.
-4. Deep shop inventory found consumable selling missing; registered/implemented REQ-055.
-5. REQ-055 acceptance initially collided with the pre-existing touch timeline; CI caught it before publish. The older P0 gate was preserved and timing was isolated, then full Pages PASS obtained.
-6. Fresh equipment/shop audit found Tier II comparison existed while base-shop comparison did not; registered/implemented REQ-056 as UI-only comparison with full regressions PASS.
-7. Fresh shop UX audit found x1/x3 buying but only x1 selling; registered/implemented REQ-057 by extending REQ-055's same authority rather than duplicating economy logic.
-8. REQ-057 dedicated acceptance, REQ-055 regression, assembled browser, 390x844 touch/fullscreen and Pages deploy all passed in run `34014292725`.
-9. Fresh equipment audit confirmed accessory was the directive-listed missing third equipment capability and that existing armor delta reconciliation could safely preserve an independent accessory DEF bonus.
-10. Registered/implemented REQ-058 with persistent ownership/equip flags, shop/menu integration and delta-safe DEF reconciliation.
-11. REQ-058 dedicated accessory acceptance, existing equipment regression, assembled browser, 390x844 touch/fullscreen and Pages deploy all passed in run `34014440476`.
-12. REQ-055/056/057/058 are VERIFY; physical iPhone checks remain PENDING.
-13. CONTINUE remains required because safe directive-authorized final-game work still exists.
+1. Fresh boot found REQ-063 `IN_PROGRESS` while `CURRENT.md` still ended at REQ-058 and `WORK_QUEUE.md` omitted REQ-063 entirely.
+2. Repaired forward from fresh HEAD instead of repeating committed work.
+3. Implemented and published REQ-063; then repaired WORK_QUEUE to register it as VERIFY.
+4. Extended the Owner's cross-browser continuation concern with REQ-064 file-based transfer using the existing SAVE CODE authority rather than a second save schema.
+5. Added REQ-065 so REQ-063 quarantine safety does not silently remove CONTINUE with no player explanation; preserved raw data remains exportable.
+6. Fresh final-game capability inventory found the existing South Gate Inn guest bed was visual/flavor-only; REQ-066 converted that existing prop into repeatable HP/MP recovery without changing economy or canon.
+7. Every completed implementation above passed public Pages deployment and existing P0 390x844 touch/fullscreen regressions before VERIFY claim.
+8. REQ-059 remains isolated as a nonblocking generated-image byte-handoff blocker; development continued as required.
 
 ## MANDATORY BOOT / RECOVERY
 
-Every future execution must freshly obtain and apply repository metadata/default branch/HEAD, `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, the active/re-audit requirement, relevant implementation and recent workflow/Pages reality. Fresh HEAD wins over stale metadata and committed work must not be repeated.
+Every future execution must freshly obtain and apply repository metadata/default branch/HEAD, `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, active/re-audit requirements, relevant implementation and recent workflow/Pages reality. Fresh HEAD wins over stale metadata and committed work must not be repeated.
 
 ## SELECTION / CONTINUATION RULE
 
 - WIP limit remains one `IN_PROGRESS` requirement.
 - Recover IN_PROGRESS first unless newer direct Owner P0/re-audit authority preempts it.
 - VERIFY does not block independent safe work.
-- REQ-004 and REQ-005 require formal Owner-approved art identity/assets and must not be fabricated.
-- If only Owner-only formal-art BACKLOG remains, `WORK_MANAGER.md` permits fresh-inventorying and registering another directive-authorized player-visible final-game capability or concrete consistency repair that does not change protected canon.
-- Before registering new work, inspect actual code/status/history deeply enough to avoid duplicate implementation.
+- A single BLOCKED requirement does not stop development.
+- REQ-004 and REQ-005 must not be fabricated while formal art identity/generated-raster handoff remains unresolved.
+- If only Owner-only art BACKLOG remains, deeply inventory actual code/history first, then register another directive-authorized player-visible missing final-game capability or concrete consistency repair that does not change protected canon.
 - A commit, REQ completion, queue/CURRENT update, Pages success or convenient checkpoint is not a stop condition.
 - Before any self-selected stop, run GATE C. If safe useful executable work remains, continue.
 
@@ -177,13 +139,11 @@ Every future execution must freshly obtain and apply repository metadata/default
 - do not mark physical iPhone PASS from headless/browser CI
 - do not regress REQ-034 Owner-confirmed physical PASS back to PENDING
 - do not add duplicate systems when a canonical implementation already exists
-- do not let temporary combat modifiers leak into canonical saves or erase legitimate progression deltas
-- do not treat live-path success as proof that legacy/manual backup migration paths are covered
-- do not treat JSON parse success or object shape alone as sufficient save-state integrity
-- do not merge dangerous object keys from legacy/manual backups
-- do not let corrupt canonical numeric types reach runtime arithmetic/UI assumptions
-- do not bind deferred player feedback only to transient DOM when canonical flow can replace it synchronously
-- do not weaken an older fail-closed P0 gate to make a new acceptance pass
-- do not double-apply accessory stat bonus on load/render/re-equip
+- do not weaken REQ-021 / REQ-022 / REQ-001 / REQ-023 while adding later capabilities
+- do not let corrupt canonical autosaves crash before recovery UI can load
+- do not delete the only quarantine copy of an unreadable autosave
+- do not bypass REQ-062 overwrite confirmation from file transfer
+- do not invent a second transfer/save schema where REQ-060 authority already exists
+- do not fabricate Leon/Glen formal art while REQ-059 generated-raster byte handoff remains blocked
 - do not use CURRENT as implementation truth when fresh HEAD differs
 - do not self-terminate while safe executable work remains
