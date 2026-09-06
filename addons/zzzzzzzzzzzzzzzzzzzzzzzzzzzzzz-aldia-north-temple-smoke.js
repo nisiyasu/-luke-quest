@@ -7,7 +7,7 @@ setTimeout(()=>{
  if(!marker){marker=document.createElement('i');marker.id='lqNorthTempleSmokeMarker';marker.hidden=true;document.body.appendChild(marker);}
  const townDoor=(MAPS?.town?.npcs||[]).filter(n=>n.kind==='lqNorthTempleDoor');
  const kinds=new Set((map?.npcs||[]).map(n=>n.kind));
- const exitTile=map?.tiles?.[8]?.[5];
+ const exitTile=map?.tiles?.[9]?.[5];
  const townReturnTile=MAPS?.town?.tiles?.[exit?.y]?.[exit?.x];
  const data={
   status:!!status,
