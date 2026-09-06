@@ -1,6 +1,6 @@
 # REQ-119 — WORLD / CHARACTER VISUAL RICHNESS UPGRADE
 
-STATUS: IN_PROGRESS
+STATUS: BLOCKED
 PRIORITY: P1
 TYPE: PLAYER_VISIBLE_PRESENTATION / MAP_VISUALS / FIELD_CHARACTER_VISUALS / UX_POLISH
 OWNER_REQUEST_DATE: 2026-09-07 JST
@@ -72,25 +72,54 @@ Public gate:
 - REQ-082: PASS
 - upload/deploy: PASS
 
-### D2 recurring NPC sprite richness — INCOMPLETE
+### D2 recurring NPC sprite richness — SAFE PRESENTATION PORTION COMPLETE / FORMAL ART BLOCKED
 
-Do not promote REQ-119 to VERIFY yet.
+Fresh asset and render audit confirmed that recurring field NPCs are still sourced from the existing emoji/glyph identities in the canonical world render. `assets/characters/` contains no formal recurring-NPC raster directories besides Luke. The global visual directive explicitly forbids treating emoji/CSS-only people as final character quality.
 
-The source requirement also requires multiple recurring NPC field sprites to show improved silhouette/readability and, where resolution permits, richer outline / palette / costume / facial-direction treatment. D1 improves the canonical player field-art path and generic NPC readability treatment, but it does not honestly prove the full recurring-NPC art-quality acceptance bar.
+Implemented the independent safe presentation portion in `addons/world-npc-sprite-polish.js` at commit `92afc38240a12769f24a0ee9c87e9d7d423ebe5b`:
 
-NEXT: fresh-audit recurring NPC sprite authorities and complete the independent safe NPC portion without replacing any Owner-quality-source-dependent formal dialogue art or inventing low-quality placeholder raster art.
+- preserves existing NPC source identity rather than inventing replacement raster bytes;
+- adds a clean silhouette outline for recurring field NPCs;
+- adds role-distinct three-tone shadow/base/highlight palette plates for representative recurring NPC roles;
+- covers the town elder, shopkeeper, temple acolyte, field farmer, Leon, Demon Army guard and Glenn when those canonical glyphs are rendered;
+- uses the existing `lqEntityVisualBody` presentation wrapper and keeps all new visual plates pointer-transparent;
+- changes no NPC tile coordinates, hitboxes, interaction facing, input, collision, save schema, story flags or dialogue-art authority;
+- dedicated `?lqSmoke` acceptance verifies multiple recurring town NPCs, distinct role palettes, outline/presentation attachment, pointer transparency, unchanged story flags, Tap Anywhere authority and fullscreen authority.
+
+Public gate for D2 safe portion:
+
+- Pages run `34061027938`: SUCCESS
+- sequential JavaScript validation: PASS
+- collision-safe add-ons: PASS
+- static regression guard: PASS
+- add-on contract guard: PASS
+- autosave bootstrap/PWA/raster transport/Luke dialogue asset validation: PASS
+- assembled browser smoke: PASS
+- 390x844 touch/fullscreen smoke: PASS
+- REQ-081: PASS
+- REQ-082: PASS
+- upload/deploy: PASS
+
+This is deliberately NOT claimed as final recurring-NPC pixel-art acceptance. The remaining source acceptance asks for genuinely rich recurring NPC field sprites, including richer costume/facial-direction treatment where resolution permits. No canonical approved recurring-NPC raster source currently exists, and creating a low-quality placeholder merely to close the requirement would violate the visual target and NO-FAKE-COMPLETION rules.
+
+EXACT_BLOCKER: `FORMAL_RECURRING_NPC_FIELD_ART_SOURCE_UNAVAILABLE`
+
+UNBLOCK CONDITION:
+
+- canonical/approved recurring-NPC field raster assets become available through an authorized quality source or a proven generation-to-repository binary handoff pipeline; then complete D2 formal sprite integration and re-run all public gates.
 
 ## CHECKPOINT ORDER
 
 A. Grounding and Interaction Polish — COMPLETE_AUTOMATED_PUBLIC
 B. Map Depth — COMPLETE_AUTOMATED_PUBLIC
 C. Ambient Air — COMPLETE_AUTOMATED_PUBLIC
-D. Field Sprite Richness — PARTIAL / D1 COMPLETE, D2 INCOMPLETE
+D. Field Sprite Richness — PARTIAL / D1 COMPLETE / D2 SAFE PRESENTATION COMPLETE / FORMAL NPC ART BLOCKED
 
 All safety, acceptance, performance, regression, and completion rules remain exactly as defined in the full source requirement.
 
 IMPLEMENTATION_COMPLETE: NO
 PAGES_VERIFIED_FOR_D1: YES
+PAGES_VERIFIED_FOR_D2_SAFE_PORTION: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
 OWNER_VISUAL_APPROVAL: PENDING
 
