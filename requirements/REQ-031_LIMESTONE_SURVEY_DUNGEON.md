@@ -1,6 +1,6 @@
 # REQ-031 — 石灰洞・旧測量坑道
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / DUNGEON / EXPLORATION / PERSISTENT_SWITCH
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -130,6 +130,14 @@ REQ-029の石灰洞には古い測量印と採掘杭が既に存在するため�
 12. existing story/save regressionなし
 13. JavaScript/static/add-on/browser regression PASS
 14. Pages deploy SUCCESS
+
+## AUTOMATED VERIFICATION
+
+- `addons/limestone-survey-dungeon.js` implements the walkable survey dungeon, canonical entry/exit, persistent lever flag and gate projection.
+- `addons/zzzzzzzzzzzz-limestone-survey-dungeon-smoke.js` verifies entry, safe spawn, closed-gate blocking model, lever opening, persistent re-render projection, deep interaction and safe exit in the assembled browser build.
+- The first acceptance attempt exposed a test-only defect: the smoke probe referenced nonexistent `canWalk()`. The diagnostic path was hardened so failures surface their exact reason, then the probe was repaired to use the map's actual tile/NPC collision model without changing gameplay code.
+- Pages run `34005199926` for checkpoint `0122e83389f70a74ba15c143ec5cc81c8ff2c7ad`: SUCCESS through sequential syntax validation, 98 add-on syntax checks, static regression, add-on contract, PWA/assets, assembled browser smoke, floating touch smoke, upload and Pages deploy.
+- `IOS_PHYSICAL_VERIFICATION = PENDING`.
 
 ## COMPLETION CONDITION
 
