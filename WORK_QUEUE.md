@@ -115,6 +115,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 101 | REQ-103 | P1 | VERIFY | 風切り峠・ランドマーク照明の連続性 | `requirements/REQ-103_WINDCUT_PASS_LANDMARK_LIGHTING_CONTINUITY.md` | 傾いた道標と北尾根境界へcold wind glintを追加。既存town/forest/observation lightingを保持し、late fail-closed smokeで固定。Pages run 34040588718 SUCCESS on `a3d5b205...`。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 | 102 | REQ-104 | P1 | VERIFY | 北の崖道・ランドマーク照明の連続性 | `requirements/REQ-104_NORTH_CLIFF_LANDMARK_LIGHTING_CONTINUITY.md` | 壊れた安全杭と北折れ境界へcold stone/cliff glintを追加。REQ-103 windcut coverageと既存lightingを保持しfail-closed smokeで固定。Pages run 34040880074 SUCCESS on `af731342...`。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 | 103 | REQ-105 | P1 | VERIFY | 北尾根・実プレイ継続区間 | `requirements/REQ-105_NORTH_RIDGE_PLAYABLE_CONTINUATION.md` | windcutPass北境界→walkable `northRidgeApproach` / 北尾根・岩棚道。安全entry/return、4 canonical interactions、EVAC_ENEMIES、guidance、battle/title/ambient/cloud/footstep/journal/landmark coverage、late fail-closed acceptanceを同一REQで完結。Pages run 34042539057 SUCCESS on `c8a7411d...`; descendant run 34042614779 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
+| 104 | REQ-113 | P1 | READY | Story Canon Autonomous Wiring / Main-Story Beat Guard | `requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md` | Owner approved STORY_CANON wiring. Mandatory boot/read + CONFIRMED Story Beat guard + no purposeless north-pursuit extension + no autonomous Chapter 2 invention while NOT_DESIGNED. |
 
 ## STATUS DEFINITIONS
 
