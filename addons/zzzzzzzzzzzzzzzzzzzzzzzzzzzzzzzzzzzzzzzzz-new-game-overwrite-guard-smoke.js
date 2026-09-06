@@ -5,7 +5,7 @@ queueMicrotask(()=>{
  const api=window.LQ_NEW_GAME_OVERWRITE_GUARD_STATUS;
  const assert=(ok,msg)=>{if(!ok)throw new Error(`REQ-069 ${msg}`);};
  assert(api?.enabled===true,'status missing');
- const originalRaw=localStorage.getItem(api.saveKey),snapshot=JSON.stringify(s),originalHtml=app.innerHTML;
+ const originalRaw=localStorage.getItem(api.saveKey),snapshot=JSON.stringify(s);
  try{
   const resumable={...JSON.parse(JSON.stringify(s)),screen:'world',map:'town',x:9,y:12,lv:9,hp:35,mh:50};
   localStorage.setItem(api.saveKey,JSON.stringify(resumable));
@@ -35,9 +35,8 @@ queueMicrotask(()=>{
   window.LQ_REQ069_SMOKE_PASS=true;
  }finally{
   api.disarm();
+  try{const old=JSON.parse(snapshot);Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,old);render();}catch{}
   if(originalRaw===null)localStorage.removeItem(api.saveKey);else localStorage.setItem(api.saveKey,originalRaw);
-  try{const old=JSON.parse(snapshot);Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,old);}catch{}
-  app.innerHTML=originalHtml;
  }
 });
 })();
