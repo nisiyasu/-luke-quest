@@ -1,6 +1,6 @@
 # REQ-107 — 北尾根・雲裂きの稜線 実プレイ継続
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYABLE CONTENT / FIRST-CHAPTER ROUTE CONTINUATION / CROSS-SYSTEM INTEGRATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -157,12 +157,26 @@ Required before VERIFY:
 
 IOS_PHYSICAL_VERIFICATION remains PENDING until Owner confirms on an actual iPhone.
 
-## 11. COMPLETION STATE
+## 11. IMPLEMENTATION / VERIFICATION
 
-IMPLEMENTATION_COMPLETE: NO
-PAGES_VERIFIED: NO
+- `addons/zz-skyline-traverse.js` adds canonical `skylineTraverse` / 「北尾根・雲裂きの稜線」 as a 22x20 walkable continuation from the Wind Shelf north boundary.
+- Entry spawn `(10,18)` and south return to Wind Shelf `(10,2)` are safe and protected by encounter grace.
+- Four canonical interactables are present: `lqSkylineFootprints`, `lqSkylineWindbreak`, `lqSkylineView`, `lqSkylineBoundary`.
+- Runtime-only guidance moves from the near-entry footprint clue to the north continuation landmark without adding a required save/story flag.
+- Existing `EVAC_ENEMIES` and canonical encounter/battle authority are reused.
+- Area title, fog ambient, mist cloud classification, mist footsteps, Adventure Journal objective, landmark lighting, and original-vector regional battle background are integrated.
+- Dedicated late fail-closed acceptance validates route entry/walking/interactions/guidance/return/encounters/save round-trip/cross-system coverage/unknown fallbacks/P0 input and fullscreen contracts.
+- P0 visibilitychange regression checkpoint `a667febf1b49c234c9c019bdb4f63a1ebd0ceb39` remains included and public-verified.
+- Complete implementation HEAD before metadata closeout: `77f41357ecedcb3aa6b31c601be618050c28c421`.
+- GitHub Pages workflow run `34045775418`: SUCCESS. JS syntax, static regression, add-on contract, assembled browser, 390x844 touch/fullscreen, North Cliff/North route regressions, upload, and Pages deploy all passed.
+- Owner iPhone physical verification remains PENDING.
+
+## 12. COMPLETION STATE
+
+IMPLEMENTATION_COMPLETE: YES
+PAGES_VERIFIED: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
 
-## 12. NO-STOP
+## 13. NO-STOP
 
 REQ-107 registration, implementation, commit, Pages success, queue synchronization or CURRENT autosave is not an autonomous stop condition.
