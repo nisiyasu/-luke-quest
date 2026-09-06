@@ -73,6 +73,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 60 | REQ-061 | P1 | VERIFY | Fresh-Browser Continue Validity | `requirements/REQ-061_FRESH_BROWSER_CONTINUE_VALIDITY.md` | bootstrap DEFAULT/title autosaveを実進行と誤認する偽Continueを修正。intro/world/legacy/REQ-060 importはContinue維持。fail-closed smoke + Pages run 34015384336 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 61 | REQ-062 | P1 | VERIFY | Save Transfer Existing-Progress Overwrite Guard | `requirements/REQ-062_SAVE_TRANSFER_OVERWRITE_GUARD.md` | existing resumable progressではvalid SAVE CODE importを二段確認化。fresh/non-resumable browserは一段。code変更/12秒expiryでdisarm。dedicated/assembled/390x844 + Pages run 34015640423 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 62 | REQ-063 | P1 | VERIFY | Canonical Autosave Bootstrap Hardening | `requirements/REQ-063_CANONICAL_AUTOSAVE_BOOTSTRAP_HARDENING.md` | malformed/primitive canonical autosaveをpre-bootstrap quarantineし、dangerous keysをbase merge前sanitize。dedicated acceptance + assembled prelude-order gate + title/world + 390x844 + Pages run 34016458577 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 63 | REQ-064 | P1 | VERIFY | Save Transfer File Export / Import | `requirements/REQ-064_SAVE_TRANSFER_FILE_EXPORT_IMPORT.md` | existing REQ-060 SAVE CODEを`.lqsave.txt`で持ち運ぶfile pathを追加。file loadは既存textarea+IMPORT経由でREQ-062上書きguardを維持。malformed/empty/oversize fail-closed。Pages run 34016621862 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
