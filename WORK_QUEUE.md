@@ -58,7 +58,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 46 | REQ-046 | P1 | VERIFY | Defeat Enemy-State Cleanup | `requirements/REQ-046_DEFEAT_ENEMY_STATE_CLEANUP.md` | live敗北後のstale enemy/ehpに加え、legacy/manual backupのnon-battle復元境界もsave sanitizationでhardening。Pages run 34010441091 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 47 | REQ-047 | P1 | VERIFY | Critical Final-Blow Feedback | `requirements/REQ-047_CRITICAL_FINAL_BLOW_FEEDBACK.md` | critical killing blowでbattle DOM消滅後にCRITICAL cueが欠落するpresentation gapをdocument-level fixed cueで修復。Pages run 34010537279 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 48 | REQ-048 | P1 | VERIFY | Autosave Pulse Progress Coverage | `requirements/REQ-048_AUTOSAVE_PULSE_PROGRESS_COVERAGE.md` | later chest/hidden/cache + `lqHerbSampleQuestDone` をdynamic dedupe signatureへ接続。canonical save非変更。Pages run 34010704113 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
-| 49 | REQ-049 | P1 | IN_PROGRESS | Manual Backup Corruption Hardening | `requirements/REQ-049_MANUAL_BACKUP_CORRUPTION_HARDENING.md` | malformed/primitive/array localStorage backupの安全拒否 + visible INVALID state + dedicated lqTouchSmoke acceptance。Pages検証待ち |
+| 49 | REQ-049 | P1 | VERIFY | Manual Backup Corruption Hardening | `requirements/REQ-049_MANUAL_BACKUP_CORRUPTION_HARDENING.md` | malformed/primitive/array backupを安全拒否、INVALID表示/LOAD無効化、valid legacy object保持。dedicated smoke + Pages run 34011257673 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
