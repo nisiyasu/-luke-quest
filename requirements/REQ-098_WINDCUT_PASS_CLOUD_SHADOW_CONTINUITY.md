@@ -1,6 +1,6 @@
 # REQ-098 — 風切り峠・cloud shadow演出の連続性
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PRESENTATION / WORLD-CLOUD-SHADOW / WORLD-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -28,17 +28,27 @@ canonical `windcutPass` を既存cloud-shadow systemのoutdoor/mist分類へ接�
 
 ## ACCEPTANCE
 
-- [ ] windcutPass is outdoor-covered
-- [ ] windcutPass resolves to mist cloud class
-- [ ] northCliffRoad and legacy cliff/cliffRoad coverage remain
-- [ ] unknown map remains uncovered
-- [ ] presentation-only/reduced-motion preserved
-- [ ] fail-closed coverage smoke PASS
-- [ ] JS/static/add-on regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] windcutPass is outdoor-covered
+- [x] windcutPass resolves to mist cloud class
+- [x] northCliffRoad and legacy cliff/cliffRoad coverage remain
+- [x] unknown map remains uncovered
+- [x] presentation-only/reduced-motion preserved
+- [x] fail-closed coverage smoke PASS
+- [x] JS/static/add-on regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone visual feel remains PENDING
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `764c05c204d04d8ffc8a37edbc8788f8bbc0e096`.
+- Cloud-shadow implementation: `83254f799a3497282136267ddfef0d4eca3b3934` in `addons/world-cloud-shadows.js`.
+- Fail-closed coverage guard: `109b6830b0aab32d0f2c00f664d81ea6f6c670ad`.
+- `windcutPass` is now in OUTDOOR and resolves to `mist`; `northCliffRoad`, legacy `cliff` / `cliffRoad`, and unknown-map fallback are explicitly guarded.
+- GitHub Pages workflow run `34033702442` on `109b6830b0aab32d0f2c00f664d81ea6f6c670ad`: SUCCESS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## NO-STOP
 
