@@ -1,6 +1,6 @@
 # REQ-101 — 風切り峠・冒険ジャーナル目的地整合
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYER-VISIBLE UX / JOURNAL CONTINUITY / SAFE CONTENT POLISH
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -26,13 +26,23 @@ REQ-093でcanonical `windcutPass` が公開済みのため、到着済み場所�
 
 ## ACCEPTANCE
 
-- [ ] pure `mainGoal(state)` path covers `windcutPass`
-- [ ] northCliffRoad objective regression protected
-- [ ] generic withdrawProofSeen fallback protected
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen regression PASS
-- [ ] Pages SUCCESS
+- [x] pure `mainGoal(state)` path covers `windcutPass`
+- [x] northCliffRoad objective regression protected
+- [x] generic withdrawProofSeen fallback protected
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen regression PASS
+- [x] Pages SUCCESS
 - [ ] IOS physical readability remains PENDING unless Owner explicitly confirms
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `6c0030b48a3cdc5bd2c74af9d059039ffef67f77`.
+- Implementation checkpoint: `dd4e444e9d69094b66136f651330623a2a7582f3` (`Keep Windcut journal objective aligned with current map`).
+- `windcutPass` objective now remains location-aware instead of reverting to the already-reached North Cliff destination.
+- Existing `northCliffRoad` and generic `withdrawProofSeen` fallback behavior are preserved.
+- GitHub Pages workflow run `34035907648`: SUCCESS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## NO-STOP
 
