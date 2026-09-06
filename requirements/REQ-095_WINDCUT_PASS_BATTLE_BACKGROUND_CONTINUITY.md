@@ -1,6 +1,6 @@
 # REQ-095 — 風切り峠・地域別戦闘背景の連続性
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PRESENTATION / BATTLE-BACKGROUND / WORLD-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -29,16 +29,26 @@ REQ-093で `windcutPass` はcanonical random encounter mapになったが、fres
 
 ## ACCEPTANCE
 
-- [ ] registry includes previous 7 maps + windcutPass
-- [ ] windcutPass scene is distinct/original
-- [ ] battle backdrop recognizes windcutPass
-- [ ] unknown fallback preserved
-- [ ] gameplay/save/story unchanged
-- [ ] JS/add-on/static regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] registry includes previous 7 maps + windcutPass
+- [x] windcutPass scene is distinct/original
+- [x] battle backdrop recognizes windcutPass
+- [x] unknown fallback preserved
+- [x] gameplay/save/story unchanged
+- [x] JS/add-on/static regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone visual feel remains PENDING
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `066976043e518e166b8a1feb9462516112108b21`.
+- Formal Windcut regional battle backdrop: `e7bc089a27fb768778a48f16f44bba9f339c8dfc` in `addons/original-battle-backgrounds.js`.
+- Existing seven scenes are preserved and `windcutPass` is added as the eighth original inline-SVG regional scene.
+- `LQ_ORIGINAL_BATTLE_BACKGROUND_STATUS.hasMap('windcutPass')` is now true through the existing single-source registry.
+- GitHub Pages workflow run `34033196993` on `e7bc089a27fb768778a48f16f44bba9f339c8dfc`: SUCCESS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## NO-STOP
 
