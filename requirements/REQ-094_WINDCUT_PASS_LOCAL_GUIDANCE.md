@@ -1,6 +1,6 @@
 # REQ-094 — 風切り峠・ローカル進行導線
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: UX / GUIDANCE / PLAYER-VISIBLE CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -37,17 +37,28 @@ REQ-093 canonical interactions:
 
 ## ACCEPTANCE
 
-- [ ] windcutPass entry phaseで具体的objective表示
-- [ ] footprints target marker表示
-- [ ] canonical action()でfootprints interaction成立
-- [ ] interaction直後にnorth boundary objectiveへ切替
-- [ ] footprints marker消失 / north boundary marker表示
-- [ ] map離脱で専用guidance消失
-- [ ] gameplay/save/story/protected canon mutationなし
-- [ ] assembled browser regression PASS
-- [ ] 390x844 touch/fullscreen regression PASS
-- [ ] Pages SUCCESS
+- [x] windcutPass entry phaseで具体的objective表示
+- [x] footprints target marker表示
+- [x] canonical action()でfootprints interaction成立
+- [x] interaction直後にnorth boundary objectiveへ切替
+- [x] footprints marker消失 / north boundary marker表示
+- [x] map離脱で専用guidance消失
+- [x] gameplay/save/story/protected canon mutationなし
+- [x] assembled browser regression PASS
+- [x] 390x844 touch/fullscreen regression PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone feel remains PENDING
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `5127a82dcb2d8b8b3df0db7d351d7953d6a620ab`.
+- Guidance implementation: `cd8527745c3bd1dd052c978e9b6088a2725a0cdc` in `addons/zzzzzzzz-windcut-pass-local-guidance.js`.
+- Serialized browser acceptance: `37fc7f7c758329e9a4717c0ab4f38568e3f38029` in `addons/zzzzzzzzz-windcut-pass-guidance-smoke.js`.
+- Acceptance waits for the existing REQ-083 smoke marker before mutating shared runtime state, preserving core touch/input test isolation.
+- Dedicated assertions cover entry objective, footprints marker, canonical interaction, immediate objective transition, north marker, old-marker removal, map-exit cleanup and non-gameplay authority status.
+- GitHub Pages run `34032985334` on `37fc7f7c758329e9a4717c0ab4f38568e3f38029`: SUCCESS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## NO-STOP
 
