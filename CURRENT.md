@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 16:03 JST
+- UPDATED_AT: 2026-09-06 16:20 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,12 +8,12 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `ae47661317514f5cfa3dd645472643e1ca8fbbc8`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `f8754b8248c5bde19a38a951909043ce37a9a800`
-- LATEST_REQUIREMENT_CHECKPOINT: `ddab9c712aaf1d209e70c0de422d322beeabe423`
-- LATEST_QUEUE_CHECKPOINT: `ae47661317514f5cfa3dd645472643e1ca8fbbc8`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-069 AUTOMATED ACCEPTANCE SUCCESS`
-- LATEST_PAGES_RUN: `34017974207` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `5523aee0b1307b8e22e40815b5fc0f1e2b00d25b`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `b91636a459333b361218cb33028d9906a76e7bff`
+- LATEST_REQUIREMENT_CHECKPOINT: `c1dba9d1c76f465ad354d681bc63fd0ba82982c1`
+- LATEST_QUEUE_CHECKPOINT: `5523aee0b1307b8e22e40815b5fc0f1e2b00d25b`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-073 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34018645505` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -25,7 +25,7 @@
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Leon/Glen art identity/assets; do not fabricate)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is `REQ-060` through `REQ-069`
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is synchronized through `REQ-073`
 - NEXT_ACTION: fresh-audit the next non-duplicate player-visible final-game capability or concrete consistency/data-safety gap; register and execute under WIP=1, publish, synchronize, then continue
 - NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
@@ -57,7 +57,7 @@
 ## REQ-066 — INN GUEST BED RECOVERY
 
 - STATUS: `VERIFY`.
-- Existing South Gate Inn guest bed now performs repeatable canonical HP/MP recovery while preserving economy/inventory/equipment/unrelated flags and cleaning battle-only poison.
+- Existing South Gate Inn guest bed performs repeatable canonical HP/MP recovery while preserving economy/inventory/equipment/unrelated flags and cleaning battle-only poison.
 - Pages `34017022991` SUCCESS.
 
 ## REQ-067 — NATIVE SAVE SHARE
@@ -66,38 +66,36 @@
 - World/pause SAVE TRANSFER can share the existing REQ-064 `.lqsave.txt` through native Web Share when file sharing is explicitly supported.
 - Unsupported/native-share failure falls back to existing download; `AbortError` is harmless cancellation.
 - Uses existing transfer payload/naming authority and does not mutate canonical save/state.
-- Checkpoints: registration `dfef7baf...`, implementation `d5a87c6a...`, acceptance `f2aeb9bb...`, VERIFY `14018708...`, queue sync `471f433f...`.
 - Pages `34017657791` SUCCESS. `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
 ## REQ-068 — SAVE TRANSFER IMPORT PREVIEW
 
 - STATUS: `VERIFY`.
-- Valid portable SAVE CODE now shows a read-only `IMPORT PREVIEW` with LV/location/HP/MP/G before import.
+- Valid portable SAVE CODE shows a read-only `IMPORT PREVIEW` with LV/location/HP/MP/G before import.
 - Preview delegates to canonical REQ-060 `prepareImportedState()` validation and never mutates canonical state/localStorage.
 - Invalid codes fail closed; REQ-064 file load uses the same input event path.
-- Checkpoints: registration `cd248f46...`, implementation `cddb443b...`, acceptance `e174cee5...`, VERIFY `ba2d07fd...`.
 - Pages `34017799386` SUCCESS. `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
 ## REQ-069 — NEW GAME EXISTING-SAVE OVERWRITE GUARD
 
 - STATUS: `VERIFY`.
-- Fresh base audit found canonical `newGame()` immediately deleted `lukeQuestV2`; this was a real accidental-progress-loss path.
-- With resumable progress, first NEW GAME tap now only arms a 10-second warning/confirmation and preserves raw save bytes. CONTINUE and SAVE TRANSFER remain available.
-- Only a second deliberate tap while armed invokes the original canonical `newGame()`; non-resumable/bootstrap title stays one-tap.
-- Dedicated smoke teardown was adversarially self-audited and repaired to restore runtime through `render()` rather than raw HTML replacement.
-- Checkpoints: registration `04fb5db8...`, implementation `43b803e1...`, acceptance `73c69a91...`, smoke isolation hardening `f8754b82...`, VERIFY `ddab9c71...`, queue sync `ae476613...`.
-- Pages `34017974207` SUCCESS: sequential patches, add-on/static/contract guards, assembled browser smoke, 390x844 touch/fullscreen visual-liveness, upload/deploy all PASS.
-- `IOS_PHYSICAL_VERIFICATION=PENDING`.
+- With resumable progress, first NEW GAME tap only arms a warning and preserves raw save bytes; second deliberate tap invokes canonical `newGame()`.
+- Pages `34017974207` SUCCESS. `IOS_PHYSICAL_VERIFICATION=PENDING`.
+
+## REQ-070 THROUGH REQ-073 — FRESH HEAD RECOVERY
+
+- REQ-070 `VERIFY`: manual backup occupied-slot overwrite and delete now require deliberate two-step confirmation while first tap preserves exact raw bytes. Pages `34018181780` SUCCESS.
+- REQ-071 `VERIFY`: SAVE TRANSFER preview now uses canonical `gold` first and treats legacy `g` only as fallback; adversarial test proves canonical gold wins. Pages `34018266479` SUCCESS.
+- REQ-072 `VERIFY`: existing accessory lifecycle now supports 30G sale only while owned and unequipped, preserving canonical REQ-058 ownership/equip authority and other player state. Pages `34018553794` SUCCESS.
+- REQ-073 `VERIFY`: optional boss `苔角の森王` defeat now appears in ADVENTURE RECORD OPTIONAL DONE and COMPLETED. Existing REQ-041 smoke was made forward-compatible rather than falsely requiring exactly three canonical completions. Pages `34018645505` SUCCESS at implementation HEAD `b91636a459333b361218cb33028d9906a76e7bff`.
 
 ## SELF-REPAIR ACTIONS THIS EXECUTION
 
-1. Fresh boot recovered from repository reality rather than stale CURRENT, which still stopped at REQ-066.
-2. REQ-059 remained correctly P0/BLOCKED only at generated-image byte handoff; independent work continued as required.
-3. Extended the Owner's actual cross-browser continuation problem from copy/file transport into native iPhone-friendly file share (REQ-067).
-4. Added a read-only import preview so transfer replacement is not blind (REQ-068).
-5. Fresh base audit found a separate destructive NEW GAME path that could erase the progress being made portable; guarded it with deliberate two-step confirmation (REQ-069).
-6. Enemy/adversarial audit of REQ-069 acceptance found a test-isolation weakness and repaired it before relying on the final Pages success.
-7. Queue and CURRENT were repaired forward after the implementation checkpoints rather than used as reasons to stop.
+1. Fresh boot found CURRENT stale at 16:03 while committed repository reality had advanced through REQ-073 at 16:15.
+2. Recovered REQ-070 through REQ-073 from requirement files, commits and workflow evidence instead of repeating implementation.
+3. REQ-073 had reached implementation + regression repair + successful Pages deployment but its requirement still said IN_PROGRESS and queue had no REQ-070..073 rows. Repaired the requirement to VERIFY and synchronized WORK_QUEUE through REQ-073.
+4. REQ-059 remains correctly P0/BLOCKED only at generated-image byte handoff; independent development continues as explicitly required.
+5. Fresh HEAD remains implementation truth over stale CURRENT projections.
 
 ## MANDATORY BOOT / RECOVERY
 
