@@ -47,7 +47,9 @@ setTimeout(()=>{
   s.dialog=null;s.map=RIDGE;s.x=5;s.y=8;s.dir='up';render();action();
   result.view=!!s.dialog&&s.dialog.kind==='lqNorthRidgeView';
   s.dialog=null;s.map=RIDGE;s.x=10;s.y=2;s.dir='up';render();action();
-  result.boundary=!!s.dialog&&s.dialog.kind==='lqNorthRidgeBoundary';
+  const legacyBoundary=!!s.dialog&&s.dialog.kind==='lqNorthRidgeBoundary'&&s.map===RIDGE;
+  const continuedBoundary=!!s.dialog&&s.dialog.kind==='lqNorthRidgeBoundary'&&s.map==='windShelf'&&!!MAPS.windShelf&&s.x===10&&s.y===18&&!blocked(s.x,s.y);
+  result.boundary=legacyBoundary||continuedBoundary;
 
   s.dialog=null;s.map=RIDGE;s.x=10;s.y=18;s.dir='down';render();move('down');
   result.returnSafe=s.map===WIND&&s.x===10&&s.y===2&&!blocked(s.x,s.y);
