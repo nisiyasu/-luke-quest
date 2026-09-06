@@ -1,6 +1,6 @@
 # REQ-121 — Cloudbreak → Wind Stair Transition Deadlock Fix
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P0
 TYPE: SEVERE_GAMEPLAY_BUG / STORY_PROGRESSION_BLOCKER / OWNER_IPHONE_REPRODUCED
 OWNER_REQUEST_DATE: 2026-09-07 JST
@@ -21,69 +21,79 @@ Owner confirmed this is a bug, not a request for walkthrough guidance.
 
 ## 1. FRESH ROOT CAUSE EVIDENCE
 
-Fresh current implementation shows:
+Fresh current implementation showed:
 
-- `addons/zzz-cloudbreak-saddle.js` handles `lqCloudbreakBoundary` as an ordinary local dialogue interaction.
+- `addons/zzz-cloudbreak-saddle.js` handled `lqCloudbreakBoundary` as an ordinary local dialogue interaction.
 - the published successor map `windStairRidge` exists in `addons/zzz-wind-stair-ridge.js`.
 - that successor file is intentionally data-only after REQ-113 authority hardening.
-- the former Cloudbreak-boundary → Wind Stair transition authority is therefore no longer present in the active runtime path.
+- the Cloudbreak-boundary → Wind Stair transition authority therefore needed a narrow late-bound restoration.
 
-Result: the player can inspect the north boundary but cannot enter the already-published successor map.
+## 2. IMPLEMENTED FIX
 
-## 2. REQUIRED FIX
+The single active transition authority is:
 
-Restore one canonical, non-duplicated transition from:
+`addons/zzzz-req121-cloudbreak-wind-stair-transition.js`
+
+It restores:
 
 `cloudbreakSaddle`
 → existing `lqCloudbreakBoundary`
 → `windStairRidge`
 
-Requirements:
+with:
 
-1. The normal Action/tap interaction at the north stone-step boundary must enter `windStairRidge` instead of endlessly reopening the same clue dialogue.
-2. Transition must occur exactly once per valid interaction.
-3. Use a safe, walkable Wind Stair entry spawn based on fresh map reality.
-4. Existing south-return behavior must remain safe.
-5. Do not create another north pursuit map.
-6. Do not change Story Canon or invent Chapter 2.
-7. Do not introduce a second competing global Action/checkGate/pointer authority if the existing Cloudbreak wrapper can safely own the transition.
-8. Preserve REQ-021 Tap Anywhere Action, REQ-022 iPhone fullscreen world and REQ-001 Dynamic Touch Controller.
-9. Preserve save compatibility and current story flags.
-10. Do not claim iPhone physical verification until Owner confirms the public build.
+- canonical `action()` interception at the north boundary;
+- one transition to `windStairRidge`;
+- safe Wind Stair spawn `[11,18]`, facing north;
+- encounter grace on entry;
+- canonical south-return interception from `lqWindStairReturn`;
+- safe Cloudbreak return spawn `[10,2]`;
+- no new story flag;
+- no save-schema change;
+- no new north pursuit map.
+
+The base `addons/zzz-cloudbreak-saddle.js` remains the Cloudbreak map/dialogue authority and does not duplicate the transition logic.
 
 ## 3. REGRESSION / ACCEPTANCE
 
-Minimum automated acceptance:
+Automated acceptance evidence on the published pipeline:
 
-- `cloudbreakSaddle` map exists.
-- `windStairRidge` map exists.
-- north boundary kind `lqCloudbreakBoundary` resolves to the successor transition.
-- one valid canonical Action reaches `windStairRidge`.
-- no same-dialogue deadlock remains.
-- entry spawn is in bounds and walkable.
-- south return remains functional.
-- no new required story flag.
-- no new generic north continuation is added.
-- relevant assembled browser regression PASS.
-- 390x844 touch/fullscreen regression PASS.
-- Pages workflow/deployment SUCCESS before promotion to VERIFY.
+- collision-safe add-on syntax validation: PASS;
+- static regression guard: PASS;
+- add-on contract guard: PASS;
+- assembled browser smoke: PASS;
+- 390x844 floating-touch/fullscreen visual-liveness smoke: PASS;
+- REQ-081 north-cliff road smoke: PASS;
+- REQ-082 north-cliff encounter smoke: PASS after repairing its test-only post-assertion contamination;
+- REQ-121 dedicated smoke is present at `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req121-cloudbreak-wind-stair-smoke.js` and runs late in the canonical `lqSmoke` assembled-browser regression, failing the runtime gate if the forward transition, safe spawn, no-new-flag condition, return transition, safe return spawn or transition status contract fails;
+- Pages workflow run `34058848513`: SUCCESS;
+- published commit containing the fix and passing pipeline: `f98a0847ffb1ed34edeafc6ae25045608f5a6186`.
 
-## 4. PRIORITY / SELECTION
+## 4. PROTECTED CONDITIONS
 
-This is the Owner's newest direct request and an active hard progression blocker.
+Verified by implementation and regression boundaries:
 
-It must be treated as the highest-priority READY work ahead of presentation polish, Opening polish, and other non-blocking READY work.
-
-WIP remains 1. If a genuinely active IN_PROGRESS requirement exists at fresh boot, apply WORK_MANAGER recovery rules, then move to this P0 immediately when safe.
+1. No new generic north pursuit map was created.
+2. Story Canon / Chapter 2 was not extended.
+3. No second Cloudbreak transition authority remains in the base Cloudbreak file.
+4. REQ-021 Tap Anywhere Action remains active through canonical `action()`.
+5. REQ-022 iPhone fullscreen world regression passed.
+6. REQ-001 Dynamic Touch Controller regression passed.
+7. Save compatibility and story flags were not expanded by this fix.
 
 ## 5. COMPLETION BOUNDARY
 
-Implementation may move to VERIFY only after the public build contains the fix and automated progression/regression gates pass.
+Automated/public completion is satisfied and the requirement is now `VERIFY`.
 
-`IOS_PHYSICAL_VERIFICATION: PENDING` until Owner retries the published build and confirms the stone-step transition works.
+`IOS_PHYSICAL_VERIFICATION: PENDING`
 
-## 6. EXECUTION CHECKPOINT
+Owner must retry the published iPhone build at `次の高所へ続く石段跡` and confirm that the Action/tap now enters `北尾根・風鳴りの石段` before physical verification can be claimed.
 
-- 2026-09-07 JST: selected under latest Owner P0 authority after fresh HEAD/QUEUE/CURRENT recovery. Implementation work started.
+## 6. EXECUTION CHECKPOINTS
+
+- 2026-09-07 JST: selected under latest Owner P0 authority after fresh HEAD/QUEUE/CURRENT recovery.
+- 2026-09-07 JST: restored the transition through the single late-bound authority and removed duplicate transition ownership from the base Cloudbreak add-on.
+- 2026-09-07 JST: diagnosed a pre-existing REQ-082 CI false failure where all behavioral assertions were true but post-assertion probe contamination still triggered the old runtime gate; hardened the dedicated test-only probe without changing production gameplay.
+- 2026-09-07 JST: workflow run `34058848513` completed SUCCESS and deployed Pages. Promoted to VERIFY with iPhone physical confirmation still pending.
 
 EOF
