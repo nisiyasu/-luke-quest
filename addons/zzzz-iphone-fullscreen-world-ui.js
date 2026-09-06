@@ -90,6 +90,14 @@ function isTransparentBackground(el){
   return value==='transparent'||/^rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(value);
 }
 
+function styleHasPaint(style){
+  if(!style)return false;
+  const bg=style.backgroundColor||'';
+  const image=style.backgroundImage||'none';
+  const colorPaint=bg&&bg!=='transparent'&&bg!=='rgba(0, 0, 0, 0)';
+  return colorPaint||image!=='none';
+}
+
 function smokeMarker(shell,statusCard,controls){
   if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
   let marker=document.getElementById('lqFullscreenWorldRuntimeSmokeMarker');
@@ -99,11 +107,12 @@ function smokeMarker(shell,statusCard,controls){
   const player=worldEl&&worldEl.querySelector('.player');
   const worldRect=worldEl&&worldEl.getBoundingClientRect();
   const playerRect=player&&player.getBoundingClientRect();
-  const visibleTiles=worldEl?[...worldEl.querySelectorAll('.tile')].filter(tile=>{
+  const visibleTileGeometry=worldEl?[...worldEl.querySelectorAll('.tile')].filter(tile=>{
     const r=tile.getBoundingClientRect();
     const cs=getComputedStyle(tile);
-    return rectIntersects(r,shellRect)&&cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity||1)>.05&&cs.backgroundColor!=='rgba(0, 0, 0, 0)'&&cs.backgroundColor!=='transparent';
+    return rectIntersects(r,shellRect)&&cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity||1)>.05;
   }):[];
+  const paintedTiles=visibleTileGeometry.filter(tile=>styleHasPaint(getComputedStyle(tile))||styleHasPaint(getComputedStyle(tile,'::before'))||styleHasPaint(getComputedStyle(tile,'::after'))||!!tile.textContent.trim());
   const heightRatio=(shellRect.height||0)/Math.max(1,innerHeight);
   const data={
     worldClass:document.body.classList.contains(WORLD_CLASS),
@@ -119,10 +128,12 @@ function smokeMarker(shell,statusCard,controls){
     playerGeometry:!!playerRect&&playerRect.width>10&&playerRect.height>10,
     worldIntersectsViewport:rectIntersects(worldRect,shellRect),
     playerIntersectsViewport:rectIntersects(playerRect,shellRect),
-    visibleWorldTiles:visibleTiles.length>=8
+    visibleWorldTiles:visibleTileGeometry.length>=8,
+    paintedWorldTiles:paintedTiles.length>=8
   };
   Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(!!v));
-  marker.dataset.visibleTileCount=String(visibleTiles.length);
+  marker.dataset.visibleTileCount=String(visibleTileGeometry.length);
+  marker.dataset.paintedTileCount=String(paintedTiles.length);
   marker.dataset.controlsBackground=controls?getComputedStyle(controls).backgroundColor:'missing';
   marker.dataset.worldWidth=worldRect?String(Math.round(worldRect.width)):'0';
   marker.dataset.worldHeight=worldRect?String(Math.round(worldRect.height)):'0';
@@ -175,5 +186,5 @@ window.addEventListener('orientationchange',scheduleRecenter,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleRecenter,{passive:true});
 applyWorldLayout();
 
-window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.3',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
+window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.4',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,pseudoPaintAware:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
 })();
