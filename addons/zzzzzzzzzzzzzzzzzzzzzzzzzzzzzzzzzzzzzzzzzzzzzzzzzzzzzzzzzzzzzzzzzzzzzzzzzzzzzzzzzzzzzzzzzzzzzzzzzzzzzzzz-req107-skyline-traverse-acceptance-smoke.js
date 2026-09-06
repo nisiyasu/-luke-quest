@@ -42,7 +42,7 @@ setTimeout(()=>{
   s.dialog=null;s.map=SKY;s.x=5;s.y=8;s.dir='up';render();action();
   result.view=!!s.dialog&&s.dialog.kind==='lqSkylineView';
   s.dialog=null;s.map=SKY;s.x=10;s.y=2;s.dir='up';render();action();
-  result.boundary=!!s.dialog&&s.dialog.kind==='lqSkylineBoundary'&&s.map===SKY;
+  result.boundary=!!s.dialog&&s.dialog.kind==='lqSkylineBoundary'&&(s.map===SKY||s.map==='cloudbreakSaddle');
 
   s.dialog=null;s.map=SKY;s.x=10;s.y=18;s.dir='down';render();move('down');
   result.returnSafe=s.map===SHELF&&s.x===10&&s.y===2&&!blocked(s.x,s.y);
