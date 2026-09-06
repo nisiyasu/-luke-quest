@@ -69,7 +69,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 56 | REQ-056 | P1 | VERIFY | Base Equipment Shop Comparison | `requirements/REQ-056_BASE_EQUIPMENT_SHOP_COMPARISON.md` | 青銅の剣/革の旅装へ現在ATK/DEF→購入後のsigned delta比較をUI-only追加。Tier II downgradeも明示。dedicated/assembled/equipment/390x844 regressions + Pages run 34014165812 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 57 | REQ-057 | P1 | VERIFY | Stackable Shop Sell Quantity | `requirements/REQ-057_STACKABLE_SHOP_SELL_QUANTITY.md` | REQ-055の同一sell authorityを×1/×3へ拡張。在庫不足/不正qty/店外はreject、buy×1/×3と旧x1 sell保持。dedicated/assembled/390x844 + Pages run 34014292725 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 58 | REQ-058 | P1 | VERIFY | Accessory Equipment Foundation | `requirements/REQ-058_ACCESSORY_EQUIPMENT_FOUNDATION.md` | 3枠目ACCESSORYを追加。旅人の護符60G/DEF+1、購入・装備・はずす・再装備・Tier II防具跨ぎdelta安全を実装。dedicated/equipment/assembled/390x844 + Pages run 34014440476 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
-| 59 | REQ-060 | P1 | IN_PROGRESS | Cross-Browser Save Transfer | `requirements/REQ-060_CROSS_BROWSER_SAVE_TRANSFER.md` | browser-local autosave/manual slotsを保持したまま、fresh browserのtitleからversioned SAVE CODEをIMPORTできる移行UIを追加。invalid payloadはfail closed。 |
+| 59 | REQ-060 | P1 | VERIFY | Cross-Browser Save Transfer | `requirements/REQ-060_CROSS_BROWSER_SAVE_TRANSFER.md` | SAVE CODE export/import、fresh browser title IMPORT、Unicode round-trip、invalid/dangerous payload fail-closed、manual backup保持。Pages run 34015168161 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
