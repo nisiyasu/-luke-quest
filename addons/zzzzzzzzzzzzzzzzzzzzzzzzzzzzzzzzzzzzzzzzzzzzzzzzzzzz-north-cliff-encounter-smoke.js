@@ -11,7 +11,7 @@ function marker(data){
   Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);return el;
 }
 function failure(reason,data){
-  const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeFailure';el.dataset.reason=String(reason||'unknown');
+  const el=document.createElement('i');el.id='lqReq082SmokeFailureDetail';el.dataset.reason=String(reason||'unknown');
   Object.entries(data||{}).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);return el;
 }
 function walkable(mapId,x,y){
@@ -33,9 +33,6 @@ setTimeout(()=>{
     exactPool=pool===EVAC_ENEMIES;
     noNewEnemies=pool.length===EVAC_ENEMIES.length&&pool.every((e,i)=>e===EVAC_ENEMIES[i]);
 
-    // move() consumes one grace count after a successful step/gate transition,
-    // so acceptance verifies a positive bounded grace rather than incorrectly
-    // requiring the pre-move configured value to survive unchanged.
     encounterGrace=0;
     s.screen='world';s.map='evacRoute';s.x=14;s.y=1;s.dir='up';s.dialog=null;s.flags.withdrawProofSeen=true;render();move('up');
     const configuredEntry=window.LQ_NORTH_CLIFF_ROAD_STATUS?.entryEncounterGrace||0;
@@ -56,7 +53,7 @@ setTimeout(()=>{
       throw new Error(`REQ-082 assertion false ${detail}`);
     }
   }catch(err){
-    console.error('lqNorthCliffEncounterSmokeFailure',err);
+    console.error('LQ_REQ082_SMOKE_FAILURE_DETAIL',err);
     deferredError=new TypeError(`REQ-082 north cliff encounter smoke failed: ${err&&err.message}`);
   }
   finally{
