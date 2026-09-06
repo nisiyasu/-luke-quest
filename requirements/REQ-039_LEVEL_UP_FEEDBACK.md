@@ -1,6 +1,6 @@
 # REQ-039 — Level-Up Feedback
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYER_VISIBLE / BATTLE / PROGRESSION / PRESENTATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -19,52 +19,72 @@ Fresh inventory of the current default-branch implementation found that canonica
 
 Fresh code search and filename/tree inventory found no dedicated level-up presentation module or explicit LEVEL UP feedback surface.
 
-Therefore the progression mechanic itself must not be duplicated or changed. The player-visible gap is that a level increase is currently folded into the normal victory transition without a clear reward moment or before/after stat feedback.
+Therefore the progression mechanic itself was not duplicated or changed. The player-visible gap was that a level increase was folded into the normal victory transition without a clear reward moment or before/after stat feedback.
 
-## REQUIRED IMPLEMENTATION
+## IMPLEMENTATION
 
-Add a presentation-only level-up cue that observes the existing canonical `win()` result.
+`addons/level-up-feedback.js` adds a presentation-only level-up cue while keeping canonical `win()` as the sole owner of EXP/level/stat mutation.
 
-Required behavior:
+Behavior:
 
-1. Preserve the existing final `win()` as the sole owner of EXP/level/stat mutation.
-2. Capture pre-win level/max HP/ATK and invoke the canonical `win()` unchanged.
-3. If level increased, show a short non-interactive overlay after canonical rendering.
-4. Clearly show the new level and the stat improvements that actually occurred.
-5. Do not invent or award any extra EXP, HP, ATK, MP, gold, item, skill, equipment or story progression.
-6. Overlay must be `pointer-events:none` and automatically clean up.
-7. Repeated preview/presentation must replace the previous layer rather than stack.
-8. Respect `prefers-reduced-motion`.
-9. Do not interfere with victory dialogue, battle feedback, map rendering, Tap Anywhere, Dynamic Touch Controller or fullscreen world presentation.
+1. captures pre-win `lv` / `mh` / `atk`;
+2. invokes the current final `win()` unchanged and preserves its return value;
+3. reads post-win `lv` / `mh` / `atk`;
+4. only when level increased, shows a short fixed non-interactive overlay;
+5. displays the actual new level and actual max-HP / ATK deltas observed from canonical state;
+6. does not award or mutate EXP, HP, ATK, MP, gold, items, skills, equipment or story state itself;
+7. overlay is `pointer-events:none`;
+8. repeated presentations replace the prior layer rather than stack;
+9. animation-end cleanup and timed fallback cleanup are both present;
+10. `prefers-reduced-motion` shortens the cue.
+
+Status surface:
+
+`window.LQ_LEVEL_UP_FEEDBACK_STATUS`
+
+records presentation-only ownership, canonical owner `index.html win()`, actual-delta rendering, pointer safety, reduced-motion support, cleanup fallback, active-layer count and smoke preview/cleanup hooks.
+
+Dedicated acceptance:
+
+`addons/zzzzzzzzzzzzzzzzzzz-level-up-feedback-smoke.js`
+
+runs only under `?lqTouchSmoke=1`, drives two preview presentations, verifies one-layer behavior, fixed viewport, pointer safety, actual `LV 2 / +9 HP / +3 ATK` delta rendering, reduced-motion metadata and cleanup, and throws a fail-closed uncaught runtime marker on any contract failure.
 
 ## CANONICAL MUTATION CONTRACT
 
-The presentation layer must treat these as read-only evidence after `win()`:
+The presentation layer treats these as read-only evidence after `win()`:
 
 - `lv`
 - `mh`
 - `atk`
 
-If future canonical code changes the exact level-up gains, display the actual before/after delta rather than hard-coding reward amounts into game state.
+If future canonical code changes the exact level-up gains, the player-facing cue renders the actual before/after delta rather than mutating or assuming progression rewards.
 
-## AUTOMATED ACCEPTANCE
+## VERIFICATION EVIDENCE
 
-Expose a smoke-capable status surface that can verify without mutating production progression:
+Checkpoints:
 
-- feature loaded
-- presentation-only ownership
-- canonical progression owner identified as `index.html win()`
-- pointer-safe fixed overlay
-- one-layer/non-stacking behavior
-- actual-delta rendering contract
-- reduced-motion support
-- cleanup fail-safe
+- requirement registration: `be879ef2864a8083b4848dad12316f577b5739c9`
+- implementation: `5e4b3ad9354d994f2917a860fb65dcbc9b70a7a2`
+- dedicated browser acceptance: `4f37cbfbe18a8e850e9ec14fb60804b841f2ce3c`
 
-A dedicated `lqTouchSmoke` probe should fail closed on contract failure.
+Pages workflow run `34009085469`: SUCCESS.
+
+Verified in that run:
+
+- sequential JavaScript syntax: SUCCESS
+- collision-safe add-ons syntax: SUCCESS
+- static regression guard: SUCCESS
+- add-on contract guard: SUCCESS
+- PWA/assets validation: SUCCESS
+- assembled browser world/movement/interaction/battle/save smoke: SUCCESS
+- 390x844 floating-touch + fullscreen visible-world regression: SUCCESS
+- level-up smoke ran under the same `lqTouchSmoke` assembled page and did not trip its fail-closed runtime marker
+- Pages upload/deploy: SUCCESS
 
 ## COMPLETION CONDITION
 
-Automated completion requires:
+Automated implementation completion is satisfied:
 
 - requirement + implementation committed
 - JavaScript syntax PASS
@@ -77,6 +97,8 @@ Automated completion requires:
 Physical/subjective completion remains:
 
 - `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner sees/feels the level-up cue on iPhone.
+
+Therefore REQ-039 is `VERIFY`, not DONE.
 
 ## DO NOT REPEAT
 
