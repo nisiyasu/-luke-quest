@@ -86,11 +86,6 @@ function enterWindStair(boundary){
  s.dialog={kind:boundary?.kind||'lqCloudbreakBoundary',name:'北尾根・風鳴りの石段',text:'古い踏み段を登ると、風が岩の隙間を鳴らす細い石段へ出た。少し先には、新しい靴跡が残っている。\nルーク「ちゃんと道は続いてますね。……まだ登るのか。」'};
  render();
 }
-function returnFromWindStair(ret){
- stopMoving();encounterGrace=RETURN_GRACE;s.map=SADDLE;s.x=10;s.y=2;s.dir='down';guidePhase='north';
- s.dialog={kind:ret?.kind||'lqWindStairReturn',name:'北尾根・雲上の鞍部',text:'風鳴りの石段を南へ下り、雲上の鞍部へ戻った。北へ進む石段跡は、すぐ背後にある。'};
- render();
-}
 const actionBase=action;
 action=function(){
  if(!s.dialog&&s.screen==='world'){
@@ -99,11 +94,6 @@ action=function(){
    stopMoving();
    if(n.kind==='lqCloudbreakScuff')guidePhase='north';
    if(n.kind==='lqCloudbreakBoundary'&&MAPS[RIDGE]){enterWindStair(n);return;}
-   s.dialog=n;render();return;
-  }}
-  if(s.map===RIDGE){const n=aheadNpc(RIDGE);if(n){
-   stopMoving();
-   if(n.kind==='lqWindStairReturn'){returnFromWindStair(n);return;}
    s.dialog=n;render();return;
   }}
  }
@@ -135,5 +125,5 @@ function decorate(){
 const worldBase=world;world=function(){const r=worldBase();decorate();return r;};
 const renderBase=render;render=function(){const r=renderBase();decorate();return r;};
 
-window.LQ_CLOUDBREAK_SADDLE_STATUS={version:'1.1',map:SADDLE,displayName:'北尾根・雲上の鞍部',entryFrom:SKY,entrySpawn:[10,18],returnSpawn:[10,2],interactionCount:4,firstClue:{kind:'lqCloudbreakScuff',x:11,y:16},northBoundary:{kind:'lqCloudbreakBoundary',x:10,y:1},northTransition:{map:RIDGE,spawn:[11,18],viaCanonicalAction:true},windStairReturn:{map:SADDLE,spawn:[10,2],viaCanonicalAction:true},newRequiredStoryFlags:0,protectedCanonChanged:false,encounterEnabled:true,encounterPool:'EVAC_ENEMIES',entryEncounterGrace:ENTRY_GRACE,returnEncounterGrace:RETURN_GRACE,canonicalAction:true,canonicalCheckGate:true,saveSchemaChanged:false,pointerSafeGuidance:true,iosPhysicalVerification:'PENDING',guidePhase:()=>guidePhase};
+window.LQ_CLOUDBREAK_SADDLE_STATUS={version:'1.1-forward-isolation',map:SADDLE,displayName:'北尾根・雲上の鞍部',entryFrom:SKY,entrySpawn:[10,18],returnSpawn:[10,2],interactionCount:4,firstClue:{kind:'lqCloudbreakScuff',x:11,y:16},northBoundary:{kind:'lqCloudbreakBoundary',x:10,y:1},northTransition:{map:RIDGE,spawn:[11,18],viaCanonicalAction:true},newRequiredStoryFlags:0,protectedCanonChanged:false,encounterEnabled:true,encounterPool:'EVAC_ENEMIES',entryEncounterGrace:ENTRY_GRACE,returnEncounterGrace:RETURN_GRACE,canonicalAction:true,canonicalCheckGate:true,saveSchemaChanged:false,pointerSafeGuidance:true,iosPhysicalVerification:'PENDING',guidePhase:()=>guidePhase};
 })();
