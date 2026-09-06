@@ -1,6 +1,6 @@
 # REQ-041 — Completion Record Coverage
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYER_VISIBLE / JOURNAL / CONSISTENCY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -14,52 +14,82 @@ Fresh integrated inventory found a consistency gap between two existing canonica
   - `elderCharmComplete` — 旅好きの老人の銀留め具
   - `forestBountyComplete` — 森の討伐依頼
   - `lqHerbSampleQuestDone` — 森の薬草標本
-- `addons/completion-record.js` is explicitly the completed side-content record, but currently lists only the first two completion flags.
+- `addons/completion-record.js` was explicitly the completed side-content record, but listed only the first two completion flags.
 
-Therefore a completed herb-sample quest remains visible as done in ADVENTURE JOURNAL but is absent from the dedicated COMPLETED record. No new quest mechanics or flags are needed.
+Therefore a completed herb-sample quest could remain visible as done in ADVENTURE JOURNAL but absent from the dedicated COMPLETED record. No new quest mechanics or flags were needed.
 
-## REQUIRED IMPLEMENTATION
+## IMPLEMENTATION
 
-Extend the existing completion record to cover all currently journaled completed side-content without creating a second completion system.
+`addons/completion-record.js` remains the single dedicated COMPLETED presentation and now uses one `COMPLETION_DEFS` definition table covering:
 
-Required behavior:
+- `elderCharmComplete` — 旅人の銀留め具
+- `forestBountyComplete` — 魔物の森・安全確認
+- `lqHerbSampleQuestDone` — 森の薬草標本
 
-1. Keep `completion-record.js` as the single dedicated COMPLETED presentation.
-2. Add the existing `s.flags.lqHerbSampleQuestDone` completion state.
-3. Display a concise canonical label matching the adventure journal: `森の薬草標本`.
-4. Preserve existing `elderCharmComplete` and `forestBountyComplete` rows.
-5. Do not mutate quest flags, rewards, inventory, save data, main story or journal state.
-6. Do not duplicate unfinished/in-progress quest rows; this surface remains completion history only.
-7. Preserve compact pause-menu presentation and iPhone world/fullscreen behavior.
-8. Presentation must remain non-interactive and not interfere with MENU/touch controls.
+A pure `completionRows(flags)` builder filters completed entries and is reused by the live pause-menu presentation and smoke acceptance.
 
-## AUTOMATED ACCEPTANCE
+Safety:
 
-Expose enough read-only status metadata to verify:
+- quest flags are read-only;
+- no rewards/inventory/save/story mutation;
+- unfinished quests are not emitted;
+- each flag has one definition, preventing duplicate completion rows;
+- existing compact pause-menu placement remains;
+- presentation remains non-interactive.
 
-- completion record recognizes all three canonical completion flags;
-- herb-sample completion is included;
-- presentation-only/no state mutation contract;
-- no duplicate completion rows for a single flag;
-- existing elder charm and forest bounty support remains.
+Status surface:
 
-Dedicated smoke under `lqTouchSmoke` should exercise a pure row-builder/status helper rather than permanently mutating quest state.
+`window.LQ_COMPLETION_RECORD_STATUS`
+
+records presentation-only ownership, all three canonical completion flags, existing elder/bounty coverage, herb-sample coverage, pure row builder and no-quest-mutation contract.
+
+Dedicated acceptance:
+
+`addons/zzzzzzzzzzzzzzzzzzzzz-completion-record-coverage-smoke.js`
+
+runs under `?lqTouchSmoke=1`, exercising the pure builder with all-three / herb-only / none inputs and verifying:
+
+- all three canonical completions are represented;
+- existing two completions remain;
+- herb sample resolves to `森の薬草標本`;
+- no duplicate flags;
+- empty state emits no false completed rows;
+- no quest mutation contract.
+
+Failure triggers a fail-closed uncaught runtime marker consumed by the existing workflow detector.
+
+## VERIFICATION EVIDENCE
+
+Checkpoints:
+
+- requirement registration: `3eb2b66840a72cc6e681d144314b26d5895893fe`
+- implementation: `a6469fd3e0c226b452b60c4f0aa1f9312bcaae2d`
+- dedicated acceptance: `4d0ae57b5b2b0f12748fc3f459df31316a85ad0f`
+
+Pages run `34009418972` at the dedicated acceptance checkpoint: SUCCESS.
+A later assembled-head run `34009469016`, containing REQ-041 plus the subsequent integrated HUD self-repairs, also completed SUCCESS.
+
+Latest integrated verification passed:
+
+- sequential JavaScript syntax;
+- collision-safe add-ons syntax;
+- static regression guard;
+- add-on contract guard;
+- PWA/assets validation;
+- assembled browser gameplay smoke;
+- completion coverage fail-closed smoke;
+- 390x844 floating-touch/world visual-liveness;
+- upload and Pages deployment.
 
 ## COMPLETION CONDITION
 
-Automated completion requires:
-
-- requirement + implementation committed;
-- JS syntax PASS;
-- static/add-on regression PASS;
-- assembled browser smoke PASS;
-- dedicated completion coverage acceptance PASS;
-- 390x844 touch/world visual-liveness PASS;
-- Pages deployment SUCCESS.
+Automated completion is satisfied.
 
 Physical/subjective completion remains:
 
 - `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner sees the completed quest list on iPhone.
+
+Therefore REQ-041 is `VERIFY`, not DONE.
 
 ## DO NOT REPEAT
 
@@ -67,4 +97,5 @@ Physical/subjective completion remains:
 - do not rewrite adventure-journal quest authority;
 - do not mark unfinished quests complete;
 - do not create new rewards;
+- do not remove previously supported completion rows;
 - do not mark iPhone physical readability PASS from headless CI.
