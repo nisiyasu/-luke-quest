@@ -1,6 +1,6 @@
 # REQ-083 — 北の崖道・ローカル進行導線
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: UX / GUIDANCE / PLAYER-VISIBLE CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -38,25 +38,28 @@ Existing canonical REQ-081 interactions:
 
 ## ACCEPTANCE
 
-- [ ] northCliffRoad entry phaseで具体的objectiveが表示される
-- [ ] entry phaseでfootprints targetに軽いmarkerがある
-- [ ] canonical action()でfootprintsを調べる
-- [ ] 同一または直後renderでobjectiveが北側boundary導線へ切り替わる
-- [ ] footprints markerが消え、north boundary markerが表示される
-- [ ] mapを離れると専用guidanceが消える
-- [ ] gameplay/save/protected canon mutationなし
-- [ ] assembled browser regression PASS
-- [ ] 390x844 touch/fullscreen regression PASS
-- [ ] Pages SUCCESS
+- [x] northCliffRoad entry phaseで具体的objectiveが表示される
+- [x] entry phaseでfootprints targetに軽いmarkerがある
+- [x] canonical action()でfootprintsを調べる
+- [x] 同一または直後renderでobjectiveが北側boundary導線へ切り替わる
+- [x] footprints markerが消え、north boundary markerが表示される
+- [x] mapを離れると専用guidanceが消える
+- [x] gameplay/save/protected canon mutationなし
+- [x] assembled browser regression PASS
+- [x] 390x844 touch/fullscreen regression PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone feel remains PENDING
 
-## IMPLEMENTATION PLAN
+## IMPLEMENTATION / VERIFICATION EVIDENCE
 
-- dedicated guidance addonとして実装する。
-- existing `.questGuide` projectionがある場合はそこへ具体的objectiveを投影する。
-- world内markerはpresentation-only DOM decorationとする。
-- footprintsのcanonical action成功を既存interaction identityで検知し、runtime-only phaseを進める。
-- dedicated browser smokeを追加し、existing CI failure markerへ接続する。
+- Requirement registration: `0a837c599b0e420e4468b7b05e6be088605ec301`.
+- Guidance implementation: `593b8bd8eea8f8feab294836af18ce8b9649a8d5` in `addons/zzzzzz-north-cliff-local-guidance.js`.
+- Browser acceptance: `cb73dcb624a0b9325d035dd2de7ccd23bf595b9d` in `addons/zzzzzzz-north-cliff-guidance-smoke.js`.
+- First integrated 390x844 run exposed a test-order defect: REQ-083 smoke mutated shared state while the canonical REQ-001/021 touch smoke was still exercising pointer sequences. All seven REQ-083 assertions were already true, but core touch assertions were contaminated. This was repaired forward rather than weakening the core input gate.
+- Test serialization repair: `7e6206394b679a30f880d75aa8c5391d7da88311`. REQ-083 smoke now waits for `lqFloatingTouchRuntimeSmokeMarker` before changing shared runtime state.
+- GitHub Pages run `34026070789` on `7e6206394b679a30f880d75aa8c5391d7da88311`: SUCCESS.
+- Successful run passed JS/add-on validation, static regression, add-on contract, autosave bootstrap/PWA/raster gates, assembled browser smoke, 390x844 floating touch + iPhone world visual-liveness, REQ-081 north cliff road smoke, REQ-082 encounter smoke, upload and Pages deploy.
+- No Owner physical iPhone PASS is claimed.
 
 ## NO-STOP
 
