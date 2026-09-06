@@ -64,7 +64,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 52 | REQ-052 | P1 | VERIFY | Readable Normal Enemy Behavior | `requirements/REQ-052_NORMAL_ENEMY_READABLE_BEHAVIOR.md` | 通常敵へPRESSURE/BURST/STEADYのreadable intentを追加。canonical enemyTurn/guard/poison chainと既存boss AIを保持。dedicated smoke + Pages run 34011798629 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 53 | REQ-053 | P1 | VERIFY | Recovery Magic Foundation | `requirements/REQ-053_RECOVERY_MAGIC_FOUNDATION.md` | MP回復魔法「癒光」5MPを追加。full HP/MP不足時はno-cost/no-turn、毒治療は薬草へ分離、canonical enemyTurn維持。dedicated smoke + Pages run 34011930589 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 54 | REQ-054 | P1 | VERIFY | 王都アルディア・北の神殿内部 | `requirements/REQ-054_ALDIA_NORTH_TEMPLE_INTERIOR.md` | canonical神殿設定をwalkable interior化。正門/侍祭/祈祷水晶/奉納棚/安全退出、報酬・回復・protected canon変更なし。dedicated smoke + Pages run 34012131433 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
-| 55 | REQ-055 | P1 | IN_PROGRESS | Consumable Shop Sell Foundation | `requirements/REQ-055_CONSUMABLE_SHOP_SELL_FOUNDATION.md` | fresh capability auditでbuy-only shopを確認。薬草/煙玉の安全な1個売却を既存shop stateへ追加中。equipment sellはscope外 |
+| 55 | REQ-055 | P1 | VERIFY | Consumable Shop Sell Foundation | `requirements/REQ-055_CONSUMABLE_SHOP_SELL_FOUNDATION.md` | 薬草4G/煙玉9Gの1個売却を既存shop stateへ追加。初回touch-smoke timing collisionを自己修復し、dedicated smoke + assembled browser + 390x844 touch/fullscreen + Pages run 34013983279 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
