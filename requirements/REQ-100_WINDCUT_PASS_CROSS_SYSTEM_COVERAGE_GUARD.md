@@ -1,6 +1,6 @@
 # REQ-100 — 風切り峠・cross-system coverage self-audit guard
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: QUALITY-GATE / SELF-AUDIT / MAP-INTEGRATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -38,18 +38,26 @@ canonical `windcutPass` が主要な地域presentation/導線systemから再び�
 
 ## ACCEPTANCE
 
-- [ ] dedicated late-loading fail-closed smoke exists
-- [ ] canonical map existence checked
-- [ ] local guidance checked
-- [ ] battle backdrop checked
-- [ ] area title checked
-- [ ] ambient checked
-- [ ] cloud shadow checked
-- [ ] footstep checked
-- [ ] northCliff continuity regression checked
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen regression PASS
-- [ ] Pages SUCCESS
+- [x] dedicated late-loading fail-closed smoke exists
+- [x] canonical map existence checked
+- [x] local guidance checked
+- [x] battle backdrop checked
+- [x] area title checked
+- [x] ambient checked
+- [x] cloud shadow checked
+- [x] footstep checked
+- [x] northCliff continuity regression checked
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen regression PASS
+- [x] Pages SUCCESS
+
+## VERIFIED EVIDENCE
+
+- Implementation checkpoint: `54cc6773a29c9bacdb8ea12fbd1966620e275453`
+- Pages workflow run: `34033921077` / SUCCESS
+- Workflow assembled browser smoke: PASS
+- Workflow floating touch + iPhone world visual-liveness smoke: PASS
+- Guard is smoke-only and reports `gameplayMutation:false`.
 
 ## NO-STOP
 
