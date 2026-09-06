@@ -1,6 +1,6 @@
 # REQ-079 — Save Transfer Age Preview
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / CROSS-BROWSER / PLAYER-UX / SAFETY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FOLLOW_THROUGH
@@ -36,3 +36,13 @@ Automated acceptance must prove:
 ## 3. NO-STOP
 
 Completion is a checkpoint only. Synchronize durable state, run GATE C, and continue while safe useful work remains.
+
+## 4. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registered: `f21323217982497bb3b359319839299202e926f7`.
+- `addons/save-transfer-preview.js` now derives a compact creation-time label from the existing REQ-060 `decodeEnvelope()` authority and appends it to the read-only IMPORT PREVIEW. Implementation commit: `99d963a3fb6037e2c14102a08b1e758a53eeb6a9`.
+- Missing/invalid `createdAt` uses neutral `作成時刻不明` and does not invalidate an otherwise valid transfer.
+- Existing preview smoke was extended to prove: valid exported timestamp visibility, same-envelope parsing, invalid-code fail-closed behavior, invalid timestamp fallback, canonical-state immutability and no duplicate preview nodes. Acceptance commit: `5c20b51dd28015a6bc4dbafa8aa7eb97608d6055`.
+- GitHub Pages run `34021747701` for HEAD `5c20b51dd28015a6bc4dbafa8aa7eb97608d6055`: SUCCESS. Sequential patch validation, collision-safe add-ons, static/contract guards, REQ-063 autosave guard, PWA/raster/Luke-asset gates, assembled browser smoke, 390x844 touch/fullscreen visual-liveness, upload and Pages deploy all completed successfully.
+- Existing REQ-062 overwrite guard remains unchanged as final destructive import authority.
+- IOS_PHYSICAL_VERIFICATION remains PENDING; no physical-device PASS is claimed from automation.
