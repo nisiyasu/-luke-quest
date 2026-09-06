@@ -50,11 +50,14 @@ setTimeout(()=>{
     const windBeforeY=s.y;move('up');
     windcutWalkable=s.map==='windcutPass'&&s.y===windBeforeY-1;
 
+    /* Check the three non-boundary REQ-093 interactions directly. The north
+       boundary itself may now be consumed by a later continuation requirement
+       (REQ-105), so accepting a safe northRidgeApproach transition keeps this
+       historical smoke focused on REQ-081/093 instead of rejecting valid growth. */
     const checks=[
       [7,17,'up','岩陰に残る靴跡'],
       [15,14,'up','風で傾いた古い道標'],
-      [5,8,'up','谷を渡る遠い物音'],
-      [10,2,'up','北へ続く尾根道']
+      [5,8,'up','谷を渡る遠い物音']
     ];
     windcutInteractions=checks.every(([x,y,dir,name])=>{
       s.dialog=null;s.map='windcutPass';s.x=x;s.y=y;s.dir=dir;render();action();
@@ -62,8 +65,14 @@ setTimeout(()=>{
       s.dialog=null;
       return ok;
     });
-    windcutBoundarySafe=s.map==='windcutPass'&&s.x===10&&s.y===2;
 
+    s.dialog=null;s.map='windcutPass';s.x=10;s.y=2;s.dir='up';render();action();
+    const legacyBoundary=!!s.dialog&&s.dialog.name==='北へ続く尾根道'&&s.map==='windcutPass';
+    const continuedBoundary=s.map==='northRidgeApproach'&&!!MAPS.northRidgeApproach&&s.x===10&&s.y===18&&!blocked(s.x,s.y);
+    windcutBoundarySafe=legacyBoundary||continuedBoundary;
+
+    /* Restore Windcut explicitly before checking the canonical south return so
+       a newer north continuation cannot leak state into the REQ-093 assertion. */
     s.dialog=null;s.map='windcutPass';s.x=10;s.y=18;s.dir='down';render();move('down');
     windcutReturnSafe=s.map==='northCliffRoad'&&s.x===10&&s.y===2&&!blocked(s.x,s.y);
 
