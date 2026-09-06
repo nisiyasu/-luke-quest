@@ -1,6 +1,6 @@
 # REQ-046 — Defeat Enemy-State Cleanup
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: BUGFIX / BATTLE / DEFEAT / SAVE / CONSISTENCY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -34,38 +34,66 @@ Initial evidence:
 - requirement registration: `a9cf390ec8245d62bbe5305e8f9c7a3fbb28f447`
 - first implementation: `46fd855fc792aeeba3c3b4ae4769b15ce6daccd9`
 - first dedicated acceptance: `445289b1c08fa55d66879f572b3d28332756ee46`
-- Pages workflow run `34010304447`: SUCCESS
+- first Pages workflow run `34010304447`: SUCCESS
 
 ## INTEGRATED RE-AUDIT — LEGACY / MANUAL BACKUP BOUNDARY
 
-The initial repair was correct for *new live defeats*, but fresh post-repair audit of `addons/manual-save-slots.js` found another persistence entry point:
+The initial repair was correct for new live defeats, but fresh post-repair audit of `addons/manual-save-slots.js` found another persistence entry point:
 
 - manual backup snapshots the entire `s` object and forces only `screen='world'`;
 - a backup created before this repair can legitimately contain stale `enemy` / `ehp` from an old defeat;
 - manual load assigns that legacy snapshot back to `s`, forces world, then calls canonical `save()` immediately;
-- the first repair only observes a live `battle -> world` transition, so a legacy world snapshot does not pass that detector.
+- the first repair only observed a live `battle -> world` transition, so a legacy world snapshot did not pass that detector.
 
-Therefore `VERIFY` was reopened. Live defeat cleanup alone is not a complete migration boundary for battle-only enemy state.
+Therefore `VERIFY` was correctly reopened rather than treating the first green run as final proof.
 
-## REQUIRED HARDENING
+## FINAL HARDENING
 
-1. Keep the live defeat cleanup and canonical defeat ownership intact.
-2. Treat `enemy` / `ehp` as battle-only state for persistence purposes.
-3. When canonical state is not `screen==='battle'`, sanitize stale enemy state before it is persisted.
-4. Sanitize stale non-battle state on add-on initialization as well, so old autosaves are repaired forward.
-5. Preserve legitimate enemy/ehp during battle and during battle saves.
-6. Preserve canonical `save()` arguments/return behavior; do not create a second save system.
-7. Preserve REQ-038 defeat presentation, REQ-043/044 poison cleanup, MP defeat recovery, rewards and progression.
-8. Extend fail-closed acceptance to prove non-battle sanitization and battle preservation.
+`addons/battle-defeat-state-cleanup.js` now treats `enemy` and `ehp` as battle-only persistence state:
+
+- `shouldSanitizeEnemyState(screen)` is true outside battle and false during battle;
+- `sanitizeBattleOnlyEnemyState()` clears only stale non-battle `enemy` / `ehp`;
+- canonical `save()` is wrapped while preserving arguments/return behavior, so legacy manual loads and any other non-battle persistence boundary are cleaned before storage;
+- initialization sanitizes old autosave state forward before the add-on's initial save;
+- live battle enemy state and battle saves remain untouched;
+- the existing live defeat detector remains in place and persists the cleaned result;
+- no manual-backup redesign or second defeat/save system was introduced.
+
+Final hardening commits:
+
+- requirement reopen / legacy boundary: `98a404a65bee29ab80bc8b85a24bf24e0add28da`
+- save-boundary implementation: `54d2b36a17acfc77dde728a9d449c0644045735c`
+- hardened fail-closed acceptance: `1ffe55366728d15a6aa9594a8cc38b2f62493192`
+
+The dedicated `lqTouchSmoke` acceptance now additionally proves:
+
+- non-battle save sanitization declared;
+- non-battle load sanitization declared;
+- world/title are sanitized;
+- battle is not sanitized;
+- canonical live defeat detection still works;
+- ordinary battle continuation and unrelated world state are not misclassified.
+
+## FINAL VERIFICATION EVIDENCE
+
+Pages workflow run `34010441091`: SUCCESS.
+
+PASS steps include:
+
+- sequential JavaScript validation;
+- collision-safe add-on validation;
+- static regression guard;
+- add-on contract guard;
+- assembled browser smoke;
+- 390x844 floating-touch + iPhone world visual-liveness smoke;
+- Pages upload/deploy.
 
 ## COMPLETION CONDITION
 
-Automated completion now requires both:
+Automated implementation completion is satisfied for both:
 
 - live defeat transition cleanup; and
 - legacy/non-battle save sanitization.
-
-Then all JavaScript/static/add-on checks, assembled browser smoke, 390x844 touch/world visual-liveness and Pages deployment must succeed, with queue/current synchronized.
 
 Physical/subjective completion remains `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
@@ -76,5 +104,5 @@ Physical/subjective completion remains `IOS_PHYSICAL_VERIFICATION=PENDING`.
 - do not clear enemy during live battle;
 - do not redesign manual backup slots;
 - do not alter poison or progression values;
-- do not treat a green live-defeat test as proof that legacy snapshots are sanitized;
+- do not treat a green live-defeat test alone as proof that legacy snapshots are sanitized;
 - do not mark physical PASS from CI.
