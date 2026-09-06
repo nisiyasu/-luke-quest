@@ -47,7 +47,7 @@ function sideQuests(){
  return rows;
 }
 
-function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function addJournal(){
  if(!s.pauseOpen||s.screen!=='world')return;
  const panel=app.querySelector('.lqPausePanel');if(!panel||panel.querySelector('.lqAdventureJournalSection'))return;
