@@ -1,6 +1,6 @@
 # REQ-053 — Recovery Magic Foundation
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: BATTLE / MAGIC / MP / PLAYER-VISIBLE / STRATEGY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,42 +8,61 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## FRESH CAPABILITY AUDIT
 
-The final-game directive calls for magic/skills. Fresh audit found the current canonical MP system exposes one offensive battle skill only:
+The final-game directive calls for magic/skills. Fresh audit found the current canonical MP system exposed one offensive battle skill only:
 
 - `蒼閃` / 4 MP;
 - persistent `mp` / `mmp` with legacy migration;
 - level-up and defeat recovery;
 - insufficient MP safely skips the enemy turn.
 
-There is no actual magic action yet. Existing herbs provide item healing and poison cure, so a first spell should create a distinct tactical option rather than duplicate the herb exactly.
+Existing herbs already provide item healing and poison cure, so the first actual magic action was implemented as a distinct MP-based recovery option rather than duplicating herb identity.
 
-## REQUIRED BEHAVIOR
+## IMPLEMENTED BEHAVIOR
 
-1. Add one conservative recovery spell named `癒光` as a battle command.
-2. Cost: 5 MP.
-3. Heal amount: deterministic from current level, `14 + lv * 3`, capped by missing HP.
-4. `癒光` does NOT cure poison; herbs retain the item/status-cure identity.
-5. If HP is already full, do not spend MP and do not consume an enemy turn; show a clear battle-log message.
-6. If MP is insufficient, do not change HP/MP and do not consume an enemy turn; show a clear battle-log message.
-7. On a valid cast:
-   - subtract exactly 5 MP;
-   - heal only up to `mh`;
-   - log the actual healed amount;
-   - save the state;
-   - delegate the enemy response through the current canonical `enemyTurn()` chain so guard/poison/REQ-052 readable behavior remain authoritative.
-8. Do not alter `蒼閃`, MP migration, level-up recovery, defeat recovery, herb behavior, poison cure, enemy rewards or encounter rates.
-9. Keep UI compact on iPhone and do not create a new large control panel.
+`addons/recovery-magic.js` now:
+
+1. adds `癒光` as a compact battle command beside the existing MP skill row;
+2. costs exactly 5 MP on a valid cast;
+3. heals `14 + lv * 3`, capped by missing HP;
+4. never cures poison, preserving herbs as the poison-cure item path;
+5. at full HP, spends no MP and consumes no enemy turn while logging the reason;
+6. with insufficient MP, changes neither HP nor MP and consumes no enemy turn while logging the reason;
+7. on a valid cast, heals only to `mh`, logs the actual recovered amount, saves, then delegates the response through the current canonical `enemyTurn()` chain;
+8. therefore preserves battle poison and REQ-052 readable normal-enemy behavior in the enemy-response chain;
+9. leaves `蒼閃`, MP migration, level-up/defeat recovery, herb behavior, rewards, encounters and story unchanged;
+10. keeps UI inside the existing compact skill row instead of introducing a new large iPhone control panel.
+
+Implementation checkpoints:
+- requirement registration: `baea8964e7c6646453682b6835608424fcab87c9`
+- implementation: `cb2fd86ecd1aeb4f9ce526f250862e497be7733b`
+- dedicated acceptance: `1d821476f01f4fff31bdc6f711cd54e7be78318c`
 
 ## ACCEPTANCE
 
-- pure heal calculation is exposed and deterministic;
-- heal caps at missing HP;
-- full HP and insufficient MP are no-cost/no-enemy-turn paths;
-- valid cast spends exactly 5 MP and then uses canonical enemyTurn;
-- poison is not cleared by the spell;
-- existing `蒼閃` button remains present;
-- REQ-052 normal-enemy behavior and poison contracts remain present;
-- assembled browser + 390x844 touch/world regression + Pages remain green.
+Dedicated `lqTouchSmoke` acceptance verifies:
+- spell name/cost contract;
+- deterministic level-based heal calculation;
+- heal cap at missing HP / zero at full HP;
+- full-HP and insufficient-MP no-cost/no-turn contracts;
+- poison remains distinct and herb cure identity remains active;
+- valid casts delegate canonical enemyTurn;
+- `蒼閃` MP skill contract remains present;
+- REQ-052 readable normal-enemy behavior remains present;
+- battle-poison/herb-cure contract remains present.
+
+GitHub Pages workflow run `34011930589`: SUCCESS.
+
+PASS coverage includes:
+- sequential JavaScript validation;
+- collision-safe add-on validation;
+- static regression guard;
+- add-on contract guard;
+- PWA / raster transport / approved Luke asset validation;
+- assembled browser smoke;
+- 390x844 floating-touch + iPhone world visual-liveness smoke;
+- Pages upload/deploy.
+
+Automated implementation completion is satisfied. Physical/subjective iPhone battle-feel verification remains `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
 ## DO NOT REPEAT
 
