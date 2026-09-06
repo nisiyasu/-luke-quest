@@ -1,6 +1,6 @@
 # REQ-072 — Accessory Shop Sell Foundation
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: EQUIPMENT / SHOP / PLAYER-VISIBLE / ECONOMY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FINAL_GAME_CAPABILITY
@@ -44,3 +44,18 @@ Automated acceptance must prove:
 ## 4. NO-STOP
 
 Completion is a checkpoint, not a stop condition. Run GATE C and continue if safe useful work remains.
+
+## 5. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Added `addons/accessory-shop-sell.js` as an additive lifecycle extension over the existing REQ-058 `LQ_ACCESSORY_STATUS` ownership/equip authority.
+- `旅人の護符` now sells for 30G only in the canonical equipment shop while owned and unequipped.
+- Equipped or unowned sale attempts fail closed without gold, ownership or DEF mutation.
+- Successful sale removes the owned accessory, adds exactly 30G, calls canonical `save()`, re-renders, and allows re-buy through the existing REQ-058 purchase authority.
+- SELL UI appears only for owned accessories, shows ACCESSORY + 30G, disables sale while equipped, and deduplicates on repeated render/world calls.
+- Added `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-accessory-shop-sell-smoke.js` covering unowned/equipped rejection, exact sell value, unrelated-state preservation, re-buy, duplicate-row prevention and equipped-button disablement.
+- Checkpoints:
+  - `8b655777fedf8c35e73bbb53bccbd712a95c498a` — requirement registration.
+  - `14d354e37a05df8fdfa965bdc74b6e078255568b` — implementation.
+  - `f1538687015c4255dae1bf97c478564ddc17ac60` — dedicated acceptance.
+- Pages workflow run `34018459925`: SUCCESS. Sequential patch validation, collision-safe add-ons, static/add-on contracts, autosave/raster/Luke asset gates, assembled browser smoke, 390x844 floating-touch + iPhone world visual-liveness, upload and Pages deploy all passed.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
