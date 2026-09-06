@@ -1,6 +1,6 @@
 # REQ-049 — Manual Backup Corruption Hardening
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / LOAD / LEGACY / CORRUPTION SAFETY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,42 +8,64 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## FRESH DEFECT INVENTORY
 
-Fresh audit after REQ-044 legacy-state hardening found that `addons/manual-save-slots.js` accepts any truthy JSON value from localStorage as a loadable backup.
+Fresh audit after REQ-044 legacy-state hardening found that `addons/manual-save-slots.js` accepted any truthy JSON value from localStorage as a loadable backup.
 
-Current behavior:
-- `slotData()` returns parsed JSON without validating object shape;
-- title/menu presentation treats any truthy primitive/array as an existing slot;
-- `lqManualLoad()` applies `Object.assign({}, DEFAULT, data)` and then reads `data.flags`, allowing malformed legacy/corrupt JSON shapes to become a misleading load attempt;
-- malformed map falls back to town, but the slot itself is not classified invalid and there is no user-visible safe rejection path.
+Prior behavior:
+- parsed JSON was returned without validating object shape;
+- title/menu presentation treated any truthy primitive/array as an existing slot;
+- `lqManualLoad()` could attempt to merge malformed legacy/corrupt shapes into canonical runtime state;
+- malformed map had a fallback, but the slot itself was not classified invalid and there was no visible safe rejection path.
 
-This is a concrete save-boundary consistency risk and follows directly from the legacy/manual-backup cases uncovered by REQ-044/046.
+This was a concrete save-boundary consistency risk following from the legacy/manual-backup cases uncovered by REQ-044/046.
 
-## REQUIRED HARDENING
+## IMPLEMENTED HARDENING
 
-1. Preserve two manual backup slots and continuous autosave behavior.
-2. Validate parsed slot payloads before presenting them as loadable.
-3. A valid slot payload must be a plain non-array object representing game state.
-4. Invalid/malformed/corrupt payloads must never be merged into canonical runtime state.
-5. Title/menu UI must identify an invalid slot instead of presenting a normal LOAD action.
-6. Provide a safe user-visible recovery path: invalid slot may be deleted/overwritten, but not loaded.
-7. Valid legacy object payloads remain loadable and continue to receive canonical/default migration plus existing map fallback.
-8. Do not redesign canonical autosave, DEFAULT, or unrelated save systems.
-9. Keep movement stop, encounter grace, save(), render(), and post-load SYSTEM dialogue behavior for valid loads.
+`addons/manual-save-slots.js` now:
+
+1. classifies slot payloads as `empty`, `valid`, or `invalid`;
+2. accepts only non-null, non-array object payloads as loadable legacy/game state;
+3. rejects malformed JSON, primitives, arrays and null before any runtime state merge;
+4. keeps valid legacy objects loadable through canonical/default migration and existing bad-map fallback;
+5. treats malformed `data.flags` conservatively instead of merging non-object shapes;
+6. renders corrupt menu slots as `INVALID BACKUP` with LOAD disabled;
+7. keeps explicit SAVE overwrite and DELETE recovery paths available in the in-game manual-backup panel;
+8. exposes invalid title backups as visibly disabled instead of offering a normal load action;
+9. preserves movement stop, encounter grace, `save()`, `render()` and post-load SYSTEM dialogue for valid loads;
+10. leaves continuous autosave and unrelated save systems unchanged.
+
+Implementation checkpoints:
+- requirement registration: `a7c6c9a3789194d83a5776218afa1433d5b9fdaf`
+- core hardening: `801eb65860df9fc85c01928cde8785b8a5172025`
+- reusable validation contract: `452f2b336ebf29a010e7d0447d5766ccd14993cd`
+- dedicated acceptance: `fadec91a8c735f0f0587d2a8fe0876997663a9e5`
 
 ## ACCEPTANCE
 
-- invalid JSON -> invalid/empty-safe, no runtime mutation;
-- primitive JSON -> INVALID, load rejected;
-- array JSON -> INVALID, load rejected;
-- plain object legacy payload -> accepted;
-- invalid slot is visibly distinguishable and cannot execute load;
-- delete/overwrite path remains available;
-- valid load preserves existing canonical migration/fallback behavior;
-- JavaScript syntax and assembled browser/Pages regressions remain green.
+Dedicated `lqTouchSmoke` acceptance verifies:
+- status/slot contract exists;
+- two slots and autosave preservation remain declared;
+- plain object payloads are accepted;
+- null, string, number, boolean and array payloads are rejected;
+- the pure object-shape helper agrees with the classifier.
+
+GitHub Pages workflow run `34011257673`: SUCCESS.
+
+PASS coverage includes:
+- sequential JavaScript validation;
+- collision-safe add-on validation;
+- static regression guard;
+- add-on contract guard;
+- PWA and approved Luke asset validation;
+- assembled browser smoke;
+- 390x844 floating-touch + iPhone world visual-liveness smoke;
+- Pages upload/deploy.
+
+Automated implementation completion is satisfied. Physical/subjective iPhone verification remains `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
 ## DO NOT REPEAT
 
 - do not treat JSON parse success as equivalent to valid game-state shape;
 - do not merge malformed slot payloads into `s`;
 - do not delete corrupt user data automatically without an explicit user action;
+- do not redesign canonical autosave merely to harden manual backups;
 - do not claim physical iPhone PASS from automation.
