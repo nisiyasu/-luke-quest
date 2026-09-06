@@ -4,6 +4,7 @@
 /* REQ-108 — canon-safe continuation beyond Skyline Traverse. */
 const SKY='skylineTraverse';
 const SADDLE='cloudbreakSaddle';
+const RIDGE='windStairRidge';
 const ENTRY_GRACE=5;
 const RETURN_GRACE=4;
 if(!MAPS[SKY])return;
@@ -80,11 +81,31 @@ function enterSaddle(boundary){
  s.dialog={kind:boundary?.kind||'lqSkylineBoundary',name:'北尾根・雲上の鞍部',text:'露出した稜線を越えると、岩壁に挟まれた短い鞍部へ出た。風が急に弱まり、岩粉の上に新しい擦れ跡が見える。\nルーク「風が消えた分、足跡は探しやすそうです。」'};
  render();
 }
+function enterWindStair(boundary){
+ stopMoving();encounterGrace=ENTRY_GRACE;s.map=RIDGE;s.x=11;s.y=18;s.dir='up';
+ s.dialog={kind:boundary?.kind||'lqCloudbreakBoundary',name:'北尾根・風鳴りの石段',text:'古い踏み段を登ると、風が岩の隙間を鳴らす細い石段へ出た。少し先には、新しい靴跡が残っている。\nルーク「ちゃんと道は続いてますね。……まだ登るのか。」'};
+ render();
+}
+function returnFromWindStair(ret){
+ stopMoving();encounterGrace=RETURN_GRACE;s.map=SADDLE;s.x=10;s.y=2;s.dir='down';guidePhase='north';
+ s.dialog={kind:ret?.kind||'lqWindStairReturn',name:'北尾根・雲上の鞍部',text:'風鳴りの石段を南へ下り、雲上の鞍部へ戻った。北へ進む石段跡は、すぐ背後にある。'};
+ render();
+}
 const actionBase=action;
 action=function(){
  if(!s.dialog&&s.screen==='world'){
   if(s.map===SKY){const n=aheadNpc(SKY);if(n?.kind==='lqSkylineBoundary'){enterSaddle(n);return;}}
-  if(s.map===SADDLE){const n=aheadNpc(SADDLE);if(n){stopMoving();if(n.kind==='lqCloudbreakScuff')guidePhase='north';s.dialog=n;render();return;}}
+  if(s.map===SADDLE){const n=aheadNpc(SADDLE);if(n){
+   stopMoving();
+   if(n.kind==='lqCloudbreakScuff')guidePhase='north';
+   if(n.kind==='lqCloudbreakBoundary'&&MAPS[RIDGE]){enterWindStair(n);return;}
+   s.dialog=n;render();return;
+  }}
+  if(s.map===RIDGE){const n=aheadNpc(RIDGE);if(n){
+   stopMoving();
+   if(n.kind==='lqWindStairReturn'){returnFromWindStair(n);return;}
+   s.dialog=n;render();return;
+  }}
  }
  return actionBase();
 };
@@ -114,5 +135,5 @@ function decorate(){
 const worldBase=world;world=function(){const r=worldBase();decorate();return r;};
 const renderBase=render;render=function(){const r=renderBase();decorate();return r;};
 
-window.LQ_CLOUDBREAK_SADDLE_STATUS={version:'1.0',map:SADDLE,displayName:'北尾根・雲上の鞍部',entryFrom:SKY,entrySpawn:[10,18],returnSpawn:[10,2],interactionCount:4,firstClue:{kind:'lqCloudbreakScuff',x:11,y:16},northBoundary:{kind:'lqCloudbreakBoundary',x:10,y:1},newRequiredStoryFlags:0,protectedCanonChanged:false,encounterEnabled:true,encounterPool:'EVAC_ENEMIES',entryEncounterGrace:ENTRY_GRACE,returnEncounterGrace:RETURN_GRACE,canonicalAction:true,canonicalCheckGate:true,saveSchemaChanged:false,pointerSafeGuidance:true,iosPhysicalVerification:'PENDING',guidePhase:()=>guidePhase};
+window.LQ_CLOUDBREAK_SADDLE_STATUS={version:'1.1',map:SADDLE,displayName:'北尾根・雲上の鞍部',entryFrom:SKY,entrySpawn:[10,18],returnSpawn:[10,2],interactionCount:4,firstClue:{kind:'lqCloudbreakScuff',x:11,y:16},northBoundary:{kind:'lqCloudbreakBoundary',x:10,y:1},northTransition:{map:RIDGE,spawn:[11,18],viaCanonicalAction:true},windStairReturn:{map:SADDLE,spawn:[10,2],viaCanonicalAction:true},newRequiredStoryFlags:0,protectedCanonChanged:false,encounterEnabled:true,encounterPool:'EVAC_ENEMIES',entryEncounterGrace:ENTRY_GRACE,returnEncounterGrace:RETURN_GRACE,canonicalAction:true,canonicalCheckGate:true,saveSchemaChanged:false,pointerSafeGuidance:true,iosPhysicalVerification:'PENDING',guidePhase:()=>guidePhase};
 })();
