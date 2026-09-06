@@ -38,6 +38,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 26 | REQ-009 | P2 | VERIFY | フィールド/森をPS1初期級の視覚密度へ強化 | `requirements/REQ-009_FIELD_FOREST_VISUAL_DENSITY.md` | 王都近郊→森入口→深部のA-C実装。Pages workflow run 33981010791全工程SUCCESS。Owner主観/iPhone見た目確認待ち |
 | 27 | REQ-010 | P2 | VERIFY | 建物内部と町コンテンツの追加拡張 | `requirements/REQ-010_BUILDING_INTERIOR_EXPANSION.md` | 南門宿・屋根裏談話室を追加。実entry/exit browser smokeを含むPages workflow run 33981620155 SUCCESS。Owner主観/iPhone見た目確認待ち |
 | 28 | REQ-028 | P1 | VERIFY | 王都アルディア・王城上階回廊 | `requirements/REQ-028_ALDIA_CASTLE_UPPER_GALLERY.md` | 玄関ホール大階段→上階回廊entry/walk/guard+map/boundary/returnをruntime probeで固定。旧REQ-027 smokeのforward-compatibility defectも自己修復。Pages run 34004233876 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 29 | REQ-029 | P1 | VERIFY | 王都近郊・石灰洞 | `requirements/REQ-029_FIELD_LIMESTONE_CAVE.md` | field→cave entry/walk/environment interactions/depth boundary/safe exitをruntime probeで固定。公開前spawn collisionも自己検知修正。Pages run 34004420157 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
