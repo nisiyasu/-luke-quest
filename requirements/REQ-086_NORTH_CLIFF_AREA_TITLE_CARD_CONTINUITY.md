@@ -1,6 +1,6 @@
 # REQ-086 — 北の崖道・エリアタイトル演出の連続性
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PRESENTATION / AREA-TITLE / WORLD-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -10,9 +10,9 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 REQ-081で `northCliffRoad` が正式なwalkable mapになり、REQ-082〜085でencounter、導線、journal、battle backdropまで地域連続性を拡張した。
 
-しかしfresh `addons/area-title-card.js` のsubtitle registryは `cliff` / `cliffRoad` を持つ一方、実際のcanonical map key `northCliffRoad` を持っていない。
+しかしfresh `addons/area-title-card.js` のsubtitle registryは `cliff` / `cliffRoad` を持つ一方、実際のcanonical map key `northCliffRoad` を持っていなかった。
 
-そのため北の崖道へ入った際、area titleの大見出しはMAPS由来で表示できても、subtitleはgeneric fallback `LUKE QUEST` へ落ちる。新地域だけ既存のcinematic location-title systemから外れるplayer-visible continuity gapである。
+そのため北の崖道へ入った際、area titleの大見出しはMAPS由来で表示できても、subtitleはgeneric fallback `LUKE QUEST` へ落ちる。新地域だけ既存のcinematic location-title systemから外れるplayer-visible continuity gapだった。
 
 ## PURPOSE
 
@@ -31,19 +31,30 @@ REQ-081で `northCliffRoad` が正式なwalkable mapになり、REQ-082〜085で
 ## IMPLEMENTATION TARGET
 
 - `addons/area-title-card.js`
-- relevant acceptance / Pages gate as needed
+- `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-area-title-north-cliff-smoke.js`
 
 ## ACCEPTANCE
 
-- [ ] `northCliffRoad` has a dedicated subtitle
-- [ ] existing subtitles remain intact
-- [ ] unknown-map generic fallback remains intact
-- [ ] presentation-only behavior preserved
-- [ ] JS/static/add-on regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] `northCliffRoad` has a dedicated subtitle
+- [x] existing subtitles remain intact
+- [x] unknown-map generic fallback remains intact
+- [x] presentation-only behavior preserved
+- [x] JS/static/add-on regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone visual feel remains PENDING
+
+## VERIFIED EVIDENCE
+
+- Requirement registration checkpoint: `8542993c76d4158d6f33e06db72ed124937a52b4`.
+- Implementation checkpoint: `3aff8a349a6144f6a18fb5e5cd2bfbb9bbd998f0` (`Add north cliff area title continuity`).
+- Fail-closed coverage checkpoint: `dbdc61e8cf5cd1bca01e6927f33ea7474711df62` (`Gate REQ-086 north cliff area title coverage`).
+- `northCliffRoad` subtitle: `退避路の先へ続く風の強い北方崖道`.
+- Runtime status now exposes `hasMap(map)` and `subtitle(map)` so coverage and fallback are mechanically inspectable.
+- Dedicated late-loading smoke fails closed with `TypeError` if `northCliffRoad` is absent, uses generic fallback, or unknown-map fallback changes.
+- Pages workflow run `34027291395`: SUCCESS. Collision-safe add-on validation, static regression, add-on contract, assembled browser, 390x844 floating touch/fullscreen visual-liveness, north-cliff road/encounter browser smoke, upload and Pages deploy all SUCCESS.
+- No Owner physical iPhone visual PASS is claimed.
 
 ## NO-STOP
 
