@@ -2,7 +2,7 @@
 'use strict';
 
 /* Collision-safe add-on: first status ailment, battle-only poison.
-   Poison cannot reduce Luke below 1 HP and is cleared when battle ends. Herbs cure it as well as healing. */
+   Poison cannot reduce Luke below 1 HP and is cleared whenever battle ends. Herbs cure it as well as healing. */
 const POISON_ENEMIES=new Set(['森グモ','黒甲ムカデ','霧喰いヤマネコ']);
 const POISON_CHANCE=.18,POISON_DAMAGE=2,POISON_TURNS=3;
 s.status=s.status&&typeof s.status==='object'?s.status:{};s.status.poison=Math.max(0,Math.floor(Number(s.status.poison)||0));
@@ -12,6 +12,7 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.appendChild(style);
 
 function clearPoison(){s.status=s.status||{};s.status.poison=0;}
+function battleEnded(beforeScreen,afterScreen){return beforeScreen==='battle'&&afterScreen!=='battle';}
 function showTick(){if(s.screen!=='battle')return;const scene=app.querySelector('.battleScene');if(!scene)return;const e=document.createElement('div');e.className='lqPoisonTick';e.textContent=`POISON -${POISON_DAMAGE}`;scene.appendChild(e);setTimeout(()=>e.remove(),700);}
 function addPoisonUi(){
  if(s.status?.poison<=0)return;
@@ -20,19 +21,30 @@ function addPoisonUi(){
 }
 
 const enemyTurnPoisonBase=enemyTurn;enemyTurn=function(g=false){
+ const beforeScreen=s.screen;
  let ticked=false;
  if(s.screen==='battle'&&s.status?.poison>0){s.hp=Math.max(1,s.hp-POISON_DAMAGE);s.status.poison=Math.max(0,s.status.poison-1);s.log.push(`毒が体力を奪う！ ${POISON_DAMAGE}ダメージ。`);ticked=true;}
  const attacker=s.enemy?.n;const r=enemyTurnPoisonBase(g);
- if(s.screen==='battle'&&attacker&&POISON_ENEMIES.has(attacker)&&s.status.poison<=0&&Math.random()<POISON_CHANCE){s.status.poison=POISON_TURNS;s.log.push(`${attacker}の攻撃で毒を受けた！ 薬草で治療できる。`);save();battle();}
+ if(battleEnded(beforeScreen,s.screen)){
+  clearPoison();
+ }else if(s.screen==='battle'&&attacker&&POISON_ENEMIES.has(attacker)&&s.status.poison<=0&&Math.random()<POISON_CHANCE){
+  s.status.poison=POISON_TURNS;s.log.push(`${attacker}の攻撃で毒を受けた！ 薬草で治療できる。`);save();battle();
+ }
  if(ticked)requestAnimationFrame(showTick);addPoisonUi();return r;
 };
 const potionPoisonBase=potion;potion=function(){const cured=s.status?.poison>0&&(s.potions||0)>0;if(cured)clearPoison();const r=potionPoisonBase();if(cured&&s.screen==='battle'){s.log.push('薬草で毒も消えた。');battle();}return r;};
 if(window.lqUseFieldHerb){const herbFieldBase=window.lqUseFieldHerb;window.lqUseFieldHerb=function(){const cured=s.status?.poison>0&&(s.potions||0)>0;if(cured)clearPoison();return herbFieldBase();};}
 const winPoisonBase=win;win=function(){clearPoison();return winPoisonBase();};
-const runPoisonBase=runAway;runAway=function(){const before=s.screen,r=runPoisonBase();if(before==='battle'&&s.screen==='world')clearPoison();return r;};
-if(window.lqUseSmokeBomb){const smokeBase=window.lqUseSmokeBomb;window.lqUseSmokeBomb=function(){const r=smokeBase();if(s.screen==='world')clearPoison();return r;};}
+const runPoisonBase=runAway;runAway=function(){const before=s.screen,r=runPoisonBase();if(battleEnded(before,s.screen))clearPoison();return r;};
+if(window.lqUseSmokeBomb){const smokeBase=window.lqUseSmokeBomb;window.lqUseSmokeBomb=function(){const before=s.screen,r=smokeBase();if(battleEnded(before,s.screen))clearPoison();return r;};}
 const battlePoisonBase=battle;battle=function(){const r=battlePoisonBase();addPoisonUi();return r;};
 const renderPoisonBase=render;render=function(){const r=renderPoisonBase();addPoisonUi();return r;};
-window.LQ_STATUS_AILMENT_STATUS={poison:{enemies:[...POISON_ENEMIES],chance:POISON_CHANCE,damage:POISON_DAMAGE,turns:POISON_TURNS,nonlethal:true,herbCures:true}};
+window.LQ_STATUS_AILMENT_STATUS={
+ poison:{
+  enemies:[...POISON_ENEMIES],chance:POISON_CHANCE,damage:POISON_DAMAGE,turns:POISON_TURNS,nonlethal:true,herbCures:true,
+  battleOnly:true,cleanup:{victory:true,escape:true,smokeEscape:true,defeat:true},
+  battleEnded
+ }
+};
 save();addPoisonUi();
 })();
