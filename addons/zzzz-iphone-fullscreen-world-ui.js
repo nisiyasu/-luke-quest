@@ -6,8 +6,8 @@
    gameShell. Map coordinates, collision, story flags and save semantics remain
    untouched. REQ-034 additionally hardens the world plane against an opaque
    full-screen controls layer and adds iPhone-sized visual-liveness assertions.
-   REQ-091 compacts top overlays and lowers fallback control opacity without
-   changing canonical touch behavior or camera semantics in this checkpoint. */
+   REQ-091 compacts top overlays, lowers control opacity, and gives the camera a
+   north-edge presentation allowance so the player does not disappear under HUD. */
 
 const STYLE_ID='lq-iphone-fullscreen-world-style';
 const WORLD_CLASS='lqWorldFullscreen';
@@ -79,10 +79,23 @@ function recenterCamera(){
   const vw=shell.clientWidth||innerWidth;
   const vh=shell.clientHeight||innerHeight;
   const px=s.x*TS+5,py=s.y*TS+3;
+  const minimumPlayerScreenY=Math.min(132,Math.max(112,Math.round(vh*.16)));
   let cx=vw/2-px-19,cy=vh/2-py-21;
   cx=mapWidth<=vw?Math.round((vw-mapWidth)/2):Math.min(0,Math.max(vw-mapWidth,cx));
-  cy=mapHeight<=vh?Math.round((vh-mapHeight)/2):Math.min(0,Math.max(vh-mapHeight,cy));
-  worldEl.style.transform=`translate(${cx}px,${cy}px)`;
+  if(mapHeight<=vh){
+    cy=Math.round((vh-mapHeight)/2);
+    const playerScreenY=py+cy;
+    if(playerScreenY<minimumPlayerScreenY){
+      cy=Math.min(vh-mapHeight,cy+(minimumPlayerScreenY-playerScreenY));
+    }
+  }else{
+    cy=Math.min(0,Math.max(vh-mapHeight,cy));
+    const playerScreenY=py+cy;
+    if(playerScreenY<minimumPlayerScreenY){
+      cy=Math.min(minimumPlayerScreenY,cy+(minimumPlayerScreenY-playerScreenY));
+    }
+  }
+  worldEl.style.transform=`translate(${Math.round(cx)}px,${Math.round(cy)}px)`;
 }
 
 function rectIntersects(a,b){
@@ -144,6 +157,7 @@ function smokeMarker(shell,statusCard,controls){
   marker.dataset.worldHeight=worldRect?String(Math.round(worldRect.height)):'0';
   marker.dataset.playerX=playerRect?String(Math.round(playerRect.left)):'missing';
   marker.dataset.playerY=playerRect?String(Math.round(playerRect.top)):'missing';
+  marker.dataset.minimumPlayerScreenY=String(Math.min(132,Math.max(112,Math.round((shellRect.height||innerHeight)*.16))));
   const failed=Object.entries(data).find(([,v])=>!v);
   if(failed&&!smokeFailureRaised){
     smokeFailureRaised=true;
@@ -191,5 +205,5 @@ window.addEventListener('orientationchange',scheduleRecenter,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleRecenter,{passive:true});
 applyWorldLayout();
 
-window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.5',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,topOverlayCompacted:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,pseudoPaintAware:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
+window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS={version:'1.0.6',worldViewportPrimary:true,dynamicViewportUnits:true,safeAreaAware:true,statusOverlay:true,topOverlayCompacted:true,playerNorthEdgeSafePresentation:true,controlsOverlay:true,controlsPlaneTransparent:true,worldPlaneGeometry:true,visualLivenessSmoke:true,pseudoPaintAware:true,menuOverlay:true,fallbackAOverlay:true,dialogueOverlay:true,cameraRecenter:true,gameplayCoordinatesUnchanged:true,iosPhysicalVerification:'PENDING'};
 })();
