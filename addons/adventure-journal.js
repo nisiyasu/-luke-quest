@@ -8,6 +8,7 @@ const style=document.createElement('style');style.textContent=`
 
 function mainGoal(state=s){
  const flags=state?.flags||{};
+ const wins=state===s?s.wins:state?.wins;
  if(flags.withdrawProofSeen&&state?.map==='northCliffRoad')return'北の崖道で新しい足跡を追い、北側へ続く道を確認する。';
  if(flags.withdrawProofSeen)return'北の崖道へ向かい、レオンを追う。';
  if(flags.evacEntered)return'北の退避路でレオンと魔王軍の痕跡を調べる。';
@@ -16,7 +17,7 @@ function mainGoal(state=s){
  if(flags.glennTraceSeen)return'北の魔王軍監視区域へ進む。';
  if(flags.mistEntered)return'霧の追跡路で魔王軍の痕跡を調べる。';
  if(flags.leonSeen)return'レオンを追って北の霧へ入る。';
- if((state?.wins||0)<2)return'王都近郊で2勝し、魔物の森へ入る。';
+ if((wins||0)<2)return'王都近郊で2勝し、魔物の森へ入る。';
  if(state?.map==='field')return'北東の魔物の森へ向かう。';
  if(state?.map==='forest')return'森の北側から深部へ進む。';
  return'深部でレオンの痕跡を追う。';
@@ -46,7 +47,7 @@ function sideQuests(){
  return rows;
 }
 
-function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));}
 function addJournal(){
  if(!s.pauseOpen||s.screen!=='world')return;
  const panel=app.querySelector('.lqPausePanel');if(!panel||panel.querySelector('.lqAdventureJournalSection'))return;
