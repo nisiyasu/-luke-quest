@@ -53,6 +53,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 41 | REQ-041 | P1 | VERIFY | Completion Record Coverage | `requirements/REQ-041_COMPLETION_RECORD_COVERAGE.md` | COMPLETED記録へ既存3件目「森の薬草標本」を接続。pure row-builder + fail-closed smoke。Pages run 34009469016 SUCCESS。Owner iPhone readability確認待ち |
 | 42 | REQ-042 | P1 | VERIFY | Adventure Record Accuracy | `requirements/REQ-042_ADVENTURE_RECORD_ACCURACY.md` | OPTIONAL DONEを3件へ整合、TREASURE FINDSをlegacy + chest + hidden-find + item-cache statusから動的dedupe集計。Pages run 34009625492 SUCCESS。Owner iPhone readability確認待ち |
 | 43 | REQ-043 | P1 | VERIFY | Poison Defeat Cleanup | `requirements/REQ-043_POISON_DEFEAT_CLEANUP.md` | battle-only poisonが敗北搬送後にworldへ漏れる整合性バグを修復。battle→world transition cleanup + fail-closed acceptance。Pages run 34009787755 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 44 | REQ-044 | P1 | VERIFY | Battle-Only Poison Save Sanitization | `requirements/REQ-044_BATTLE_ONLY_POISON_SAVE_SANITIZATION.md` | stale/legacy saveからbattle-only poisonがworldへ復元・再保存される境界をcanonical save sanitizationで修復。Pages run 34010063196 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
