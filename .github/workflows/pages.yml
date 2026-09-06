@@ -164,12 +164,13 @@ jobs:
           assert_dom 'data-enemy="訓練用スモーク標的"' /tmp/lq-world-dom.html battle-enemy
           assert_dom 'lqRuntimeSaveSmokeMarker' /tmp/lq-world-dom.html save-marker
           assert_dom 'data-saved="true"' /tmp/lq-world-dom.html save-persistence
+          assert_dom 'lqDemonOutpostRuntimeSmokeMarker' /tmp/lq-world-dom.html demon-army-outpost-marker
           if grep -q 'lqRuntimeSmokeFailure\|lqAtticRuntimeSmokeFailure' /tmp/lq-world-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-world-chrome.log; then
             echo 'Browser runtime error detected'
             cat /tmp/lq-world-chrome.log
             exit 1
           fi
-          echo "LUKE QUEST headless title + world + movement + interaction + seven optional/interior transitions + battle + save smoke PASS (chrome status $world_status)"
+          echo "LUKE QUEST headless title + world + movement + interaction + optional/interior transitions + battle + save + Demon Army outpost smoke PASS (chrome status $world_status)"
       - name: Browser smoke floating touch controller
         shell: bash
         run: |
