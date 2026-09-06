@@ -8,8 +8,9 @@ function marker(data){
   const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeMarker';
   Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);return el;
 }
-function failure(reason){
-  const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeFailure';el.dataset.reason=String(reason||'unknown');el.hidden=true;document.body.appendChild(el);return el;
+function failure(reason,data){
+  const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeFailure';el.dataset.reason=String(reason||'unknown');
+  Object.entries(data||{}).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);return el;
 }
 function walkable(mapId,x,y){
   const m=MAPS[mapId], row=m?.tiles?.[y]||'', c=row[x];
@@ -62,16 +63,16 @@ setTimeout(()=>{
     render();
     const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
     if(deferredError){
-      // This only runs on the dedicated CI probe page. Replacing the complete
-      // document prevents workflow grep from accidentally matching assertion
-      // strings that live inside script source instead of the runtime marker.
+      // Failure deliberately omits the required success marker. The existing
+      // workflow therefore enters its missing-marker diagnostic branch, where
+      // these data-* fields and exact reason are printed instead of being hidden
+      // behind the later generic runtime-error message.
       const reason=deferredError.message;
       document.documentElement.replaceChildren();
       const head=document.createElement('head');
       const body=document.createElement('body');
       document.documentElement.append(head,body);
-      failure(reason);
-      marker({...data,statusContract:false});
+      failure(reason,data);
     }else marker(data);
   }
 },700);
