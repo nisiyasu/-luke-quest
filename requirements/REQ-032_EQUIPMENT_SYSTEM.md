@@ -1,168 +1,146 @@
-# REQ-032 — 武器・防具・装備システム
+# REQ-032 — 既存武器・防具・装備システム正式監査
 
 STATUS: IN_PROGRESS
 PRIORITY: P1
-TYPE: GAMEPLAY / EQUIPMENT / SAVE / UI
+TYPE: GAMEPLAY / EQUIPMENT / SAVE / UI / REGRESSION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
 IOS_PHYSICAL_VERIFICATION: PENDING
 
-## WHY THIS WORK EXISTS
+## SELF-REPAIR NOTICE
 
-`AUTONOMOUS_DEV_DIRECTIVE.md` の最終完成像には「武器」「防具」「装備」が含まれる。
+本REQ登録時のinventory判断に誤りがあった。
 
-fresh core inventoryではプレイヤー攻撃値 `s.atk` は存在し、MP/技や戦闘拡張も存在するが、武器・防具の所有、装備変更、永続保存というcanonical equipment modelは確認できない。
+当初は装備システムが未実装と判断したが、fresh commit/historyおよび実ファイルの再監査により、既に以下が実装済みであることを確認した。
 
-したがって、既存戦闘を壊さずに最初の安全なequipment checkpointを追加する。
+- `ux-v31.js`: weapon / armor / DEF / shop purchase / equipment ownership
+- `ux-v40.js`: 冒険メニューからの装備切替
+- `addons/advanced-equipment.js`: Tier II weapon / armor / purchase / sell / equipment switching
+
+したがって、別系統の新装備モデルを追加する方針は撤回した。
+誤って追加した並行実装 `addons/zz-equipment-system.js` とその専用smokeは削除し、既存canonical equipment chainを正本として扱う。
+
+この修正は機能の後退ではなく、二重state / 二重stat補正 / save incompatibilityを防ぐためのself-repairである。
 
 ## PURPOSE
 
-プレイヤーが武器と防具を所有・装備変更でき、装備効果が既存戦闘能力へ反映され、save/continue後も維持される状態を作る。
+既存の装備機能を新規再実装せず、fresh public build上で正式に監査・回帰固定する。
 
-## SCOPE
+最低限、以下が一つのcanonical chainとして成立していることを確認する。
 
-最初のcheckpointでは以下を実装する。
+- weapon state
+- armor state
+- equipment ownership
+- shop purchase
+- equipment switching
+- ATK bonus
+- DEF bonus
+- Tier II progression
+- save persistence
+- existing battle / MP skill / input compatibility
 
-- persistent equipment state
-- weapon slot 1
-- armor slot 1
-- owned equipment inventory
-- equipment change UI
-- weapon bonusを既存 `s.atk` 系へ反映
-- armor bonusを最大HP `s.mh` へ安全に反映
-- 王城門衛詰所の予備装備箱から最初のupgrade一式をcanonical Actionで受け取る
-- old save migration
+## CANONICAL STATE
 
-## INITIAL EQUIPMENT
+既存実装を維持する。
 
-基礎装備:
+- `s.weapon`
+- `s.armor`
+- `s.def`
+- `s.equipmentOwned` (array)
+- `s.atk`
+
+別形式の `s.equipment.weapon` 等を並行導入しない。
+
+## EXISTING EQUIPMENT FOUNDATION
+
+### Base equipment
 - `旅人の短剣` / weapon / ATK +0
-- `旅装` / armor / 最大HP +0
+- `旅人服` / armor / DEF +0
 
-取得可能な最初のupgrade:
-- `訓練用鉄剣` / weapon / ATK +3
-- `革の胸当て` / armor / 最大HP +6
+### Tier I shop upgrades
+- `青銅の剣` / ATK +3
+- `革の旅装` / DEF +2
 
-数値は最初のequipment foundationとして小さく保ち、既存戦闘バランスを破壊しない。
+### Tier II upgrades
+- `鉄の剣` / ATK +6
+- `補強革鎧` / DEF +4
 
-## ACQUISITION
-
-REQ-025の `aldiaCastleGatehouse` に一般的な `門衛予備装備箱` を追加してよい。
-
-canonical Actionで初回のみ:
-- 訓練用鉄剣
-- 革の胸当て
-
-を所有状態へ追加する。
-
-重要story flagや秘密設定へ接続しない。
-取得済みの場合は再取得せず、装備箱が空または貸出済みであることを伝える。
-
-## EQUIPMENT STATE
-
-optional save fieldsとして少なくとも以下に相当する状態を持つ。
-
-- `s.equipment.weapon`
-- `s.equipment.armor`
-- `s.equipmentOwned`
-
-old saveにfieldが存在しない場合は安全に初期化する。
+既存価格、売却価格、shop semanticsをこの監査のために変更しない。
 
 ## STAT INTEGRATION
 
 ### Weapon
-
-既存 `s.atk` をdamage single sourceとして維持する。
-
-装備変更時は:
-
-`current s.atk - old weapon bonus + new weapon bonus`
-
-の差分反映を行い、既存level-upで加算された基礎ATKを失わない。
-
-これにより通常攻撃だけでなく `s.atk` を参照する既存技も自然に装備効果を受ける。
+既存 `s.atk` をcanonical attack statとして維持する。
+装備切替は旧bonusを除いて新bonusを加える差分方式で行われ、既存level-up由来のATKを失わないこと。
 
 ### Armor
+既存 `s.def` をcanonical defense statとして維持する。
+敵damageは既存DEF reduction semanticsへ接続されていること。
 
-最初のcheckpointでは複雑な敵damage wrapperを増やさず、armor bonusを最大HPへ反映する。
-
-装備変更時は:
-
-`current s.mh - old armor HP bonus + new armor HP bonus`
-
-とし、現在HPは新しい最大HPを超えないようclampする。
-
-level-upによる最大HP増加を失わない。
+本監査のためにarmorを最大HP方式へ作り替えない。
 
 ## UI
 
-既存MENU / 冒険メモを破壊しない。
+既存UIを正本とする。
 
-MENUを開いた時に明示的な `装備` controlを追加し、そこからowned equipmentを選べる。
+- shop panelで装備購入状態を確認可能
+- adventure/pause menuのEQUIPMENT sectionからowned gearを切替可能
+- Tier II equipmentも同じ装備chainへ接続
+- equipped stateが視認可能
 
-- buttonはexplicit interactive controlとして扱う
-- Tap Anywhere Actionを誤発火させない
-- iPhone fullscreen world上のdialogue/menu構造と共存
-- equipped itemを視覚的に識別可能
-- 未所有装備は選択不可
-
-## STATUS FEEDBACK
-
-world HUD/statusまたはequipment menu内で最低限:
-- current weapon
-- current armor
-- resulting ATK
-- resulting max HP
-
-を確認できる。
-
-常時HUDを過密にしない。
+新しい別MENU/dialogue equipment UIを並行追加しない。
 
 ## SAVE SAFETY
 
 - existing `lukeQuestV2` save keyを変更しない
-- optional fieldsのみ追加
-- old save compatibility維持
-- continue後に装備状態とstat bonusが二重適用されない
-- equipment normalizationを複数回実行してもstatが増殖しない
+- old saveで `def / weapon / armor / equipmentOwned` が欠ける場合の既存初期化を維持
+- save後にcurrent weapon / armor / ownership / ATK / DEFが保持される
+- equipment切替を繰り返してbonusが増殖しない
 
 ## WRAPPER SAFETY
 
 既存の:
 - battle
 - attack
+- enemyTurn
 - MP / 蒼閃
 - level-up
 - enemy drop
+- shop
+- pause/menu
 - fullscreen UI
 - Tap Anywhere Action
 - Dynamic Touch Controller
 
-のwrapper chainを破壊しない。
-
-可能な限り既存 `s.atk` / `s.mh` をそのままdownstream single sourceとして利用し、攻撃処理を丸ごと複製しない。
+を破壊しない。
 
 ## TEST REQUIREMENTS
 
-1. old save相当stateでequipment fieldsが安全に初期化される
-2. default equipmentで既存ATK/最大HPが変化しない
-3. 門衛詰所に予備装備箱が存在
-4. canonical Actionでupgrade一式を初回取得
-5. 再Actionで二重取得なし
-6. equipment menuでowned weaponを装備可能
-7. weapon切替でATKが正確に+3 / 元へ戻すと-3
-8. armor切替で最大HPが正確に+6 / 元へ戻すと-6
-9. repeated normalization/renderでbonus二重加算なし
-10. save JSONにequipment stateが保存される
-11. existing attack / 蒼閃がcurrent `s.atk` と整合
-12. level-up由来statを装備変更で失わない構造
-13. explicit equipment buttonsでworld Action誤発火なし
-14. static/add-on/browser regression PASS
-15. Dynamic Touch regression PASS
-16. Pages deploy SUCCESS
+1. fresh runtimeで `s.weapon / s.armor / s.def / s.equipmentOwned` が有効
+2. canonical equipment statusがweapon/armor/DEF/shopを示す
+3. Tier I `青銅の剣` をowned状態から装備するとATKが基礎値+3
+4. `旅人の短剣`へ戻すとATKが正確に元へ戻る
+5. Tier II `鉄の剣` 装備でATKが基礎値+6
+6. Tier I `革の旅装` 装備でDEFが基礎値+2
+7. `旅人服`へ戻すとDEFが正確に元へ戻る
+8. Tier II `補強革鎧` 装備でDEFが基礎値+4
+9. repeated equipment switchingでbonus二重加算なし
+10. save JSONにweapon / armor / equipmentOwned / ATK / DEFが保存される
+11. shop purchase APIs / menu equipment APIsが存在
+12. Tier II systemがsame canonical fieldsへ接続
+13. JavaScript/static/add-on/browser regression PASS
+14. Dynamic Touch regression PASS
+15. Pages deploy SUCCESS
 
 ## COMPLETION CONDITION
 
-- public Pagesで装備取得・装備変更・stat反映・save persistenceが成立
-- existing combat/input/save compatibility維持
-- automated browser regression PASS
-- Owner physical iPhone verification前はVERIFYでよい
+- duplicate equipment implementationがrepositoryから除去済み
+- existing canonical equipment chainがassembled browser acceptanceでPASS
+- public Pages buildでexisting gameplay/input/save compatibilityを維持
+- Owner physical iPhone / subjective UI verification前はVERIFYでよい
+
+## DO NOT REPEAT
+
+- core fileだけ見て装備が未実装と判断しない
+- `ux-v*.js` と `addons/*.js` の双方をinventoryしてから新システムを登録する
+- existing `s.weapon / s.armor / s.def / equipmentOwned[]` と競合する第二のequipment stateを作らない
+- test failureを理由に本体仕様を都合よく変えない
