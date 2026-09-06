@@ -1,6 +1,6 @@
 # REQ-085 — 北の崖道・地域別戦闘背景の連続性
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PRESENTATION / BATTLE-BACKGROUND / WORLD-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,9 +8,9 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY
 
-REQ-082で `northCliffRoad` はcanonical random encounter mapになったが、fresh `addons/original-battle-backgrounds.js` のformal regional battle backdropは `field / forest / deepForest / mistTrail / observation / evacRoute` の6地域だけを対象としている。
+REQ-082で `northCliffRoad` はcanonical random encounter mapになったが、fresh `addons/original-battle-backgrounds.js` のformal regional battle backdropは `field / forest / deepForest / mistTrail / observation / evacRoute` の6地域だけを対象としていた。
 
-`apply()` は `SCENES[s.map]` が無い場合にfalseで戻るため、北の崖道で戦闘が起きても既存REQ-007のoriginal regional backdropが出ない。探索マップは新地域なのに戦闘画面だけ地域表現が落ちるplayer-visible continuity gap。
+`apply()` は `SCENES[s.map]` が無い場合にfalseで戻るため、北の崖道で戦闘が起きても既存REQ-007のoriginal regional backdropが出ない。探索マップは新地域なのに戦闘画面だけ地域表現が落ちるplayer-visible continuity gapだった。
 
 ## PURPOSE
 
@@ -29,17 +29,26 @@ REQ-082で `northCliffRoad` はcanonical random encounter mapになったが、f
 
 ## ACCEPTANCE
 
-- [ ] formal scene registry includes all previous 6 maps plus northCliffRoad
-- [ ] northCliffRoad scene label/art is distinct and original
-- [ ] battle backdrop application recognizes northCliffRoad
-- [ ] unknown map fallback preserved
-- [ ] presentation-only; gameplay/save/story unchanged
-- [ ] strict add-on contract requires all 7 scenes
-- [ ] JS/add-on/static regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] formal scene registry includes all previous 6 maps plus northCliffRoad
+- [x] northCliffRoad scene label/art is distinct and original
+- [x] battle backdrop application recognizes northCliffRoad
+- [x] unknown map fallback preserved
+- [x] presentation-only; gameplay/save/story unchanged
+- [x] strict add-on contract requires all 7 scenes
+- [x] JS/add-on/static regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone visual feel remains PENDING
+
+## VERIFIED EVIDENCE
+
+- Implementation checkpoint: `c314d1cc31c0ec01c2472908a9ed363c1f9ec14a` (`Add formal north cliff battle backdrop`).
+- Strict seven-scene contract checkpoint: `bfb8b83f1e5c92222b0c90f0f27b26e07f718669` (`Require all seven regional battle backdrops`).
+- Pages workflow run: `34026769548` / SUCCESS on `bfb8b83f1e5c92222b0c90f0f27b26e07f718669`.
+- Workflow evidence: static regression, add-on contract, assembled browser, 390x844 floating touch + iPhone world visual-liveness, upload and Pages deploy all SUCCESS.
+- `LQ_ORIGINAL_BATTLE_BACKGROUND_STATUS` now exposes `hasMap(map)` and the registry contains `northCliffRoad`.
+- No Owner physical iPhone visual PASS is claimed.
 
 ## NO-STOP
 
