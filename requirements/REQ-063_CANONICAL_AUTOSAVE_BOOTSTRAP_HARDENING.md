@@ -1,6 +1,6 @@
 # REQ-063 — Canonical Autosave Bootstrap Hardening
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / BOOTSTRAP / RECOVERY / DATA-SAFETY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FROM_SAVE_INTEGRITY_AUDIT
@@ -94,3 +94,19 @@ Automated acceptance must prove at minimum:
 - Do not claim recovery of semantic progress from malformed JSON; only quarantine and safe boot are required.
 - Physical iPhone observation remains PENDING unless actually observed.
 - Completion is a checkpoint, not a stop condition. Run GATE C and continue when safe work remains.
+
+## 6. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Prelude implemented: `prelude/autosave-bootstrap-guard.js`.
+- Dedicated acceptance: `tools/lq-autosave-bootstrap-guard-smoke.mjs`.
+- Malformed JSON and invalid root shapes are quarantined to `lukeQuestAutosaveQuarantineV1` before canonical removal.
+- Valid plain-object payloads are byte-preserved when no sanitization is required.
+- Dangerous top-level and nested `flags` keys are removed before the base `Object.assign` boundary.
+- Pages assembly now injects the prelude exactly once immediately before the base inline runtime and fails closed if the expected bootstrap marker/order is absent.
+- Checkpoints:
+  - `8216d73322d51125922a0857fd94d3f3e03456b3` — implementation.
+  - `8ca47fe0697fa78793ccd1ce1572382365897ce2` — dedicated acceptance.
+  - `025058fe850b81dedff63c8c76bfac191baed703` — Pages wiring and assembled-order gate.
+- Pages workflow run `34016458577`: SUCCESS.
+- The run passed REQ-063 unit acceptance, assembled injection-order verification, normal title/world browser smoke, existing save-transfer/Continue runtime checks, 390x844 floating-touch/fullscreen visual-liveness regression, upload and deployment.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
