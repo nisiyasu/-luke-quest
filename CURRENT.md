@@ -9,21 +9,20 @@
 - BOOT_REALITY_AUDIT: `PASS / fresh HEAD recovered / stale queue projection repaired forward`
 - OWNER_PRIORITY_AUDIT: `PASS / REQ-121 progression blocker remains published VERIFY; no newer Owner defect overrides it`
 - EXECUTION_DEGRADATION_STATUS: `NONE`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-121 PROGRESSION FIX PASS / REQ-119 SAFE VISUAL PORTION PASS + FORMAL NPC ART BLOCKED / REQ-122 KEYBOARD PASS / REQ-123 KEYBOARD DISCOVERABILITY PASS / REQ-124 GAMEPAD FOUNDATION PASS / OWNER PHYSICAL+VISUAL VERIFY PENDING`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `bde09ab2ff1ac599d1ef686a3ec83d0d52fd904e`
-- LATEST_REQUIREMENT_METADATA_COMMIT_SHA: `ded27a25060d1c3538bc04fac53b7c4664023a7b`
-- LATEST_QUEUE_SYNC_COMMIT_SHA: `5186dca63c66be80940e80cca269a867d8d7e1fe`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-121 PROGRESSION FIX PASS / REQ-119 SAFE VISUAL PORTION PASS + FORMAL NPC ART BLOCKED / REQ-122 KEYBOARD PASS / REQ-123 KEYBOARD DISCOVERABILITY PASS / REQ-124 GAMEPAD FOUNDATION PASS / REQ-125 GAMEPAD CONNECTION UX PASS / OWNER PHYSICAL+VISUAL VERIFY PENDING`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `a0282e51d9826b66a236b04bd07d82ace967adeb`
+- LATEST_REQUIREMENT_METADATA_COMMIT_SHA: `2ee3da1248bb82ddbef081ccd709ae1ae8ce5ae3`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - STORY_CANON_STATUS: `OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / LEON+SISTER FUTURE PARTY ROLES CONFIRMED / CHAPTER_02_NOT_DESIGNED`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113; REQ-114; REQ-119`
-- VERIFY_REQUIREMENTS_CURRENT: `REQ-121; REQ-122; REQ-123; REQ-124; REQ-120; REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; historical VERIFY rows in WORK_QUEUE.md`
-- QUEUE_PROJECTION_STATUS: `COMPACT_INDEX_V2 / synchronized through REQ-124`
-- SELF_REPAIR_ACTIONS: `Recovered stale CURRENT/queue projection, registered REQ-123, fresh-audited final-game input capability, created/implemented/published REQ-124, and registered REQ-124 as VERIFY.`
-- NEXT_ACTION: `With no READY/IN_PROGRESS remaining, fresh-audit another explicit unfinished player-visible final-game capability and create it only if it is non-duplicate, independent of unavailable formal art, and does not invent Chapter 2.`
-- NEXT_ACTION_COMPLETION_CONDITION: `new requirement is grounded in fresh repository/directive evidence; WIP=1; no protected-canon or fake-art violation; relevant automated/browser/390x844 regression PASS and Pages SUCCESS before VERIFY.`
-- DO_NOT_REPEAT: `Do not reimplement REQ-121. Do not redo REQ-119 A/B/C/D1/D2-safe. Do not recreate Opening REQ-120. Do not redo REQ-122/123 keyboard work or REQ-124 gamepad foundation. Do not invent low-quality formal NPC raster art. Do not create another generic north pursuit map. Do not invent Chapter 2. Do not claim iPhone physical, physical gamepad, or Owner visual PASS from CI.`
+- VERIFY_REQUIREMENTS_CURRENT: `REQ-121; REQ-122; REQ-123; REQ-124; REQ-125; REQ-120; REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; historical VERIFY rows in WORK_QUEUE.md`
+- QUEUE_PROJECTION_STATUS: `COMPACT_INDEX_V2 / REQ-125 requirement is VERIFY; WORK_QUEUE row sync pending metadata-only closeout`
+- SELF_REPAIR_ACTIONS: `Recovered stale CURRENT/queue projection; published REQ-124 gamepad input foundation; then published REQ-125 gamepad connection/control discoverability without changing touch authority.`
+- NEXT_ACTION: `Metadata-close REQ-125 into compact WORK_QUEUE, then with no READY/IN_PROGRESS remaining fresh-audit another explicit unfinished player-visible final-game capability that is non-duplicate, independent of unavailable formal art, and does not invent Chapter 2.`
+- NEXT_ACTION_COMPLETION_CONDITION: `queue projection matches fresh requirement reality; any new requirement is grounded in fresh repository/directive evidence; WIP=1; no protected-canon or fake-art violation; relevant automated/browser/390x844 regression PASS and Pages SUCCESS before VERIFY.`
+- DO_NOT_REPEAT: `Do not reimplement REQ-121. Do not redo REQ-119 A/B/C/D1/D2-safe. Do not recreate Opening REQ-120. Do not redo REQ-122/123 keyboard, REQ-124 gamepad foundation, or REQ-125 PAD hint. Do not invent low-quality formal NPC raster art. Do not create another generic north pursuit map. Do not invent Chapter 2. Do not claim iPhone physical, physical gamepad, or Owner visual PASS from CI.`
 
 ## REQ-121 — CLOUDBREAK → WIND STAIR PROGRESSION DEADLOCK
 
@@ -32,13 +31,10 @@ STATUS: `VERIFY`
 - implementation: `addons/zzzz-req121-cloudbreak-wind-stair-transition.js`
 - `cloudbreakSaddle / lqCloudbreakBoundary` → existing `windStairRidge`
 - safe entry `[11,18]`, safe return `[10,2]`
-- no new story flag / save schema / north map
 - published implementation commit: `f98a0847ffb1ed34edeafc6ae25045608f5a6186`
 - Pages run `34058848513`: SUCCESS
 - assembled browser / 390x844 / REQ-081 / REQ-082: PASS
 - `IOS_PHYSICAL_VERIFICATION: PENDING`
-
-Owner physical PASS requires confirmation that `次の高所へ続く石段跡` enters `北尾根・風鳴りの石段`.
 
 ## REQ-119 — WORLD / CHARACTER VISUAL RICHNESS
 
@@ -50,60 +46,53 @@ STATUS: `BLOCKED`
 - D1 Luke formal four-direction field art: COMPLETE_AUTOMATED_PUBLIC
 - D2 safe recurring-NPC presentation: COMPLETE_AUTOMATED_PUBLIC
 - D2 final formal recurring-NPC sprite acceptance: BLOCKED
+- D2 safe commit `92afc38240a12769f24a0ee9c87e9d7d423ebe5b`; Pages `34061027938`: SUCCESS
+- EXACT_BLOCKER: `FORMAL_RECURRING_NPC_FIELD_ART_SOURCE_UNAVAILABLE`
 
-D2 safe implementation:
-- `addons/world-npc-sprite-polish.js`
-- commit `92afc38240a12769f24a0ee9c87e9d7d423ebe5b`
-- Pages `34061027938`: SUCCESS
+Do not call emoji/CSS presentation final character art.
 
-EXACT_BLOCKER: `FORMAL_RECURRING_NPC_FIELD_ART_SOURCE_UNAVAILABLE`
-
-Do not call emoji/CSS presentation final character art. Unblock only when approved recurring-NPC field raster assets or a proven generated-image-to-repository binary handoff exists.
-
-## REQ-122 — KEYBOARD GAMEPLAY COMPLETENESS
+## REQ-122 / REQ-123 — KEYBOARD
 
 STATUS: `VERIFY`
 
-- implementation: `addons/keyboard-gameplay-completeness.js`
-- commit: `8de4648085fc6e6fafbfec588771e0216916a00f`
-- Pages run: `34061342348` SUCCESS
-- world M/Escape shortcuts, battle 1/2/3/4 canonical shortcuts, battle arrow focus navigation, repeat guard and editable-target exclusion
+- REQ-122 implementation commit `8de4648085fc6e6fafbfec588771e0216916a00f`; Pages `34061342348` SUCCESS
+- world M/Escape, battle 1/2/3/4, arrow focus navigation, repeat guard, editable-target exclusion
+- REQ-123 implementation commit `94e2321c80e59a204bd204ab272ee3349e5931a6`; Pages `34061537485` SUCCESS
+- visible battle shortcut badges and focus-visible presentation
 - touch/save/story authority unchanged
-
-## REQ-123 — KEYBOARD SHORTCUT DISCOVERABILITY
-
-STATUS: `VERIFY`
-
-- implementation: `addons/keyboard-shortcut-discoverability.js`
-- commit: `94e2321c80e59a204bd204ab272ee3349e5931a6`
-- Pages run: `34061537485` SUCCESS
-- battle command buttons expose non-interactive `1/2/3/4` hints while retaining original Japanese labels and onclick authorities
-- clear `:focus-visible` keyboard focus presentation
-- coarse-pointer/mobile badge treatment reduces emphasis without adding layout rows
-- smoke verifies exact mapping, pointer transparency, canonical command preservation, REQ-122 authority, Tap Anywhere and fullscreen authorities
-- all Pages steps passed including assembled browser, 390x844 touch/fullscreen, REQ-081 and REQ-082
-
-`KEYBOARD_PHYSICAL_VERIFICATION: PENDING_OPTIONAL`
 
 ## REQ-124 — GAMEPAD INPUT FOUNDATION
 
 STATUS: `VERIFY`
 
-- implementation extends already-loaded `addons/keyboard-gameplay-completeness.js`
+- implementation: `addons/keyboard-gameplay-completeness.js`
 - implementation commit: `bde09ab2ff1ac599d1ef686a3ec83d0d52fd904e`
-- requirement promotion commit: `ded27a25060d1c3538bc04fac53b7c4664023a7b`
-- Pages run: `34064096831` SUCCESS
-- left stick / D-pad delegate to existing world movement or battle focus navigation
-- A delegates to existing world Action or canonical battle button click path
-- B only closes world dialogue; it is never mapped to run-away
-- Start delegates to existing world MENU shortcut
-- dead zone `0.55`; button rising-edge guard; 180ms battle focus repeat bound
+- Pages run `34064096831`: SUCCESS
+- left stick / D-pad use existing movement or battle focus paths
+- A uses existing world Action or canonical battle button click
+- B only closes world dialogue and never maps to flee
+- Start uses existing MENU shortcut
+- dead zone `0.55`; rising-edge buttons; 180ms battle focus repeat
 - disconnect / blur / hidden document hard-release movement
-- unsupported Gamepad API is safe no-op
-- touch/save/story authorities unchanged
-- assembled browser, 390x844 touch/fullscreen, REQ-081 and REQ-082 smoke all PASS
+- assembled browser and 390x844 regression: PASS
+- `PHYSICAL_GAMEPAD_VERIFICATION: PENDING`
 
-`PHYSICAL_GAMEPAD_VERIFICATION: PENDING`
+## REQ-125 — GAMEPAD DISCOVERABILITY / CONNECTION FEEDBACK
+
+STATUS: `VERIFY`
+
+- implementation extends `addons/keyboard-gameplay-completeness.js`
+- implementation commit: `a0282e51d9826b66a236b04bd07d82ace967adeb`
+- metadata promotion commit: `2ee3da1248bb82ddbef081ccd709ae1ae8ce5ae3`
+- Pages run `34064306307`: SUCCESS
+- connected controller shows compact pointer-transparent `PAD接続中` overlay
+- world hint: movement / A action / B back / Start menu
+- battle hint: D-pad/stick selection / A confirm
+- disconnected/no-pad state has no visible permanent gamepad UI
+- safe-area placement; no permanent mobile layout row
+- REQ-124 semantics, REQ-021 Tap Anywhere and REQ-022 fullscreen authorities preserved
+- assembled browser, 390x844 touch/fullscreen, REQ-081 and REQ-082: PASS
+- `PHYSICAL_GAMEPAD_UI_VERIFICATION: PENDING`
 
 ## STORY / CONTENT BOUNDARY
 
