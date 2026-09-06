@@ -1,93 +1,67 @@
 # REQ-044 — Battle-Only Poison Save Sanitization
 
-STATUS: VERIFY
+STATUS: IN_PROGRESS
 PRIORITY: P1
 TYPE: BUGFIX / SAVE / STATUS-AILMENT / CONSISTENCY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
 IOS_PHYSICAL_VERIFICATION: PENDING
 
-## BUG FOUND BY FRESH INTEGRATED AUDIT
+## ORIGINAL BUG
 
-REQ-043 repaired the normal defeat path so battle-only poison is cleared when battle transitions to world. Fresh inspection of the save surfaces found a second, independent persistence boundary that could preserve stale poison outside battle.
+REQ-043 repaired the normal defeat path so battle-only poison clears when battle transitions to world. A later save-boundary audit found old/corrupt/legacy manual state could preserve positive poison outside battle. The first REQ-044 repair therefore sanitized positive non-battle poison at canonical save/render/init boundaries.
 
-`addons/manual-save-slots.js`:
-
-- snapshots the entire state object `s`;
-- forces the snapshot to `screen='world'`;
-- restores a slot with `s=Object.assign({}, DEFAULT, data)`;
-- immediately calls canonical `save()` before rendering.
-
-Before this repair, `addons/battle-poison-status.js` normalized `s.status.poison` to a non-negative integer at add-on startup, but did not reject a positive poison value when restored state was already outside battle.
-
-Therefore an old/corrupt/legacy manual backup, or stale state created before REQ-043, could restore `status.poison > 0` into world state and re-save it even though poison is explicitly battle-only.
-
-This was a consistency/migration bug. It did not require a new status system or changes to poison balance.
-
-## IMPLEMENTED REPAIR
-
-`addons/battle-poison-status.js` now adds a single canonical battle-only sanitization boundary:
-
-- `shouldSanitizePoison(screen)` returns true for non-battle state and false for battle state;
-- `sanitizeBattleOnlyPoison()` clears only a positive stale poison value outside battle;
-- initialization sanitizes a loaded non-battle state before its first add-on save;
-- canonical `save()` is wrapped while preserving arguments/return behavior, so any non-battle persistence boundary is sanitized before storage;
-- `render()` also applies the same idempotent sanitization before presentation, preventing stale world poison UI if state changes through a restore path;
-- legitimate in-battle poison remains untouched;
-- REQ-043 defeat cleanup, victory/run/smoke/herb cleanup and poison balance remain unchanged;
-- status contract exposes `cleanup.nonBattleSave`, `cleanup.nonBattleLoad` and pure `shouldSanitizePoison` for read-only verification.
-
-Because `manual-save-slots.js` restores state and then calls canonical `save()`, its legacy/stale poison state is corrected by the poison system itself without redesigning manual slots.
-
-## DEDICATED ACCEPTANCE
-
-Added:
-
-`addons/zzzzzzzzzzzzzzzzzzzzzzzz-poison-save-sanitization-smoke.js`
-
-Under `lqTouchSmoke` it fails closed unless:
-
-- poison status contract exists;
-- poison remains battle-only;
-- REQ-043 defeat cleanup remains declared;
-- non-battle save/load cleanup remain declared;
-- world/title require sanitization;
-- battle state is preserved.
-
-## VERIFICATION EVIDENCE
+Initial evidence:
 
 - requirement registration: `ec273d09daa73eb08f117c4818c92b06553fd364`
-- canonical repair: `7f57c59db35c87bb45171c800f12e6065477cc5d`
-- dedicated acceptance: `951621caa59ddf5cb50e55a755f68289bbe72fa5`
-- Pages workflow run: `34010063196` / SUCCESS
-- PASS steps include:
-  - sequential JavaScript patch validation
-  - collision-safe add-on validation
-  - static regression guard
-  - add-on contract guard
-  - assembled browser smoke
-  - 390x844 floating-touch + iPhone world visual-liveness smoke
-  - Pages upload/deploy
+- first canonical repair: `7f57c59db35c87bb45171c800f12e6065477cc5d`
+- first acceptance: `951621caa59ddf5cb50e55a755f68289bbe72fa5`
+- first Pages run `34010063196`: SUCCESS
+
+## SELF-AUDIT REOPEN — LEGACY STATUS OBJECT CAN BE ABSENT
+
+Fresh post-REQ-048 audit compared the current poison add-on with canonical `DEFAULT` and `addons/manual-save-slots.js`.
+
+Canonical `DEFAULT` does **not** define `status`.
+
+The poison add-on creates `s.status` only once when the script first loads. But a legacy manual backup created before the poison system can later be loaded with:
+
+- `s=Object.assign({}, DEFAULT, data)`
+- no `status` property in `DEFAULT`
+- no `status` property in old `data`
+- then canonical `save()` and `render()`.
+
+The first REQ-044 save sanitization used optional chaining to inspect stale poison but did not recreate a missing status object after this later whole-state replacement. On a subsequent poison-enemy turn, the infection branch directly evaluated `s.status.poison<=0`, which can throw when `s.status` is undefined.
+
+Therefore the first green REQ-044 run proved positive-poison sanitization, but **did not prove legacy object-shape migration**. VERIFY is reopened rather than preserving a false completion boundary.
+
+## REQUIRED HARDENING
+
+1. Keep all existing poison balance and REQ-043/044 cleanup behavior unchanged.
+2. Define one normalization path that guarantees `s.status` is an object whenever poison code/save/render uses it.
+3. Normalize malformed/missing poison values to a non-negative integer.
+4. Outside battle, normalize poison to zero.
+5. During battle, preserve legitimate normalized poison turns.
+6. Run the normalization before canonical non-battle save, render, and poison enemy-turn access so a legacy whole-state replacement cannot leave the add-on with an absent status object.
+7. Preserve unrelated fields on an existing `s.status` object.
+8. Do not redesign manual slots or add poison to canonical DEFAULT solely to patch this add-on.
+9. Extend fail-closed acceptance with pure migration cases for missing status, malformed poison, battle preservation and non-battle clearing.
 
 ## COMPLETION CONDITION
 
-Automated implementation completion is satisfied:
+Automated completion now requires both:
 
-- requirement committed;
-- minimal canonical poison repair committed;
-- dedicated acceptance committed;
-- JavaScript/static/add-on checks PASS;
-- assembled browser smoke PASS;
-- 390x844 touch/world visual-liveness PASS;
-- Pages deployment SUCCESS.
+- non-battle positive poison sanitization; and
+- missing/malformed legacy status-shape migration.
 
-Physical/subjective completion remains:
+All JavaScript/static/add-on checks, assembled browser smoke, 390x844 touch/world visual-liveness and Pages deployment must pass again before returning to VERIFY.
 
-- `IOS_PHYSICAL_VERIFICATION=PENDING`; do not call physical iPhone PASS from CI.
+Physical/subjective completion remains `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
 ## DO NOT REPEAT
 
 - do not redesign manual save slots;
 - do not create a second poison implementation;
-- do not clear poison during legitimate battle state;
-- do not use REQ-043 normal defeat cleanup alone as proof that stale save migration is safe;
+- do not clear legitimate poison during battle;
+- do not treat optional chaining as equivalent to recreating missing legacy state shape;
+- do not treat the first REQ-044 green run as proof of this newly discovered migration case;
 - do not mark physical PASS from headless automation.
