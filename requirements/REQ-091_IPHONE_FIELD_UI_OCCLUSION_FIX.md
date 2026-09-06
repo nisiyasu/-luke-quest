@@ -1,7 +1,7 @@
 # REQ-091 — iPhone Field UI Occlusion / Safe Player Visibility / Controller Transparency Fix
 
 STATUS: SUPERSEDED
-SUPERSEDED_BY: REQ-085
+SUPERSEDED_BY: REQ-092
 PRIORITY: P0
 TYPE: UI / LAYOUT / TOUCH / MOBILE REGRESSION
 OWNER_REQUEST: DIRECT_OWNER_HOT_INSERT
@@ -9,7 +9,7 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## 0. SUPERSESSION / RECOVERY NOTE
 
-This requirement was created concurrently while the Owner's newer combined request was being registered as `REQ-085_IPHONE_FIELD_UI_OCCLUSION_CAMERA_FRAMING.md`.
+This requirement was created concurrently while the Owner's complete combined request was being registered. Fresh repository inventory later proved REQ-085 was already canonically occupied by the North Cliff battle-background continuity requirement, so the complete combined Owner request was recovered as `REQ-092_IPHONE_FIELD_UI_OCCLUSION_CAMERA_FRAMING.md`.
 
 REQ-091 captured the first three Owner defects and produced valid implementation checkpoints for:
 
@@ -17,11 +17,11 @@ REQ-091 captured the first three Owner defects and produced valid implementation
 - HUD-safe player visibility near the north edge
 - lower-opacity Dynamic Touch Controller presentation
 
-The Owner then explicitly added a fourth requirement: a modest field camera zoom-out so more surrounding terrain is visible. REQ-085 is therefore the complete and newer Owner-authority superset.
+The Owner then explicitly added a fourth requirement: a modest field camera zoom-out so more surrounding terrain is visible. REQ-092 is therefore the complete and newer Owner-authority superset.
 
-Do not delete or redo the valid REQ-091 implementation. Its committed work is reused as part of REQ-085 completion. Do not select REQ-091 independently again.
+Do not delete or redo the valid REQ-091 implementation. Its committed work is reused as part of REQ-092 completion. Do not select REQ-091 independently again.
 
-Implementation history reused by REQ-085 includes:
+Implementation history reused by REQ-092 includes:
 
 - `46e6fc97ec93209db0e2efcc7850910fbecf1f6d` — HUD occlusion / player safe visibility
 - `995523d2036365035f5b16e33d6c8f54e9be2c59` and later opacity hardening — controller transparency
@@ -117,7 +117,7 @@ fresh HEADから最低限以下を確認してから修正する。
 
 ## 6. COMPLETION / PHYSICAL VERIFICATION BOUNDARY
 
-REQ-091 is not independently completed or selected further because it is superseded by REQ-085. Its valid implementation is retained and integrated there.
+REQ-091 is not independently completed or selected further because it is superseded by REQ-092. Its valid implementation is retained and integrated there.
 
 Owner実機確認は自動でPASSにしない。
 
