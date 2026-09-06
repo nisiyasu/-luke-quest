@@ -1,10 +1,12 @@
-const CACHE='luke-quest-shell-v2-black-screen-recovery';
-const SHELL=['./','./index.html','./manifest.webmanifest','./assets/app-icon.svg'];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',event=>{
-  if(event.request.method!=='GET')return;
-  event.respondWith(fetch(event.request,{cache:'no-store'}).then(response=>{
-    const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy)).catch(()=>{});return response;
-  }).catch(()=>caches.match(event.request).then(hit=>hit||caches.match('./index.html'))));
+self.addEventListener('install',event=>{event.waitUntil(self.skipWaiting())});
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.map(key=>caches.delete(key)));
+    try{await self.registration.unregister();}catch(_e){}
+    const clientsList=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    for(const client of clientsList){try{client.postMessage({type:'LQ_SW_PURGED'});}catch(_e){}}
+  })());
 });
+// Emergency recovery worker: intentionally no fetch handler.
+// Existing controlled clients should be fully closed and reopened after this deploy.
