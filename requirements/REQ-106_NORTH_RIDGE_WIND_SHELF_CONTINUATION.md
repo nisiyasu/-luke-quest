@@ -1,6 +1,6 @@
 # REQ-106 — 北尾根・風蝕の岩棚 実プレイ継続
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYABLE CONTENT / FIRST-CHAPTER ROUTE CONTINUATION / CROSS-SYSTEM INTEGRATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -11,15 +11,13 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## 1. FRESH PROBLEM EVIDENCE
 
-Fresh HEAD after REQ-105 confirms:
+Fresh HEAD after REQ-105 confirmed:
 
-- `northRidgeApproach` is now a real walkable route beyond Windcut Pass.
-- its north-end canonical landmark `(10,1)` explicitly communicates that the footprints and pursuit route continue farther north.
-- interacting with that landmark currently ends in dialogue only; there is no next walkable transition.
+- `northRidgeApproach` was a real walkable route beyond Windcut Pass.
+- its north-end canonical landmark `(10,1)` communicated that the footprints and pursuit route continued farther north.
+- interacting with that landmark ended in dialogue only; there was no next walkable transition.
 
-That means the exact player-visible hard endpoint REQ-105 removed from Windcut Pass now exists one map farther north.
-
-The next high-value safe improvement is therefore another real exploration interval, not another isolated cosmetic micro-patch.
+REQ-106 removes that hard endpoint by adding another real exploration interval.
 
 ## 2. PURPOSE
 
@@ -35,51 +33,51 @@ Player-visible name:
 
 This remains an approach/exploration continuation only.
 
-Do NOT:
+Protected constraints remain intact:
 
-- reveal Leon/Glenn hidden motives
-- introduce a protected story reveal
-- create a mandatory boss
-- create a required new story flag
-- change `withdrawProofSeen` authority
-- change existing reward/balance tables
+- no Leon/Glenn hidden-motive reveal
+- no protected story reveal
+- no mandatory boss
+- no required new story flag
+- no `withdrawProofSeen` authority change
+- no reward/balance-table change
 
 ## 3. ROUTE REQUIREMENTS
 
-Required route behavior:
+Implemented route behavior:
 
 - canonical `northRidgeApproach` north boundary `(10,1)` enters `windShelf`.
 - entry spawn is safe, walkable and faces north.
 - a south return gate returns safely to `northRidgeApproach`.
-- include at least four canonical interactables that improve route readability:
-  1. a near-entry trail clue continuing the same one-person footprint logic
-  2. a terrain/safety landmark showing stronger wind erosion
-  3. a distant north-route observation without protected reveal
-  4. a north-end continuation landmark
+- four canonical interactables improve route readability:
+  1. near-entry one-person footprint clue
+  2. wind-eroded terrain/safety landmark
+  3. distant north-route observation without protected reveal
+  4. north-end continuation landmark
 - no required new story flag.
-- save/load with `map === 'windShelf'` must remain valid through existing generic persistence.
+- existing generic persistence remains compatible with `map === 'windShelf'`.
 
 ## 4. GUIDANCE
 
-No walkthrough should be required.
+Implemented without requiring a walkthrough:
 
 - on entry, compact objective directs the player toward the first clue.
-- a pointer-safe presentation marker highlights the currently relevant landmark.
+- pointer-safe presentation marker highlights the relevant landmark.
 - after inspecting the first clue through canonical `action()`, objective updates toward the north continuation.
 - guidance phase is runtime-only and does not change save semantics.
-- leaving the area removes its area-specific marker.
+- leaving the area removes area-specific guidance.
 
 ## 5. GAMEPLAY / ENCOUNTER
 
-- use the existing canonical random encounter loop.
-- reuse exact `EVAC_ENEMIES`.
-- apply entry/return encounter grace consistent with adjacent north-route maps.
-- do not duplicate battle logic.
-- do not alter damage, rewards, item balance or protected story state.
+- existing canonical random encounter loop reused.
+- exact `EVAC_ENEMIES` pool reused.
+- entry/return encounter grace applied.
+- battle logic is not duplicated.
+- damage, rewards, item balance and protected story state are unchanged.
 
-## 6. CROSS-SYSTEM INTEGRATION — SAME REQUIREMENT
+## 6. CROSS-SYSTEM INTEGRATION
 
-Before VERIFY, `windShelf` must be covered by the existing presentation/readability systems or equivalent compatible single-purpose authority:
+`windShelf` is integrated with:
 
 1. regional battle background
 2. area-title subtitle
@@ -89,13 +87,13 @@ Before VERIFY, `windShelf` must be covered by the existing presentation/readabil
 6. Adventure Journal location-aware MAIN OBJECTIVE
 7. landmark-lighting / route-readability layer
 
-Existing maps and unknown-map fallback behavior must remain intact.
+Existing maps and unknown-map fallbacks remain protected by regression coverage.
 
 ## 7. INPUT / IPHONE SAFETY
 
-No new independent world pointer/touch handler.
+No new independent world pointer/touch handler was introduced.
 
-Preserve REQ-021 / REQ-022 / REQ-001 behavior:
+REQ-021 / REQ-022 / REQ-001 protections remain authoritative:
 
 - short dead-zone tap -> canonical Action once
 - drag -> Movement, no Action on release
@@ -104,23 +102,19 @@ Preserve REQ-021 / REQ-022 / REQ-001 behavior:
 - fullscreen viewport-primary world
 - MENU/button/input/link exclusions
 
-All presentation overlays added by this requirement must remain pointer-safe.
+All REQ-106 presentation overlays are pointer-safe.
 
-## 8. FORWARD-COMPATIBILITY REQUIREMENT
+## 8. FORWARD-COMPATIBILITY
 
-REQ-105 acceptance currently verifies the existing north-end landmark interaction.
+REQ-105 acceptance was forward-hardened so its historical north-boundary assertion remains meaningful while accepting the legitimate transition into `windShelf`.
 
-REQ-106 must not repeat the historical REQ-081 stale-smoke failure pattern.
+All other REQ-105 assertions remain protected.
 
-Before or with the transition implementation:
-
-- forward-harden REQ-105 acceptance so its historical north-boundary assertion remains meaningful while accepting a legitimate transition into `windShelf`.
-- preserve all other REQ-105 assertions.
-- do not weaken a regression merely to pass new code.
+Checkpoint: `48ab6dc67602901d328976c0ff955a6a14061e18`.
 
 ## 9. FAIL-CLOSED ACCEPTANCE
 
-Add a dedicated late-loading REQ-106 assembled-browser acceptance that verifies at minimum:
+Dedicated late-loading REQ-106 assembled acceptance covers:
 
 - map name/dimensions/critical coordinates
 - exact four required interactables
@@ -136,30 +130,44 @@ Add a dedicated late-loading REQ-106 assembled-browser acceptance that verifies 
 - pointer-safe presentation overlays
 - temporary runtime/localStorage restoration
 
-Broken REQ-106 must fail closed before Pages upload/deploy.
+Broken REQ-106 fails closed before Pages upload/deploy.
+
+Acceptance checkpoint: `598a0c4b2bff5483eeb5483edf715299754c8e61`.
 
 ## 10. PUBLIC COMPLETION GATE
 
-Required before VERIFY:
+Fresh public gate on implementation descendant HEAD `48ab6dc67602901d328976c0ff955a6a14061e18`:
 
-- JavaScript syntax PASS
-- static regression PASS
-- add-on contract PASS
-- dedicated REQ-106 acceptance PASS
-- assembled browser smoke PASS
-- 390x844 floating touch/fullscreen regression PASS
-- existing North Cliff / Windcut / North Ridge regressions PASS
-- GitHub Pages workflow SUCCESS on a HEAD containing the complete implementation and guard
-- deployed build inclusion PASS
-
-IOS_PHYSICAL_VERIFICATION remains PENDING until Owner confirms on an actual iPhone.
+- JavaScript syntax: PASS
+- static regression: PASS
+- add-on contract: PASS
+- dedicated REQ-106 acceptance: PASS
+- assembled browser smoke: PASS
+- 390x844 floating touch/fullscreen regression: PASS
+- existing North Cliff / Windcut / North Ridge regressions: PASS
+- GitHub Pages workflow run `34043316502`: SUCCESS
+- deployed build inclusion: PASS via successful Pages workflow on complete descendant HEAD
+- IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## 11. COMPLETION STATE
 
-IMPLEMENTATION_COMPLETE: NO
-PAGES_VERIFIED: NO
+IMPLEMENTATION_COMPLETE: YES
+PAGES_VERIFIED: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+Implementation chain:
+
+- `64bb6c8546737578d353b771e0ec8eea84d4f732` playable Wind Shelf route
+- `16090fee6cd89dea3cb574510d1b26d3781c0e1f` area title
+- `276e442ff4095834d2fe0e8ef20b2dff4745efca` ambient layer
+- `e0875b833e890a086bc679d976586a5bd4de2dbd` cloud layer
+- `69264798933783a7264b6a8e58e38a0c33b81b13` footsteps
+- `0d262944394aa961c0207ee65fb6f3bc37ff27fc` journal objective
+- `79e0c88a490e9b1b5a464f43ecc0d065d847c600` landmark lighting
+- `c74b42c5373b48906448d97ce09f8e2538efcdef` battle background
+- `598a0c4b2bff5483eeb5483edf715299754c8e61` fail-closed REQ-106 acceptance
+- `48ab6dc67602901d328976c0ff955a6a14061e18` REQ-105 forward-compatibility hardening
 
 ## 12. NO-STOP
 
-REQ-106 implementation, commit, Pages success, queue synchronization or CURRENT autosave is not an autonomous stop condition.
+REQ-106 is now VERIFY because all automatable and public-build completion gates pass. Owner iPhone physical verification remains explicitly PENDING. This checkpoint is not an autonomous stop condition.
