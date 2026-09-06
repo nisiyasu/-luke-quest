@@ -12,16 +12,17 @@
 - CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-121 PROGRESSION FIX PASS / REQ-119 SAFE VISUAL PORTION PASS + FORMAL NPC ART BLOCKED / REQ-122 KEYBOARD PASS / REQ-123 KEYBOARD DISCOVERABILITY PASS / REQ-124 GAMEPAD FOUNDATION PASS / REQ-125 GAMEPAD CONNECTION UX PASS / OWNER PHYSICAL+VISUAL VERIFY PENDING`
 - LATEST_IMPLEMENTATION_COMMIT_SHA: `a0282e51d9826b66a236b04bd07d82ace967adeb`
 - LATEST_REQUIREMENT_METADATA_COMMIT_SHA: `2ee3da1248bb82ddbef081ccd709ae1ae8ce5ae3`
+- LATEST_QUEUE_SYNC_COMMIT_SHA: `24535d995f3cd4df63dd6cf9d20d63494dd1dfb5`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - STORY_CANON_STATUS: `OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / LEON+SISTER FUTURE PARTY ROLES CONFIRMED / CHAPTER_02_NOT_DESIGNED`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113; REQ-114; REQ-119`
 - VERIFY_REQUIREMENTS_CURRENT: `REQ-121; REQ-122; REQ-123; REQ-124; REQ-125; REQ-120; REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; historical VERIFY rows in WORK_QUEUE.md`
-- QUEUE_PROJECTION_STATUS: `COMPACT_INDEX_V2 / REQ-125 requirement is VERIFY; WORK_QUEUE row sync pending metadata-only closeout`
-- SELF_REPAIR_ACTIONS: `Recovered stale CURRENT/queue projection; published REQ-124 gamepad input foundation; then published REQ-125 gamepad connection/control discoverability without changing touch authority.`
-- NEXT_ACTION: `Metadata-close REQ-125 into compact WORK_QUEUE, then with no READY/IN_PROGRESS remaining fresh-audit another explicit unfinished player-visible final-game capability that is non-duplicate, independent of unavailable formal art, and does not invent Chapter 2.`
-- NEXT_ACTION_COMPLETION_CONDITION: `queue projection matches fresh requirement reality; any new requirement is grounded in fresh repository/directive evidence; WIP=1; no protected-canon or fake-art violation; relevant automated/browser/390x844 regression PASS and Pages SUCCESS before VERIFY.`
+- QUEUE_PROJECTION_STATUS: `COMPACT_INDEX_V2 / synchronized through REQ-125`
+- SELF_REPAIR_ACTIONS: `Recovered stale CURRENT/queue projection; published REQ-124 gamepad input foundation; published REQ-125 gamepad connection/control discoverability; synchronized compact queue and CURRENT.`
+- NEXT_ACTION: `With no READY/IN_PROGRESS remaining, fresh-audit another explicit unfinished player-visible final-game capability that is non-duplicate, independent of unavailable formal art, and does not invent Chapter 2.`
+- NEXT_ACTION_COMPLETION_CONDITION: `any new requirement is grounded in fresh repository/directive evidence; WIP=1; no protected-canon or fake-art violation; relevant automated/browser/390x844 regression PASS and Pages SUCCESS before VERIFY.`
 - DO_NOT_REPEAT: `Do not reimplement REQ-121. Do not redo REQ-119 A/B/C/D1/D2-safe. Do not recreate Opening REQ-120. Do not redo REQ-122/123 keyboard, REQ-124 gamepad foundation, or REQ-125 PAD hint. Do not invent low-quality formal NPC raster art. Do not create another generic north pursuit map. Do not invent Chapter 2. Do not claim iPhone physical, physical gamepad, or Owner visual PASS from CI.`
 
 ## REQ-121 — CLOUDBREAK → WIND STAIR PROGRESSION DEADLOCK
