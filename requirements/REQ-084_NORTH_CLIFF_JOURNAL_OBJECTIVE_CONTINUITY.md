@@ -1,6 +1,6 @@
 # REQ-084 — 北の崖道・冒険ジャーナル目的地整合
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: UX / JOURNAL / OBJECTIVE-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,9 +8,9 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY
 
-REQ-081〜083で北の崖道は実際に到達・探索・戦闘・ローカル導線まで成立したが、fresh `addons/adventure-journal.js` の `mainGoal()` は `withdrawProofSeen` がtrueなら常に「北の崖道へ向かい、レオンを追う。」を返す。
+REQ-081〜083で北の崖道は実際に到達・探索・戦闘・ローカル導線まで成立したが、fresh `addons/adventure-journal.js` の `mainGoal()` は `withdrawProofSeen` がtrueなら常に「北の崖道へ向かい、レオンを追う。」を返していた。
 
-そのためプレイヤーがすでに `northCliffRoad` に立っていてもPAUSE内JOURNALだけが到着前の指示を出す。これは攻略なしで進めるというOwner品質基準と、REQ-083のplayer-visible guidanceに対する状態不整合。
+そのためプレイヤーがすでに `northCliffRoad` に立っていてもPAUSE内JOURNALだけが到着前の指示を出す状態不整合があった。
 
 ## PURPOSE
 
@@ -27,16 +27,28 @@ REQ-081〜083で北の崖道は実際に到達・探索・戦闘・ローカル�
 
 ## ACCEPTANCE
 
-- [ ] northCliffRoad + withdrawProofSeenで到着後objectiveを返す
-- [ ] evacRoute + withdrawProofSeenでは従来到着前objectiveを返す
-- [ ] 既存mainGoal分岐を壊さない
-- [ ] discovered clues / side questsに変更なし
-- [ ] global save/gameplay state mutationなし
-- [ ] JS/add-on/static regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] northCliffRoad + withdrawProofSeenで到着後objectiveを返す
+- [x] evacRoute + withdrawProofSeenでは従来到着前objectiveを返す
+- [x] 既存mainGoal分岐を壊さない
+- [x] discovered clues / side questsに変更なし
+- [x] global save/gameplay state mutationなし
+- [x] JS/add-on/static regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone readability remains PENDING
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `9179416ef549a281b77fe4636feb4bbff762478a`.
+- Location-aware journal implementation: `ddc212ed99038e9c049e6849b2c8d4239ce0539f`.
+- Pure synthetic-state browser acceptance: `e13bd440b9ff7430e569711a3e265a955e640e38`.
+- First CI correctly rejected the refactor because the long-standing add-on contract requires explicit live `s.wins` authority. The contract was not weakened.
+- `8c93d8cad607095ca21da4acd7fdd491db86d306` restored explicit live `s.wins` authority while keeping synthetic-state testability.
+- `b69d42b8f64d3a6063e6bc8d60aa8a5252572e03` restored the pre-existing HTML quote escaping semantics after self-audit noticed an incidental `&quot;` drift during the repair.
+- GitHub Pages run `34026388737` for HEAD `b69d42b8f64d3a6063e6bc8d60aa8a5252572e03`: SUCCESS.
+- Successful run passed sequential patches, collision-safe add-ons, static regression, add-on contract, autosave bootstrap/PWA/raster/Luke asset gates, assembled browser, 390x844 floating-touch + iPhone world visual-liveness, REQ-081, REQ-082, upload and Pages deploy.
+- No Owner physical iPhone PASS is claimed.
 
 ## NO-STOP
 
