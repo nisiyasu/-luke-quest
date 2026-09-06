@@ -1,6 +1,6 @@
 # REQ-065 — Autosave Quarantine Recovery UI
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: SAVE / RECOVERY / PLAYER-UX / DATA-SAFETY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED_FROM_REQ-063_RECOVERY_GAP
@@ -71,3 +71,20 @@ Automated acceptance must prove:
 - Do not delete the only preserved corrupt payload.
 - Do not claim iPhone physical PASS from CI.
 - Completion is a checkpoint, not a stop condition. Run GATE C and continue when safe work remains.
+
+## 6. IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Implemented `addons/autosave-quarantine-recovery.js` as a title-only late recovery UI; REQ-063 pre-bootstrap quarantine semantics remain unchanged.
+- A valid `lukeQuestAutosaveQuarantineV1` record now renders a compact `SAVE RECOVERY` notice with reason/timestamp and explicit statement that the raw source was preserved.
+- `DOWNLOAD QUARANTINE` exports a versioned JSON recovery package containing original quarantine timestamp, reason and raw payload without writing canonical `lukeQuestV2`.
+- `DISMISS NOTICE` records only the signature of the current quarantine and removes the notice; the quarantine record itself remains intact.
+- Malformed/unreadable quarantine records fail closed and do not create a false recovery notice or crash title.
+- Existing REQ-060/064 title transfer controls remain independently present and usable.
+- Dedicated runtime acceptance: `addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-autosave-quarantine-recovery-smoke.js`.
+- Checkpoints:
+  - `942601233a9efc07cba01ffe85716d6359b6c4ee` — requirement registration.
+  - `6c8aef599b9016d0edd4927a9e0848ac8ef96d3a` — recovery UI implementation.
+  - `a45d3790fc7dfe9049e2a821e5e0bfa27f0ba0d5` — dedicated runtime acceptance.
+- Pages workflow run `34016802177`: SUCCESS.
+- The run passed JavaScript/add-on/static gates, REQ-063 bootstrap regression, assembled browser smoke including REQ-065 dedicated acceptance, 390x844 touch/fullscreen visual-liveness, upload and deployment.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`; no physical-device claim is made.
