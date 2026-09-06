@@ -1,6 +1,6 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 12:57 JST
+- UPDATED_AT: 2026-09-06 13:03 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
@@ -8,12 +8,12 @@
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `2cbacdefb1bffb6933daa741e6d8b452c3fd9310`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `eedc537bb0dca1d7f8c3188e45624ece5306160d`
-- LATEST_REQUIREMENT_CHECKPOINT: `0b3d51faac67bcf268ae68978e48f039c0c38f62`
-- LATEST_QUEUE_CHECKPOINT: `2cbacdefb1bffb6933daa741e6d8b452c3fd9310`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / LATEST IMPLEMENTED REQ-045 PAGES SUCCESS`
-- LATEST_PAGES_RUN: `34010189516` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `05e1b0d0fc6681fe87f8cb17433ff4b19394bb83`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `54d2b36a17acfc77dde728a9d449c0644045735c`
+- LATEST_REQUIREMENT_CHECKPOINT: `05e1b0d0fc6681fe87f8cb17433ff4b19394bb83`
+- LATEST_QUEUE_CHECKPOINT: `a956940db4b1bea1d84ef40312eb17167a2afe65`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-046 HARDENED PAGES SUCCESS`
+- LATEST_PAGES_RUN: `34010441091` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -23,7 +23,7 @@
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Owner-approved art identity/assets only)
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
 - DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for full historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest additions are `REQ-037` through `REQ-045` excluding superseded IDs
+- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest completed autonomous consistency work is `REQ-043` through `REQ-046`
 - NEXT_ACTION: fresh-inventory the next highest-value player-visible final-game capability or consistency defect; do not duplicate existing add-ons; register/execute under WIP=1
 - NEXT_ACTION_COMPLETION_CONDITION: requirement implemented, dedicated regression where appropriate, assembled browser PASS, 390x844 touch/world visual-liveness PASS, Pages SUCCESS, queue/current synchronized; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
 
@@ -34,7 +34,7 @@
 - `IOS_PHYSICAL_VERIFICATION=PASS`
 - automated visual-liveness repair/deploy passed earlier in Pages run `34006670133`
 - Owner then explicitly confirmed on the physical iPhone: `うん、直った`
-- this physical confirmation is now recorded in the requirement and queue; do not regress it to PENDING.
+- this physical confirmation is recorded in the requirement and queue; do not regress it to PENDING.
 
 ### REQ-021 / REQ-022 / REQ-001 / REQ-023
 - remain `VERIFY`
@@ -61,81 +61,69 @@
 - presentation-only LEVEL UP cue displays actual before/after deltas
 - integrated self-audit found that `mp-skill-system.js` applies max MP +2 in an outer wrapper after the initial snapshot
 - repaired by deferring final state snapshot until `requestAnimationFrame`
-- cue now includes actual max-MP delta when present
-- smoke requires `LV 2 / 最大HP +9 / ATK +3 / 最大MP +2`
+- cue includes actual max-MP delta when present
 - integrated Pages run `34009469016` SUCCESS
 - iPhone feel verification PENDING.
 
 ### REQ-040 — EXP Progress Visibility
 - STATUS: `VERIFY`
-- compact read-only `EXP current/threshold` + proportional meter
-- no progression/save mutation
-- malformed `xp/nx` safely normalized
-- integrated self-audit found EXP+MP would make six HUD cells while later MP CSS forced five columns, risking a second row and loss of iPhone world space
-- repaired with higher-specificity six-column `lqExpStatusGrid`, compact mobile spacing and no EXP min-width
-- smoke requires six computed columns, single row and MP still visible
-- integrated Pages run `34009469016` SUCCESS
+- compact read-only EXP progress meter
+- integrated self-audit repaired six-cell HUD / five-column CSS conflict before it could thicken iPhone world UI
+- Pages run `34009469016` SUCCESS
 - iPhone readability verification PENDING.
 
-### REQ-041 — Completion Record Coverage
+### REQ-041 / REQ-042 — Adventure record consistency
 - STATUS: `VERIFY`
-- existing COMPLETED record had only two journaled side completions
-- connected existing third flag `lqHerbSampleQuestDone` / `森の薬草標本`
-- one definition table + pure row builder; no quest/reward/save mutation
-- fail-closed synthetic coverage smoke
-- Pages run `34009418972` SUCCESS; later integrated run `34009469016` also SUCCESS
-- iPhone readability verification PENDING.
-
-### REQ-042 — Adventure Record Accuracy
-- STATUS: `VERIFY`
-- `OPTIONAL DONE` repaired from two tracked flags `/2` to the three canonical side-completion flags `/3`
-- `TREASURE FINDS` repaired from five hard-coded legacy flags to dynamic read-only aggregation of five legacy flags plus chest/hidden/cache status flags
-- dynamic lists resolve at calculation time for load-order safety and are deduplicated before counting
-- dedicated synthetic + live assembled fail-closed smoke
-- Pages run `34009625492` SUCCESS
+- completion and treasure projections were repaired to track later canonical quest/chest/hidden/cache state dynamically
+- latest relevant Pages run `34009625492` SUCCESS
 - iPhone readability verification PENDING.
 
 ### REQ-043 — Poison Defeat Cleanup
 - STATUS: `VERIFY`
-- fresh HEAD recovery found implementation and dedicated acceptance already committed while queue/CURRENT still lagged
+- fresh HEAD recovery found implementation and dedicated acceptance already committed while queue/CURRENT lagged
 - battle-only poison now clears when canonical enemy turn actually transitions `battle -> world` on defeat
-- ordinary `battle -> battle` enemy turns retain poison
-- victory/run/smoke/herb behavior unchanged
-- dedicated fail-closed acceptance included in `lqTouchSmoke`
+- ordinary battle turns retain poison
 - Pages run `34009787755` SUCCESS
 - iPhone physical verification PENDING.
 
 ### REQ-044 — Battle-Only Poison Save Sanitization
 - STATUS: `VERIFY`
-- fresh save-surface audit found old/corrupt/legacy state could restore positive battle-only poison into world and persist it
-- poison system now sanitizes positive poison at non-battle initialization/render/save boundaries
-- canonical `save()` remains the persistence owner; manual save slots are not duplicated/redesigned
-- legitimate in-battle poison remains untouched
-- dedicated fail-closed save-boundary contract smoke
+- old/corrupt/legacy non-battle state can no longer persist positive battle-only poison through autosave/manual restore
+- canonical poison/save boundaries sanitize non-battle poison while preserving in-battle poison
 - Pages run `34010063196` SUCCESS
 - iPhone physical verification PENDING.
 
 ### REQ-045 — Critical-Hit ATK Persistence Safety
 - STATUS: `VERIFY`
-- fresh core+add-on audit found temporary critical +5 ATK could be persisted by `win() -> render() -> save()` on a killing blow
-- the prior `finally{s.atk=original}` could also discard canonical level-up +3 on a critical level-up kill
-- critical implementation now normalizes ATK only for saves inside the active critical call stack and removes exactly the temporary +5 after canonical attack returns
-- legitimate canonical progression deltas survive; critical chance remains 10% and bonus remains +5
-- canonical `attack()` / `win()` are not duplicated
-- dedicated fail-closed normalization/delta-preservation smoke
+- critical temporary +5 ATK can no longer leak into canonical autosave on a killing blow
+- post-critical cleanup removes only temporary +5, preserving legitimate canonical deltas such as level-up +3
+- canonical attack/win remain owners
 - Pages run `34010189516` SUCCESS
+- iPhone physical verification PENDING.
+
+### REQ-046 — Defeat Enemy-State Cleanup + Legacy Save Hardening
+- STATUS: `VERIFY`
+- canonical defeat previously left stale `s.enemy` / `s.ehp` in post-defeat world state and autosave
+- first repair cleared those fields after the canonical battle -> town recovery transition without duplicating defeat logic
+- post-repair audit then found a second path: old manual backup snapshots could restore stale enemy/ehp directly into world without passing a live defeat transition
+- VERIFY was reopened rather than trusting the first green run
+- final hardening treats enemy/ehp as battle-only persistence state: non-battle save/init is sanitized, battle state remains untouched
+- manual backup system itself was not redesigned
+- hardened fail-closed acceptance proves live recovery detection, world/title sanitization and battle preservation
+- first Pages run `34010304447` SUCCESS; final hardened Pages run `34010441091` SUCCESS
 - iPhone physical verification PENDING.
 
 ## SELF_REPAIR_ACTIONS THIS EXECUTION
 
-1. Fresh boot found HEAD ahead of CURRENT/QUEUE: REQ-043 requirement, implementation and acceptance already existed while metadata still ended at REQ-042.
-2. Recovered REQ-043 from fresh commits/code instead of redoing it; verified Pages run `34009787755` SUCCESS; moved it to VERIFY and repaired queue forward.
-3. Fresh save-boundary audit discovered REQ-044 stale/legacy battle-only poison persistence through non-battle state; repaired at canonical poison/save boundary, added fail-closed acceptance, verified Pages run `34010063196` SUCCESS.
-4. Fresh canonical `index.html` plus `critical-hit.js` audit discovered REQ-045: temporary critical +5 ATK could pollute autosave on a killing blow, while the old restoration could erase legitimate level-up +3 in live state.
-5. Repaired REQ-045 without duplicating attack/win: save-time temporary normalization plus delta-preserving post-attack cleanup; added fail-closed acceptance; Pages run `34010189516` SUCCESS.
-6. Queue was repaired forward through REQ-045 without deleting older Owner requests or converting physical PENDING checks into fake PASS.
+1. Fresh boot found HEAD ahead of CURRENT/QUEUE: REQ-043 implementation and acceptance already existed while metadata ended at REQ-042. Recovered from HEAD instead of repeating work.
+2. Recovered and verified REQ-043, then repaired queue forward.
+3. Found and fixed a separate REQ-044 stale/legacy poison persistence boundary through non-battle saves/manual backup restore.
+4. Found and fixed REQ-045 critical-hit temporary ATK persistence and legitimate level-up ATK loss on critical killing blows.
+5. Found REQ-046 canonical defeat left stale enemy/ehp in world autosave; implemented transition cleanup and verified Pages.
+6. Continued auditing after first REQ-046 SUCCESS, found the legacy/manual-backup restore path was still outside the live-transition detector, reopened VERIFY, hardened the canonical save boundary, extended acceptance, and re-verified Pages run `34010441091` SUCCESS.
 7. REQ-034 remains Owner-confirmed `DONE / IOS_PHYSICAL_VERIFICATION=PASS`; later automated work has not regressed that authority.
-8. Older note remains valid: a prior 409 on REQ-042 was stale blob SHA evidence, not proof of scheduler overlap. Do not reinterpret it as concurrency evidence without fresh commits.
+8. Physical checks remain PENDING unless Owner explicitly confirms them; no headless CI result is promoted to physical PASS.
+9. Older note remains valid: a prior 409 on REQ-042 was stale blob SHA evidence, not proof of scheduler overlap. Do not reinterpret it as concurrency evidence without fresh commits.
 
 ## MANDATORY BOOT / RECOVERY
 
@@ -175,5 +163,6 @@ Fresh HEAD is implementation reality. If this CURRENT lags HEAD, inspect interve
 - do not let records/journal projections hard-code obsolete subsets of later canonical flags
 - do not treat a stale SHA conflict as proof of another writer without fresh commit evidence
 - do not let temporary combat modifiers leak into canonical saves or erase legitimate progression deltas
+- do not treat live-path success as proof that legacy/manual backup migration paths are also covered
 - do not use CURRENT as implementation truth when fresh HEAD differs
 - do not self-terminate while safe executable work remains
