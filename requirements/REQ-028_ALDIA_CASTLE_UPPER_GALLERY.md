@@ -1,6 +1,6 @@
 # REQ-028 — 王都アルディア・王城上階回廊
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / CASTLE / INTERIOR / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,7 +8,7 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY THIS WORK EXISTS
 
-REQ-027で王城本館の玄関ホールまでwalkableになったが、北側の大階段はまだworld-side boundaryで止まっている。`AUTONOMOUS_DEV_DIRECTIVE.md` の最終完成像にある「城」を試作品の一室で終わらせず、保護された物語秘密や王族イベントを新規断定せずに進められる次の安全なcheckpointとして、上階回廊を追加する。
+REQ-027で王城本館の玄関ホールまでwalkableになったが、北側の大階段はまだworld-side boundaryで止まっていた。`AUTONOMOUS_DEV_DIRECTIVE.md` の最終完成像にある「城」を試作品の一室で終わらせず、保護された物語秘密や王族イベントを新規断定せずに進められる次の安全なcheckpointとして、上階回廊を追加した。
 
 ## PURPOSE
 
@@ -91,6 +91,19 @@ REQ-027で王城本館の玄関ホールまでwalkableになったが、北側�
 8. protected canon先出しなし
 9. JavaScript/static/add-on/browser regression PASS
 10. Pages deploy SUCCESS
+
+## AUTOMATED / PUBLIC VERIFICATION
+
+- Registration checkpoint: `d7fe1d9333777dc2c4798b20ca293301b14cb5da`.
+- Implementation checkpoint: `e1c4f608b0da8ddbfcde7680309279f4b7c9dca8`.
+- Initial runtime acceptance checkpoint: `ada3a11246b91d3ced24aae798aadbf413d3c80f`.
+- Initial shared smoke runs exposed a forward-compatibility defect in the older REQ-027 acceptance: it incorrectly required the castle stair to remain a permanent dialogue-only boundary even after a safe next map existed.
+- `15c4aa18e3300efd34c0ff48dd91e72aaa9b008d` evolved the REQ-027 smoke contract to accept either the original safe boundary or a formally implemented safe continuation, while preserving the original hall entry/walk/interaction/return checks.
+- Pages run `34004203854` passed the repaired legacy contract with REQ-028 implementation present.
+- `b6ceb875e685a898051e14cfaee052331eed62f5` re-enabled the REQ-028 dedicated assembled-browser acceptance.
+- Pages run `34004233876`: SUCCESS through sequential JavaScript syntax, add-on syntax, static regression, add-on contract, PWA/assets, approved Luke art, assembled browser smoke including REQ-027+REQ-028 compatibility, Dynamic Touch smoke, upload and Pages deploy.
+- REQ-028 runtime acceptance verifies hall stair entry, gallery walkability, guard interaction, old-city-map interaction, safe unimplemented-zone boundary, return to hall and safe spawn.
+- `IOS_PHYSICAL_VERIFICATION = PENDING`.
 
 ## COMPLETION CONDITION
 
