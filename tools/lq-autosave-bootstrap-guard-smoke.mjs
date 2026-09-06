@@ -21,7 +21,8 @@ function run(seed = {}) {
     Date,
     Set,
     Object,
-    JSON
+    JSON,
+    Array
   });
   vm.runInContext(source, context, { filename: 'autosave-bootstrap-guard.js' });
   return localStorage;
@@ -76,4 +77,27 @@ for (const raw of ['42', '"save"', '[]', 'null']) {
   }
 }
 
-console.log('REQ-063 autosave bootstrap guard smoke PASS');
+// REQ-078. Valid key-item arrays remain ordered; duplicates/non-strings are removed.
+{
+  const raw = JSON.stringify({ screen: 'world', keyItems: ['森王の角', 42, '森王の角', '王城の通行証', null] });
+  const storage = run({ [SAVE]: raw });
+  const saved = JSON.parse(storage.getItem(SAVE));
+  assert.deepEqual(saved.keyItems, ['森王の角', '王城の通行証']);
+}
+
+// REQ-078. Present malformed key-item collections are rewritten to a safe empty array.
+for (const keyItems of ['corrupt', { bad: true }, 7, null]) {
+  const raw = JSON.stringify({ screen: 'world', keyItems });
+  const storage = run({ [SAVE]: raw });
+  const saved = JSON.parse(storage.getItem(SAVE));
+  assert.deepEqual(saved.keyItems, [], `malformed keyItems survived: ${JSON.stringify(keyItems)}`);
+}
+
+// REQ-078. Missing keyItems remains legacy-compatible and byte-preserved.
+{
+  const raw = JSON.stringify({ screen: 'world', map: 'town', gold: 40 });
+  const storage = run({ [SAVE]: raw });
+  assert.equal(storage.getItem(SAVE), raw);
+}
+
+console.log('REQ-063 + REQ-078 autosave bootstrap guard smoke PASS');
