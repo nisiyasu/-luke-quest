@@ -1,6 +1,6 @@
 # REQ-081 — 北の崖道・第一章追跡ルート継続
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: WORLD / STORY-PROGRESSION / EXPLORATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -8,11 +8,11 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## WHY THIS WORK EXISTS
 
-fresh repository realityでは、第一章の主導線は `evacRoute` の北端まで到達しているが、`withdrawProofSeen=true` で北端gate `N` に入っても「レオンの新しい足跡はさらに北へ続いている」と会話するだけで、walkableな次地域へ遷移しない。
+fresh repository realityでは、第一章の主導線は `evacRoute` の北端まで到達しているが、`withdrawProofSeen=true` で北端gate `N` に入っても「レオンの新しい足跡はさらに北へ続いている」と会話するだけで、walkableな次地域へ遷移しなかった。
 
-`AUTONOMOUS_DEV_DIRECTIVE.md` のMISSIONは「iPhoneのブラウザで実際に最後まで遊べる完成作品」へ継続拡張することであり、既存READYが無く、残BACKLOGは生成画像handoff待ちのOwner-only formal artである。
+`AUTONOMOUS_DEV_DIRECTIVE.md` のMISSIONは「iPhoneのブラウザで実際に最後まで遊べる完成作品」へ継続拡張することであり、既存READYが無く、残BACKLOGは生成画像handoff待ちのOwner-only formal artであった。
 
-したがって、既存canonを暴露・変更せず、現在の第一章本線を実際に1地域先へ進める安全なplayer-visible checkpointとして北の崖道を追加する。
+したがって、既存canonを暴露・変更せず、現在の第一章本線を実際に1地域先へ進める安全なplayer-visible checkpointとして北の崖道を追加した。
 
 ## PURPOSE
 
@@ -41,10 +41,11 @@ fresh repository realityでは、第一章の主導線は `evacRoute` の北端�
 
 ## INTERACTIONS
 
-最低限3つのcanonical Action interaction:
+canonical Action interactionを4つ実装:
 - 新しい足跡
-- 崩れた道標または安全杭
-- 風雨で削れた岩壁 / 谷を望む場所等
+- 折れた安全杭
+- 谷を望む岩棚
+- 北へ曲がる崖道
 
 会話は序盤情報開示ルールを守る。
 
@@ -98,10 +99,35 @@ fresh repository realityでは、第一章の主導線は `evacRoute` の北端�
 10. JavaScript/static/add-on/browser regression PASS
 11. public Pages deploy SUCCESS
 
+## IMPLEMENTATION
+
+- Requirement registration: `b3d4e343d907fd15536d711309d2f9125310353c`.
+- Queue activation under WIP=1: `114d12017c2d2468ef210b7706837d3f545f1161`.
+- Player-visible implementation: `5ac5151a152c356c53081f66bceebeb82d084a47` in `addons/north-cliff-road.js`.
+- Dedicated browser acceptance: `b99addbd3807326f7e747ba7070901f01ddc2f79`.
+- Pages workflow gate: `83c880d9cbce3e376ef2cfdd7afe8b4ae0413374`.
+
+## AUTOMATED / PUBLIC VERIFICATION
+
+Pages workflow run `34025050191`: SUCCESS.
+
+Dedicated REQ-081 browser gate proved on the assembled application:
+- `withdrawProofSeen=false` keeps the existing north gate blocked.
+- `withdrawProofSeen=true` enters `northCliffRoad`.
+- entry spawn is safe and the route is walkable.
+- footprint and north-boundary canonical interactions execute.
+- cliff road returns safely to `evacRoute`.
+- autosave round-trip preserves `northCliffRoad` map and coordinates.
+- runtime contract reports `entryAuthority=withdrawProofSeen`, `newRequiredStoryFlags=0`, `protectedCanonChanged=false`.
+
+The same run also passed sequential JS validation, collision-safe add-ons, static/add-on contracts, autosave/PWA/raster/Luke checks, assembled browser regression, REQ-001/021 floating touch plus 390x844 iPhone fullscreen visual-liveness, site upload and Pages deployment.
+
+`IOS_PHYSICAL_VERIFICATION = PENDING`; automated CI does not claim Owner physical iPhone approval.
+
 ## COMPLETION CONDITION
 
-- public Pagesで `evacRoute -> northCliffRoad -> evacRoute` の安全な往復が成立
-- `withdrawProofSeen` gate authorityを維持
-- walk / interactions / north boundary / save/input compatibilityを自動検証
-- Pages SUCCESS
-- Owner physical iPhone / subjective visual verification前はVERIFY
+- public Pagesで `evacRoute -> northCliffRoad -> evacRoute` の安全な往復が成立: AUTOMATED PASS
+- `withdrawProofSeen` gate authorityを維持: PASS
+- walk / interactions / north boundary / save/input compatibilityを自動検証: PASS
+- Pages SUCCESS: PASS (`34025050191`)
+- Owner physical iPhone / subjective visual verification前はVERIFY: PENDING
