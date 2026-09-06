@@ -1,6 +1,6 @@
 # REQ-096 — 風切り峠・エリアタイトル演出の連続性
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PRESENTATION / AREA-TITLE / WORLD-CONTINUITY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -28,16 +28,27 @@ REQ-093で `windcutPass` が正式なwalkable mapになり、REQ-094/095でロ�
 
 ## ACCEPTANCE
 
-- [ ] windcutPass has a dedicated subtitle
-- [ ] existing subtitles remain intact
-- [ ] unknown-map generic fallback remains intact
-- [ ] presentation-only behavior preserved
-- [ ] fail-closed coverage smoke PASS
-- [ ] JS/static/add-on regression PASS
-- [ ] assembled browser PASS
-- [ ] 390x844 touch/fullscreen PASS
-- [ ] Pages SUCCESS
+- [x] windcutPass has a dedicated subtitle
+- [x] existing subtitles remain intact
+- [x] unknown-map generic fallback remains intact
+- [x] presentation-only behavior preserved
+- [x] fail-closed coverage smoke PASS
+- [x] JS/static/add-on regression PASS
+- [x] assembled browser PASS
+- [x] 390x844 touch/fullscreen PASS
+- [x] Pages SUCCESS
 - [ ] Owner physical iPhone visual feel remains PENDING
+
+## IMPLEMENTATION / VERIFICATION EVIDENCE
+
+- Requirement registration: `d6ba85642c2501bdae609e6c1943cbbc766d0880`.
+- Area-title implementation: `4041dc666ee2ed0dd491fdd0731316d80ecd8c74` in `addons/area-title-card.js`.
+- Fail-closed coverage guard: `5be1070c106c61492792af7f154e8dde54e98f08`.
+- Dedicated subtitle: `北尾根へ続く風の強い高所峠`.
+- Existing `northCliffRoad` dedicated subtitle and unknown-map `LUKE QUEST` fallback are explicitly guarded.
+- GitHub Pages workflow run `34033373703` on `5be1070c106c61492792af7f154e8dde54e98f08`: SUCCESS.
+- AUTOMATED_VERIFICATION: PASS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## NO-STOP
 
