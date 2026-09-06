@@ -21,6 +21,12 @@ function normalizeNumericStateFields(value,defaults=DEFAULT){
  }
  return out;
 }
+function normalizeKeyItemsCollection(value){
+ if(!Array.isArray(value))return[];
+ const seen=new Set(),out=[];
+ for(const item of value){if(typeof item!=='string'||!item||seen.has(item))continue;seen.add(item);out.push(item);}
+ return out;
+}
 function slotRecord(i){
  try{
   const raw=localStorage.getItem(SLOT_KEYS[i]);
@@ -40,6 +46,7 @@ window.lqManualLoad=function(i){
  if(i<0||i>=SLOT_KEYS.length)return;
  const record=slotRecord(i);if(record.kind!=='valid')return;
  const data=normalizeNumericStateFields(record.data,DEFAULT),flags=sanitizeStateObject(record.data.flags);
+ if(Object.prototype.hasOwnProperty.call(record.data,'keyItems'))data.keyItems=normalizeKeyItemsCollection(record.data.keyItems);
  stopMoving();s=Object.assign({},DEFAULT,data);s.flags=Object.assign({},DEFAULT.flags,flags);if(!MAPS[s.map]){s.map='town';s.x=9;s.y=12;}s.screen='world';s.pauseOpen=false;s.shopOpen=false;s.dialog={name:'SYSTEM',text:`BACKUP SLOT ${i+1} をロードしました。`};encounterGrace=3;save();render();
 };
 window.lqManualDelete=function(i){if(i<0||i>=SLOT_KEYS.length)return;localStorage.removeItem(SLOT_KEYS[i]);render();};
@@ -53,5 +60,5 @@ function addMenuSlots(){
 function addTitleSlots(){
  if(s.screen!=='title')return;const stage=app.querySelector('.lqTitleStage');if(!stage||stage.querySelector('.lqTitleBackup'))return;const found=SLOT_KEYS.map((_,i)=>[i,slotRecord(i)]).filter(([,r])=>r.kind!=='empty');if(!found.length)return;const box=document.createElement('div');box.className='lqTitleBackup';box.innerHTML=`<small>MANUAL BACKUP</small>${found.map(([i,r])=>r.kind==='valid'?`<button onclick="lqManualLoad(${i})">SLOT ${i+1}　${slotSummary(r)}</button>`:`<button class=invalid disabled disabled>SLOT ${i+1}　INVALID BACKUP</button>`).join('')}`;const buttons=stage.querySelector('.lqTitleButtons')||stage;buttons.appendChild(box);
 }
-const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true,sanitizesDangerousKeys:true,normalizesCanonicalNumericTypes:true,classifyPayload,isPlainStateObject,sanitizeStateObject,normalizeNumericStateFields};addMenuSlots();addTitleSlots();
+const worldM=world;world=function(){worldM();addMenuSlots();};const titleM=title;title=function(){titleM();addTitleSlots();};const renderM=render;render=function(){const r=renderM();addMenuSlots();addTitleSlots();return r;};window.LQ_MANUAL_SAVE_STATUS={slots:2,autosavePreserved:true,validatesSlotShape:true,rejectsMalformedSlots:true,sanitizesDangerousKeys:true,normalizesCanonicalNumericTypes:true,normalizesKeyItemsCollection:true,classifyPayload,isPlainStateObject,sanitizeStateObject,normalizeNumericStateFields,normalizeKeyItemsCollection};addMenuSlots();addTitleSlots();
 })();
