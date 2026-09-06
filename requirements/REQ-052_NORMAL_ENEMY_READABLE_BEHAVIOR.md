@@ -1,6 +1,6 @@
 # REQ-052 — Readable Normal Enemy Behavior
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: BATTLE / ENEMY-AI / PLAYER-VISIBLE / STRATEGY
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -10,40 +10,59 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 The final-game directive requires enemy AI. Fresh implementation audit found:
 
-- the optional forest boss already has a dedicated, telegraphed multi-turn pattern in `addons/forest-boss-patterns.js` and must not be duplicated;
-- battle poison already wraps `enemyTurn()` for a small enemy subset and must remain compatible;
-- normal enemies still ultimately use the core `enemyTurn()` behavior: roll one damage value from `s.enemy.a`, optionally halve for guard, then attack;
-- normal enemies therefore differ statistically by attack range but do not expose a readable tactical pattern to the player.
+- the optional forest boss already has a dedicated, telegraphed multi-turn pattern in `addons/forest-boss-patterns.js` and was not duplicated;
+- battle poison already wraps `enemyTurn()` for a small enemy subset and had to remain compatible;
+- normal enemies still ultimately used the core `enemyTurn()` behavior: roll one damage value from `s.enemy.a`, optionally halve for guard, then attack;
+- normal enemies therefore differed statistically by attack range but did not expose a readable tactical pattern to the player.
 
-This requirement adds a narrow normal-enemy behavior layer without changing canon, enemy roster, rewards, encounter rates, poison rules, boss rules, or save format.
+## IMPLEMENTED BEHAVIOR
 
-## REQUIRED BEHAVIOR
+`addons/normal-enemy-readable-behavior.js` now:
 
-1. Apply only to ordinary enemies, never the optional boss `苔角の森王` or future enemies explicitly marked as bosses.
-2. Track a battle-local normal-enemy turn counter that resets on a newly started normal battle and does not leak across battle exit.
-3. Assign existing ordinary enemies to conservative behavior archetypes using their existing names only as lookup metadata:
-   - PRESSURE: stronger attack on a readable cadence;
-   - BURST: stronger attack on a slower cadence;
-   - STEADY: ordinary attack cadence with no artificial power spike.
-4. A strong attack must be telegraphed in the battle UI before the player commits the preceding action whenever possible.
-5. Strong attacks must reuse the canonical `enemyTurn()` chain by temporarily adjusting only the current enemy attack range, then restoring it in `finally`.
-6. Existing guard must still reduce the resulting canonical attack.
-7. Existing poison wrapper must still tick/inflict through the canonical chain.
-8. Optional boss pattern logic must remain authoritative and unchanged.
-9. Do not add random hidden special attacks. The player should be able to read the next threat.
-10. Keep the behavior small enough that it improves decision-making without turning basic encounters into boss fights.
+1. excludes `苔角の森王` and any future enemy object explicitly marked `isBoss` / `boss`;
+2. keeps a battle-local ordinary-enemy turn counter and resets it on a fresh normal encounter / battle exit;
+3. classifies existing ordinary enemies conservatively as PRESSURE, BURST, or STEADY metadata;
+4. gives PRESSURE enemies a readable stronger attack every third enemy turn;
+5. gives BURST enemies a readable stronger attack every fourth enemy turn;
+6. gives STEADY enemies no artificial power spike;
+7. renders a visible NEXT-turn intent cue, including a clear warning when the next attack is stronger and that guard is useful;
+8. reuses the full canonical `enemyTurn(g)` wrapper chain, passing guard through unchanged;
+9. temporarily boosts only the current enemy attack-range array for a telegraphed strong turn, restoring the exact original array in `finally`;
+10. leaves battle poison in the call chain and leaves optional-boss pattern authority unchanged;
+11. changes no enemy roster, reward, encounter rate, story, poison rule, or save schema.
+
+Implementation checkpoints:
+- requirement registration: `bc3ee8778cb37ae7eea333cb4a89a8aa050e12a3`
+- implementation: `8a5d27d10241087001266fa2d5b8a2a939a8ea8d`
+- dedicated acceptance: `6fed36d1beaced2075412c77403599fd22789d3e`
 
 ## ACCEPTANCE
 
-- ordinary battle gets a visible next-action/intent cue;
-- PRESSURE and BURST strong-turn calculation is deterministic and exposed as a pure contract;
-- STEADY enemies never receive an artificial strong-turn multiplier;
-- boss is explicitly excluded;
-- strong attack uses temporary attack-range adjustment and restores the original array after canonical enemyTurn returns;
-- guard parameter is passed through untouched;
-- battle poison and existing wrappers remain in the call chain;
-- battle-local counter resets for a fresh normal encounter;
-- assembled browser + 390x844 touch/world regression + Pages remain green.
+Dedicated `lqTouchSmoke` acceptance verifies:
+- readable intent/status contract exists;
+- canonical enemyTurn and guard passthrough are declared;
+- battle-local counter contract exists;
+- PRESSURE cadence = 3 and deterministic strong-turn calculation;
+- BURST cadence = 4 and deterministic strong-turn calculation;
+- STEADY never receives an artificial strong turn;
+- range boosting is pure with respect to its input array;
+- optional forest boss is excluded while ordinary enemies are not;
+- battle-poison contract remains present;
+- optional boss telegraph/pattern contract remains present.
+
+GitHub Pages workflow run `34011798629`: SUCCESS.
+
+PASS coverage includes:
+- sequential JavaScript validation;
+- collision-safe add-on validation;
+- static regression guard;
+- add-on contract guard;
+- PWA / raster transport / approved Luke asset validation;
+- assembled browser smoke;
+- 390x844 floating-touch + iPhone world visual-liveness smoke;
+- Pages upload/deploy.
+
+Automated implementation completion is satisfied. Physical/subjective iPhone battle-feel verification remains `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
 ## DO NOT REPEAT
 
