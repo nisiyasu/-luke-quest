@@ -64,6 +64,10 @@ jobs:
         run: node tools/lq-static-regression.mjs
       - name: Run add-on contract guard
         run: node tools/lq-addon-contract.mjs
+      - name: Validate REQ-063 autosave bootstrap guard
+        run: |
+          node --check prelude/autosave-bootstrap-guard.js
+          node tools/lq-autosave-bootstrap-guard-smoke.mjs
       - name: Validate PWA files
         run: |
           node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'));console.log('manifest valid')"
@@ -74,14 +78,35 @@ jobs:
       - name: Validate approved Luke dialogue asset
         run: |
           node -e "const fs=require('fs');const s=fs.readFileSync('assets/characters/luke/dialogue-neutral.webp.b64','utf8').trim();const b=Buffer.from(s,'base64');if(b.length<16||b.slice(0,4).toString()!=='RIFF'||b.slice(8,12).toString()!=='WEBP')throw new Error('Luke dialogue asset is not a WebP payload')"
-      - name: Inject presentation patches in version order
+      - name: Inject bootstrap guard and presentation patches in order
         shell: bash
         run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          html = p.read_text()
+          marker = '<div id="app"></div><script>'
+          guard = '<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker) != 1:
+              raise SystemExit(f'expected exactly one base bootstrap marker, found {html.count(marker)}')
+          html = html.replace(marker, guard, 1)
+          p.write_text(html)
+          PY
           mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
           for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           if compgen -G 'addons/*.js' > /dev/null; then
             for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           fi
+          node - <<'NODE'
+          const fs=require('fs');
+          const html=fs.readFileSync('index.html','utf8');
+          const guard='<script src="prelude/autosave-bootstrap-guard.js"></script>';
+          const base='const TS=48;';
+          const gi=html.indexOf(guard), bi=html.indexOf(base);
+          if(gi<0||bi<0||gi>bi) throw new Error(`REQ-063 injection order invalid guard=${gi} base=${bi}`);
+          if(html.split(guard).length-1!==1) throw new Error('REQ-063 guard must be injected exactly once');
+          console.log('REQ-063 assembled injection order PASS');
+          NODE
       - name: Browser smoke test assembled game
         shell: bash
         run: |
