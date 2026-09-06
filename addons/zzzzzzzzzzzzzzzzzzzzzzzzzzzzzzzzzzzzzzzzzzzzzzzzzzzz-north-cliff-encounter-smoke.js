@@ -6,10 +6,10 @@ if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqN
 
 function marker(data){
   const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeMarker';
-  Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);
+  Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));el.hidden=true;document.body.appendChild(el);return el;
 }
 function failure(reason){
-  const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeFailure';el.dataset.reason=String(reason||'unknown');el.hidden=true;document.body.appendChild(el);
+  const el=document.createElement('i');el.id='lqNorthCliffEncounterSmokeFailure';el.dataset.reason=String(reason||'unknown');el.hidden=true;document.body.appendChild(el);return el;
 }
 
 setTimeout(()=>{
@@ -50,15 +50,21 @@ setTimeout(()=>{
     }
   }catch(err){
     console.error('lqNorthCliffEncounterSmokeFailure',err);
-    failure(err&&err.message);
     deferredError=new TypeError(`REQ-082 north cliff encounter smoke failed: ${err&&err.message}`);
   }
   finally{
     stopMoving();encounterGrace=originalGrace;Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);
     if(rawBefore===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',rawBefore);
     render();
-    marker({encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract});
-    if(deferredError)setTimeout(()=>{throw deferredError;},0);
+    const data={encounterEnabled,exactPool,noNewEnemies,entryGrace,returnGrace,battleUsesExistingPool,statusContract};
+    if(deferredError){
+      // Dedicated CI probe owns this page. Strip unrelated runtime DOM so the
+      // workflow's existing data-*=true checks cannot be satisfied by another marker.
+      document.body.replaceChildren();
+      failure(deferredError.message);
+      marker(data);
+      setTimeout(()=>{throw deferredError;},0);
+    }else marker(data);
   }
 },700);
 })();
