@@ -2,7 +2,7 @@
 'use strict';
 
 /* Collision-safe add-on: broad slow cloud shadows make outdoor maps feel less flat without adding DOM-heavy particles. */
-const OUTDOOR=new Set(['town','field','forest','deepForest','mistTrail','observation','evacuation','evacRoute','cliff','cliffRoad']);
+const OUTDOOR=new Set(['town','field','forest','deepForest','mistTrail','observation','evacuation','evacRoute','cliff','cliffRoad','northCliffRoad']);
 const style=document.createElement('style');
 style.textContent=`
 .lqCloudShadowLayer{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none;mix-blend-mode:multiply;opacity:.32}
@@ -13,7 +13,7 @@ style.textContent=`
 @media(prefers-reduced-motion:reduce){.lqCloudShadow{animation:none;opacity:.18;left:22%}.lqCloudShadow.s2{left:55%}}
 `;
 document.head.appendChild(style);
-function cloudClass(){if(['forest','deepForest'].includes(s.map))return'forest';if(['mistTrail','cliff','cliffRoad'].includes(s.map))return'mist';if(['observation','evacuation','evacRoute'].includes(s.map))return'hostile';return'';}
+function cloudClass(map=s.map){if(['forest','deepForest'].includes(map))return'forest';if(['mistTrail','cliff','cliffRoad','northCliffRoad'].includes(map))return'mist';if(['observation','evacuation','evacRoute'].includes(map))return'hostile';return'';}
 function addClouds(){
  if(s.screen!=='world'||!OUTDOOR.has(s.map))return;
  const w=app.querySelector('.world');if(!w||w.querySelector('.lqCloudShadowLayer'))return;
@@ -22,5 +22,5 @@ function addClouds(){
 const worldBase=world;world=function(){const r=worldBase();addClouds();return r;};
 const renderBase=render;render=function(){const r=renderBase();addClouds();return r;};
 if(s.screen==='world')addClouds();
-window.LQ_WORLD_CLOUD_STATUS={maps:[...OUTDOOR],broadLayers:2,presentationOnly:true,reducedMotion:true};
+window.LQ_WORLD_CLOUD_STATUS={maps:[...OUTDOOR],broadLayers:2,presentationOnly:true,reducedMotion:true,hasMap:(map)=>OUTDOOR.has(map),classFor:(map)=>OUTDOOR.has(map)?cloudClass(map):null};
 })();
