@@ -35,15 +35,15 @@ if(fs.existsSync(originalEnemyPath)){
 const backdropPath=`${dir}/original-battle-backgrounds.js`;
 if(fs.existsSync(backdropPath)){
  const text=fs.readFileSync(backdropPath,'utf8');
- const maps=['field','forest','deepForest','mistTrail','observation','evacRoute'];
+ const maps=['field','forest','deepForest','mistTrail','observation','evacRoute','northCliffRoad'];
  for(const map of maps)if(!new RegExp(`(?:^|\\n)${map}:\\{`).test(text))throw new Error(`original-battle-backgrounds.js: missing scene ${map}`);
  if(!text.includes('LQ_ORIGINAL_BATTLE_BACKGROUND_STATUS'))throw new Error('original-battle-backgrounds.js: runtime status contract missing');
  if(!text.includes('lqOriginalBattleBackgroundSvg'))throw new Error('original-battle-backgrounds.js: original image SVG layer missing');
  if(!text.includes('original-vector-regional-battle-background'))throw new Error('original-battle-backgrounds.js: formal-stage marker missing');
  if(!text.includes("if(!scene)return false"))throw new Error('original-battle-backgrounds.js: unknown-map fallback guard missing');
  if(!text.includes("shell.querySelector('.lqOriginalBattleBackdrop')"))throw new Error('original-battle-backgrounds.js: duplicate-layer reuse guard missing');
- const sceneCount=(text.match(/^(?:field|forest|deepForest|mistTrail|observation|evacRoute):\{/gm)||[]).length;
- if(sceneCount!==6)throw new Error(`original-battle-backgrounds.js: expected 6 regional scenes, got ${sceneCount}`);
+ const sceneCount=(text.match(/^(?:field|forest|deepForest|mistTrail|observation|evacRoute|northCliffRoad):\{/gm)||[]).length;
+ if(sceneCount!==7)throw new Error(`original-battle-backgrounds.js: expected 7 regional scenes, got ${sceneCount}`);
 }
 
 const journalPath=`${dir}/adventure-journal.js`;
