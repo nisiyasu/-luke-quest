@@ -46,6 +46,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 34 | REQ-033 | P1 | VERIFY | 高地・放棄された魔王軍監視所 | `requirements/REQ-033_ABANDONED_DEMON_ARMY_OUTPOST.md` | optional walkable Demon Army outpost実装 + dedicated runtime acceptance済み。checkpoint `283a0b4...` Pages SUCCESS。Owner実機/見た目確認待ち |
 | 35 | REQ-035 | P1 | SUPERSEDED | Original Audio Feedback / SE foundation | `requirements/REQ-035_ORIGINAL_AUDIO_FEEDBACK.md` | deeper inventoryで既存 `ux-v83.js` + `ux-v138.js` + audio dedup実装を発見。重複実装せず監査履歴としてSUPERSEDED |
 | 36 | REQ-036 | P1 | VERIFY | Original Ambient Music Foundation | `requirements/REQ-036_ORIGINAL_AMBIENT_MUSIC.md` | external assetなしWeb Audio original safe/wild music + explicit MUSIC toggle。autoplay OFF、既存SE非干渉、390x844 integrated smoke含むPages run 34006935671 SUCCESS。Owner iPhone音量/雰囲気確認待ち |
+| 37 | REQ-037 | P1 | VERIFY | Map Transition Fade / Scene Change Feedback | `requirements/REQ-037_MAP_TRANSITION_FADE.md` | visual fade + non-stacking/pointer-safe/reduced-motion cleanup。既存v0.139 transition SFX非重複。Pages run 34007224602 SUCCESS。Owner iPhone transition feel確認待ち |
 
 ## STATUS DEFINITIONS
 
