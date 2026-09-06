@@ -10,7 +10,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | ORDER | ID | PRIORITY | STATUS | TITLE | REQUIREMENT | NOTE |
 |---:|---|---|---|---|---|---|
-| 1 | REQ-034 | P0 | VERIFY | iPhone公開版 world/map 黒画面修正 | `requirements/REQ-034_IPHONE_BLACK_WORLD_SCREEN.md` | fullscreen world plane geometry + transparent controls planeをhardening。390x844 visual-liveness + integrated touch gate追加。Pages run 34006670133 SUCCESS。Owner iPhone実機でworld/map可視性の再確認待ち |
+| 1 | REQ-034 | P0 | DONE | iPhone公開版 world/map 黒画面修正 | `requirements/REQ-034_IPHONE_BLACK_WORLD_SCREEN.md` | fullscreen world plane geometry + transparent controls planeをhardening。390x844 visual-liveness + integrated touch gate追加。Pages run 34006670133 SUCCESS。Owner iPhone実機で「うん、直った」と確認、IOS_PHYSICAL_VERIFICATION=PASS |
 | 2 | REQ-021 | P0 | VERIFY | 画面のどこを短くタップしてもAアクション | `requirements/REQ-021_TAP_ANYWHERE_ACTION.md` | unified pointer surfaceをfresh再監査。tap=canonical Action 1回、drag=no Action。REQ-034の390x844 integrated touch gateでもPASS。Owner iPhone実機確認待ち |
 | 3 | REQ-022 | P0 | VERIFY | iPhone全画面World UI / 操作UIをマップ上へ同居 | `requirements/REQ-022_IPHONE_FULLSCREEN_WORLD_UI.md` | 100dvh world + overlays + camera recenter。REQ-034でworld plane/controls planeをhardeningし390x844 visual-liveness PASS。Owner iPhone実機確認待ち |
 | 4 | REQ-001 | P0 | VERIFY | 画面任意位置Dynamic Touch Controller | `requirements/REQ-001_DYNAMIC_TOUCH_CONTROLLER.md` | v1.5 168px高コントラスト4-way UI + safety conditions。REQ-034 integrated 390x844 floating-touch smoke PASS。IOS_PHYSICAL_VERIFICATION=PENDING |
