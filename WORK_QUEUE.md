@@ -17,25 +17,26 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 5 | REQ-024 | P1 | VERIFY | 王都アルディア・民家内部 | `requirements/REQ-024_ALDIA_CIVILIAN_HOME_INTERIOR.md` | walkable民家・住民/小物interaction・安全な退出を実装。修復checkpoint `43ba4e88...` のPages run 33997076846 SUCCESS。Owner実機/見た目確認待ち |
 | 6 | REQ-025 | P1 | VERIFY | 王都アルディア・王城門衛詰所 | `requirements/REQ-025_ALDIA_CASTLE_GATEHOUSE_INTERIOR.md` | canonical entry/walk/guard+prop interaction/exit/safe spawnを専用runtime probeで固定。Pages run 34001139669 SUCCESS。Owner実機/見た目確認待ち |
 | 7 | REQ-026 | P1 | VERIFY | 王都アルディア・王城前庭 | `requirements/REQ-026_ALDIA_CASTLE_COURTYARD.md` | 門衛詰所→前庭entry/walk/landmark/interaction/本館境界/returnをruntime probeで固定。Pages run 34001268066 SUCCESS。Owner実機/見た目確認待ち |
-| 8 | REQ-002 | P0 | VERIFY | ルーク会話グラフィックを承認済み生成画像へ正式化 | `requirements/REQ-002_LUKE_DIALOGUE_ART.md` | 正式WebP transport + dialogue guard + Pages CI成功を確認。Owner実機/見た目確認待ち |
-| 9 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
-| 10 | REQ-016 | P1 | VERIFY | MP / 戦闘技システム | `requirements/REQ-016_MP_SKILL_SYSTEM.md` | 永続MP 10/10 + 初期技「蒼閃」4MP。旧save migration、level-up/敗北回復、static/browser/touch/Pages run 33992924664 SUCCESS。Owner iPhone戦闘感確認待ち |
-| 11 | REQ-017 | P1 | VERIFY | 敵ドロップ / 戦利品システム | `requirements/REQ-017_ENEMY_DROP_SYSTEM.md` | 通常敵18種をcanonical薬草/煙玉drop tableへ接続。+1上限、unknown fallback、既存EXP/G保持、Pages run 33993065410 SUCCESS。Ownerバランス/iPhone感確認待ち |
-| 12 | REQ-018 | P2 | VERIFY | 蒼閃の専用戦闘フィードバック | `requirements/REQ-018_AZURE_SLASH_FEEDBACK.md` | 青斬撃、敵hit、MP消費/不足feedbackをpresentation-onlyで実装。reduced-motion/cleanup/state-mutation guard、Pages run 33993208928 SUCCESS。Owner見た目/iPhone確認待ち |
-| 13 | REQ-019 | P2 | VERIFY | 回復地点のMP整合性 | `requirements/REQ-019_MP_RECOVERY_POINTS.md` | 焚き火MP全回復＋旅人の祠35%MP回復。既存HP/flag維持。Pages run 33993422174 SUCCESS。Owner iPhone回復感確認待ち |
-| 14 | REQ-020 | P2 | VERIFY | 図鑑へ敵ドロップ情報を接続 | `requirements/REQ-020_BESTIARY_DROP_INTEL.md` | REQ-017 authorityのdrop labelを発見済み図鑑へsingle-source表示。確率非表示、unknown fallback。Pages run 33993594188 SUCCESS。Owner iPhone可読性確認待ち |
-| 15 | REQ-004 | P1 | BACKLOG | レオン正式全身会話立ち絵 | TBD | 正式アート要件/素材確定待ち。仮SVGを最終品質扱いしない |
-| 16 | REQ-005 | P1 | BACKLOG | グレン正式全身会話立ち絵 | TBD | ルーク/レオンとの世界観統一 |
-| 17 | REQ-006 | P1 | VERIFY | 敵絵文字を完全オリジナル敵画像へ置換 | `requirements/REQ-006_ORIGINAL_ENEMY_ART.md` | 通常敵18種をoriginal SVG battle-art registryへ移行。contract/static/browser/Pages run 33982213456 SUCCESS。Owner主観/iPhone見た目確認待ち |
-| 18 | REQ-007 | P1 | VERIFY | 地域別戦闘背景画像の正式化 | `requirements/REQ-007_ORIGINAL_BATTLE_BACKGROUNDS.md` | 6通常遭遇地域へdistinct original SVG battle backdropを実装。contract/static/browser/Pages run 33982352056 SUCCESS。Owner主観/iPhone見た目確認待ち |
-| 19 | REQ-008 | P1 | VERIFY | 王都アルディアをPS1初期級の視覚密度へ強化 | `requirements/REQ-008_ALDIA_VISUAL_DENSITY.md` | Checkpoint A-C実装、最新CのPages workflow run 33980792050 SUCCESS。Owner主観/iPhone見た目確認待ち |
-| 20 | REQ-011 | P1 | VERIFY | 冒険ジャーナル / メイン目的・手掛かり・サブクエ追跡 | `requirements/REQ-011_ADVENTURE_JOURNAL.md` | spoiler-safe journal実装。main/clues/3 side quests + contract guard。Pages run 33984155835 SUCCESS。Owner iPhone可読性/主観確認待ち |
-| 21 | REQ-012 | P1 | VERIFY | 探索できる永続宝箱システム | `requirements/REQ-012_TREASURE_CHEST_SYSTEM.md` | 王都/近郊/森入口へ3宝箱。1回限定G報酬、opened visual、collision、save flag、contract/browser/touch/Pages run 33987117818 SUCCESS。Owner iPhone見た目確認待ち |
-| 22 | REQ-014 | P1 | VERIFY | ストーリー進行で町人会話が変化するNPCリアクション | `requirements/REQ-014_NPC_DIALOGUE_PROGRESSION.md` | 王都3NPC+近郊1NPCを既存canonical flagsの6段階projectionへ接続。秘密の先出しなし。Pages run 33989872020 SUCCESS。Owner iPhone/主観確認待ち |
-| 23 | REQ-015 | P1 | VERIFY | 宝箱探索を実アイテム報酬へ拡張 | `requirements/REQ-015_ITEM_TREASURE_CACHES.md` | 深部/霧/監視区域へ3補給cache。薬草×2、煙玉×1、45G。persistent/collision/save。Pages run 33990010600 SUCCESS。Owner iPhone見た目確認待ち |
-| 24 | REQ-013 | P2 | VERIFY | 隠しアイテム / 探索スパークル | `requirements/REQ-013_HIDDEN_FIND_SYSTEM.md` | 王都/近郊/森深部へ3探索光。正面action、1回限定G報酬、発見後消失、save flag、contract/browser/touch/Pages run 33987250241 SUCCESS。Owner iPhone見た目確認待ち |
-| 25 | REQ-009 | P2 | VERIFY | フィールド/森をPS1初期級の視覚密度へ強化 | `requirements/REQ-009_FIELD_FOREST_VISUAL_DENSITY.md` | 王都近郊→森入口→深部のA-C実装。Pages workflow run 33981010791全工程SUCCESS。Owner主観/iPhone見た目確認待ち |
-| 26 | REQ-010 | P2 | VERIFY | 建物内部と町コンテンツの追加拡張 | `requirements/REQ-010_BUILDING_INTERIOR_EXPANSION.md` | 南門宿・屋根裏談話室を追加。実entry/exit browser smokeを含むPages workflow run 33981620155 SUCCESS。Owner主観/iPhone見た目確認待ち |
+| 8 | REQ-027 | P1 | IN_PROGRESS | 王都アルディア・王城玄関ホール | `requirements/REQ-027_ALDIA_CASTLE_ENTRANCE_HALL.md` | 前庭大扉から入る最初の王城本館内部。実装 + dedicated runtime acceptanceをcheckpoint済み。Pages/public verification進行中 |
+| 9 | REQ-002 | P0 | VERIFY | ルーク会話グラフィックを承認済み生成画像へ正式化 | `requirements/REQ-002_LUKE_DIALOGUE_ART.md` | 正式WebP transport + dialogue guard + Pages CI成功を確認。Owner実機/見た目確認待ち |
+| 10 | REQ-003 | P0 | VERIFY | ルーク正式4方向×複数フレーム歩行スプライト | `requirements/REQ-003_LUKE_4DIR_FIELD_SPRITE.md` | 4方向×3frame WebP stripsを実playerへ統合。static/addon/browser/Pages PASS。Owner見た目/iPhone確認待ち |
+| 11 | REQ-016 | P1 | VERIFY | MP / 戦闘技システム | `requirements/REQ-016_MP_SKILL_SYSTEM.md` | 永続MP 10/10 + 初期技「蒼閃」4MP。旧save migration、level-up/敗北回復、static/browser/touch/Pages run 33992924664 SUCCESS。Owner iPhone戦闘感確認待ち |
+| 12 | REQ-017 | P1 | VERIFY | 敵ドロップ / 戦利品システム | `requirements/REQ-017_ENEMY_DROP_SYSTEM.md` | 通常敵18種をcanonical薬草/煙玉drop tableへ接続。+1上限、unknown fallback、既存EXP/G保持、Pages run 33993065410 SUCCESS。Ownerバランス/iPhone感確認待ち |
+| 13 | REQ-018 | P2 | VERIFY | 蒼閃の専用戦闘フィードバック | `requirements/REQ-018_AZURE_SLASH_FEEDBACK.md` | 青斬撃、敵hit、MP消費/不足feedbackをpresentation-onlyで実装。reduced-motion/cleanup/state-mutation guard、Pages run 33993208928 SUCCESS。Owner見た目/iPhone確認待ち |
+| 14 | REQ-019 | P2 | VERIFY | 回復地点のMP整合性 | `requirements/REQ-019_MP_RECOVERY_POINTS.md` | 焚き火MP全回復＋旅人の祠35%MP回復。既存HP/flag維持。Pages run 33993422174 SUCCESS。Owner iPhone回復感確認待ち |
+| 15 | REQ-020 | P2 | VERIFY | 図鑑へ敵ドロップ情報を接続 | `requirements/REQ-020_BESTIARY_DROP_INTEL.md` | REQ-017 authorityのdrop labelを発見済み図鑑へsingle-source表示。確率非表示、unknown fallback。Pages run 33993594188 SUCCESS。Owner iPhone可読性確認待ち |
+| 16 | REQ-004 | P1 | BACKLOG | レオン正式全身会話立ち絵 | TBD | 正式アート要件/素材確定待ち。仮SVGを最終品質扱いしない |
+| 17 | REQ-005 | P1 | BACKLOG | グレン正式全身会話立ち絵 | TBD | ルーク/レオンとの世界観統一 |
+| 18 | REQ-006 | P1 | VERIFY | 敵絵文字を完全オリジナル敵画像へ置換 | `requirements/REQ-006_ORIGINAL_ENEMY_ART.md` | 通常敵18種をoriginal SVG battle-art registryへ移行。contract/static/browser/Pages run 33982213456 SUCCESS。Owner主観/iPhone見た目確認待ち |
+| 19 | REQ-007 | P1 | VERIFY | 地域別戦闘背景画像の正式化 | `requirements/REQ-007_ORIGINAL_BATTLE_BACKGROUNDS.md` | 6通常遭遇地域へdistinct original SVG battle backdropを実装。contract/static/browser/Pages run 33982352056 SUCCESS。Owner主観/iPhone見た目確認待ち |
+| 20 | REQ-008 | P1 | VERIFY | 王都アルディアをPS1初期級の視覚密度へ強化 | `requirements/REQ-008_ALDIA_VISUAL_DENSITY.md` | Checkpoint A-C実装、最新CのPages workflow run 33980792050 SUCCESS。Owner主観/iPhone見た目確認待ち |
+| 21 | REQ-011 | P1 | VERIFY | 冒険ジャーナル / メイン目的・手掛かり・サブクエ追跡 | `requirements/REQ-011_ADVENTURE_JOURNAL.md` | spoiler-safe journal実装。main/clues/3 side quests + contract guard。Pages run 33984155835 SUCCESS。Owner iPhone可読性/主観確認待ち |
+| 22 | REQ-012 | P1 | VERIFY | 探索できる永続宝箱システム | `requirements/REQ-012_TREASURE_CHEST_SYSTEM.md` | 王都/近郊/森入口へ3宝箱。1回限定G報酬、opened visual、collision、save flag、contract/browser/touch/Pages run 33987117818 SUCCESS。Owner iPhone見た目確認待ち |
+| 23 | REQ-014 | P1 | VERIFY | ストーリー進行で町人会話が変化するNPCリアクション | `requirements/REQ-014_NPC_DIALOGUE_PROGRESSION.md` | 王都3NPC+近郊1NPCを既存canonical flagsの6段階projectionへ接続。秘密の先出しなし。Pages run 33989872020 SUCCESS。Owner iPhone/主観確認待ち |
+| 24 | REQ-015 | P1 | VERIFY | 宝箱探索を実アイテム報酬へ拡張 | `requirements/REQ-015_ITEM_TREASURE_CACHES.md` | 深部/霧/監視区域へ3補給cache。薬草×2、煙玉×1、45G。persistent/collision/save。Pages run 33990010600 SUCCESS。Owner iPhone見た目確認待ち |
+| 25 | REQ-013 | P2 | VERIFY | 隠しアイテム / 探索スパークル | `requirements/REQ-013_HIDDEN_FIND_SYSTEM.md` | 王都/近郊/森深部へ3探索光。正面action、1回限定G報酬、発見後消失、save flag、contract/browser/touch/Pages run 33987250241 SUCCESS。Owner iPhone見た目確認待ち |
+| 26 | REQ-009 | P2 | VERIFY | フィールド/森をPS1初期級の視覚密度へ強化 | `requirements/REQ-009_FIELD_FOREST_VISUAL_DENSITY.md` | 王都近郊→森入口→深部のA-C実装。Pages workflow run 33981010791全工程SUCCESS。Owner主観/iPhone見た目確認待ち |
+| 27 | REQ-010 | P2 | VERIFY | 建物内部と町コンテンツの追加拡張 | `requirements/REQ-010_BUILDING_INTERIOR_EXPANSION.md` | 南門宿・屋根裏談話室を追加。実entry/exit browser smokeを含むPages workflow run 33981620155 SUCCESS。Owner主観/iPhone見た目確認待ち |
 
 ## STATUS DEFINITIONS
 
