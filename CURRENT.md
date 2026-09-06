@@ -1,128 +1,89 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-06 16:20 JST
+- UPDATED_AT: 2026-09-06 16:36 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED`
-- WORK_MANAGER: `WORK_MANAGER.md`
-- WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `5523aee0b1307b8e22e40815b5fc0f1e2b00d25b`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `b91636a459333b361218cb33028d9906a76e7bff`
-- LATEST_REQUIREMENT_CHECKPOINT: `c1dba9d1c76f465ad354d681bc63fd0ba82982c1`
-- LATEST_QUEUE_CHECKPOINT: `5523aee0b1307b8e22e40815b5fc0f1e2b00d25b`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-073 AUTOMATED ACCEPTANCE SUCCESS`
-- LATEST_PAGES_RUN: `34018645505` / SUCCESS
+- FRESH_HEAD_BEFORE_THIS_AUTOSAVE: `6da96d5552427a6b24d005c11785e2b976533ec9`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `13967ce08f4e33d469606bcb92144e05ab23175b`
+- LATEST_REQUIREMENT_CHECKPOINT: `bef450cfb2d3d28db8c3c277ee82ee09c200548a`
+- LATEST_QUEUE_CHECKPOINT: `6da96d5552427a6b24d005c11785e2b976533ec9`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLISHED / REQ-077 AUTOMATED ACCEPTANCE SUCCESS`
+- LATEST_PAGES_RUN: `34019534573` / SUCCESS
 - BOOT_REALITY_AUDIT: `REPAIRED`
 - OWNER_PRIORITY_AUDIT: `PASS`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - EXECUTION_DEGRADATION_STATUS: `SELF_REPAIR ACTIVE / NO OWNER REMINDER REQUIRED`
-- PREEMPTED_REQUIREMENT: `NONE`
 - ACTIVE_REQUIREMENT_ID: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
 - ACTIVE_REQUIREMENT_PATH: `NONE_AT_THIS_AUTOSAVE_CHECKPOINT`
-- BLOCKED_REQUIREMENTS: `REQ-059` (generated raster image pipeline blocked only at generated-image byte/file/base64 handoff; GitHub binary transport proven; nonblocking)
-- BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` (formal Leon/Glen art identity/assets; do not fabricate)
+- BLOCKED_REQUIREMENTS: `REQ-059` only; generated-raster pipeline is blocked at generated-image byte/file/base64 handoff, while GitHub binary-safe transport itself is proven. NONBLOCKING.
+- BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art; do not fabricate while REQ-059 handoff remains unresolved.
 - SUPERSEDED_REQUIREMENTS: `REQ-035`
-- DONE_REQUIREMENTS: `REQ-034` among current P0 physical defect work; see queue for historical state
-- VERIFY_REQUIREMENTS: see fresh `WORK_QUEUE.md`; latest autonomous work is synchronized through `REQ-073`
-- NEXT_ACTION: fresh-audit the next non-duplicate player-visible final-game capability or concrete consistency/data-safety gap; register and execute under WIP=1, publish, synchronize, then continue
-- NEXT_ACTION_COMPLETION_CONDITION: implementation + targeted fail-closed regression + assembled browser PASS + 390x844 touch/world visual-liveness PASS + Pages SUCCESS + queue/current synchronization; physical/subjective iPhone checks remain PENDING unless Owner explicitly confirms them
+- VERIFY_REQUIREMENTS: fresh `WORK_QUEUE.md` is synchronized through `REQ-077`.
+- NEXT_ACTION: fresh-audit another concrete player-visible/final-game consistency or data-safety gap, avoid duplicates, register under WIP=1, implement, test, publish, synchronize, then continue.
+- NEXT_ACTION_COMPLETION_CONDITION: targeted fail-closed regression + assembled browser PASS + 390x844 touch/fullscreen visual-liveness PASS + Pages SUCCESS + durable requirement/queue/current evidence; physical iPhone checks remain PENDING unless Owner explicitly confirms.
 
 ## OWNER-CONFIRMED P0 REALITY
 
-- REQ-034 remains `DONE / IOS_PHYSICAL_VERIFICATION=PASS` after Owner physical-iPhone confirmation `うん、直った`.
-- REQ-021 tap-anywhere Action remains `VERIFY`; automated public-build regression passes but no false physical PASS is claimed.
-- REQ-022 iPhone fullscreen world UI remains `VERIFY`; automated 390x844 world-geometry/visual-liveness gate passes.
-- REQ-001 Dynamic Touch Controller remains `VERIFY`; integrated floating-touch movement/stop regression passes.
-- REQ-023 north-route guidance remains `VERIFY`; implementation/public Pages are complete, physical route feel remains PENDING.
+- REQ-034: `DONE / IOS_PHYSICAL_VERIFICATION=PASS` after Owner physical confirmation `うん、直った`.
+- REQ-021 tap-anywhere Action: `VERIFY`, automated public-build regression PASS, physical iPhone confirmation not claimed.
+- REQ-022 iPhone fullscreen world UI: `VERIFY`, automated 390x844 world geometry/visual-liveness PASS.
+- REQ-001 Dynamic Touch Controller: `VERIFY`, integrated floating-touch movement/stop regression PASS.
+- REQ-023 north-route guidance: `VERIFY`, public Pages implementation complete, physical route feel PENDING.
 
 ## REQ-059 — AUTONOMOUS GENERATED RASTER IMAGE PIPELINE
 
 - STATUS: `BLOCKED` / RESULT=`PARTIAL / BLOCKED_AT_GENERATED_BYTE_HANDOFF`.
-- GitHub binary-safe blob/image transport is proven, including committed binary probe `assets/images/transport-capability-probe-REQ-059.png`.
-- The remaining missing capability is a chainable runtime handoff from generated image output to bytes/file/base64 inside this autonomous execution environment.
-- This is explicitly a single nonblocking blocker. Do not stop independent development because of it.
-- Do not claim SVG fallback as proof of generated-raster completion.
+- GitHub binary-safe image transport is proven, including `assets/images/transport-capability-probe-REQ-059.png`.
+- Remaining missing capability: chainable generated-image output → bytes/file/base64 inside autonomous runtime.
+- This single blocker must not stop independent development. SVG is not acceptable proof of generated-raster completion.
 
-## REQ-060 THROUGH REQ-065 — CROSS-BROWSER SAVE FOUNDATION
+## RECENT SAVE / RECOVERY FOUNDATION
 
-- REQ-060: portable SAVE CODE export/import; fresh browser title import; Unicode/state round-trip and fail-closed validation. Pages `34015168161` SUCCESS.
-- REQ-061: fresh/default/title bootstrap no longer creates false CONTINUE; real resumable/imported progress still does. Pages `34015384336` SUCCESS.
-- REQ-062: importing into existing resumable progress requires explicit two-step overwrite confirmation. Pages `34015640423` SUCCESS.
-- REQ-063: malformed/primitive autosaves are quarantined before bootstrap; dangerous keys sanitized before merge. Pages `34016458577` SUCCESS.
-- REQ-064: existing SAVE CODE can be carried as `.lqsave.txt`; load goes through existing textarea/import authority and preserves overwrite guard. Pages `34016621862` SUCCESS.
-- REQ-065: quarantined raw autosave can be visibly recovered/downloaded from title without deleting the only preserved corrupt payload. Pages `34016802177` SUCCESS.
+- REQ-060 SAVE CODE cross-browser transfer: Pages `34015168161` SUCCESS.
+- REQ-061 fresh-browser false Continue fix: `34015384336` SUCCESS.
+- REQ-062 existing-progress import overwrite guard: `34015640423` SUCCESS.
+- REQ-063 corrupt autosave quarantine/sanitization: `34016458577` SUCCESS.
+- REQ-064 `.lqsave.txt` transfer: `34016621862` SUCCESS.
+- REQ-065 quarantine recovery UI: `34016802177` SUCCESS.
+- REQ-067 native save share: `34017657791` SUCCESS.
+- REQ-068 import preview: `34017799386` SUCCESS.
+- REQ-069 NEW GAME overwrite guard: `34017974207` SUCCESS.
+- REQ-070 manual backup overwrite/delete guard: `34018181780` SUCCESS.
+- REQ-071 preview canonical `gold` fix: `34018266479` SUCCESS.
 
-## REQ-066 — INN GUEST BED RECOVERY
+## RECENT GAMEPLAY / CONSISTENCY CHECKPOINTS
 
-- STATUS: `VERIFY`.
-- Existing South Gate Inn guest bed performs repeatable canonical HP/MP recovery while preserving economy/inventory/equipment/unrelated flags and cleaning battle-only poison.
-- Pages `34017022991` SUCCESS.
+- REQ-072 accessory sale foundation: unequipped-owned traveler charm only, Pages `34018553794` SUCCESS.
+- REQ-073 optional boss completion record coverage: Forest Lord defeat now appears in OPTIONAL DONE and COMPLETED; Pages `34018645505` SUCCESS.
+- REQ-074 optional boss ADVENTURE JOURNAL tracking: no pre-discovery spoiler; warned state guides repeat hoofprint investigation; defeated state becomes completed row; Pages `34019148578` SUCCESS.
+- REQ-075 optional boss world SIDE chip tracking: same spoiler-safe discovered objective available during world play, preserving previous optional-objective precedence; Pages `34019286555` SUCCESS.
+- REQ-076 optional boss autosave feedback coverage: `forestMiniBossDefeated` added to durable progress signature; warning-only discovery excluded. Implementation self-audit caught and repaired an unrelated CSS drift before acceptance. Pages `34019432206` SUCCESS.
+- REQ-077 Forest Lord key-item visibility guard: unrelated non-empty `keyItems` can no longer leave `森王の角` falsely visible; exact ownership is required. Pages `34019534573` SUCCESS.
 
-## REQ-067 — NATIVE SAVE SHARE
+## SELF-REPAIR THIS EXECUTION
 
-- STATUS: `VERIFY`.
-- World/pause SAVE TRANSFER can share the existing REQ-064 `.lqsave.txt` through native Web Share when file sharing is explicitly supported.
-- Unsupported/native-share failure falls back to existing download; `AbortError` is harmless cancellation.
-- Uses existing transfer payload/naming authority and does not mutate canonical save/state.
-- Pages `34017657791` SUCCESS. `IOS_PHYSICAL_VERIFICATION=PENDING`.
+1. Boot found CURRENT/QUEUE stale behind fresh HEAD through REQ-073. Recovered committed reality without repeating implementation.
+2. REQ-073 was advanced from stale IN_PROGRESS to VERIFY using fresh commit and Pages evidence.
+3. WORK_QUEUE and CURRENT were synchronized through recovered work.
+4. Continued autonomously through REQ-074..077 instead of stopping at a successful checkpoint.
+5. During REQ-076, self-audit detected accidental unrelated autosave-pulse CSS drift introduced by the implementation patch; restored the original animation/green-dot presentation immediately, then reran assembled/iPhone regressions and Pages successfully.
+6. WORK_QUEUE is now synchronized through REQ-077. REQ-059 remains the only generated-raster blocker and remains explicitly nonblocking.
 
-## REQ-068 — SAVE TRANSFER IMPORT PREVIEW
+## MANDATORY RECOVERY / CONTINUATION
 
-- STATUS: `VERIFY`.
-- Valid portable SAVE CODE shows a read-only `IMPORT PREVIEW` with LV/location/HP/MP/G before import.
-- Preview delegates to canonical REQ-060 `prepareImportedState()` validation and never mutates canonical state/localStorage.
-- Invalid codes fail closed; REQ-064 file load uses the same input event path.
-- Pages `34017799386` SUCCESS. `IOS_PHYSICAL_VERIFICATION=PENDING`.
-
-## REQ-069 — NEW GAME EXISTING-SAVE OVERWRITE GUARD
-
-- STATUS: `VERIFY`.
-- With resumable progress, first NEW GAME tap only arms a warning and preserves raw save bytes; second deliberate tap invokes canonical `newGame()`.
-- Pages `34017974207` SUCCESS. `IOS_PHYSICAL_VERIFICATION=PENDING`.
-
-## REQ-070 THROUGH REQ-073 — FRESH HEAD RECOVERY
-
-- REQ-070 `VERIFY`: manual backup occupied-slot overwrite and delete now require deliberate two-step confirmation while first tap preserves exact raw bytes. Pages `34018181780` SUCCESS.
-- REQ-071 `VERIFY`: SAVE TRANSFER preview now uses canonical `gold` first and treats legacy `g` only as fallback; adversarial test proves canonical gold wins. Pages `34018266479` SUCCESS.
-- REQ-072 `VERIFY`: existing accessory lifecycle now supports 30G sale only while owned and unequipped, preserving canonical REQ-058 ownership/equip authority and other player state. Pages `34018553794` SUCCESS.
-- REQ-073 `VERIFY`: optional boss `苔角の森王` defeat now appears in ADVENTURE RECORD OPTIONAL DONE and COMPLETED. Existing REQ-041 smoke was made forward-compatible rather than falsely requiring exactly three canonical completions. Pages `34018645505` SUCCESS at implementation HEAD `b91636a459333b361218cb33028d9906a76e7bff`.
-
-## SELF-REPAIR ACTIONS THIS EXECUTION
-
-1. Fresh boot found CURRENT stale at 16:03 while committed repository reality had advanced through REQ-073 at 16:15.
-2. Recovered REQ-070 through REQ-073 from requirement files, commits and workflow evidence instead of repeating implementation.
-3. REQ-073 had reached implementation + regression repair + successful Pages deployment but its requirement still said IN_PROGRESS and queue had no REQ-070..073 rows. Repaired the requirement to VERIFY and synchronized WORK_QUEUE through REQ-073.
-4. REQ-059 remains correctly P0/BLOCKED only at generated-image byte handoff; independent development continues as explicitly required.
-5. Fresh HEAD remains implementation truth over stale CURRENT projections.
-
-## MANDATORY BOOT / RECOVERY
-
-Every future execution must freshly obtain and apply repository metadata/default branch/HEAD, `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, active/re-audit requirements, relevant implementation and recent workflow/Pages reality. Fresh HEAD wins over stale metadata and committed work must not be repeated.
-
-## SELECTION / CONTINUATION RULE
-
-- WIP limit remains one `IN_PROGRESS` requirement.
-- Recover IN_PROGRESS first unless newer direct Owner P0/re-audit authority preempts it.
-- VERIFY does not block independent safe work.
-- A single BLOCKED requirement does not stop development.
-- REQ-004 and REQ-005 must not be fabricated while formal art identity/generated-raster handoff remains unresolved.
-- If only Owner-only art BACKLOG remains, deeply inventory actual code/history first, then register another directive-authorized player-visible missing final-game capability or concrete consistency repair that does not change protected canon.
-- A commit, REQ completion, queue/CURRENT update, Pages success or convenient checkpoint is not a stop condition.
-- Before any self-selected stop, run GATE C. If safe useful executable work remains, continue.
+Every future execution must fresh-load repo metadata/default branch/HEAD plus `AUTONOMOUS_DEV_DIRECTIVE.md`, `EXECUTION_SELF_AUDIT_GUARD.md`, `WORK_MANAGER.md`, `WORK_QUEUE.md`, `CURRENT.md`, active/re-audit requirements and relevant implementation/Pages evidence. Fresh HEAD wins over stale projections. WIP remains one IN_PROGRESS. VERIFY does not block work. A single BLOCKED item does not stop work. A commit, REQ completion, Pages SUCCESS, queue update or CURRENT autosave is not a stop condition. Before any self-selected stop run GATE C; if safe useful work remains, continue.
 
 ## DO_NOT_REPEAT
 
-- do not mark physical iPhone PASS from headless/browser CI
-- do not regress REQ-034 Owner-confirmed physical PASS back to PENDING
-- do not add duplicate systems when a canonical implementation already exists
-- do not weaken REQ-021 / REQ-022 / REQ-001 / REQ-023 while adding later capabilities
-- do not let corrupt canonical autosaves crash before recovery UI can load
-- do not delete the only quarantine copy of an unreadable autosave
-- do not bypass REQ-062 overwrite confirmation from file/native-share transfer
-- do not invent a second transfer/save schema where REQ-060 authority already exists
-- do not let accidental NEW GAME delete resumable progress without deliberate confirmation
-- do not fabricate Leon/Glen formal art while REQ-059 generated-raster byte handoff remains blocked
-- do not use CURRENT as implementation truth when fresh HEAD differs
+- no physical-iPhone PASS from headless/browser CI
+- never regress REQ-034 Owner-confirmed physical PASS
+- no duplicate systems without fresh inventory
+- do not weaken REQ-021/022/001/023 while adding later capabilities
+- do not bypass REQ-062 overwrite confirmation from transfer paths
+- do not delete quarantined unreadable autosave evidence
+- do not fabricate Leon/Glen formal art while REQ-059 generated-raster handoff is blocked
+- do not trust stale CURRENT over fresh HEAD
 - do not self-terminate while safe executable work remains
