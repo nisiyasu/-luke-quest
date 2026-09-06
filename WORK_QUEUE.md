@@ -76,6 +76,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 63 | REQ-064 | P1 | VERIFY | Save Transfer File Export / Import | `requirements/REQ-064_SAVE_TRANSFER_FILE_EXPORT_IMPORT.md` | existing REQ-060 SAVE CODEを`.lqsave.txt`で持ち運ぶfile pathを追加。file loadは既存textarea+IMPORT経由でREQ-062上書きguardを維持。malformed/empty/oversize fail-closed。Pages run 34016621862 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 64 | REQ-065 | P1 | VERIFY | Autosave Quarantine Recovery UI | `requirements/REQ-065_AUTOSAVE_QUARANTINE_RECOVERY_UI.md` | REQ-063で隔離された壊れたautosaveをtitleで可視化し、raw/reason/timestampをDOWNLOAD可能。dismissは隔離データを削除しない。Pages run 34016802177 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 65 | REQ-066 | P1 | VERIFY | Inn Guest Bed Recovery | `requirements/REQ-066_INN_GUEST_BED_RECOVERY.md` | 既存の南門宿・客室ベッドをrepeatable HP/MP全回復へ接続。canonical Action/saveを使用し、battle-only poison cleanup、state preservation、non-bed flavor回帰を専用smokeで固定。Pages run 34017022991 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 66 | REQ-067 | P1 | VERIFY | Native Save Share | `requirements/REQ-067_NATIVE_SAVE_SHARE.md` | REQ-060/064の既存SAVE FILEをnative Web Shareへ接続。未対応/失敗時は既存downloadへfallback、AbortErrorは非破壊cancel。dedicated/assembled/390x844 + Pages run 34017657791 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
