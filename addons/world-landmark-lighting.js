@@ -34,7 +34,8 @@ const LIGHTS={
  northCliffRoad:[{x:15,y:12,type:'cliff'},{x:10,y:1,type:'cliff'}],
  windcutPass:[{x:15,y:13,type:'wind'},{x:10,y:1,type:'wind'}],
  northRidgeApproach:[{x:7,y:16,type:'cliff'},{x:10,y:1,type:'wind'}],
- windShelf:[{x:8,y:16,type:'cliff'},{x:15,y:13,type:'wind'},{x:10,y:1,type:'wind'}]
+ windShelf:[{x:8,y:16,type:'cliff'},{x:15,y:13,type:'wind'},{x:10,y:1,type:'wind'}],
+ skylineTraverse:[{x:9,y:16,type:'cliff'},{x:15,y:12,type:'wind'},{x:10,y:1,type:'wind'}]
 };
 
 function specsFor(mapId){return Array.isArray(LIGHTS[mapId])?LIGHTS[mapId]:[];}
@@ -74,6 +75,8 @@ window.LQ_WORLD_LANDMARK_LIGHT_STATUS={
  northRidgeApproachStyles:['cliff','wind'],
  windShelfGlints:3,
  windShelfStyles:['cliff','wind','wind'],
+ skylineTraverseGlints:3,
+ skylineTraverseStyles:['cliff','wind','wind'],
  presentationOnly:true,
  pointerSafe:true,
  hasMap,
