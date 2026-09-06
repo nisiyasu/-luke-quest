@@ -1,6 +1,6 @@
 # REQ-108 — 北尾根・雲上の鞍部 実プレイ継続
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYABLE CONTENT / FIRST-CHAPTER ROUTE CONTINUATION / CROSS-SYSTEM INTEGRATION
 OWNER_REQUEST: DIRECTIVE_AUTHORIZED
@@ -11,7 +11,7 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## 1. FRESH PROBLEM EVIDENCE
 
-Fresh HEAD `4dad48ba478f8f2a1ff17f57bc099148e3afffd7` confirms `skylineTraverse` / 「北尾根・雲裂きの稜線」 is public and playable, but its north-end canonical landmark `(10,1)` is again a dialogue-only endpoint. The player is explicitly told the trail bends higher, yet cannot continue walking.
+Fresh HEAD `4dad48ba478f8f2a1ff17f57bc099148e3afffd7` confirmed `skylineTraverse` / 「北尾根・雲裂きの稜線」 was public and playable, but its north-end canonical landmark `(10,1)` was a dialogue-only endpoint. The player was explicitly told the trail bends higher, yet could not continue walking.
 
 ## 2. PURPOSE
 
@@ -21,7 +21,7 @@ Canonical map id: `cloudbreakSaddle`
 
 Player-visible name: `北尾根・雲上の鞍部`
 
-The area should feel like a brief wind-sheltered saddle between exposed ridges, giving the pursuit route a distinct rhythm rather than a copy-paste straight climb.
+The area is a brief wind-sheltered saddle between exposed ridges, giving the pursuit route a distinct rhythm rather than a copy-paste straight climb.
 
 ## 3. PROTECTED CANON / BALANCE
 
@@ -41,13 +41,13 @@ Do NOT:
 - Existing `skylineTraverse` north boundary `(10,1)` canonical Action enters `cloudbreakSaddle`.
 - Safe entry spawn, north-facing, immediately walkable.
 - Safe south return to `skylineTraverse`.
-- At least four canonical interactables:
+- Four canonical interactables:
   1. near-entry fresh scuff / footprint clue
   2. wind-sheltered stone hollow / safety landmark
   3. distant north observation point
   4. north-end continuation landmark
 - No new required story flag.
-- Generic persistence must round-trip `map === 'cloudbreakSaddle'`.
+- Generic persistence round-trips `map === 'cloudbreakSaddle'`.
 
 ## 5. GUIDANCE
 
@@ -59,14 +59,14 @@ Do NOT:
 
 ## 6. GAMEPLAY
 
-- Reuse canonical random encounter authority.
-- Reuse exact `EVAC_ENEMIES`.
-- Give entry/return encounter grace consistent with adjacent northern route maps.
-- Do not clone battle logic.
+- Reuses canonical random encounter authority.
+- Reuses exact `EVAC_ENEMIES`.
+- Entry/return encounter grace is consistent with adjacent northern route maps.
+- Battle logic is not cloned.
 
 ## 7. CROSS-SYSTEM INTEGRATION
 
-Before VERIFY integrate `cloudbreakSaddle` into:
+`cloudbreakSaddle` is integrated into:
 
 1. regional battle background
 2. area-title subtitle
@@ -76,11 +76,11 @@ Before VERIFY integrate `cloudbreakSaddle` into:
 6. Adventure Journal location-aware MAIN OBJECTIVE
 7. landmark-lighting / route-readability layer
 
-Preserve existing map coverage and unknown-map fallbacks.
+Existing map coverage and unknown-map fallbacks are preserved.
 
 ## 8. INPUT / IPHONE SAFETY
 
-Protect REQ-021 / REQ-022 / REQ-001 and visibility hardening:
+REQ-021 / REQ-022 / REQ-001 and visibility hardening remain protected:
 
 - no new world pointer authority
 - short dead-zone tap -> canonical Action exactly once
@@ -93,11 +93,11 @@ Protect REQ-021 / REQ-022 / REQ-001 and visibility hardening:
 
 ## 9. FORWARD COMPATIBILITY
 
-REQ-107 acceptance must remain valid when the historical Skyline north-boundary dialogue becomes a legitimate transition to `cloudbreakSaddle`. It must continue proving that the canonical north interaction fired while allowing the new transition.
+REQ-107 acceptance was updated so the historical Skyline north-boundary canonical interaction is still proven while the valid `cloudbreakSaddle` transition is allowed. No old interaction, return, encounter, save or cross-system assertion was removed.
 
 ## 10. FAIL-CLOSED ACCEPTANCE
 
-Late assembled-browser acceptance must verify at minimum:
+Late assembled-browser acceptance verifies:
 
 - map shape/name/dimensions
 - four required interactables and coordinates
@@ -116,27 +116,25 @@ Late assembled-browser acceptance must verify at minimum:
 - save round-trip
 - test teardown restores state/localStorage
 
-Broken REQ-108 must emit the existing fatal North-route browser failure marker before Pages upload/deploy.
+Broken REQ-108 emits the existing fatal North-route browser failure marker before Pages upload/deploy.
 
-## 11. PUBLIC COMPLETION GATE
+## 11. IMPLEMENTATION / VERIFICATION
 
-Before VERIFY:
-
-- JavaScript syntax PASS
-- static regression PASS
-- add-on contract PASS
-- dedicated REQ-108 acceptance PASS
-- assembled browser PASS
-- 390x844 touch/fullscreen PASS
-- visibilitychange regression PASS
-- existing North-route regressions PASS
-- Pages workflow SUCCESS on complete implementation HEAD
-- public build inclusion PASS
+- `addons/zzz-cloudbreak-saddle.js` implements `cloudbreakSaddle` / 「北尾根・雲上の鞍部」 as a 22x20 walkable map beyond Skyline Traverse.
+- Entry spawn `(10,18)` is immediately walkable and the south gate returns safely to Skyline `(10,2)`.
+- Canonical interactables: `lqCloudbreakScuff`, `lqCloudbreakHollow`, `lqCloudbreakView`, `lqCloudbreakBoundary`.
+- Runtime-only local guidance changes from the fresh scuff clue to the north stone-step continuation.
+- `EVAC_ENEMIES` and canonical encounter authority are reused.
+- Area title, fog ambient, mist cloud classification, mist footsteps, location-aware Adventure Journal objective, three landmark glints, and original-vector battle background are integrated.
+- REQ-107 north-boundary acceptance was forward-compatible hardened at checkpoint `df23f3e47008da626b25a5228b1ec348cbb47e90`.
+- Complete implementation + fail-closed acceptance HEAD: `3428c4aa83c0d7afc322f08269ef520bc49f5f91`.
+- GitHub Pages workflow run `34046230845`: SUCCESS. JavaScript/static/add-on contract, assembled browser, 390x844 touch/fullscreen, existing North-route regressions, REQ-107 compatibility, REQ-108 acceptance, upload and Pages deploy all passed.
+- Owner iPhone physical verification remains PENDING.
 
 ## 12. COMPLETION STATE
 
-IMPLEMENTATION_COMPLETE: NO
-PAGES_VERIFIED: NO
+IMPLEMENTATION_COMPLETE: YES
+PAGES_VERIFIED: YES
 IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## 13. NO-STOP
