@@ -62,6 +62,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 50 | REQ-050 | P1 | VERIFY | Manual Backup Dangerous-Key Sanitization | `requirements/REQ-050_MANUAL_BACKUP_DANGEROUS_KEY_SANITIZATION.md` | `__proto__` / `constructor` / `prototype` をstate+flags merge前に除外。REQ-049 contract保持。dedicated smoke + Pages run 34011382155 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 51 | REQ-051 | P1 | VERIFY | Manual Backup Numeric Type Hardening | `requirements/REQ-051_MANUAL_BACKUP_NUMERIC_TYPE_HARDENING.md` | runtime DEFAULT由来のcanonical numeric fieldsをdynamic type-normalize。REQ-049/050 contract保持。dedicated smoke + Pages run 34011542116 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 | 52 | REQ-052 | P1 | VERIFY | Readable Normal Enemy Behavior | `requirements/REQ-052_NORMAL_ENEMY_READABLE_BEHAVIOR.md` | 通常敵へPRESSURE/BURST/STEADYのreadable intentを追加。canonical enemyTurn/guard/poison chainと既存boss AIを保持。dedicated smoke + Pages run 34011798629 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 53 | REQ-053 | P1 | VERIFY | Recovery Magic Foundation | `requirements/REQ-053_RECOVERY_MAGIC_FOUNDATION.md` | MP回復魔法「癒光」5MPを追加。full HP/MP不足時はno-cost/no-turn、毒治療は薬草へ分離、canonical enemyTurn維持。dedicated smoke + Pages run 34011930589 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
+| 54 | REQ-054 | P1 | VERIFY | 王都アルディア・北の神殿内部 | `requirements/REQ-054_ALDIA_NORTH_TEMPLE_INTERIOR.md` | canonical神殿設定をwalkable interior化。正門/侍祭/祈祷水晶/奉納棚/安全退出、報酬・回復・protected canon変更なし。dedicated smoke + Pages run 34012131433 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING |
 
 ## STATUS DEFINITIONS
 
