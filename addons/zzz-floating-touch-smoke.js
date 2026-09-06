@@ -34,6 +34,7 @@ setTimeout(()=>{
   let visible=false,visualContract=false,deadZone=false,rightActive=false,movedRight=false,upActive=false,releasedHidden=false,stoppedAfterRelease=false,fallbackCleared=false;
   let tapAction=false,dialogClose=false,dialogPadHidden=false,dialogDragBlocked=false,dialogDragNoAction=false,dragNoAction=false,cancelNoAction=false,singleFire=false;
   let uiExcluded=false,blurStops=false,rerenderHoldSafe=false,mapTransitionStops=false;
+  let dialogueStartStopsPending=false,dialogueStartMoveBlocked=false,dialogueStartNoAction=false;
   action=function(){actionCalls++;return originalAction.apply(this,arguments);};
   try{
     stopMoving();
@@ -111,6 +112,21 @@ setTimeout(()=>{
           uiExcluded=!pad.classList.contains('visible');
           pointer('pointerup',window,705,er.left+5,er.top+5);
 
+          // A dialogue that begins after pointerdown but before movement must revoke
+          // the pending gesture. Subsequent move/release cannot walk or Action it away.
+          s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;render();
+          shell=document.querySelector('.gameShell');p=pointInShell(shell);
+          const midDialogX=s.x,midDialogY=s.y;
+          pointer('pointerdown',shell,709,p.x,p.y);
+          s.dialog={name:'SYSTEM',text:'dialogue-start touch cleanup probe'};
+          render();
+          dialogueStartStopsPending=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
+          pointer('pointermove',window,709,p.x+70,p.y);
+          pointer('pointerup',window,709,p.x+70,p.y);
+          dialogueStartMoveBlocked=s.x===midDialogX&&s.y===midDialogY;
+          dialogueStartNoAction=actionCalls===2&&!!s.dialog;
+          s.dialog=null;render();
+
           // Ordinary render during a held direction must not orphan the pointer/timer.
           s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;render();
           shell=document.querySelector('.gameShell');p=pointInShell(shell);
@@ -138,12 +154,12 @@ setTimeout(()=>{
           pointer('pointerup',window,708,p.x+65,p.y);
 
           singleFire=tapAction&&dialogPadHidden&&dialogDragBlocked&&dialogDragNoAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
-          const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&blurStops&&rerenderHoldSafe&&mapTransitionStops;
+          const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&dialogueStartStopsPending&&dialogueStartMoveBlocked&&dialogueStartNoAction&&blurStops&&rerenderHoldSafe&&mapTransitionStops;
           if(!allPass)failure('REQ-001/021 assertion false');
 
           action=originalAction;
           Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-          marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,blurStops,rerenderHoldSafe,mapTransitionStops});
+          marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops});
         },280);
       },170);
     },300);
@@ -152,7 +168,7 @@ setTimeout(()=>{
     failure(err&&err.message);
     action=originalAction;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,blurStops,rerenderHoldSafe,mapTransitionStops,error:true});
+    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,error:true});
   }
 },350);
 })();
