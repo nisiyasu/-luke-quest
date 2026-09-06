@@ -1,0 +1,48 @@
+name: REQ-127 authority normalize
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req127-authority-normalize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Normalize REQ-127 queue authority
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('WORK_QUEUE.md')
+          t=p.read_text()
+          old='requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md'
+          new='requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md'
+          if old in t:
+              t=t.replace(old,new)
+          p.write_text(t)
+          dup=Path('requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md')
+          if dup.exists():
+              dup.unlink()
+          PY
+      - name: Verify single authority and commit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('WORK_QUEUE.md').read_text()
+          assert 'requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md' in t
+          assert 'requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md' not in t
+          assert Path('requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md').exists()
+          assert not Path('requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md').exists()
+          PY
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'REQ-127 normalize black-screen recovery authority'
+          git push origin HEAD:main
