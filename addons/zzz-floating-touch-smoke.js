@@ -31,7 +31,7 @@ setTimeout(()=>{
   const snapshot=structuredClone(s);
   const originalAction=action;
   let actionCalls=0;
-  let visible=false,deadZone=false,rightActive=false,movedRight=false,upActive=false,releasedHidden=false,stoppedAfterRelease=false,fallbackCleared=false;
+  let visible=false,visualContract=false,deadZone=false,rightActive=false,movedRight=false,upActive=false,releasedHidden=false,stoppedAfterRelease=false,fallbackCleared=false;
   let tapAction=false,dialogClose=false,dialogPadHidden=false,dialogDragBlocked=false,dialogDragNoAction=false,dragNoAction=false,cancelNoAction=false,singleFire=false;
   action=function(){actionCalls++;return originalAction.apply(this,arguments);};
   try{
@@ -77,6 +77,9 @@ setTimeout(()=>{
 
     pointer('pointerdown',shell,702,ox,oy);
     visible=pad.classList.contains('visible');
+    const padStyle=getComputedStyle(pad);
+    const arrowStyle=getComputedStyle(pad.querySelector('.lqFloatArrow.right'));
+    visualContract=pad.dataset.lqControllerVersion==='1.5'&&parseFloat(padStyle.width)>=160&&parseFloat(padStyle.height)>=160&&parseFloat(arrowStyle.width)>=50&&parseFloat(arrowStyle.borderWidth)>=2&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualContrastHardened===true;
     pointer('pointermove',window,702,ox+7,oy+5);
     deadZone=!pad.querySelector('.lqFloatArrow.active')&&s.x===startX&&s.y===startY;
 
@@ -102,12 +105,12 @@ setTimeout(()=>{
           pointer('pointercancel',window,703,p.x,p.y);
           cancelNoAction=actionCalls===2&&!pad.classList.contains('visible');
           singleFire=tapAction&&dialogPadHidden&&dialogDragBlocked&&dialogDragNoAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
-          const allPass=visible&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire;
+          const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire;
           if(!allPass)failure('REQ-001/021 assertion false');
 
           action=originalAction;
           Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-          marker({visible,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire});
+          marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire});
         },280);
       },170);
     },300);
@@ -116,7 +119,7 @@ setTimeout(()=>{
     failure(err&&err.message);
     action=originalAction;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-    marker({visible,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,error:true});
+    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,error:true});
   }
 },350);
 })();
