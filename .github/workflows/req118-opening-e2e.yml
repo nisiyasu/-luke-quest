@@ -1,0 +1,64 @@
+name: REQ-118 Opening A-H Integration Gate
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req118-opening-e2e"
+  cancel-in-progress: true
+
+jobs:
+  opening-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and addon contract
+        run: |
+          node --check addons/zzzzzzzzzzzz-req118-opening-ab.js
+          node --check addons/zzzzzzzzzzzzz-req118-opening-c.js
+          node --check addons/zzzzzzzzzzzzzz-req118-opening-de.js
+          node --check addons/zzzzzzzzzzzzzzz-req118-opening-fg.js
+          node --check addons/zzzzzzzzzzzzzzzz-req118-opening-h.js
+          node --check addons/zzzzzzzzzzzzzzzzz-req118-opening-e2e-smoke.js
+          node tools/lq-addon-contract.mjs
+      - name: Assemble exact public script order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html');html=p.read_text();marker='<div id="app"></div><script>';guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          cp index.html req118-e2e.html
+      - name: Run 390x844 A-H integration acceptance
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
+          python3 -m http.server 8156 >/tmp/req118-e2e-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
+          set +e
+          timeout 55 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=19000 --dump-dom 'http://127.0.0.1:8156/req118-e2e.html?lqReq118E2E=1' >/tmp/req118-e2e-dom.html 2>/tmp/req118-e2e-browser.log
+          code=$?; set -e; test -s /tmp/req118-e2e-dom.html
+          for needle in 'id="lqReq118E2EMarker"' 'data-status="PASS"' 'data-a-through-h="true"' 'data-no-reward-leak="true"' 'data-hero-confirmed="false"' 'data-chapter-one-handoff="true"' 'data-advanced-save-bypass="true"' 'data-tap-protected="true"' 'data-fullscreen-protected="true"'; do
+            grep -q "$needle" /tmp/req118-e2e-dom.html || { echo "REQ-118 E2E missing: $needle"; grep -o 'lqReq118[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req118-e2e-dom.html | tail -160 || true; cat /tmp/req118-e2e-browser.log || true; exit 1; }
+          done
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req118-e2e-browser.log; then cat /tmp/req118-e2e-browser.log; exit 1; fi
+          echo "REQ-118 A-H integration PASS (browser status $code)"
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req118-e2e-${{ github.sha }}
+          path: |
+            /tmp/req118-e2e-*.html
+            /tmp/req118-e2e-*.log
+          retention-days: 7
+          if-no-files-found: warn
