@@ -109,8 +109,29 @@ jobs:
           fi
           echo 'REQ-127 clean world-state + runtime-diagnostics preflight PASS before pixel analysis'
 
-      - name: Analyze rendered world pixels for black-screen regression
+      - name: Analyze Chromium rendered world pixels
         run: python3 tools/lq-png-black-check.py /tmp/lq-world-390x844.png | tee /tmp/lq-render-metrics.txt
+
+      - name: Install Playwright WebKit diagnostic engine
+        shell: bash
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps webkit
+
+      - name: Capture proven WebKit iPhone-sized world screenshot
+        shell: bash
+        run: |
+          python3 -m http.server 8131 >/tmp/lq-webkit-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          LQ_RENDER_URL='http://127.0.0.1:8131/?lqReq127RenderSmoke=1' \
+            node tools/lq-webkit-render-check.mjs 2>&1 | tee /tmp/lq-webkit.log
+          test -s /tmp/lq-world-webkit-390x844.png
+          test -s /tmp/lq-webkit-diagnostics.json
+
+      - name: Analyze WebKit rendered world pixels
+        run: python3 tools/lq-png-black-check.py /tmp/lq-world-webkit-390x844.png | tee /tmp/lq-webkit-render-metrics.txt
 
       - name: Upload render evidence
         if: always()
@@ -123,5 +144,10 @@ jobs:
             /tmp/lq-render-dom.html
             /tmp/lq-render-chrome.log
             /tmp/lq-render-http.log
+            /tmp/lq-world-webkit-390x844.png
+            /tmp/lq-webkit-render-metrics.txt
+            /tmp/lq-webkit-diagnostics.json
+            /tmp/lq-webkit.log
+            /tmp/lq-webkit-http.log
           if-no-files-found: warn
           retention-days: 14
