@@ -1,7 +1,7 @@
 # REQ-132 — Chapter 1 Complete Route Guidance Closure
 
 PRIORITY: P1
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 OWNER_SOURCE: Autonomous fresh-code audit under continuous development directive.
 
 ## Problem
@@ -31,3 +31,13 @@ This creates player-visible stale pursuit guidance after Chapter 1 has already e
 - Equivalent pre-completion cases still produce their existing guidance.
 - Pages workflow succeeds and includes the modified modules.
 - WORK_QUEUE.md / CURRENT.md are synchronized after machine/public completion.
+
+## Verification checkpoint — 2026-09-07
+- Final regression checkpoint: `e4c7585fae8036678d8673973614dda2ae135533`.
+- northCliff and windcut smoke coverage proves terminal suppression plus pre-completion restoration.
+- Standard Pages run `34100979461`: SUCCESS.
+- Render Liveness run `34100979510`: SUCCESS.
+- REQ-121 progression regression run `34100979538`: SUCCESS.
+- REQ-128 Chapter 1 climax regression run `34100979558`: SUCCESS.
+- Cache-busted public recovery/deploy run `34101080278`: SUCCESS.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
