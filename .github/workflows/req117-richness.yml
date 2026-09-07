@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Syntax and addon contract
         run: |
-          node --check addons/zzzz-world-character-richness.js
+          node --check addons/world-character-grounding.js
           node --check addons/zzzzz-req117-richness-checkpoint-a-smoke.js
           node tools/lq-addon-contract.mjs
       - name: Assemble public Pages script order
@@ -51,7 +51,7 @@ jobs:
           status=$?
           set -e
           test -s /tmp/req117-dom.html
-          for needle in 'id="lqReq117CheckpointAMarker"' 'data-status="PASS"' 'data-pointer-safe="true"' 'data-rerender-stable="true"' 'data-state-preserved="true"' 'data-save-preserved="true"' 'data-checkpoint="A"'; do
+          for needle in 'id="lqReq117CheckpointAMarker"' 'data-status="PASS"' 'data-pointer-safe="true"' 'data-rerender-stable="true"' 'data-state-preserved="true"' 'data-save-preserved="true"' 'data-checkpoint="A"' 'data-authority="canonical-grounding"'; do
             if ! grep -q "$needle" /tmp/req117-dom.html; then
               echo "REQ-117 acceptance missing: $needle"
               grep -o 'lqReq117CheckpointAMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req117-dom.html | tail -80 || true
@@ -62,7 +62,7 @@ jobs:
           if grep -q 'data-status="FAIL"' /tmp/req117-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req117-browser.log; then
             echo 'REQ-117 runtime failure'; cat /tmp/req117-browser.log; exit 1
           fi
-          echo "REQ-117 Checkpoint A PASS (browser status $status)"
+          echo "REQ-117 Checkpoint A PASS on canonical world-character-grounding.js (browser status $status)"
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
