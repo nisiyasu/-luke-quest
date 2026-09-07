@@ -1,13 +1,13 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-08 04:43 JST
+- UPDATED_AT: 2026-09-08 06:25 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - LATEST_IMPLEMENTATION_COMMIT_SHA: `002cff2c10b8d5e8abb18d4eda240b112e17641b`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN MACHINE RE-AUDIT GREEN at implementation 002cff2... + regression checkpoint 2028c54...; Pages 34156443361 SUCCESS including unified touch/iPhone visual smoke and real deploy; Render 34156443365 SUCCESS including Chromium + WebKit iPhone-sized world render; REQ-121 34156443338 SUCCESS; REQ-128 34156443389 SUCCESS; IOS_PHYSICAL_VERIFICATION=PENDING`
+- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN MACHINE+PUBLIC RE-AUDIT GREEN at implementation 002cff2... + latest regression checkpoint 25b5d716...; Pages 34162942937 SUCCESS including assembled browser smoke, full A/MENU action-overlay exclusion coverage, iPhone world visual smoke and real deploy; Render 34162942772 SUCCESS including Chromium + WebKit iPhone-sized world render; REQ-023 34162942771 SUCCESS; REQ-121 34162942781 SUCCESS; REQ-128 34162942780 SUCCESS; IOS_PHYSICAL_VERIFICATION=PENDING`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -18,18 +18,18 @@
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
 - QUEUE_PROJECTION_STATUS: `No ordinary IN_PROGRESS or READY row. REQ-021/022/001/023 remain VERIFY under latest Owner P0 re-audit authority; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
-- RECENT_CHECKPOINTS: `002cff2... allows native pan-y in already-open dialogue while preserving canonical short-tap Action and blocking world movement; 2028c54... proves dialogue swipe is native/no-move/no-Action; 302f4c1... + 993cd21... add pagehide/BFCache cleanup; ba2d57... + 1c4c718... harden visualViewport offset/scroll clamping.`
-- TESTS_AND_VERIFICATION: `Pages 34156443361 SUCCESS including browser assembled game, floating touch + iPhone world visual smoke, route regressions, upload and real Pages deploy; Render Liveness 34156443365 SUCCESS including Chromium + WebKit iPhone-sized world rendering; REQ-121 progression gate 34156443338 SUCCESS; REQ-128 Chapter 1 climax 34156443389 SUCCESS.`
-- KNOWN_ISSUES: `No confirmed machine regression at 002cff2/2028c54. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
+- RECENT_CHECKPOINTS: `25b5d716... extends the inert P0 touch probe to prove every rendered A/MENU actionPad button is excluded from world pointer ownership; 14f8f7d6... serializes extended P0 smoke after the primary touch smoke; f93d1b55... actively proves window resize/orientation hard-stop boundaries; 002cff2... remains the latest production implementation checkpoint for dialogue-native pan-y arbitration.`
+- TESTS_AND_VERIFICATION: `Pages 34162942937 SUCCESS including browser assembled game, floating touch + iPhone world visual smoke, full A/MENU action-overlay exclusion proof, route regressions, upload and real Pages deploy; Render Liveness 34162942772 SUCCESS including Chromium + WebKit iPhone-sized world rendering; REQ-023 evacuation guidance 34162942771 SUCCESS; REQ-121 progression gate 34162942781 SUCCESS; REQ-128 Chapter 1 climax 34162942780 SUCCESS.`
+- KNOWN_ISSUES: `No confirmed machine regression at production 002cff2... with regression checkpoint 25b5d716.... iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
 - BLOCKERS: `No machine-side blocker for current P0 re-audit. REQ-059 and Chapter 2 Story Canon work remain separately BLOCKED per WORK_QUEUE.`
 - NEXT_ACTION: `Continue highest-value safe player-visible P0 audit from fresh HEAD; repair only fresh evidence-backed defects without inventing Chapter 2 or formal Owner-art decisions.`
 - NEXT_ACTION_COMPLETION_CONDITION: `Any newly discovered P0 defect is reproduced, repaired, machine-tested and publicly included; otherwise preserve the green P0 baseline and IOS physical verification PENDING.`
-- DO_NOT_REPEAT: `Do not block native vertical scrolling inside an already-open overflow dialogue by applying shell touch-action:none plus preventDefault to every dialogue swipe. Preserve short tap -> canonical Action, but route dialogue swipe -> native pan-y with no world movement/no Action. Do not clamp Dynamic Touch from visualViewport width/height alone: preserve offsetLeft/offsetTop and re-clamp on visualViewport scroll without cancelling a valid held drag. Do not treat every visualViewport.resize as a movement-cancel boundary. Do not leave held movement ownership alive across pagehide/BFCache navigation. Do not treat a single headless Chromium timeout as a gameplay regression without an unchanged-code retry. Do not accept a title/menu screenshot as world liveness. Do not claim physical iPhone PASS from CI.`
+- DO_NOT_REPEAT: `Do not test only the first .actionPad button and infer all explicit controls are safe: keep A and MENU both explicitly excluded from world pointer ownership. Do not block native vertical scrolling inside an already-open overflow dialogue by applying shell touch-action:none plus preventDefault to every dialogue swipe. Preserve short tap -> canonical Action, but route dialogue swipe -> native pan-y with no world movement/no Action. Do not clamp Dynamic Touch from visualViewport width/height alone: preserve offsetLeft/offsetTop and re-clamp on visualViewport scroll without cancelling a valid held drag. Do not treat every visualViewport.resize as a movement-cancel boundary. Do not leave held movement ownership alive across pagehide/BFCache navigation. Do not treat a single headless Chromium timeout as a gameplay regression without an unchanged-code retry. Do not accept a title/menu screenshot as world liveness. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.9 offset-aware + pagehide-safe + dialogue-pan arbitration machine+public green`
-- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; visualViewport offsetLeft/offsetTop included in clamp; visualViewport scroll/resize re-clamps while preserving valid held drag; window resize/orientation hard-stop; pagehide clears ownership/timers; already-open dialogue switches shell/dialog to pan-y and leaves pointerdown/move default unblocked while swipe distance suppresses Action and movement.`
+- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; visualViewport offsetLeft/offsetTop included in clamp; visualViewport scroll/resize re-clamps while preserving valid held drag; window resize/orientation hard-stop; pagehide clears ownership/timers; already-open dialogue switches shell/dialog to pan-y and leaves pointerdown/move default unblocked while swipe distance suppresses Action and movement; explicit A/MENU controls are verified non-world-touch owners.`
 - TOUCH_CONTROLLER_KNOWN_ISSUES: `No confirmed machine regression at v1.9 offset/pagehide/dialogue-pan hardening; physical iPhone behavior remains pending.`
 - TOUCH_CONTROLLER_IOS_VERIFICATION: `PENDING`
-- TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / canonical short tap protected; dialogue swipe explicitly non-Action`
+- TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / canonical short tap protected; dialogue swipe explicitly non-Action; A/MENU explicit controls machine-proved excluded from world pointer ownership`
 - IPHONE_FULLSCREEN_UI_STATUS: `REQ-022 VERIFY / 100dvh + safe-area overlays + visualViewport camera recenter + native overflow dialogue pan-y protected`
 
 ## REQ-127 — IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY
@@ -314,4 +314,19 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - REQ-021 / REQ-022 / REQ-001: `VERIFY / MACHINE+PUBLIC GREEN`.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 - DO_NOT_REPEAT: `Do not solve Tap Anywhere by swallowing every pointer event in an already-open scrollable dialogue; dialogue swipe and world drag are distinct modes sharing the same surface.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
+
+## P0 EXPLICIT ACTION CONTROL EXCLUSION HARDENING — 2026-09-08 06:25 JST
+
+- STATUS: `TEST COVERAGE HARDENED / PUBLIC GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`.
+- FRESH AUDIT GAP: production `INTERACTIVE_SELECTOR` already excluded `button` targets, but the primary touch smoke sampled only the first `.actionPad button`, so it did not deterministically prove both A and MENU overlays remain non-world-touch owners.
+- REGRESSION CHECKPOINT: `25b5d716ec36cbbe09f7fa5562231dbc7aec6d3f` extends the serialized inert P0 touch probe to enumerate every rendered `.actionPad button`, require at least A+MENU, dispatch touch pointerdown/up on each, and require no controller visibility, no active direction and no fallback timer ownership.
+- PRODUCTION CHANGE: `NONE`; this checkpoint strengthens proof around the existing canonical exclusion path rather than introducing another input handler.
+- PAGES: `34162942937 SUCCESS`; assembled browser game, full floating-touch + iPhone visual smoke, route regressions, upload and real GitHub Pages deploy all passed.
+- RENDER_LIVENESS: `34162942772 SUCCESS`; Chromium and WebKit iPhone-sized world rendering both passed.
+- REQ-023: `34162942771 SUCCESS`.
+- REQ-121: `34162942781 SUCCESS`.
+- REQ-128: `34162942780 SUCCESS`.
+- REQ-021 / REQ-022 / REQ-001: `VERIFY / MACHINE+PUBLIC GREEN`.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
