@@ -28,30 +28,55 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('index.html')
-          html=p.read_text()
+          p=Path('index.html');html=p.read_text()
           marker='<div id="app"></div><script>'
           guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
           if html.count(marker)!=1: raise SystemExit('base marker mismatch')
-          html=html.replace(marker,guard,1)
-          p.write_text(html)
+          p.write_text(html.replace(marker,guard,1))
           PY
           mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
           for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          cp index.html req118-ab.html
           cp index.html req118-guard.html
           cp index.html req118-legacy.html
           python3 - <<'PY'
           from pathlib import Path
-          guard=Path('req118-guard.html')
-          h=guard.read_text()
-          script=r'''<script>
+
+          ab=Path('req118-ab.html');h=ab.read_text()
+          probe=r'''<script>
+          setTimeout(()=>{
+            const marker=document.createElement('i');marker.id='lqReq118ABMarker';marker.hidden=true;
+            const snap=structuredClone(s);const raw=localStorage.getItem('lukeQuestV2');
+            try{
+              Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,structuredClone(DEFAULT));
+              s.flags.req118OpeningPhase='cold_open';s.flags.req118OpeningComplete=false;s.flags.req118GuardianSpoken=false;s.screen='intro';
+              window.LQ_REQ118_OPENING_TEST.showCold();
+              if(!document.querySelector('[data-req118-phase="cold_open"]'))throw new Error('cold open not rendered by opening authority');
+              document.getElementById('lqReq118Wake')?.click();
+              if(s.screen!=='world'||s.map!=='town'||s.x!==8||s.y!==13)throw new Error('wake button did not enter playable Aldia morning');
+              if(!document.querySelector('.lqReq118MorningHud'))throw new Error('morning objective overlay missing');
+              if(window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.tapAnywhereAction!==true)throw new Error('REQ-021 tap authority missing');
+              if(window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS?.worldViewportPrimary!==true)throw new Error('REQ-022 fullscreen authority missing');
+              s.dir='up';s.dialog=null;action();
+              if(!s.flags.req118GuardianSpoken||!s.dialog)throw new Error('canonical action did not trigger guardian dialogue');
+              s.dialog=null;s.x=8;s.y=6;window.LQ_REQ118_OPENING_TEST.maybeCompleteMorning();render();
+              if(s.flags.req118OpeningPhase!=='aldia_morning_complete'||!s.dialog)throw new Error('Aldia morning completion failed');
+              marker.dataset.status='PASS';marker.dataset.coldOpen='true';marker.dataset.playable='true';marker.dataset.guardian='true';marker.dataset.canonicalAction='true';marker.dataset.tapAuthority='true';marker.dataset.fullscreenAuthority='true';
+            }catch(e){marker.dataset.status='FAIL';marker.dataset.error=e?.message||String(e);console.error(e)}
+            finally{Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snap);if(raw===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',raw);render();document.body.appendChild(marker)}
+          },5200);
+          </script>'''
+          ab.write_text(h.replace('</body>',probe+'</body>',1))
+
+          guard=Path('req118-guard.html');h=guard.read_text()
+          probe=r'''<script>
           setTimeout(()=>{
             const marker=document.createElement('i');marker.id='lqReq118GuardMarker';marker.hidden=true;
+            const original=localStorage.getItem('lukeQuestV2');const snap=structuredClone(s);
             try{
               const existing=structuredClone(DEFAULT);existing.screen='world';existing.map='forest';existing.x=7;existing.y=9;existing.flags={...existing.flags,leonMet:true};
-              localStorage.setItem('lukeQuestV2',JSON.stringify(existing));
-              Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,structuredClone(existing));render();
+              localStorage.setItem('lukeQuestV2',JSON.stringify(existing));Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,structuredClone(existing));render();
               const rawBefore=localStorage.getItem('lukeQuestV2');const semanticBefore=JSON.stringify(s);
               const first=newGame();
               if(first!==false)throw new Error('REQ-069 first click did not block');
@@ -59,20 +84,17 @@ jobs:
               if(JSON.stringify(s)!==semanticBefore)throw new Error('first click changed runtime state');
               if(document.querySelector('[data-req118-phase="cold_open"]'))throw new Error('opening leaked on first guarded click');
               newGame();
-              if(s.screen!=='intro')throw new Error('confirmed new game did not reset to intro');
-              if(s.flags?.req118OpeningPhase!=='cold_open')throw new Error('confirmed new game did not enter cold open');
+              if(s.screen!=='intro'||s.flags?.req118OpeningPhase!=='cold_open')throw new Error('confirmed new game did not enter cold-open state');
               if(!document.querySelector('[data-req118-phase="cold_open"]'))throw new Error('cold open DOM missing after confirmation');
               marker.dataset.status='PASS';marker.dataset.firstClickPreserved='true';marker.dataset.rawSavePreserved='true';marker.dataset.confirmedColdOpen='true';
             }catch(e){marker.dataset.status='FAIL';marker.dataset.error=e?.message||String(e);console.error(e)}
-            document.body.appendChild(marker);
+            finally{Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snap);if(original===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',original);render();document.body.appendChild(marker)}
           },5200);
           </script>'''
-          h=h.replace('</body>',script+'</body>',1);guard.write_text(h)
+          guard.write_text(h.replace('</body>',probe+'</body>',1))
 
           legacy=Path('req118-legacy.html');h=legacy.read_text()
-          preload=r'''<script>
-          localStorage.setItem('lukeQuestV2',JSON.stringify({screen:'world',map:'forest',x:7,y:9,dir:'up',level:3,hp:24,maxHp:30,mp:8,maxMp:10,exp:20,gold:77,herbs:2,smoke:1,atk:9,def:5,flags:{forestGate:true,leonMet:true,leonFound:false,glennMet:false,withdrew:false,returned:false},wins:{}}));
-          </script>'''
+          preload=r'''<script>localStorage.setItem('lukeQuestV2',JSON.stringify({screen:'world',map:'forest',x:7,y:9,dir:'up',level:3,hp:24,maxHp:30,mp:8,maxMp:10,exp:20,gold:77,herbs:2,smoke:1,atk:9,def:5,flags:{forestGate:true,leonMet:true,leonFound:false,glennMet:false,withdrew:false,returned:false},wins:{}}));</script>'''
           h=h.replace('<div id="app"></div>',preload+'<div id="app"></div>',1)
           probe=r'''<script>
           setTimeout(()=>{
@@ -87,37 +109,25 @@ jobs:
             document.body.appendChild(marker);
           },5200);
           </script>'''
-          h=h.replace('</body>',probe+'</body>',1);legacy.write_text(h)
+          legacy.write_text(h.replace('</body>',probe+'</body>',1))
           PY
-      - name: Run 390x844 A+B playable opening smoke
+      - name: Run 390x844 opening + save-boundary acceptance
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
           python3 -m http.server 8151 >/tmp/req118-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
-          set +e
-          timeout 40 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=10500 --dump-dom 'http://127.0.0.1:8151/?lqReq118ABSmoke=1' >/tmp/req118-ab-dom.html 2>/tmp/req118-ab-browser.log
-          status=$?;set -e;test -s /tmp/req118-ab-dom.html
-          for needle in 'id="lqReq118ABMarker"' 'data-status="PASS"' 'data-cold-open="true"' 'data-playable="true"' 'data-guardian="true"' 'data-canonical-action="true"' 'data-advanced-bypass="true"' 'data-tap-authority="true"' 'data-fullscreen-authority="true"'; do grep -q "$needle" /tmp/req118-ab-dom.html || { echo "REQ-118 AB missing: $needle"; cat /tmp/req118-ab-browser.log || true; exit 1; }; done
-          if grep -q 'data-status="FAIL"' /tmp/req118-ab-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req118-ab-browser.log; then echo 'REQ-118 AB runtime failure';cat /tmp/req118-ab-browser.log;exit 1;fi
-          echo "REQ-118 A+B playable smoke PASS (browser status $status)"
-      - name: Run REQ-069 composition adversarial smoke
-        shell: bash
-        run: |
-          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
-          set +e
-          timeout 40 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=10500 --dump-dom 'http://127.0.0.1:8151/req118-guard.html' >/tmp/req118-guard-dom.html 2>/tmp/req118-guard-browser.log
-          status=$?;set -e;test -s /tmp/req118-guard-dom.html
-          for needle in 'id="lqReq118GuardMarker"' 'data-status="PASS"' 'data-first-click-preserved="true"' 'data-raw-save-preserved="true"' 'data-confirmed-cold-open="true"'; do grep -q "$needle" /tmp/req118-guard-dom.html || { echo "REQ-118 guard missing: $needle"; grep -o 'lqReq118GuardMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req118-guard-dom.html | tail -80 || true;cat /tmp/req118-guard-browser.log||true;exit 1;};done
-          echo "REQ-118 + REQ-069 composition PASS (browser status $status)"
-      - name: Run advanced-save Continue bypass smoke
-        shell: bash
-        run: |
-          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
-          set +e
-          timeout 40 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=10500 --dump-dom 'http://127.0.0.1:8151/req118-legacy.html' >/tmp/req118-legacy-dom.html 2>/tmp/req118-legacy-browser.log
-          status=$?;set -e;test -s /tmp/req118-legacy-dom.html
-          for needle in 'id="lqReq118LegacyMarker"' 'data-status="PASS"' 'data-world-preserved="true"' 'data-legacy-bypass="true"' 'data-continue-valid="true"'; do grep -q "$needle" /tmp/req118-legacy-dom.html || { echo "REQ-118 legacy missing: $needle"; grep -o 'lqReq118LegacyMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req118-legacy-dom.html | tail -80 || true;cat /tmp/req118-legacy-browser.log||true;exit 1;};done
-          echo "REQ-118 advanced-save bypass PASS (browser status $status)"
+          run_case(){
+            name="$1"; url="$2"; shift 2
+            set +e
+            timeout 40 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=10500 --dump-dom "$url" >"/tmp/req118-${name}-dom.html" 2>"/tmp/req118-${name}-browser.log"
+            code=$?; set -e; test -s "/tmp/req118-${name}-dom.html"
+            for needle in "$@"; do grep -q "$needle" "/tmp/req118-${name}-dom.html" || { echo "REQ-118 ${name} missing: $needle"; grep -o 'lqReq118[^<]*\|data-[a-z-]*="[^"]*"' "/tmp/req118-${name}-dom.html" | tail -80 || true; cat "/tmp/req118-${name}-browser.log" || true; exit 1; }; done
+            if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' "/tmp/req118-${name}-browser.log"; then cat "/tmp/req118-${name}-browser.log"; exit 1; fi
+            echo "REQ-118 ${name} PASS (browser status $code)"
+          }
+          run_case ab 'http://127.0.0.1:8151/req118-ab.html' 'id="lqReq118ABMarker"' 'data-status="PASS"' 'data-cold-open="true"' 'data-playable="true"' 'data-guardian="true"' 'data-canonical-action="true"' 'data-tap-authority="true"' 'data-fullscreen-authority="true"'
+          run_case guard 'http://127.0.0.1:8151/req118-guard.html' 'id="lqReq118GuardMarker"' 'data-status="PASS"' 'data-first-click-preserved="true"' 'data-raw-save-preserved="true"' 'data-confirmed-cold-open="true"'
+          run_case legacy 'http://127.0.0.1:8151/req118-legacy.html' 'id="lqReq118LegacyMarker"' 'data-status="PASS"' 'data-world-preserved="true"' 'data-legacy-bypass="true"' 'data-continue-valid="true"'
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
