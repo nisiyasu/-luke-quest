@@ -5,13 +5,15 @@
    Touch/pen anywhere in the world game viewport. A short stationary tap invokes
    the final canonical action() exactly once. Outside dialogue, sliding beyond
    the dead zone summons/uses the translucent four-way controller and enters
-   movement mode. Dialogue taps remain valid Action taps, but movement can never
-   start while dialogue is already active. Release/cancel/blur/hidden/pagehide
-   always stops movement. Mouse is intentionally excluded so desktop clicks are unchanged. */
+   movement mode. Dialogue taps remain valid Action taps, while dialogue swipes
+   are returned to native vertical scrolling and can never start world movement.
+   Release/cancel/blur/hidden/pagehide always stops movement. Mouse is intentionally
+   excluded so desktop clicks are unchanged. */
 
 const STYLE_ID='lq-floating-touch-controller-style';
 const PAD_ID='lq-floating-touch-controller';
 const SAFE_PROBE_ID='lq-safe-area-probe';
+const DIALOGUE_SURFACE_CLASS='lqTouchDialogueSurface';
 const DEAD_ZONE=18;
 const SWITCH_ZONE=25;
 const TAP_MAX_MS=420;
@@ -43,6 +45,8 @@ function injectStyle(){
 #${PAD_ID} .lqFloatCore:after{content:'';position:absolute;inset:10px;border-radius:50%;background:#ffffff78;box-shadow:0 0 6px #fff8}
 #${SAFE_PROBE_ID}{position:fixed;inset:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)}
 .gameShell.lqTouchSurface{touch-action:none!important;-webkit-user-select:none;user-select:none}
+.gameShell.lqTouchSurface.${DIALOGUE_SURFACE_CLASS}{touch-action:pan-y!important}
+.gameShell.lqTouchSurface.${DIALOGUE_SURFACE_CLASS} .dialogBox{touch-action:pan-y!important;-webkit-overflow-scrolling:touch}
 @media(pointer:coarse){.controls .dpad{opacity:.18}.controls .dpad:active{opacity:.48}.controls .dpad:before{content:'どこでもドラッグで移動';position:absolute;font-size:9px;color:#d9edffb0;transform:translateY(-12px);white-space:nowrap;text-shadow:0 1px 3px #000}}
 @media(prefers-reduced-motion:reduce){#${PAD_ID}{transition:none}}
 `;
@@ -185,17 +189,24 @@ function onPointerDown(event){
   const p=positionPad();
   p.classList.toggle('visible',movementAllowedAtStart);
   setVisual(null);
-  event.preventDefault();
+  if(movementAllowedAtStart)event.preventDefault();
 }
 
 function onPointerMove(event){
   if(event.pointerId!==pointerId)return;
-  event.preventDefault();
-  if(typeof s==='undefined'||!s||s.screen!=='world'||s.dialog||s.map!==pointerStartMap){stop();return;}
   const dx=event.clientX-originX,dy=event.clientY-originY;
   const distance=Math.hypot(dx,dy);
   if(distance>=DEAD_ZONE)gestureMoved=true;
-  if(!movementAllowedAtStart)return;
+
+  // A gesture that began with dialogue already open belongs to the dialogue
+  // scroller, not world movement. Do not preventDefault: pan-y remains native.
+  if(!movementAllowedAtStart){
+    if(typeof s==='undefined'||!s||s.screen!=='world'||s.map!==pointerStartMap){stop();return;}
+    return;
+  }
+
+  event.preventDefault();
+  if(typeof s==='undefined'||!s||s.screen!=='world'||s.dialog||s.map!==pointerStartMap){stop();return;}
   const dir=directionFromDelta(dx,dy);
   if(!dir){
     if(activeDir&&distance<SWITCH_ZONE){clearFallback();if(typeof stopMoving==='function')stopMoving();activeDir=null;setVisual(null);}
@@ -230,13 +241,19 @@ function onVisualViewportChange(){if(pointerId!==null)positionPad();}
 
 function armShell(){
   const shell=document.querySelector('.gameShell');
-  if(shell)shell.classList.add('lqTouchSurface');
+  if(shell){
+    shell.classList.add('lqTouchSurface');
+    shell.classList.toggle(DIALOGUE_SURFACE_CLASS,!!(typeof s!=='undefined'&&s&&s.dialog));
+  }
 }
 
 function mustStopForRender(){
   if(typeof s==='undefined'||!s)return false;
   if(s.screen!=='world')return true;
-  if(s.dialog&&pointerId!==null)return true;
+  // Only revoke for a dialogue that appeared after a movement-capable world
+  // pointerdown. A gesture that started inside an existing dialogue must retain
+  // ownership long enough to distinguish tap from native pan-y scroll.
+  if(s.dialog&&pointerId!==null&&movementAllowedAtStart)return true;
   return pointerId!==null&&lastRenderedMap!==null&&s.map!==lastRenderedMap;
 }
 
@@ -266,5 +283,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.9',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportAware:true,visualViewportOffsetAware:true,visualViewportScrollReclamp:true,visualViewportResizeKeepsHold:true,pagehideStops:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.9',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportAware:true,visualViewportOffsetAware:true,visualViewportScrollReclamp:true,visualViewportResizeKeepsHold:true,pagehideStops:true,dialoguePanYScroll:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
