@@ -4,8 +4,8 @@
 /* REQ-001 + REQ-021 dedicated browser probe. It is inert in normal play and runs only under ?lqTouchSmoke=1. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
-function pointer(type,target,id,x,y){
-  const ev=new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',isPrimary:true,clientX:x,clientY:y,buttons:type==='pointerup'||type==='pointercancel'?0:1});
+function pointer(type,target,id,x,y,isPrimary=true){
+  const ev=new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',isPrimary,clientX:x,clientY:y,buttons:type==='pointerup'||type==='pointercancel'?0:1});
   target.dispatchEvent(ev);
 }
 function marker(data){
@@ -35,6 +35,7 @@ setTimeout(()=>{
   let tapAction=false,dialogClose=false,dialogPadHidden=false,dialogDragBlocked=false,dialogDragNoAction=false,dragNoAction=false,cancelNoAction=false,singleFire=false;
   let uiExcluded=false,blurStops=false,rerenderHoldSafe=false,mapTransitionStops=false,battleTransitionStops=false;
   let dialogueStartStopsPending=false,dialogueStartMoveBlocked=false,dialogueStartNoAction=false;
+  let longPressVisible=false,longPressNoAction=false,longPressNoMove=false,multitouchIgnored=false,secondaryReleasePreserved=false,longPressReleasedClean=false;
   action=function(){actionCalls++;return originalAction.apply(this,arguments);};
   try{
     stopMoving();
@@ -164,13 +165,33 @@ setTimeout(()=>{
           battleTransitionStops=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
           pointer('pointerup',window,710,p.x+65,p.y);
 
-          singleFire=tapAction&&dialogPadHidden&&dialogDragBlocked&&dialogDragNoAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
-          const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&dialogueStartStopsPending&&dialogueStartMoveBlocked&&dialogueStartNoAction&&blurStops&&rerenderHoldSafe&&mapTransitionStops&&battleTransitionStops;
-          if(!allPass)failure('REQ-001/021 assertion false');
+          // P0 re-audit: stationary long press is neither Action nor Movement, and
+          // a second touch can never steal or release the first pointer's ownership.
+          s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;render();
+          shell=document.querySelector('.gameShell');p=pointInShell(shell);
+          const longStartX=s.x,longStartY=s.y;
+          pointer('pointerdown',shell,711,p.x,p.y,true);
+          longPressVisible=pad.classList.contains('visible');
+          pointer('pointerdown',shell,712,p.x+18,p.y+18,false);
+          pointer('pointermove',window,712,p.x+90,p.y+18,false);
+          multitouchIgnored=!pad.querySelector('.lqFloatArrow.active')&&s.x===longStartX&&s.y===longStartY;
+          pointer('pointerup',window,712,p.x+90,p.y+18,false);
+          secondaryReleasePreserved=pad.classList.contains('visible')&&!pad.querySelector('.lqFloatArrow.active');
 
-          action=originalAction;
-          Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-          marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops});
+          setTimeout(()=>{
+            pointer('pointerup',window,711,p.x,p.y,true);
+            longPressNoAction=actionCalls===2&&!s.dialog;
+            longPressNoMove=s.x===longStartX&&s.y===longStartY;
+            longPressReleasedClean=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
+
+            singleFire=tapAction&&dialogPadHidden&&dialogDragBlocked&&dialogDragNoAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
+            const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&dialogueStartStopsPending&&dialogueStartMoveBlocked&&dialogueStartNoAction&&blurStops&&rerenderHoldSafe&&mapTransitionStops&&battleTransitionStops&&longPressVisible&&longPressNoAction&&longPressNoMove&&multitouchIgnored&&secondaryReleasePreserved&&longPressReleasedClean;
+            if(!allPass)failure('REQ-001/021 assertion false');
+
+            action=originalAction;
+            Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
+            marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,longPressVisible,longPressNoAction,longPressNoMove,multitouchIgnored,secondaryReleasePreserved,longPressReleasedClean});
+          },500);
         },280);
       },170);
     },300);
@@ -179,7 +200,7 @@ setTimeout(()=>{
     failure(err&&err.message);
     action=originalAction;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,error:true});
+    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,longPressVisible,longPressNoAction,longPressNoMove,multitouchIgnored,secondaryReleasePreserved,longPressReleasedClean,error:true});
   }
 },350);
 })();
