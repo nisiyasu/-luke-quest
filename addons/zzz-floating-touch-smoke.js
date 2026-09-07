@@ -68,7 +68,7 @@ setTimeout(()=>{
     pointer('pointerup',window,704,p.x,p.y);
     dialogClose=actionCalls===2&&!s.dialog;
 
-    // Dead zone, hold, live direction switch, release, and visible UI contract.
+    // Dead zone, hold, live direction switch, release, safe-area support, and visible UI contract.
     s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;
     render();
     shell=document.querySelector('.gameShell');
@@ -80,7 +80,7 @@ setTimeout(()=>{
     visible=pad.classList.contains('visible');
     const padStyle=getComputedStyle(pad);
     const arrowStyle=getComputedStyle(pad.querySelector('.lqFloatArrow.right'));
-    visualContract=pad.dataset.lqControllerVersion==='1.5'&&parseFloat(padStyle.width)>=160&&parseFloat(padStyle.height)>=160&&parseFloat(arrowStyle.width)>=50&&parseFloat(arrowStyle.borderWidth)>=2&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualContrastHardened===true;
+    visualContract=pad.dataset.lqControllerVersion==='1.6'&&parseFloat(padStyle.width)>=160&&parseFloat(padStyle.height)>=160&&parseFloat(arrowStyle.width)>=50&&parseFloat(arrowStyle.borderWidth)>=2&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualContrastHardened===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.safeAreaAware===true;
     pointer('pointermove',window,702,ox+7,oy+5);
     deadZone=!pad.querySelector('.lqFloatArrow.active')&&s.x===startX&&s.y===startY;
 
