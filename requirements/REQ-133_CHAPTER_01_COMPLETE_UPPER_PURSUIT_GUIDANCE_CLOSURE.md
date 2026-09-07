@@ -1,8 +1,9 @@
 # REQ-133 — Chapter 1 Complete Upper Pursuit Guidance Closure
 
 PRIORITY: P1
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 OWNER_SOURCE: Autonomous fresh-code audit under continuous development directive.
+IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## Problem
 After `flags.chapter1Complete === true`, REQ-132 closes the shared NORTH ROUTE COMPASS and lower-route guidance, but three upper pursuit maps still generate explicit player-facing pursuit instructions and pulsing objective markers:
@@ -40,3 +41,12 @@ Preserve the maps, traversal, encounters, environmental landmarks, historical tr
 - Render-liveness remains green.
 - WORK_QUEUE.md and CURRENT.md reflect REQ-133 as the sole WIP until machine/public completion, then VERIFY.
 - IOS_PHYSICAL_VERIFICATION=PENDING.
+
+## Machine / public verification
+- Standard Pages run `34106890062`: SUCCESS.
+- Render Liveness run `34106890050`: SUCCESS.
+- REQ-121 route regression remained SUCCESS on the implementation checkpoint.
+- REQ-128 Chapter 1 climax regression remained SUCCESS on the implementation checkpoint.
+- Cache-busted public Pages recovery run `34106990439`: SUCCESS on fresh HEAD `2a617dabc1a90d9fd30ae2ef388b66f35ec13553`.
+- Chapter 2 remains intentionally undesigned.
+- Physical iPhone verification is not claimed: `IOS_PHYSICAL_VERIFICATION=PENDING`.
