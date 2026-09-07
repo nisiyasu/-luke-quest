@@ -33,7 +33,7 @@ setTimeout(()=>{
   let actionCalls=0;
   let visible=false,visualContract=false,deadZone=false,rightActive=false,movedRight=false,upActive=false,releasedHidden=false,stoppedAfterRelease=false,fallbackCleared=false;
   let tapAction=false,dialogClose=false,dialogPadHidden=false,dialogDragBlocked=false,dialogDragNoAction=false,dragNoAction=false,cancelNoAction=false,singleFire=false;
-  let uiExcluded=false,blurStops=false,visibilityStops=false,visualViewportStops=false,rerenderHoldSafe=false,mapTransitionStops=false,battleTransitionStops=false;
+  let uiExcluded=false,blurStops=false,visibilityStops=false,visualViewportKeepsHold=false,rerenderHoldSafe=false,mapTransitionStops=false,battleTransitionStops=false;
   let dialogueStartStopsPending=false,dialogueStartMoveBlocked=false,dialogueStartNoAction=false;
   let longPressVisible=false,longPressNoAction=false,longPressNoMove=false,multitouchIgnored=false,secondaryReleasePreserved=false,longPressReleasedClean=false;
   action=function(){actionCalls++;return originalAction.apply(this,arguments);};
@@ -80,7 +80,7 @@ setTimeout(()=>{
     visible=pad.classList.contains('visible');
     const padStyle=getComputedStyle(pad);
     const arrowStyle=getComputedStyle(pad.querySelector('.lqFloatArrow.right'));
-    visualContract=pad.dataset.lqControllerVersion==='1.8'&&parseFloat(padStyle.width)>=160&&parseFloat(padStyle.height)>=160&&parseFloat(arrowStyle.width)>=50&&parseFloat(arrowStyle.borderWidth)>=2&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualContrastHardened===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.safeAreaAware===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.viewportChangeStops===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualViewportChangeStops===true;
+    visualContract=pad.dataset.lqControllerVersion==='1.9'&&parseFloat(padStyle.width)>=160&&parseFloat(padStyle.height)>=160&&parseFloat(arrowStyle.width)>=50&&parseFloat(arrowStyle.borderWidth)>=2&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualContrastHardened===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.safeAreaAware===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.viewportChangeStops===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualViewportAware===true&&window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.visualViewportResizeKeepsHold===true;
     pointer('pointermove',window,702,ox+7,oy+5);
     deadZone=!pad.querySelector('.lqFloatArrow.active')&&s.x===startX&&s.y===startY;
 
@@ -144,18 +144,20 @@ setTimeout(()=>{
           window.dispatchEvent(new Event('blur'));
           blurStops=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
 
-          // Safari's visual viewport can resize independently of window.resize as
-          // browser chrome changes. A held movement pointer must be revoked before
-          // fullscreen layout/camera recalculation can inherit stale input.
+          // Browser chrome can resize the visual viewport during an otherwise valid
+          // held drag. Preserve the owned gesture and direction while re-clamping the
+          // controller to the currently visible viewport; window/orientation changes
+          // remain the hard-stop boundary.
           if(window.visualViewport){
             s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;render();
             shell=document.querySelector('.gameShell');p=pointInShell(shell);
             pointer('pointerdown',shell,714,p.x,p.y);
             pointer('pointermove',window,714,p.x+65,p.y);
             window.visualViewport.dispatchEvent(new Event('resize'));
-            visualViewportStops=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
+            visualViewportKeepsHold=pad.classList.contains('visible')&&!!pad.querySelector('.lqFloatArrow.right.active');
+            pointer('pointerup',window,714,p.x+65,p.y);
           }else{
-            visualViewportStops=true;
+            visualViewportKeepsHold=true;
           }
 
           // visibilitychange while hidden must revoke an active pointer just like
@@ -217,12 +219,12 @@ setTimeout(()=>{
             longPressReleasedClean=!pad.classList.contains('visible')&&!window.__lqFloatFallbackTimer&&!pad.querySelector('.lqFloatArrow.active');
 
             singleFire=tapAction&&dialogPadHidden&&dialogDragBlocked&&dialogDragNoAction&&dialogClose&&dragNoAction&&cancelNoAction&&actionCalls===2;
-            const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&dialogueStartStopsPending&&dialogueStartMoveBlocked&&dialogueStartNoAction&&blurStops&&visualViewportStops&&visibilityStops&&rerenderHoldSafe&&mapTransitionStops&&battleTransitionStops&&longPressVisible&&longPressNoAction&&longPressNoMove&&multitouchIgnored&&secondaryReleasePreserved&&longPressReleasedClean;
+            const allPass=visible&&visualContract&&deadZone&&rightActive&&movedRight&&upActive&&releasedHidden&&stoppedAfterRelease&&fallbackCleared&&singleFire&&uiExcluded&&dialogueStartStopsPending&&dialogueStartMoveBlocked&&dialogueStartNoAction&&blurStops&&visualViewportKeepsHold&&visibilityStops&&rerenderHoldSafe&&mapTransitionStops&&battleTransitionStops&&longPressVisible&&longPressNoAction&&longPressNoMove&&multitouchIgnored&&secondaryReleasePreserved&&longPressReleasedClean;
             if(!allPass)failure('REQ-001/021 assertion false');
 
             action=originalAction;
             Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-            marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,visualViewportStops,visibilityStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,longPressVisible,longPressNoAction,longPressNoMove,multitouchIgnored,secondaryReleasePreserved,longPressReleasedClean});
+            marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,visualViewportKeepsHold,visibilityStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,longPressVisible,longPressNoAction,longPressNoMove,multitouchIgnored,secondaryReleasePreserved,longPressReleasedClean});
           },500);
         },280);
       },170);
@@ -232,7 +234,7 @@ setTimeout(()=>{
     failure(err&&err.message);
     action=originalAction;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,visualViewportStops,visibilityStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,longPressVisible,longPressNoAction,longPressNoMove,multitouchIgnored,secondaryReleasePreserved,longPressReleasedClean,error:true});
+    marker({visible,visualContract,deadZone,rightActive,movedRight,upActive,releasedHidden,stoppedAfterRelease,fallbackCleared,tapAction,dialogPadHidden,dialogDragBlocked,dialogDragNoAction,dialogClose,dragNoAction,cancelNoAction,singleFire,uiExcluded,dialogueStartStopsPending,dialogueStartMoveBlocked,dialogueStartNoAction,blurStops,visualViewportKeepsHold,visibilityStops,rerenderHoldSafe,mapTransitionStops,battleTransitionStops,longPressVisible,longPressNoAction,longPressNoMove,multitouchIgnored,secondaryReleasePreserved,longPressReleasedClean,error:true});
   }
 },350);
 })();
