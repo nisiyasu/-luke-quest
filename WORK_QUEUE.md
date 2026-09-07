@@ -127,6 +127,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 111 | REQ-129 | P1 | VERIFY | Chapter 1 Complete Objective / Journal Closure | `requirements/REQ-129_CHAPTER_01_COMPLETE_OBJECTIVE_CLOSURE.md` | chapter1Complete now outranks stale pursuit flags. Dedicated gate 34091231900 SUCCESS; cache-busted public Pages run 34091374201 SUCCESS on descendant HEAD. IOS_PHYSICAL_VERIFICATION=PENDING. |
 | 112 | REQ-130 | P1 | VERIFY | Chapter 1 Adventure Record Completion | `requirements/REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md` | Canonical chapter1Complete now projects COMPLETE/IN PROGRESS in ADVENTURE RECORD without story mutation. Implementation ffa72c14...; dedicated run 34091720377 SUCCESS; cache-busted public run 34091818716 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 113 | REQ-131 | P1 | VERIFY | Chapter 1 Complete NPC Dialogue Closure | `requirements/REQ-131_CHAPTER_01_COMPLETE_NPC_DIALOGUE_CLOSURE.md` | chapter1Complete now outranks stale pursuit flags in reactive Aldia/field NPC dialogue. Implementation 4f67718f...; public cache-busted Pages run 34095873109 SUCCESS. Existing stages 0-5 preserved. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG

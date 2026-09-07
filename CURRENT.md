@@ -1,13 +1,13 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 13:20 JST
+- UPDATED_AT: 2026-09-07 17:18 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `9e357cff169d1783db93e1366e06b03cfadde6ee`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `4f67718f7654de7640105fec0ecc5abb757142e5`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `REQ-130 MACHINE+PUBLIC PASS / NO IN_PROGRESS / IOS_PHYSICAL_VERIFICATION=PENDING`
+- CURRENT_BUILD_STATUS: `REQ-131 MACHINE+PUBLIC PASS / NO IN_PROGRESS / IOS_PHYSICAL_VERIFICATION=PENDING`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -16,14 +16,14 @@
 - VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- QUEUE_PROJECTION_STATUS: `REQ-118 promoted to VERIFY after full A-H + Pages + render gates. REQ-128 is the sole IN_PROGRESS WIP.`
+- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131 VERIFY; no IN_PROGRESS after fresh HEAD recovery.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
 - RECENT_CHECKPOINTS: `ef184888... world-state proof before pixel PASS; 79b0cae0... PWA runtime diagnostics; 6c9fff52... isolated REQ-127 world smoke; 16590c97... clean SHA-versioned render diagnostic; b40204e6... post-Pages cache-busted recovery deploy; dd5f26ed... incident evidence sync.`
 - TESTS_AND_VERIFICATION: `Render run 34070096956 SUCCESS: 390x844 clean world, near_black=0.265579, bright=0.629712, 626 color bins. Normal Pages run 34070194697 SUCCESS. Cache-busted recovery run 34070253834 SUCCESS: 346 runtime script URLs versioned with build SHA dd5f26ed..., clean world pixel PASS near_black=0.265555, bright=0.629679, 626 color bins, deployment SUCCESS.`
 - KNOWN_ISSUES: `Last Owner physical evidence before the new cache-busted deployment was still a black iPhone Home Screen PWA. Chromium/public-artifact machine checks are healthy, so remaining uncertainty is physical iPhone PWA/WebKit state. IOS_PHYSICAL_VERIFICATION=PENDING.`
 - BLOCKERS: `No machine-side blocker. Exact Owner iPhone Home Screen WebKit state is not reproducible in the current CI environment.`
-- NEXT_ACTION: `Fresh-audit Chapter 1 completion surfaces for the next safe player-visible consistency defect; do not invent Chapter 2.`
-- NEXT_ACTION_COMPLETION_CONDITION: `A fresh, non-duplicate player-visible defect is proven from code and registered as the sole next IN_PROGRESS requirement, or a true blocker is recorded.`
+- NEXT_ACTION: `Fresh-audit remaining Chapter 1 completion surfaces for non-duplicate player-visible stale pursuit/progression leakage; do not invent Chapter 2.`
+- NEXT_ACTION_COMPLETION_CONDITION: `A fresh player-visible defect is proven from code and registered as sole IN_PROGRESS, or no canon-safe defect remains.`
 - DO_NOT_REPEAT: `Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not restore the broad post-04:00 feature range before black-screen isolation is stable. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup remain protected.`
@@ -191,3 +191,22 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - Protected unknowns: sister name/age/detailed personality; Chapter 2.
 - Required shape: reach Leon -> hero revelation -> nonlethal defensive confrontation -> sister interruption/nonfatal wound -> Luke aids her -> return to kingdom -> Chapter 1 end.
 - Next: fresh-audit actual route/Leon/battle/save/input implementation before coding.
+
+## REQ-131 — CHAPTER 1 COMPLETE NPC DIALOGUE CLOSURE — MACHINE COMPLETE
+
+- STATUS: `VERIFY`.
+- Requirement: `requirements/REQ-131_CHAPTER_01_COMPLETE_NPC_DIALOGUE_CLOSURE.md`.
+- Implementation checkpoint: `4f67718f7654de7640105fec0ecc5abb757142e5`.
+- `chapter1Complete` is the terminal dialogue stage and outranks stale pursuit flags.
+- Existing reactive NPC stages 0-5 remain intact; terminal lines contain no active north/pursuit instruction.
+- Cache-busted Pages recovery run `34095873109`: SUCCESS.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+## BOOT REALITY REPAIR — 2026-09-07 17:18 JST
+
+- SELF_AUDIT_GUARD: `LOADED_APPLIED`.
+- BOOT_REALITY_AUDIT: `REPAIRED`.
+- OWNER_PRIORITY_AUDIT: `PASS`.
+- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED` because CURRENT/QUEUE lagged committed REQ-131 work.
+- SELF_REPAIR_ACTIONS: `Registered REQ-131 in WORK_QUEUE and synchronized CURRENT to fresh HEAD/public evidence.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
