@@ -3,7 +3,7 @@
 - ID: `REQ-128`
 - TITLE: `Chapter 1 Climax — Leon Confrontation / Sister Interruption / Return to Aldia`
 - PRIORITY: `P1`
-- STATUS: `IN_PROGRESS`
+- STATUS: `VERIFY`
 - CREATED_AT: `2026-09-07 JST`
 - TYPE: `PLAYER_VISIBLE / STORY / CHAPTER_01 / CLIMAX / BATTLE / HANDOFF`
 - REPOSITORY: `nisiyasu/-luke-quest`
@@ -200,7 +200,23 @@ Move to `VERIFY` only when:
 
 ---
 
-## 9. DO NOT
+## 9. IMPLEMENTATION / VERIFICATION CHECKPOINT
+
+- Runtime checkpoint: `8b7700df1c0c884bd6afc4ed7035d8db1162eaeb` — existing `windStairRidge` north boundary starts the Chapter 1 climax; no extra chase map was added.
+- Nonlethal confrontation is a dedicated defensive interaction (`身を守る` / `呼びかける`) and deliberately bypasses normal `win()` / EXP / G / wins reward authority.
+- Browser audit found and repaired the real `front()` API shape mismatch at `c6840d9d34a3a3c4682c812fe7c0f7d168075461`.
+- Smoke timing was aligned to the exact visible hero-revelation / sister-injury beats at `60b8eeb5ba01a10afa32ec8c72aaa475f54c29bf`.
+- REQ-128 Chapter 1 Climax Gate run `34087353989`: SUCCESS on `60b8eeb5...`.
+- Pages run `34087354048` (#1241): SUCCESS on `60b8eeb5...`.
+- REQ-121 route regression run `34087354051`: SUCCESS on `60b8eeb5...`.
+- Render Liveness run `34087354020`: SUCCESS on `60b8eeb5...`.
+- Sister remains visible only as `レオンの妹`; no name/age was invented.
+- Chapter 2 remains unimplemented/uninvented.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`.
+
+---
+
+## 10. DO NOT
 
 - Do not name Leon's sister autonomously.
 - Do not decide her age autonomously.
