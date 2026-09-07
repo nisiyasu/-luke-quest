@@ -1,0 +1,52 @@
+name: P0 Touch Diagnostic
+
+on:
+  push:
+    paths:
+      - '.github/workflows/p0-touch-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble public injection order
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          if compgen -G 'addons/*.js' > /dev/null; then
+            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          fi
+      - name: Run 390x844 touch diagnostic and print reason
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8124 >/tmp/lq-touch-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=3200 --dump-dom 'http://127.0.0.1:8124/?lqTouchSmoke=1' >/tmp/lq-touch-dom.html 2>/tmp/lq-touch-chrome.log || true
+          echo '--- NEW P0 MARKERS ---'
+          grep -o '<i id="lqReq021LongPressSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
+          grep -o '<i id="lqReq001MultitouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
+          echo '--- FAILURE MARKER ---'
+          grep -o '<i id="lqFloatingTouchSmokeFailure"[^>]*>' /tmp/lq-touch-dom.html || true
+          if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html; then
+            echo 'P0 touch diagnostic FAILED'
+            exit 1
+          fi
+          grep -q 'data-no-action="true"' /tmp/lq-touch-dom.html
+          grep -q 'data-secondary-ignored="true"' /tmp/lq-touch-dom.html
+          echo 'P0 touch diagnostic PASS'
