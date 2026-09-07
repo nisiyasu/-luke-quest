@@ -1,0 +1,55 @@
+name: REQ-132 state sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req132-state-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Register REQ-132 and synchronize CURRENT
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          q=Path('WORK_QUEUE.md')
+          qt=q.read_text()
+          row='| 114 | REQ-132 | P1 | IN_PROGRESS | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Fresh-code audit proved stale post-Chapter-1 north pursuit projection in NORTH ROUTE COMPASS plus northCliffRoad/windcutPass local guidance. Guard checkpoints 49464947..., 0678aca1..., eeee9350...; Pages run 34100767214 SUCCESS. Dedicated terminal/pre-completion regression pending. IOS_PHYSICAL_VERIFICATION=PENDING. |\n'
+          if 'REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md' not in qt:
+              marker='\n## STATUS DEFINITIONS\n'
+              if marker not in qt: raise SystemExit('queue marker missing')
+              qt=qt.replace(marker,'\n'+row+marker,1)
+          q.write_text(qt)
+
+          c=Path('CURRENT.md')
+          ct=c.read_text()
+          repl={
+            r'^- UPDATED_AT:.*$':'- UPDATED_AT: 2026-09-07 17:31 JST',
+            r'^- LATEST_IMPLEMENTATION_COMMIT_SHA:.*$':'- LATEST_IMPLEMENTATION_COMMIT_SHA: `eeee93508d7e7db20fe20c7e6691db8b8de7fca4`',
+            r'^- CURRENT_BUILD_STATUS:.*$':'- CURRENT_BUILD_STATUS: `REQ-132 IN_PROGRESS / IMPLEMENTATION 3-SURFACE WIRED / PAGES SUCCESS / DEDICATED REGRESSION PENDING / IOS_PHYSICAL_VERIFICATION=PENDING`',
+            r'^- ACTIVE_REQUIREMENT_ID:.*$':'- ACTIVE_REQUIREMENT_ID: `REQ-132`',
+            r'^- ACTIVE_REQUIREMENT_PATH:.*$':'- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md`',
+            r'^- QUEUE_PROJECTION_STATUS:.*$':'- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131 VERIFY; REQ-132 sole IN_PROGRESS.`',
+            r'^- NEXT_ACTION:.*$':'- NEXT_ACTION: `Add deterministic REQ-132 regression proving terminal cleanup plus unchanged pre-completion compass/northCliff/windcut guidance, then confirm public/cache-busted Pages and promote VERIFY if green.`',
+            r'^- NEXT_ACTION_COMPLETION_CONDITION:.*$':'- NEXT_ACTION_COMPLETION_CONDITION: `REQ-132 deterministic regression PASS + public Pages SUCCESS + queue/CURRENT synchronized; IOS physical remains PENDING.`'
+          }
+          for pat,val in repl.items(): ct=re.sub(pat,val,ct,flags=re.M)
+          note='''\n## REQ-132 — CHAPTER 1 COMPLETE ROUTE GUIDANCE CLOSURE — ACTIVE\n\n- STATUS: `IN_PROGRESS`.\n- Fresh audit proved stale post-completion pursuit copy/markers outside the canonical MAIN OBJECTIVE.\n- Guarded surfaces: NORTH ROUTE COMPASS, northCliffRoad local guidance, windcutPass local guidance.\n- Implementation checkpoints: `4946494732c5b6602f2164c6099cc2946498b982`, `0678aca1f787ff22cc504b0f4a4ecd20312079fa`, `eeee93508d7e7db20fe20c7e6691db8b8de7fca4`.\n- Normal Pages run `34100767214`: SUCCESS.\n- Dedicated terminal/pre-completion regression: PENDING.\n- Chapter 2 destination/objective remains intentionally undefined.\n- IOS_PHYSICAL_VERIFICATION: `PENDING`.\n'''
+          if '## REQ-132 — CHAPTER 1 COMPLETE ROUTE GUIDANCE CLOSURE — ACTIVE' not in ct: ct += note
+          c.write_text(ct)
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md CURRENT.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'ops: register REQ-132 as sole active WIP'
+          git push origin HEAD:main
