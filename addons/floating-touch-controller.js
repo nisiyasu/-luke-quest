@@ -11,6 +11,7 @@
 
 const STYLE_ID='lq-floating-touch-controller-style';
 const PAD_ID='lq-floating-touch-controller';
+const SAFE_PROBE_ID='lq-safe-area-probe';
 const DEAD_ZONE=18;
 const SWITCH_ZONE=25;
 const TAP_MAX_MS=420;
@@ -40,6 +41,7 @@ function injectStyle(){
 #${PAD_ID} .lqFloatArrow.active{background:#5b9deed1;border-color:#fff;transform:scale(1.12);box-shadow:0 0 22px #72adffaa,0 4px 12px #0007,inset 0 1px #fff8}
 #${PAD_ID} .lqFloatCore{position:absolute;left:65px;top:65px;width:38px;height:38px;border-radius:50%;background:#d8edff45;border:2px solid #ffffff78;box-shadow:0 0 12px #72adff66,inset 0 0 8px #fff4}
 #${PAD_ID} .lqFloatCore:after{content:'';position:absolute;inset:10px;border-radius:50%;background:#ffffff78;box-shadow:0 0 6px #fff8}
+#${SAFE_PROBE_ID}{position:fixed;inset:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)}
 .gameShell.lqTouchSurface{touch-action:none!important;-webkit-user-select:none;user-select:none}
 @media(pointer:coarse){.controls .dpad{opacity:.18}.controls .dpad:active{opacity:.48}.controls .dpad:before{content:'どこでもドラッグで移動';position:absolute;font-size:9px;color:#d9edffb0;transform:translateY(-12px);white-space:nowrap;text-shadow:0 1px 3px #000}}
 @media(prefers-reduced-motion:reduce){#${PAD_ID}{transition:none}}
@@ -51,11 +53,27 @@ function ensurePad(){
   if(pad&&pad.isConnected)return pad;
   pad=document.createElement('div');
   pad.id=PAD_ID;
-  pad.dataset.lqControllerVersion='1.5';
+  pad.dataset.lqControllerVersion='1.6';
   pad.setAttribute('aria-hidden','true');
   pad.innerHTML='<div class="lqFloatRing"></div><div class="lqFloatArrow up" data-dir="up">↑</div><div class="lqFloatArrow left" data-dir="left">←</div><div class="lqFloatCore"></div><div class="lqFloatArrow right" data-dir="right">→</div><div class="lqFloatArrow down" data-dir="down">↓</div>';
   document.body.appendChild(pad);
   return pad;
+}
+
+function ensureSafeAreaProbe(){
+  let probe=document.getElementById(SAFE_PROBE_ID);
+  if(probe)return probe;
+  probe=document.createElement('div');
+  probe.id=SAFE_PROBE_ID;
+  probe.setAttribute('aria-hidden','true');
+  document.body.appendChild(probe);
+  return probe;
+}
+
+function safeAreaInsets(){
+  const cs=getComputedStyle(ensureSafeAreaProbe());
+  const px=value=>Number.parseFloat(value)||0;
+  return {top:px(cs.paddingTop),right:px(cs.paddingRight),bottom:px(cs.paddingBottom),left:px(cs.paddingLeft)};
 }
 
 function isExplicitControl(target){
@@ -123,9 +141,18 @@ function directionFromDelta(dx,dy){
 function positionPad(){
   const p=ensurePad();
   const half=84,margin=8;
-  const x=Math.max(half+margin,Math.min(innerWidth-half-margin,originX));
-  const y=Math.max(half+margin,Math.min(innerHeight-half-margin,originY));
+  const safe=safeAreaInsets();
+  const minX=half+margin+safe.left;
+  const maxX=Math.max(minX,innerWidth-half-margin-safe.right);
+  const minY=half+margin+safe.top;
+  const maxY=Math.max(minY,innerHeight-half-margin-safe.bottom);
+  const x=Math.max(minX,Math.min(maxX,originX));
+  const y=Math.max(minY,Math.min(maxY,originY));
   p.style.left=x+'px';p.style.top=y+'px';
+  p.dataset.lqSafeTop=String(safe.top);
+  p.dataset.lqSafeRight=String(safe.right);
+  p.dataset.lqSafeBottom=String(safe.bottom);
+  p.dataset.lqSafeLeft=String(safe.left);
   return p;
 }
 
@@ -195,7 +222,7 @@ function mustStopForRender(){
   return pointerId!==null&&lastRenderedMap!==null&&s.map!==lastRenderedMap;
 }
 
-injectStyle();ensurePad();
+injectStyle();ensurePad();ensureSafeAreaProbe();
 window.addEventListener('pointerdown',onPointerDown,{capture:true,passive:false});
 window.addEventListener('pointermove',onPointerMove,{capture:true,passive:false});
 window.addEventListener('pointerup',onPointerUp,{capture:true,passive:true});
@@ -214,5 +241,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.5',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.6',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
