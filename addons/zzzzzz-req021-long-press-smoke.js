@@ -3,7 +3,9 @@
 
 /* REQ-021 P0 re-audit hardening.
    Inert in normal play. Under ?lqTouchSmoke=1 it proves that a stationary hold
-   beyond the tap window does not become canonical Action on release. */
+   beyond the tap window does not become canonical Action on release.
+   Runs after the existing visibilitychange regression to avoid shared-state
+   test interference. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function pointer(type,target,id,x,y){
@@ -58,5 +60,5 @@ setTimeout(()=>{
     fail(err&&err.message);
     mark({noAction:false,noMove:false,cleaned:false,error:true});
   }
-},1500);
+},1880);
 })();
