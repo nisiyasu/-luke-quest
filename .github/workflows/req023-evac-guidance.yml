@@ -1,0 +1,69 @@
+name: REQ-023 Evacuation Guidance Gate
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'ux-v*.js'
+      - 'addons/**'
+      - '.github/workflows/req023-evac-guidance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  req023:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate scripts and assemble public injection order
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in ux-v*.js addons/*.js; do node --check "$f"; done
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base bootstrap marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+      - name: Run isolated REQ-023 browser flow
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8131 >/tmp/lq-req023-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=2800 --dump-dom 'http://127.0.0.1:8131/?lqReq023Smoke=1' >/tmp/lq-req023-dom.html 2>/tmp/lq-req023-chrome.log || true
+          test -s /tmp/lq-req023-dom.html
+          grep -q 'lqReq023IsolatedSmokeMarker' /tmp/lq-req023-dom.html
+          for needle in \
+            'data-clue-objective="true"' \
+            'data-clue-marker="true"' \
+            'data-optional-clue-no-progress="true"' \
+            'data-canonical-action-progress="true"' \
+            'data-north-objective="true"' \
+            'data-north-marker="true"' \
+            'data-clue-gone="true"'; do
+            if ! grep -q "$needle" /tmp/lq-req023-dom.html; then
+              echo "REQ-023 missing: $needle"
+              grep -o 'lqReq023IsolatedSmokeMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-req023-dom.html | tail -80 || true
+              cat /tmp/lq-req023-chrome.log || true
+              exit 1
+            fi
+          done
+          if grep -q 'lqReq023IsolatedSmokeFailure' /tmp/lq-req023-dom.html; then
+            echo 'REQ-023 isolated failure:'
+            grep -o 'lqReq023IsolatedSmokeFailure[^<]*' /tmp/lq-req023-dom.html | tail -5 || true
+            exit 1
+          fi
+          echo 'REQ-023 isolated browser flow PASS'
