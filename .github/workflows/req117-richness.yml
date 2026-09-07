@@ -1,0 +1,76 @@
+name: REQ-117 World Character Richness Gate
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req117-richness"
+  cancel-in-progress: true
+
+jobs:
+  checkpoint-a:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and addon contract
+        run: |
+          node --check addons/zzzz-world-character-richness.js
+          node --check addons/zzzzz-req117-richness-checkpoint-a-smoke.js
+          node tools/lq-addon-contract.mjs
+      - name: Assemble public Pages script order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+      - name: Run 390x844 Checkpoint A acceptance
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8147 >/tmp/req117-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=5200 --dump-dom 'http://127.0.0.1:8147/?lqReq117Smoke=1' >/tmp/req117-dom.html 2>/tmp/req117-browser.log
+          status=$?
+          set -e
+          test -s /tmp/req117-dom.html
+          for needle in 'id="lqReq117CheckpointAMarker"' 'data-status="PASS"' 'data-pointer-safe="true"' 'data-rerender-stable="true"' 'data-state-preserved="true"' 'data-save-preserved="true"' 'data-checkpoint="A"'; do
+            if ! grep -q "$needle" /tmp/req117-dom.html; then
+              echo "REQ-117 acceptance missing: $needle"
+              grep -o 'lqReq117CheckpointAMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req117-dom.html | tail -80 || true
+              cat /tmp/req117-browser.log || true
+              exit 1
+            fi
+          done
+          if grep -q 'data-status="FAIL"' /tmp/req117-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req117-browser.log; then
+            echo 'REQ-117 runtime failure'; cat /tmp/req117-browser.log; exit 1
+          fi
+          echo "REQ-117 Checkpoint A PASS (browser status $status)"
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req117-a-${{ github.sha }}
+          path: |
+            /tmp/req117-dom.html
+            /tmp/req117-browser.log
+            /tmp/req117-http.log
+          retention-days: 7
+          if-no-files-found: warn
