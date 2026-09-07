@@ -3,7 +3,7 @@
 - ID: `REQ-118`
 - TITLE: `High-Quality Hero Selection Opening / Playable Prologue`
 - PRIORITY: `P1`
-- STATUS: `READY`
+- STATUS: `IN_PROGRESS`
 - CREATED_AT: `2026-09-07 JST`
 - TYPE: `PLAYER_VISIBLE / STORY / OPENING / TUTORIAL / PRESENTATION`
 - REPOSITORY: `nisiyasu/-luke-quest`

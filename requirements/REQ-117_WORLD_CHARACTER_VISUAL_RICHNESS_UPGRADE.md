@@ -1,6 +1,6 @@
 # REQ-117 — WORLD / CHARACTER VISUAL RICHNESS UPGRADE
 
-STATUS: READY
+STATUS: VERIFY
 PRIORITY: P1
 TYPE: PLAYER_VISIBLE_PRESENTATION / MAP_VISUALS / FIELD_CHARACTER_VISUALS / UX_POLISH
 OWNER_REQUEST_DATE: 2026-09-07 JST
@@ -433,5 +433,26 @@ PAGES_VERIFIED = YES only after the final integrated presentation build is publi
 OWNER_VISUAL_APPROVAL = PENDING until Owner checks the actual game visually.
 
 IOS_PHYSICAL_VERIFICATION = PENDING until Owner confirms on actual iPhone.
+
+---
+
+# 11. IMPLEMENTATION CHECKPOINT — 2026-09-07
+
+STATUS: `VERIFY`
+IOS_PHYSICAL_VERIFICATION: `PENDING`
+
+Machine/public evidence:
+
+- Checkpoint A: canonical character grounding, foot shadows, restrained idle motion and interaction easing. The stale duplicate-authority gate was repaired to validate `world-character-grounding.js` directly.
+- Checkpoint B: neighbor-aware town/field/forest edge depth retained while per-tile `filter: drop-shadow()` and `isolation:isolate` compositor layers were removed in favor of iPhone-safe box-shadow treatment.
+- Checkpoint C: canonical ambient authority reused; mobile particle count capped, fog blur/filter removed, hidden-page lifecycle and reduced-motion handling preserved.
+- Checkpoint D: approved Luke 4-direction × 3-frame WebP raster authority preserved and routed through the canonical visual-body wrapper. This repairs the prior risk where sprite application could delete the canonical foot-shadow/body structure. Multiple recurring NPCs retain the canonical grounded body and receive lightweight silhouette treatment without inventing fake formal NPC raster assets.
+- REQ-021 Tap Anywhere, REQ-022 iPhone Fullscreen and REQ-001 Dynamic Touch authority remain protected.
+- Dedicated REQ-117 A/B/C/D gate run `34074892503`: SUCCESS.
+- GitHub Pages run `34074892512` (#1219): SUCCESS on `707dab7a888bb7a0ba8e25f00316ee07d2e66327`.
+- Render Liveness run `34074892523`: SUCCESS after the compositor-safe character/sprite integration.
+- REQ-121 progression regression run `34074892552`: SUCCESS.
+
+Subjective final sprite/art feel remains Owner iPhone verification territory; machine success is not physical-device PASS.
 
 EOF
