@@ -129,8 +129,10 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 113 | REQ-131 | P1 | VERIFY | Chapter 1 Complete NPC Dialogue Closure | `requirements/REQ-131_CHAPTER_01_COMPLETE_NPC_DIALOGUE_CLOSURE.md` | chapter1Complete now outranks stale pursuit flags in reactive Aldia/field NPC dialogue. Implementation 4f67718f...; public cache-busted Pages run 34095873109 SUCCESS. Existing stages 0-5 preserved. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
-| 114 | REQ-132 | P1 | IN_PROGRESS | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Fresh-code audit proved stale post-Chapter-1 north pursuit projection in NORTH ROUTE COMPASS plus northCliffRoad/windcutPass local guidance. Guard checkpoints 49464947..., 0678aca1..., eeee9350...; Pages run 34100767214 SUCCESS. Dedicated terminal/pre-completion regression pending. IOS_PHYSICAL_VERIFICATION=PENDING. |
+| 114 | REQ-132 | P1 | VERIFY | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Final regression e4c7585f...; Pages 34100979461 SUCCESS; Render Liveness 34100979510 SUCCESS; REQ-121 34100979538 SUCCESS; REQ-128 34100979558 SUCCESS; cache-busted deploy 34101080278 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+
+| 115 | REQ-133 | P1 | IN_PROGRESS | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | windShelf / skylineTraverse / cloudbreakSaddle active pursuit guide+marker are terminally suppressed after chapter1Complete by presentation-only late guard. Pages 34106696700 SUCCESS; REQ-121 34106696470 SUCCESS; REQ-128 34106697030 SUCCESS. Render Liveness pending. IOS_PHYSICAL_VERIFICATION=PENDING. |
 ## STATUS DEFINITIONS
 
 ### BACKLOG

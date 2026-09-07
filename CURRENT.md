@@ -1,29 +1,29 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 17:31 JST
+- UPDATED_AT: 2026-09-07 18:38 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `eeee93508d7e7db20fe20c7e6691db8b8de7fca4`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `aae39688198f0587386ce7225390488fe490a2d1`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `REQ-132 IN_PROGRESS / IMPLEMENTATION 3-SURFACE WIRED / PAGES SUCCESS / DEDICATED REGRESSION PENDING / IOS_PHYSICAL_VERIFICATION=PENDING`
-- ACTIVE_REQUIREMENT_ID: `REQ-132`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md`
+- CURRENT_BUILD_STATUS: `REQ-133 IN_PROGRESS / UPPER PURSUIT TERMINAL GUARD + DETERMINISTIC SMOKE WIRED / PAGES SUCCESS / RENDER LIVENESS PENDING / IOS_PHYSICAL_VERIFICATION=PENDING`
+- ACTIVE_REQUIREMENT_ID: `REQ-133`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
 - READY_REQUIREMENTS: `REQ-121_CLOUDBREAK_WIND_STAIR_TRANSITION_DEADLOCK_FIX; REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE; REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING`
 - VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131 VERIFY; REQ-132 sole IN_PROGRESS.`
+- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132 VERIFY; REQ-133 sole IN_PROGRESS.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
 - RECENT_CHECKPOINTS: `ef184888... world-state proof before pixel PASS; 79b0cae0... PWA runtime diagnostics; 6c9fff52... isolated REQ-127 world smoke; 16590c97... clean SHA-versioned render diagnostic; b40204e6... post-Pages cache-busted recovery deploy; dd5f26ed... incident evidence sync.`
 - TESTS_AND_VERIFICATION: `Render run 34070096956 SUCCESS: 390x844 clean world, near_black=0.265579, bright=0.629712, 626 color bins. Normal Pages run 34070194697 SUCCESS. Cache-busted recovery run 34070253834 SUCCESS: 346 runtime script URLs versioned with build SHA dd5f26ed..., clean world pixel PASS near_black=0.265555, bright=0.629679, 626 color bins, deployment SUCCESS.`
 - KNOWN_ISSUES: `Last Owner physical evidence before the new cache-busted deployment was still a black iPhone Home Screen PWA. Chromium/public-artifact machine checks are healthy, so remaining uncertainty is physical iPhone PWA/WebKit state. IOS_PHYSICAL_VERIFICATION=PENDING.`
 - BLOCKERS: `No machine-side blocker. Exact Owner iPhone Home Screen WebKit state is not reproducible in the current CI environment.`
-- NEXT_ACTION: `Add deterministic REQ-132 regression proving terminal cleanup plus unchanged pre-completion compass/northCliff/windcut guidance, then confirm public/cache-busted Pages and promote VERIFY if green.`
-- NEXT_ACTION_COMPLETION_CONDITION: `REQ-132 deterministic regression PASS + public Pages SUCCESS + queue/CURRENT synchronized; IOS physical remains PENDING.`
+- NEXT_ACTION: `Collect REQ-133 Render Liveness and cache-busted public deploy; promote VERIFY only when remaining machine/public gates are green, then continue fresh post-Chapter-1 stale-guidance audit.`
+- NEXT_ACTION_COMPLETION_CONDITION: `REQ-133 Pages + render-liveness + protected route/climax regressions green; queue/CURRENT synchronized; IOS physical remains PENDING.`
 - DO_NOT_REPEAT: `Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not restore the broad post-04:00 feature range before black-screen isolation is stable. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup remain protected.`
@@ -220,4 +220,18 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - Normal Pages run `34100767214`: SUCCESS.
 - Dedicated terminal/pre-completion regression: PENDING.
 - Chapter 2 destination/objective remains intentionally undefined.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+
+## REQ-133 — CHAPTER 1 COMPLETE UPPER PURSUIT GUIDANCE CLOSURE — ACTIVE
+
+- STATUS: `IN_PROGRESS`.
+- Fresh audit found stale always-on pursuit guide+marker UI on `windShelf`, `skylineTraverse`, and `cloudbreakSaddle` after `chapter1Complete`.
+- A presentation-only late guard removes only those active command projections after Chapter 1 completion; maps, traversal, encounters and environmental history remain unchanged.
+- Deterministic assembled-browser smoke proves unfinished visible -> completion hidden -> unfinished restoration for all three maps.
+- Standard Pages `34106696700`: SUCCESS.
+- REQ-121 route regression `34106696470`: SUCCESS.
+- REQ-128 Chapter 1 climax regression `34106697030`: SUCCESS.
+- Render Liveness: PENDING at this autosave.
+- Chapter 2 remains intentionally undesigned.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
