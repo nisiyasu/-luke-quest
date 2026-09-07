@@ -1,0 +1,60 @@
+name: REQ-118 Opening H Gate
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req118-opening-h"
+  cancel-in-progress: true
+
+jobs:
+  checkpoint-h:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and addon contract
+        run: |
+          node --check addons/zzzzzzzzzzzzzzzz-req118-opening-h.js
+          node --check addons/zzzzzzzzzzzzzzz-req118-opening-fg.js
+          node tools/lq-addon-contract.mjs
+      - name: Assemble exact public script order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html');html=p.read_text();marker='<div id="app"></div><script>';guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          cp index.html req118-h.html
+      - name: Run 390x844 Chapter 1 handoff acceptance
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
+          python3 -m http.server 8155 >/tmp/req118-h-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
+          set +e
+          timeout 45 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=15000 --dump-dom 'http://127.0.0.1:8155/req118-h.html?lqReq118HSmoke=1' >/tmp/req118-h-dom.html 2>/tmp/req118-h-browser.log
+          code=$?; set -e; test -s /tmp/req118-h-dom.html
+          for needle in 'id="lqReq118HMarker"' 'data-status="PASS"' 'data-leon-missing="true"' 'data-first-mission="true"' 'data-hero-confirmed="false"' 'data-chapter-one="true"' 'data-world-handoff="true"' 'data-progression-isolated="true"'; do
+            grep -q "$needle" /tmp/req118-h-dom.html || { echo "REQ-118 H missing: $needle"; grep -o 'lqReq118[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req118-h-dom.html | tail -120 || true; cat /tmp/req118-h-browser.log || true; exit 1; }
+          done
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req118-h-browser.log; then cat /tmp/req118-h-browser.log; exit 1; fi
+          echo "REQ-118 Checkpoint H PASS (browser status $code)"
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req118-h-${{ github.sha }}
+          path: |
+            /tmp/req118-h-*.html
+            /tmp/req118-h-*.log
+          retention-days: 7
+          if-no-files-found: warn
