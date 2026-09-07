@@ -1,13 +1,13 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-08 02:32 JST
+- UPDATED_AT: 2026-09-08 04:25 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `cbd2ae3713a8d38437d02783d3b66ee1e94932af`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `ba2d57b0ceba8d0f2523a9ce3eac70187a5b1a7a`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN MACHINE RE-AUDIT GREEN at cbd2ae...; Pages 34147751164 SUCCESS; Render 34147751148 SUCCESS; cache-busted public 34147812799 SUCCESS; IOS_PHYSICAL_VERIFICATION=PENDING`
+- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN MACHINE RE-AUDIT GREEN at implementation ba2d57... + regression checkpoint 1c4c718...; Pages 34155391562 SUCCESS including touch/iPhone visual smoke and real deploy; Render 34155391566 SUCCESS including Chromium + WebKit iPhone-sized world render; IOS_PHYSICAL_VERIFICATION=PENDING`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -18,16 +18,16 @@
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
 - QUEUE_PROJECTION_STATUS: `No ordinary IN_PROGRESS or READY row. REQ-021/022/001/023 remain VERIFY under latest Owner P0 re-audit authority; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
-- RECENT_CHECKPOINTS: `cbd2ae... v1.9 smoke proves visualViewport hold preservation; 2ab5511a... v1.9 visualViewport-aware clamp; c86b3bc... v1.8 attempt rejected by Pages; 5fe1a30f... superseded v1.8 implementation.`
-- TESTS_AND_VERIFICATION: `Pages 34147751164 SUCCESS including touch/visual smoke; Render Liveness 34147751148 SUCCESS including Chromium + WebKit; cache-busted public recovery 34147812799 SUCCESS.`
-- KNOWN_ISSUES: `No confirmed machine regression at cbd2ae. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
+- RECENT_CHECKPOINTS: `ba2d57... v1.9 hardens Dynamic Touch for visualViewport offsetLeft/offsetTop and scroll re-clamp; 1c4c718... adds deterministic held-drag visualViewport scroll/offset regression; cbd2ae... previously proved visualViewport resize hold preservation.`
+- TESTS_AND_VERIFICATION: `Pages 34155391562 SUCCESS including browser assembled game, floating touch + iPhone world visual smoke, route regressions, upload and real Pages deploy; Render Liveness 34155391566 SUCCESS including Chromium + WebKit iPhone-sized world rendering.`
+- KNOWN_ISSUES: `No confirmed machine regression at ba2d57/1c4c718. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
 - BLOCKERS: `No machine-side blocker for current P0 re-audit. REQ-059 and Chapter 2 Story Canon work remain separately BLOCKED per WORK_QUEUE.`
 - NEXT_ACTION: `Continue highest-value safe player-visible P0 audit from fresh HEAD; repair only fresh evidence-backed defects without inventing Chapter 2 or formal Owner-art decisions.`
 - NEXT_ACTION_COMPLETION_CONDITION: `Any newly discovered P0 defect is reproduced, repaired, machine-tested and publicly included; otherwise preserve the green P0 baseline and IOS physical verification PENDING.`
-- DO_NOT_REPEAT: `Do not treat every visualViewport.resize as a movement-cancel boundary; browser chrome/layout can emit it during a valid drag hold. Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not claim physical iPhone PASS from CI.`
-- TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.9 machine+public green`
-- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; window resize/orientation hard-stop; visualViewport resize preserves a valid held drag and re-clamps the controller.`
-- TOUCH_CONTROLLER_KNOWN_ISSUES: `No confirmed machine regression at v1.9; physical iPhone behavior remains pending.`
+- DO_NOT_REPEAT: `Do not clamp Dynamic Touch from visualViewport width/height alone: visualViewport can be offset inside the layout viewport, so preserve offsetLeft/offsetTop and re-clamp on visualViewport scroll without cancelling a valid held drag. Do not treat every visualViewport.resize as a movement-cancel boundary; browser chrome/layout can emit it during a valid drag hold. Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not claim physical iPhone PASS from CI.`
+- TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.9 offset-aware machine+public green`
+- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; visualViewport offsetLeft/offsetTop included in clamp; visualViewport scroll/resize re-clamps while preserving a valid held drag; window resize/orientation hard-stop.`
+- TOUCH_CONTROLLER_KNOWN_ISSUES: `No confirmed machine regression at v1.9 offset-aware hardening; physical iPhone behavior remains pending.`
 - TOUCH_CONTROLLER_IOS_VERIFICATION: `PENDING`
 - TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / protected by unified touch smoke`
 - IPHONE_FULLSCREEN_UI_STATUS: `REQ-022 VERIFY / 100dvh + safe-area overlays + visualViewport camera recenter protected`
@@ -275,4 +275,17 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - REQ-021 / REQ-022 / REQ-001: `VERIFY / MACHINE+PUBLIC GREEN`.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 - DO_NOT_REPEAT: `Do not treat every visualViewport.resize as a logical movement-cancel boundary; dynamic browser chrome/layout can emit it during a valid drag hold.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
+
+## P0 VISUAL VIEWPORT OFFSET / SCROLL HARDENING — 2026-09-08 04:25 JST
+
+- STATUS: `REPAIRED / PUBLIC GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`.
+- FRESH DEFECT: Dynamic Touch v1.9 clamped against visualViewport width/height but ignored `offsetLeft` / `offsetTop` and did not listen for visualViewport `scroll`, leaving a shifted visual viewport able to move the visible region away from the controller clamp origin.
+- IMPLEMENTATION: `ba2d57b0ceba8d0f2523a9ce3eac70187a5b1a7a` adds visual viewport metrics including offsets, applies them to safe-area-aware clamp bounds, and re-clamps on visualViewport `scroll` while preserving a valid held drag.
+- REGRESSION: `1c4c71891f6cbe82bd1f5f6d7604a694058274f6` adds an inert-unless-`?lqTouchSmoke=1` probe that starts a held right drag, forces stale recorded offsets, dispatches visualViewport scroll, requires immediate offset re-sync + held direction preservation, then requires clean pointerup cleanup.
+- PAGES: `34155391562 SUCCESS`; browser assembled game, floating touch + iPhone world visual liveness, route regressions, upload and real GitHub Pages deploy all passed.
+- RENDER_LIVENESS: `34155391566 SUCCESS`; Chromium and WebKit iPhone-sized world screenshot/pixel analysis both passed.
+- REQ-021 / REQ-022 / REQ-001: `VERIFY / MACHINE+PUBLIC GREEN`.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+- DO_NOT_REPEAT: `Do not assume visualViewport starts at layout coordinate 0,0; width/height alone are not sufficient for a visible-viewport clamp.`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
