@@ -3,7 +3,9 @@
 
 /* P0 touch re-audit probe. Inert in normal play. It verifies visualViewport
    offset/scroll re-clamp, pagehide cleanup, hard-stop viewport boundaries, and
-   dialogue tap-vs-native-pan arbitration without adding any production input path. */
+   dialogue tap-vs-native-pan arbitration without adding any production input path.
+   It runs only after the primary floating-touch smoke has finished so two probes
+   never compete for the same pointer/controller/state ownership. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function pointer(type,target,id,x,y){
@@ -20,6 +22,8 @@ function fail(reason){
   document.body.appendChild(f);
 }
 function marker(data){
+  const existing=document.getElementById('lqReq001VisualViewportOffsetSmokeMarker');
+  if(existing)existing.remove();
   const m=document.createElement('i');
   m.id='lqReq001VisualViewportOffsetSmokeMarker';
   Object.entries(data).forEach(([k,v])=>m.dataset[k]=String(v));
@@ -27,7 +31,7 @@ function marker(data){
   document.body.appendChild(m);
 }
 
-setTimeout(()=>{
+function runProbe(){
   const vv=window.visualViewport;
   const status=window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS;
   const snapshot=structuredClone(s);
@@ -113,14 +117,30 @@ setTimeout(()=>{
     dialogueSwipeNoAction=s.dialog===beforeDialog;
 
     const contract=!!status?.visualViewportOffsetAware&&!!status?.visualViewportScrollReclamp&&!!status?.pagehideStops&&!!status?.viewportChangeStops&&!!status?.dialoguePanYScroll;
-    if(!(contract&&scrollReclamped&&holdPreserved&&releaseClean&&pagehideClean&&windowResizeStops&&orientationStops&&dialoguePanContract&&dialoguePointerDownNative&&dialoguePointerMoveNative&&dialogueSwipeNoMove&&dialogueSwipeNoAction))fail('P0 viewport/pagehide/dialogue-pan safety assertion false');
-    marker({supported:!!vv,contract,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction});
+    const pass=contract&&scrollReclamped&&holdPreserved&&releaseClean&&pagehideClean&&windowResizeStops&&orientationStops&&dialoguePanContract&&dialoguePointerDownNative&&dialoguePointerMoveNative&&dialogueSwipeNoMove&&dialogueSwipeNoAction;
+    marker({supported:!!vv,contract,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,pass});
+    if(!pass)fail(`P0 extended assertion false resize=${windowResizeStops} orientation=${orientationStops} dialoguePan=${dialoguePanContract}`);
   }catch(err){
     console.error('lqP0TouchExtendedSmokeFailure',err);
+    marker({supported:!!vv,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,error:true,pass:false});
     fail(err&&err.message);
-    marker({supported:!!vv,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,error:true});
   }finally{
     try{stopMoving();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}catch{}
   }
-},1850);
+}
+
+const waitStarted=performance.now();
+function waitForPrimarySmoke(){
+  // The primary smoke mutates the same global game state and owns the same pad.
+  // Serializing the probes makes a failure describe production behavior rather
+  // than two test harnesses cancelling one another's synthetic pointers.
+  if(document.getElementById('lqFloatingTouchRuntimeSmokeMarker')){runProbe();return;}
+  if(performance.now()-waitStarted>2100){
+    marker({primarySmokeReady:false,error:true,pass:false});
+    fail('P0 extended smoke timed out waiting for primary touch smoke');
+    return;
+  }
+  setTimeout(waitForPrimarySmoke,40);
+}
+setTimeout(waitForPrimarySmoke,250);
 })();
