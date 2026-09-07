@@ -22,25 +22,30 @@ jobs:
       - name: Validate diagnostic checker
         run: python3 -m py_compile tools/lq-png-black-check.py
 
-      - name: Assemble public game order
+      - name: Assemble public game order with immutable build URLs
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import os
           p = Path('index.html')
           html = p.read_text()
           marker = '<div id="app"></div><script>'
-          guard = '<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          sha = os.environ['GITHUB_SHA']
+          guard = f'<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js?v={sha}"></script><script>'
           if html.count(marker) != 1:
               raise SystemExit(f'expected exactly one base bootstrap marker, found {html.count(marker)}')
           html = html.replace(marker, guard, 1)
           p.write_text(html)
           PY
           mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
-          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f?v=${GITHUB_SHA}\"></script></body>#" index.html; done
           if compgen -G 'addons/*.js' > /dev/null; then
-            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f?v=${GITHUB_SHA}\"></script></body>#" index.html; done
           fi
+          grep -q "prelude/autosave-bootstrap-guard.js?v=${GITHUB_SHA}" index.html
+          grep -q "ux-v08.js?v=${GITHUB_SHA}" index.html
+          grep -q "addons/.*?v=${GITHUB_SHA}" index.html
 
       - name: Capture proven iPhone-sized world screenshot
         shell: bash
@@ -67,7 +72,7 @@ jobs:
             --run-all-compositor-stages-before-draw \
             --dump-dom \
             --screenshot=/tmp/lq-world-390x844.png \
-            'http://127.0.0.1:8130/?lqSmoke=1' \
+            'http://127.0.0.1:8130/?lqReq127RenderSmoke=1' \
             >/tmp/lq-render-dom.html 2>/tmp/lq-render-chrome.log
           chrome_status=$?
           set -e
@@ -76,35 +81,33 @@ jobs:
           echo "Chrome world capture status: $chrome_status"
           ls -lh /tmp/lq-world-390x844.png
 
-          # Never accept a title/menu screenshot as visual-liveness evidence.
           for needle in \
-            'lqRuntimeSmokeMarker' \
+            'id="lqReq127RenderSmokeMarker"' \
+            'data-status="PASS"' \
             'data-screen="world"' \
+            'data-map="town"' \
             'data-shell="true"' \
+            'data-world="true"' \
             'data-player="true"' \
             'id="lqReq127DiagnosticsMarker"' \
             'data-req="127"'; do
             if ! grep -q "$needle" /tmp/lq-render-dom.html; then
-              echo "Rendered-pixel preflight did not prove required world/diagnostic state: $needle"
-              grep -o 'lqRuntimeSmokeMarker[^<]*\|lqReq127DiagnosticsMarker[^<]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-req="[^"]*"' /tmp/lq-render-dom.html | tail -60 || true
+              echo "REQ-127 clean rendered-pixel preflight missing: $needle"
+              grep -o 'lqReq127RenderSmokeMarker[^<]*\|lqReq127DiagnosticsMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-render-dom.html | tail -80 || true
               exit 1
             fi
           done
-          if grep -q 'lqRuntimeSmokeFailure' /tmp/lq-render-dom.html; then
-            echo 'Runtime world smoke reported failure during render capture'
-            exit 1
-          fi
           if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-render-chrome.log; then
-            echo 'Browser runtime error detected during world screenshot capture'
+            echo 'Browser runtime error detected during clean REQ-127 world capture'
             cat /tmp/lq-render-chrome.log
             exit 1
           fi
           if grep -q '"errors":\[[^]]' /tmp/lq-render-dom.html; then
-            echo 'REQ-127 runtime diagnostics captured startup errors'
+            echo 'REQ-127 runtime diagnostics captured startup errors in clean mode'
             grep -o 'id="lqReq127DiagnosticsMarker"[^>]*>[^<]*' /tmp/lq-render-dom.html | tail -1 || true
             exit 1
           fi
-          echo 'REQ-127 world-state + runtime-diagnostics preflight PASS before pixel analysis'
+          echo 'REQ-127 clean world-state + runtime-diagnostics preflight PASS before pixel analysis'
 
       - name: Analyze rendered world pixels for black-screen regression
         run: python3 tools/lq-png-black-check.py /tmp/lq-world-390x844.png | tee /tmp/lq-render-metrics.txt
