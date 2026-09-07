@@ -2,8 +2,8 @@
 'use strict';
 
 /* P0 touch re-audit probe. Inert in normal play. It verifies visualViewport
-   offset/scroll re-clamp, pagehide cleanup, and dialogue tap-vs-native-pan
-   arbitration without adding any production input path. */
+   offset/scroll re-clamp, pagehide cleanup, hard-stop viewport boundaries, and
+   dialogue tap-vs-native-pan arbitration without adding any production input path. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function pointer(type,target,id,x,y){
@@ -31,7 +31,7 @@ setTimeout(()=>{
   const vv=window.visualViewport;
   const status=window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS;
   const snapshot=structuredClone(s);
-  let scrollReclamped=true,holdPreserved=true,releaseClean=true,pagehideClean=true;
+  let scrollReclamped=true,holdPreserved=true,releaseClean=true,pagehideClean=true,windowResizeStops=false,orientationStops=false;
   let dialoguePanContract=false,dialoguePointerDownNative=false,dialoguePointerMoveNative=false,dialogueSwipeNoMove=false,dialogueSwipeNoAction=true;
   try{
     stopMoving();
@@ -65,6 +65,29 @@ setTimeout(()=>{
     pagehideClean=!pad.classList.contains('visible')&&!pad.querySelector('.lqFloatArrow.active')&&!window.__lqFloatFallbackTimer;
     pointer('pointerup',window,791,x+66,y);
 
+    // Hard viewport changes are explicit release-safety boundaries. Unlike
+    // visualViewport resize/scroll (browser chrome), window resize and orientation
+    // changes must revoke the owned drag so movement cannot survive a layout reset.
+    s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;render();
+    shell=document.querySelector('.gameShell');r=shell.getBoundingClientRect();
+    x=r.left+Math.max(96,Math.min(r.width-96,r.width*.5));
+    y=r.top+Math.max(96,Math.min(r.height-96,r.height*.55));
+    pointer('pointerdown',shell,793,x,y);
+    pointer('pointermove',window,793,x+66,y);
+    window.dispatchEvent(new Event('resize'));
+    windowResizeStops=!pad.classList.contains('visible')&&!pad.querySelector('.lqFloatArrow.active')&&!window.__lqFloatFallbackTimer;
+    pointer('pointerup',window,793,x+66,y);
+
+    s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;render();
+    shell=document.querySelector('.gameShell');r=shell.getBoundingClientRect();
+    x=r.left+Math.max(96,Math.min(r.width-96,r.width*.5));
+    y=r.top+Math.max(96,Math.min(r.height-96,r.height*.55));
+    pointer('pointerdown',shell,794,x,y);
+    pointer('pointermove',window,794,x+66,y);
+    window.dispatchEvent(new Event('orientationchange'));
+    orientationStops=!pad.classList.contains('visible')&&!pad.querySelector('.lqFloatArrow.active')&&!window.__lqFloatFallbackTimer;
+    pointer('pointerup',window,794,x+66,y);
+
     // REQ-021 + REQ-022 integration: a dialogue that is already open must keep
     // short taps available to canonical Action, but a swipe belongs to native
     // pan-y scrolling. Synthetic events cannot scroll the browser, so assert the
@@ -89,13 +112,13 @@ setTimeout(()=>{
     dialogueSwipeNoMove=s.x===beforeX&&s.y===beforeY;
     dialogueSwipeNoAction=s.dialog===beforeDialog;
 
-    const contract=!!status?.visualViewportOffsetAware&&!!status?.visualViewportScrollReclamp&&!!status?.pagehideStops&&!!status?.dialoguePanYScroll;
-    if(!(contract&&scrollReclamped&&holdPreserved&&releaseClean&&pagehideClean&&dialoguePanContract&&dialoguePointerDownNative&&dialoguePointerMoveNative&&dialogueSwipeNoMove&&dialogueSwipeNoAction))fail('P0 viewport/pagehide/dialogue-pan safety assertion false');
-    marker({supported:!!vv,contract,scrollReclamped,holdPreserved,releaseClean,pagehideClean,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction});
+    const contract=!!status?.visualViewportOffsetAware&&!!status?.visualViewportScrollReclamp&&!!status?.pagehideStops&&!!status?.viewportChangeStops&&!!status?.dialoguePanYScroll;
+    if(!(contract&&scrollReclamped&&holdPreserved&&releaseClean&&pagehideClean&&windowResizeStops&&orientationStops&&dialoguePanContract&&dialoguePointerDownNative&&dialoguePointerMoveNative&&dialogueSwipeNoMove&&dialogueSwipeNoAction))fail('P0 viewport/pagehide/dialogue-pan safety assertion false');
+    marker({supported:!!vv,contract,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction});
   }catch(err){
     console.error('lqP0TouchExtendedSmokeFailure',err);
     fail(err&&err.message);
-    marker({supported:!!vv,scrollReclamped,holdPreserved,releaseClean,pagehideClean,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,error:true});
+    marker({supported:!!vv,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,error:true});
   }finally{
     try{stopMoving();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}catch{}
   }
