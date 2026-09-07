@@ -1,29 +1,29 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 18:38 JST
+- UPDATED_AT: 2026-09-07 20:28 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `aae39688198f0587386ce7225390488fe490a2d1`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `c0cae32aabf14547c903ce976f83cc6aa4681c9b`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `REQ-133 IN_PROGRESS / UPPER PURSUIT TERMINAL GUARD + DETERMINISTIC SMOKE WIRED / PAGES SUCCESS / RENDER LIVENESS PENDING / IOS_PHYSICAL_VERIFICATION=PENDING`
-- ACTIVE_REQUIREMENT_ID: `REQ-133`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md`
+- CURRENT_BUILD_STATUS: `P0 INPUT RE-AUDIT / REQ-021 + REQ-022 + REQ-001 FRESH CODE VERIFIED / LONG-PRESS + MULTITOUCH REGRESSION HARDENING IN FLIGHT / IOS_PHYSICAL_VERIFICATION=PENDING`
+- ACTIVE_REQUIREMENT_ID: `REQ-021`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-021_TAP_ANYWHERE_ACTION.md`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
-- READY_REQUIREMENTS: `REQ-121_CLOUDBREAK_WIND_STAIR_TRANSITION_DEADLOCK_FIX; REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE; REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING`
+- READY_REQUIREMENTS: `NONE at fresh queue; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132 VERIFY; REQ-133 sole IN_PROGRESS.`
+- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132/133 VERIFY; no ordinary IN_PROGRESS row. Owner-mandated P0 REQ-021/022/001 re-audit is active authority.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
 - RECENT_CHECKPOINTS: `ef184888... world-state proof before pixel PASS; 79b0cae0... PWA runtime diagnostics; 6c9fff52... isolated REQ-127 world smoke; 16590c97... clean SHA-versioned render diagnostic; b40204e6... post-Pages cache-busted recovery deploy; dd5f26ed... incident evidence sync.`
 - TESTS_AND_VERIFICATION: `Render run 34070096956 SUCCESS: 390x844 clean world, near_black=0.265579, bright=0.629712, 626 color bins. Normal Pages run 34070194697 SUCCESS. Cache-busted recovery run 34070253834 SUCCESS: 346 runtime script URLs versioned with build SHA dd5f26ed..., clean world pixel PASS near_black=0.265555, bright=0.629679, 626 color bins, deployment SUCCESS.`
 - KNOWN_ISSUES: `Last Owner physical evidence before the new cache-busted deployment was still a black iPhone Home Screen PWA. Chromium/public-artifact machine checks are healthy, so remaining uncertainty is physical iPhone PWA/WebKit state. IOS_PHYSICAL_VERIFICATION=PENDING.`
 - BLOCKERS: `No machine-side blocker. Exact Owner iPhone Home Screen WebKit state is not reproducible in the current CI environment.`
-- NEXT_ACTION: `Collect REQ-133 Render Liveness and cache-busted public deploy; promote VERIFY only when remaining machine/public gates are green, then continue fresh post-Chapter-1 stale-guidance audit.`
-- NEXT_ACTION_COMPLETION_CONDITION: `REQ-133 Pages + render-liveness + protected route/climax regressions green; queue/CURRENT synchronized; IOS physical remains PENDING.`
+- NEXT_ACTION: `Collect fresh P0 input/fullscreen regression results for stationary long-press no-Action and multitouch pointer ownership; confirm standard Pages + render/cache-busted public path, then preserve VERIFY with IOS physical PENDING and continue the next safe player-visible gap audit.`
+- NEXT_ACTION_COMPLETION_CONDITION: `Fresh 390x844 P0 input/fullscreen regression + Pages/public deployment green; REQ-021/022/001 remain machine-verified with IOS_PHYSICAL_VERIFICATION=PENDING.`
 - DO_NOT_REPEAT: `Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not restore the broad post-04:00 feature range before black-screen isolation is stable. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup remain protected.`
@@ -235,3 +235,18 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - Render Liveness: PENDING at this autosave.
 - Chapter 2 remains intentionally undesigned.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+
+## BOOT REALITY REPAIR — 2026-09-07 20:28 JST
+
+- SELF_AUDIT_GUARD: `LOADED_APPLIED`.
+- BOOT_REALITY_AUDIT: `REPAIRED`.
+- OWNER_PRIORITY_AUDIT: `REPAIRED`: latest loader explicitly re-calls REQ-021 -> REQ-022 -> REQ-001 as absolute P0 re-audit authority.
+- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED`: CURRENT still listed REQ-121/117/118 as READY even though fresh queue/requirements are VERIFY, and REQ-133 had completed machine/public gates while metadata still said Render pending.
+- SELF_REPAIR_ACTIONS: `REQ-133 promoted VERIFY; stale READY projection removed; active authority returned to P0 input re-audit; fresh controller/fullscreen implementation and current Pages touch gate re-read.`
+- REQ-133 EVIDENCE: `Pages 34106890062 SUCCESS; Render Liveness 34106890050 SUCCESS; cache-busted public deploy 34106990439 SUCCESS.`
+- REQ-021 RE-AUDIT HARDENING: `1421c9e8... adds stationary >420ms long-press release => no Action/no movement/cleanup regression under ?lqTouchSmoke=1.`
+- REQ-001 RE-AUDIT HARDENING: `c0cae32a... adds first-pointer ownership / second-touch cannot steal movement regression under ?lqTouchSmoke=1.`
+- REQ-022 FRESH REALITY: `100dvh world, safe-area overlays, transparent controls plane and 390x844 geometry gate remain present at fresh HEAD.`
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.

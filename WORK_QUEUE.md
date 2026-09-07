@@ -132,7 +132,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 114 | REQ-132 | P1 | VERIFY | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Final regression e4c7585f...; Pages 34100979461 SUCCESS; Render Liveness 34100979510 SUCCESS; REQ-121 34100979538 SUCCESS; REQ-128 34100979558 SUCCESS; cache-busted deploy 34101080278 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
 
-| 115 | REQ-133 | P1 | IN_PROGRESS | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | windShelf / skylineTraverse / cloudbreakSaddle active pursuit guide+marker are terminally suppressed after chapter1Complete by presentation-only late guard. Pages 34106696700 SUCCESS; REQ-121 34106696470 SUCCESS; REQ-128 34106697030 SUCCESS. Render Liveness pending. IOS_PHYSICAL_VERIFICATION=PENDING. |
+| 115 | REQ-133 | P1 | VERIFY | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | windShelf / skylineTraverse / cloudbreakSaddle terminal guidance closure machine-complete. Pages 34106890062 SUCCESS; Render Liveness 34106890050 SUCCESS; cache-busted public deploy 34106990439 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 ## STATUS DEFINITIONS
 
 ### BACKLOG
