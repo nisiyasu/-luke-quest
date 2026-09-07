@@ -3,13 +3,13 @@
 - UPDATED_AT: 2026-09-07 13:20 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `20b62f98732450d83f19e08cdfed956a14920b36`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `9e357cff169d1783db93e1366e06b03cfadde6ee`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `REQ-129 MACHINE+PUBLIC PASS / REQ-130 ACTIVE / IOS_PHYSICAL_VERIFICATION=PENDING`
-- ACTIVE_REQUIREMENT_ID: `REQ-130`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md`
+- CURRENT_BUILD_STATUS: `REQ-130 MACHINE+PUBLIC PASS / NO IN_PROGRESS / IOS_PHYSICAL_VERIFICATION=PENDING`
+- ACTIVE_REQUIREMENT_ID: `NONE`
+- ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
 - READY_REQUIREMENTS: `REQ-121_CLOUDBREAK_WIND_STAIR_TRANSITION_DEADLOCK_FIX; REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE; REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING`
@@ -22,8 +22,8 @@
 - TESTS_AND_VERIFICATION: `Render run 34070096956 SUCCESS: 390x844 clean world, near_black=0.265579, bright=0.629712, 626 color bins. Normal Pages run 34070194697 SUCCESS. Cache-busted recovery run 34070253834 SUCCESS: 346 runtime script URLs versioned with build SHA dd5f26ed..., clean world pixel PASS near_black=0.265555, bright=0.629679, 626 color bins, deployment SUCCESS.`
 - KNOWN_ISSUES: `Last Owner physical evidence before the new cache-busted deployment was still a black iPhone Home Screen PWA. Chromium/public-artifact machine checks are healthy, so remaining uncertainty is physical iPhone PWA/WebKit state. IOS_PHYSICAL_VERIFICATION=PENDING.`
 - BLOCKERS: `No machine-side blocker. Exact Owner iPhone Home Screen WebKit state is not reproducible in the current CI environment.`
-- NEXT_ACTION: `REQ-130 collect dedicated gate and Pages results; repair any regression, then promote only after public inclusion succeeds.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Chapter 1 completion is visibly projected in ADVENTURE RECORD from canonical chapter1Complete, existing counters remain intact, dedicated gate and Pages succeed.`
+- NEXT_ACTION: `Fresh-audit Chapter 1 completion surfaces for the next safe player-visible consistency defect; do not invent Chapter 2.`
+- NEXT_ACTION_COMPLETION_CONDITION: `A fresh, non-duplicate player-visible defect is proven from code and registered as the sole next IN_PROGRESS requirement, or a true blocker is recorded.`
 - DO_NOT_REPEAT: `Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not restore the broad post-04:00 feature range before black-screen isolation is stable. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup remain protected.`
