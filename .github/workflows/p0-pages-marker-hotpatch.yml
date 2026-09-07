@@ -17,6 +17,7 @@ jobs:
           fetch-depth: 0
       - name: Require new P0 regression markers in Pages gate
         run: |
+          echo 'Applying P0 marker enforcement to authoritative Pages gate.'
           python3 - <<'PY'
           from pathlib import Path
           p=Path('.github/workflows/pages.yml')
