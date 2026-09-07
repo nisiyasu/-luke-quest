@@ -4,8 +4,8 @@
 /* REQ-001 P0 re-audit hardening.
    Inert in normal play. Under ?lqTouchSmoke=1 it proves that only the first
    active pointer owns movement and a second touch cannot steal direction.
-   Runs after the REQ-021 long-press regression so global pointer state is not
-   shared by concurrent smoke cases. */
+   It waits for the REQ-021 long-press PASS marker so smoke cases never share
+   the controller's single global pointer sequence. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function pointer(type,target,id,x,y,isPrimary){
@@ -25,8 +25,8 @@ function mark(data){
   if(!m){m=document.createElement('i');m.id='lqReq001MultitouchSmokeMarker';m.hidden=true;document.body.appendChild(m);}
   Object.entries(data).forEach(([k,v])=>m.dataset[k]=String(v));
 }
-
-setTimeout(()=>{
+function run(){
+  if(document.getElementById('lqReq001MultitouchSmokeMarker'))return;
   if(typeof s==='undefined'||typeof render!=='function')return fail('REQ-001 runtime authority missing');
   const snapshot=structuredClone(s);
   try{
@@ -44,7 +44,6 @@ setTimeout(()=>{
     pointer('pointerdown',shell,930,x,y,true);
     pointer('pointerdown',shell,931,x+8,y+8,false);
     pointer('pointermove',window,931,x-90,y+2,false);
-
     const secondaryIgnored=s.x===before.x&&s.y===before.y&&!pad.querySelector('.lqFloatArrow.active');
 
     pointer('pointermove',window,930,x+70,y,true);
@@ -62,5 +61,12 @@ setTimeout(()=>{
     fail(err&&err.message);
     mark({secondaryIgnored:false,primaryOwns:false,cleaned:false,error:true});
   }
-},2420);
+}
+function waitForLongPress(){
+  const m=document.getElementById('lqReq021LongPressSmokeMarker');
+  if(m&&m.dataset.noAction==='true'&&m.dataset.noMove==='true'&&m.dataset.cleaned==='true')return run();
+  if(document.getElementById('lqFloatingTouchSmokeFailure'))return;
+  setTimeout(waitForLongPress,20);
+}
+setTimeout(waitForLongPress,1700);
 })();
