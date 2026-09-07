@@ -2,10 +2,10 @@
 'use strict';
 
 /* P0 touch re-audit probe. Inert in normal play. It verifies visualViewport
-   offset/scroll re-clamp, pagehide cleanup, hard-stop viewport boundaries, and
-   dialogue tap-vs-native-pan arbitration without adding any production input path.
-   It runs only after the primary floating-touch smoke has finished so two probes
-   never compete for the same pointer/controller/state ownership. */
+   offset/scroll re-clamp, pagehide cleanup, hard-stop viewport boundaries,
+   explicit A/MENU exclusion, and dialogue tap-vs-native-pan arbitration without
+   adding any production input path. It runs only after the primary floating-touch
+   smoke has finished so two probes never compete for the same pointer/controller/state ownership. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function pointer(type,target,id,x,y){
@@ -36,6 +36,7 @@ function runProbe(){
   const status=window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS;
   const snapshot=structuredClone(s);
   let scrollReclamped=true,holdPreserved=true,releaseClean=true,pagehideClean=true,windowResizeStops=false,orientationStops=false;
+  let actionOverlayControlsExcluded=false;
   let dialoguePanContract=false,dialoguePointerDownNative=false,dialoguePointerMoveNative=false,dialogueSwipeNoMove=false,dialogueSwipeNoAction=true;
   try{
     stopMoving();
@@ -47,6 +48,20 @@ function runProbe(){
     let r=shell.getBoundingClientRect();
     let x=r.left+Math.max(96,Math.min(r.width-96,r.width*.5));
     let y=r.top+Math.max(96,Math.min(r.height-96,r.height*.55));
+
+    // REQ-021 explicit-control safety: every currently rendered A/MENU action-pad
+    // button must be excluded from world pointer ownership. Synthetic pointer events
+    // intentionally do not click the controls; this isolates the global-input contract.
+    const actionControls=[...document.querySelectorAll('.actionPad button')];
+    if(actionControls.length<2)throw new Error('P0 touch probe missing A/MENU controls');
+    actionOverlayControlsExcluded=actionControls.every((control,index)=>{
+      const cr=control.getBoundingClientRect();
+      const cx=cr.left+Math.max(1,cr.width*.5),cy=cr.top+Math.max(1,cr.height*.5);
+      pointer('pointerdown',control,780+index,cx,cy);
+      const excluded=!pad.classList.contains('visible')&&!pad.querySelector('.lqFloatArrow.active');
+      pointer('pointerup',window,780+index,cx,cy);
+      return excluded&&!pad.classList.contains('visible')&&!pad.querySelector('.lqFloatArrow.active')&&!window.__lqFloatFallbackTimer;
+    });
 
     if(vv){
       pointer('pointerdown',shell,790,x,y);
@@ -117,12 +132,12 @@ function runProbe(){
     dialogueSwipeNoAction=s.dialog===beforeDialog;
 
     const contract=!!status?.visualViewportOffsetAware&&!!status?.visualViewportScrollReclamp&&!!status?.pagehideStops&&!!status?.viewportChangeStops&&!!status?.dialoguePanYScroll;
-    const pass=contract&&scrollReclamped&&holdPreserved&&releaseClean&&pagehideClean&&windowResizeStops&&orientationStops&&dialoguePanContract&&dialoguePointerDownNative&&dialoguePointerMoveNative&&dialogueSwipeNoMove&&dialogueSwipeNoAction;
-    marker({supported:!!vv,contract,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,pass});
-    if(!pass)fail(`P0 extended assertion false resize=${windowResizeStops} orientation=${orientationStops} dialoguePan=${dialoguePanContract}`);
+    const pass=contract&&actionOverlayControlsExcluded&&scrollReclamped&&holdPreserved&&releaseClean&&pagehideClean&&windowResizeStops&&orientationStops&&dialoguePanContract&&dialoguePointerDownNative&&dialoguePointerMoveNative&&dialogueSwipeNoMove&&dialogueSwipeNoAction;
+    marker({supported:!!vv,contract,actionOverlayControlsExcluded,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,pass});
+    if(!pass)fail(`P0 extended assertion false controls=${actionOverlayControlsExcluded} resize=${windowResizeStops} orientation=${orientationStops} dialoguePan=${dialoguePanContract}`);
   }catch(err){
     console.error('lqP0TouchExtendedSmokeFailure',err);
-    marker({supported:!!vv,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,error:true,pass:false});
+    marker({supported:!!vv,actionOverlayControlsExcluded,scrollReclamped,holdPreserved,releaseClean,pagehideClean,windowResizeStops,orientationStops,dialoguePanContract,dialoguePointerDownNative,dialoguePointerMoveNative,dialogueSwipeNoMove,dialogueSwipeNoAction,error:true,pass:false});
     fail(err&&err.message);
   }finally{
     try{stopMoving();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}catch{}
