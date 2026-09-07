@@ -1,4 +1,4 @@
-(()=>{
+(() => {
   'use strict';
   if(window.LQ_REQ127_RUNTIME_DIAGNOSTICS)return;
 
