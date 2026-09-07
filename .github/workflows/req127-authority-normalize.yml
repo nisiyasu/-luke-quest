@@ -1,4 +1,4 @@
-name: REQ-127 authority normalize
+name: REQ-127 CURRENT authority sync
 
 on:
   push:
@@ -9,40 +9,57 @@ permissions:
   contents: write
 
 jobs:
-  normalize:
+  sync-current:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Normalize REQ-127 queue authority
+      - name: Synchronize CURRENT to reopened physical black-screen reality
         run: |
           python - <<'PY'
           from pathlib import Path
-          p=Path('WORK_QUEUE.md')
+          import re
+
+          p=Path('CURRENT.md')
           t=p.read_text()
-          old='requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md'
-          new='requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md'
-          if old in t:
-              t=t.replace(old,new)
+          replacements={
+            r'^- UPDATED_AT:.*$':'- UPDATED_AT: 2026-09-08 08:31 JST',
+            r'^- CURRENT_BUILD_STATUS:.*$':'- CURRENT_BUILD_STATUS: `REQ-127 P0 REOPENED from fresh Owner physical evidence. Full-viewport map transition fade now fails safe on pagehide/pageshow/visibilitychange/freeze; Standard Pages 34170019367 SUCCESS; Render Liveness 34170019384 SUCCESS including Chromium + WebKit; cache-busted recovery 34170083404 SUCCESS. Physical iPhone result is still unresolved; IOS_PHYSICAL_VERIFICATION=PENDING.`',
+            r'^- ACTIVE_REQUIREMENT_ID:.*$':'- ACTIVE_REQUIREMENT_ID: `REQ-127`',
+            r'^- ACTIVE_REQUIREMENT_PATH:.*$':'- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md`',
+            r'^- QUEUE_PROJECTION_STATUS:.*$':'- QUEUE_PROJECTION_STATUS: `REQ-127 is the sole IN_PROGRESS P0 after Owner reconfirmed persistent dark/black iPhone PWA. Other VERIFY/BLOCKED/BACKLOG rows do not consume WIP.`',
+            r'^- KNOWN_ISSUES:.*$':'- KNOWN_ISSUES: `Owner physical iPhone Home Screen PWA remains dark/black as of 2026-09-08. Lifecycle stale full-screen fade is a repaired candidate failure class, not yet proven as the physical root cause. IOS_PHYSICAL_VERIFICATION=PENDING.`',
+            r'^- BLOCKERS:.*$':'- BLOCKERS: `No machine-side blocker: current candidate is machine/public green. Physical iPhone confirmation is Owner-only and remains pending; continue evidence-based REQ-127 diagnosis if symptom persists.`',
+            r'^- NEXT_ACTION:.*$':'- NEXT_ACTION: `Keep REQ-127 active until Owner physical verification. If device remains dark after this deployment, use lifecycle/runtime evidence to isolate the next iPhone-PWA-only occluder/compositor failure without reapplying already-failed rollback/cache theories.`',
+            r'^- NEXT_ACTION_COMPLETION_CONDITION:.*$':'- NEXT_ACTION_COMPLETION_CONDITION: `Physical iPhone no longer presents the persistent dark/black world, or a new evidence-backed REQ-127 defect is reproduced and repaired with Standard Pages + Render Liveness + cache-busted public recovery green.`'
+          }
+          for pattern,repl in replacements.items():
+            t,n=re.subn(pattern,repl,t,count=1,flags=re.M)
+            if n!=1: raise SystemExit(f'CURRENT field patch failed: {pattern} -> {n}')
+
+          heading='## REQ-127 — IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY'
+          if heading not in t: raise SystemExit('REQ-127 CURRENT section missing')
+          before,after=t.split(heading,1)
+          after,n=re.subn(r'\n\n- STATUS:.*?\n', '\n\n- STATUS: `IN_PROGRESS / OWNER PHYSICAL BLACK-SCREEN REPORT REOPENED / MACHINE+PUBLIC CANDIDATE GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`.\n', after, count=1)
+          if n!=1: raise SystemExit('REQ-127 status patch failed')
+          t=before+heading+after
           p.write_text(t)
-          dup=Path('requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md')
-          if dup.exists():
-              dup.unlink()
           PY
-      - name: Verify single authority and commit
+      - name: Verify and commit CURRENT sync
         run: |
           python - <<'PY'
           from pathlib import Path
-          t=Path('WORK_QUEUE.md').read_text()
-          assert 'requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md' in t
-          assert 'requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md' not in t
-          assert Path('requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md').exists()
-          assert not Path('requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md').exists()
+          t=Path('CURRENT.md').read_text()
+          assert '- ACTIVE_REQUIREMENT_ID: `REQ-127`' in t
+          assert '- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md`' in t
+          assert 'OWNER PHYSICAL BLACK-SCREEN REPORT REOPENED' in t
+          assert 'IOS_PHYSICAL_VERIFICATION=PENDING' in t
           PY
-          if git diff --quiet; then exit 0; fi
+          if git diff --quiet -- CURRENT.md; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'REQ-127 normalize black-screen recovery authority'
+          git add CURRENT.md
+          git commit -m 'chore: sync REQ-127 reopened black-screen checkpoint'
+          git pull --rebase origin main
           git push origin HEAD:main
