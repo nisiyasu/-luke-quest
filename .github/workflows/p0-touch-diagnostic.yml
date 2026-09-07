@@ -17,6 +17,7 @@ jobs:
           fetch-depth: 0
       - name: Assemble public injection order
         run: |
+          echo 'P0 re-audit checkpoint'
           python3 - <<'PY'
           from pathlib import Path
           p=Path('index.html')
