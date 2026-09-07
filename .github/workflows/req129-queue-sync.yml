@@ -1,0 +1,49 @@
+name: REQ-129 Queue Sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req129-queue-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Repair queue and CURRENT to fresh reality
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          q=Path('WORK_QUEUE.md')
+          t=q.read_text()
+          old='| 110 | REQ-128 | P1 | IN_PROGRESS | Chapter 1 Climax — Leon Confrontation / Sister Interruption / Return to Aldia | `requirements/REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md` | Owner-confirmed Chapter 1 climax only. Reuse actual current route/Leon authority; nonlethal defensive confrontation; sister interruption/nonfatal wound; return to kingdom ends Chapter 1. Do not name sister or invent Chapter 2. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          new='| 110 | REQ-128 | P1 | VERIFY | Chapter 1 Climax — Leon Confrontation / Sister Interruption / Return to Aldia | `requirements/REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md` | End-to-end climax machine gates PASS, Pages/render/route regression PASS; save round-trip evidence required by latest workflow. Sister remains unnamed; Chapter 2 not invented. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if old in t: t=t.replace(old,new,1)
+          if 'REQ-129_CHAPTER_01_COMPLETE_OBJECTIVE_CLOSURE.md' not in t:
+              marker=new+'\n'
+              row='| 111 | REQ-129 | P1 | IN_PROGRESS | Chapter 1 Complete Objective / Journal Closure | `requirements/REQ-129_CHAPTER_01_COMPLETE_OBJECTIVE_CLOSURE.md` | Fix ghost pursuit objective after chapter1Complete. Terminal objective must outrank stale north-route flags without inventing Chapter 2. Dedicated gate 34091231900 SUCCESS; Pages confirmation pending. IOS_PHYSICAL_VERIFICATION=PENDING. |\n'
+              if marker not in t: raise SystemExit('REQ-128 queue marker not found')
+              t=t.replace(marker,marker+row,1)
+          q.write_text(t)
+
+          p=Path('CURRENT.md'); c=p.read_text()
+          c=re.sub(r'- LATEST_IMPLEMENTATION_COMMIT_SHA: `[^`]+`', '- LATEST_IMPLEMENTATION_COMMIT_SHA: `1ffdc3805d50e4b6cca4a438b024e484a08cb398`', c, count=1)
+          c=re.sub(r'- CURRENT_BUILD_STATUS: `[^`]+`', '- CURRENT_BUILD_STATUS: `REQ-128 MACHINE COMPLETE / REQ-129 ACTIVE / IOS_PHYSICAL_VERIFICATION=PENDING`', c, count=1)
+          c=re.sub(r'- ACTIVE_REQUIREMENT_ID: `[^`]+`', '- ACTIVE_REQUIREMENT_ID: `REQ-129`', c, count=1)
+          c=re.sub(r'- ACTIVE_REQUIREMENT_PATH: `[^`]+`', '- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-129_CHAPTER_01_COMPLETE_OBJECTIVE_CLOSURE.md`', c, count=1)
+          c=re.sub(r'- NEXT_ACTION: `[^`]+`', '- NEXT_ACTION: `REQ-129 verify standard Pages/public inclusion, then promote to VERIFY and select the next safe READY work without inventing Chapter 2.`', c, count=1)
+          c=re.sub(r'- NEXT_ACTION_COMPLETION_CONDITION: `[^`]+`', '- NEXT_ACTION_COMPLETION_CONDITION: `REQ-129 dedicated gate and Pages are SUCCESS; queue/CURRENT synchronized; no stale pursuit objective remains after chapter1Complete.`', c, count=1)
+          p.write_text(c)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md CURRENT.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'queue: promote REQ-128 and activate REQ-129 objective closure'
+          git push origin HEAD:main
