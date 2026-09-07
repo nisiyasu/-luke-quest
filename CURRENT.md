@@ -1,29 +1,29 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 20:28 JST
+- UPDATED_AT: 2026-09-07 23:31 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `c0cae32aabf14547c903ce976f83cc6aa4681c9b`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `e8cbe227390a3b59673d6ed2a92fd08e8eeae53d`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `P0 INPUT RE-AUDIT / REQ-021 + REQ-022 + REQ-001 FRESH CODE VERIFIED / LONG-PRESS + MULTITOUCH REGRESSION HARDENING IN FLIGHT / IOS_PHYSICAL_VERIFICATION=PENDING`
-- ACTIVE_REQUIREMENT_ID: `REQ-021`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-021_TAP_ANYWHERE_ACTION.md`
+- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN / EVAC GUIDANCE MACHINE RE-AUDIT GREEN / PAGES + RENDER LIVENESS GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`
+- ACTIVE_REQUIREMENT_ID: `NONE`
+- ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
 - READY_REQUIREMENTS: `NONE at fresh queue; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132/133 VERIFY; no ordinary IN_PROGRESS row. Owner-mandated P0 REQ-021/022/001 re-audit is active authority.`
+- QUEUE_PROJECTION_STATUS: `No ordinary IN_PROGRESS or READY row. REQ-021/022/001/023 remain VERIFY with machine gates green; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
-- RECENT_CHECKPOINTS: `ef184888... world-state proof before pixel PASS; 79b0cae0... PWA runtime diagnostics; 6c9fff52... isolated REQ-127 world smoke; 16590c97... clean SHA-versioned render diagnostic; b40204e6... post-Pages cache-busted recovery deploy; dd5f26ed... incident evidence sync.`
-- TESTS_AND_VERIFICATION: `Render run 34070096956 SUCCESS: 390x844 clean world, near_black=0.265579, bright=0.629712, 626 color bins. Normal Pages run 34070194697 SUCCESS. Cache-busted recovery run 34070253834 SUCCESS: 346 runtime script URLs versioned with build SHA dd5f26ed..., clean world pixel PASS near_black=0.265555, bright=0.629679, 626 color bins, deployment SUCCESS.`
-- KNOWN_ISSUES: `Last Owner physical evidence before the new cache-busted deployment was still a black iPhone Home Screen PWA. Chromium/public-artifact machine checks are healthy, so remaining uncertainty is physical iPhone PWA/WebKit state. IOS_PHYSICAL_VERIFICATION=PENDING.`
-- BLOCKERS: `No machine-side blocker. Exact Owner iPhone Home Screen WebKit state is not reproducible in the current CI environment.`
-- NEXT_ACTION: `Collect fresh P0 input/fullscreen regression results for stationary long-press no-Action and multitouch pointer ownership; confirm standard Pages + render/cache-busted public path, then preserve VERIFY with IOS physical PENDING and continue the next safe player-visible gap audit.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Fresh 390x844 P0 input/fullscreen regression + Pages/public deployment green; REQ-021/022/001 remain machine-verified with IOS_PHYSICAL_VERIFICATION=PENDING.`
+- RECENT_CHECKPOINTS: `e8cbe227... REQ-023 smoke isolated from shared touch suite; 414431a7... isolated REQ-023 mode wiring; 72b49b32... dedicated REQ-023 browser gate; c0cae32a... P0 re-audit checkpoint.`
+- TESTS_AND_VERIFICATION: `HEAD e8cbe227...: REQ-023 gate run 34133245532 SUCCESS; standard Pages run 34133245493 SUCCESS; Render Liveness run 34133245531 SUCCESS; REQ-121 run 34133245454 SUCCESS; REQ-128 run 34133245510 SUCCESS. Prior false-red shared-smoke race eliminated by dedicated REQ-023 mode.`
+- KNOWN_ISSUES: `No machine regression currently observed in P0 touch/fullscreen/evacuation guidance paths. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
+- BLOCKERS: `No machine-side blocker for current VERIFY set. REQ-059 and Chapter 2 Story Canon work remain separately BLOCKED per WORK_QUEUE.`
+- NEXT_ACTION: `With no ordinary IN_PROGRESS/READY work, continue highest-value safe player-visible gap audit without inventing Chapter 2 or formal Owner-art decisions; preserve P0 input authorities.`
+- NEXT_ACTION_COMPLETION_CONDITION: `Any newly discovered defect is registered and repaired with focused browser regression + Pages/public inclusion evidence; otherwise preserve VERIFY and continue safe audit.`
 - DO_NOT_REPEAT: `Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not restore the broad post-04:00 feature range before black-screen isolation is stable. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup remain protected.`
@@ -34,7 +34,7 @@
 
 ## REQ-127 — IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY
 
-- STATUS: `IN_PROGRESS / ABSOLUTE P0`.
+- STATUS: `VERIFY / MACHINE RECOVERY COMPLETE / IOS_PHYSICAL_VERIFICATION=PENDING`.
 - Owner evidence before the latest recovery deployment: Home Screen PWA black; audio later absent; app foreground could briefly flash top HUD before returning black.
 - Rollback to the physical-good-time candidate `9e6cb573...` did not change the Owner symptom, so post-04:00 source changes alone were not a sufficient explanation.
 - Service-worker purge/unregister alone also did not prove recovery.
@@ -105,7 +105,7 @@ Protected late-game truths remain unrevealed.
 
 ## REQ-117 — WORLD / CHARACTER VISUAL RICHNESS UPGRADE
 
-- STATUS: `READY`.
+- STATUS: `VERIFY`.
 - Owner-directed major presentation improvement.
 - Scope includes character foot shadows, restrained idle animation, interaction popup easing, map edge blending, depth/drop shadows, ambient air particles and field-sprite richness principles.
 - Preserve canonical touch/input/collision/save/story authorities.
@@ -113,7 +113,7 @@ Protected late-game truths remain unrevealed.
 
 ## REQ-118 — HIGH-QUALITY HERO SELECTION OPENING
 
-- STATUS: `READY`.
+- STATUS: `VERIFY`.
 - Latest Owner-approved story implementation request.
 - Dedicated requirement: `requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md`.
 - Fresh NEW GAME should receive the playable Opening through a safe integration with actual title/newGame architecture.
