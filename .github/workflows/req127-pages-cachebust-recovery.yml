@@ -1,0 +1,134 @@
+name: REQ-127 Cache-Busted Pages Recovery
+
+on:
+  workflow_run:
+    workflows: ["Deploy LUKE QUEST to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  BUILD_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+concurrency:
+  group: "req127-cachebust-pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy-cachebusted:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact successful Pages source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BUILD_SHA }}
+
+      - name: Validate runtime sources before recovery deploy
+        shell: bash
+        run: |
+          node --check sw.js
+          node --check prelude/autosave-bootstrap-guard.js
+          for f in ux-v*.js; do node --check "$f"; done
+          for f in addons/*.js; do node --check "$f"; done
+          node tools/lq-static-regression.mjs
+          node tools/lq-addon-contract.mjs
+          python3 -m py_compile tools/lq-png-black-check.py
+
+      - name: Assemble immutable cache-busted public build
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          sha=os.environ['BUILD_SHA']
+          guard=f'<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js?v={sha}"></script><script>'
+          if html.count(marker)!=1:
+              raise SystemExit(f'expected exactly one bootstrap marker, found {html.count(marker)}')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f?v=${BUILD_SHA}\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f?v=${BUILD_SHA}\"></script></body>#" index.html; done
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re
+          html=Path('index.html').read_text()
+          sha=os.environ['BUILD_SHA']
+          srcs=re.findall(r'<script[^>]+src="([^"]+)"',html)
+          runtime=[s for s in srcs if s.startswith('ux-v') or s.startswith('addons/') or s.startswith('prelude/')]
+          if not runtime:
+              raise SystemExit('no runtime script URLs found')
+          bad=[s for s in runtime if f'?v={sha}' not in s]
+          if bad:
+              raise SystemExit('unversioned runtime script URLs: '+', '.join(bad[:12]))
+          print(f'REQ-127 immutable runtime URLs PASS: {len(runtime)} scripts @ {sha}')
+          PY
+
+      - name: Verify clean world pixels on exact recovery artifact
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8137 >/tmp/lq-req127-recovery-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 40 "$BROWSER" \
+            --headless=new --no-sandbox --disable-dev-shm-usage \
+            --disable-background-networking --disable-extensions --disable-sync --no-first-run \
+            --hide-scrollbars --force-device-scale-factor=1 --window-size=390,844 \
+            --virtual-time-budget=6200 --run-all-compositor-stages-before-draw \
+            --dump-dom --screenshot=/tmp/lq-req127-recovery.png \
+            'http://127.0.0.1:8137/?lqReq127RenderSmoke=1' \
+            >/tmp/lq-req127-recovery-dom.html 2>/tmp/lq-req127-recovery-chrome.log
+          status=$?
+          set -e
+          test -s /tmp/lq-req127-recovery.png
+          test -s /tmp/lq-req127-recovery-dom.html
+          for needle in 'id="lqReq127RenderSmokeMarker"' 'data-status="PASS"' 'data-screen="world"' 'data-shell="true"' 'data-world="true"' 'data-player="true"' 'id="lqReq127DiagnosticsMarker"'; do
+            grep -q "$needle" /tmp/lq-req127-recovery-dom.html || { echo "missing $needle"; exit 1; }
+          done
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-req127-recovery-chrome.log; then
+            cat /tmp/lq-req127-recovery-chrome.log
+            exit 1
+          fi
+          if grep -q '"errors":\[[^]]' /tmp/lq-req127-recovery-dom.html; then
+            echo 'REQ-127 diagnostics captured clean-mode startup errors'
+            exit 1
+          fi
+          python3 tools/lq-png-black-check.py /tmp/lq-req127-recovery.png | tee /tmp/lq-req127-recovery-metrics.txt
+          echo "REQ-127 cache-busted recovery artifact render PASS (chrome status $status)"
+
+      - name: Upload cache-busted site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - name: Deploy cache-busted recovery site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Preserve REQ-127 render evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req127-cachebust-evidence-${{ env.BUILD_SHA }}
+          path: |
+            /tmp/lq-req127-recovery.png
+            /tmp/lq-req127-recovery-dom.html
+            /tmp/lq-req127-recovery-chrome.log
+            /tmp/lq-req127-recovery-metrics.txt
+          if-no-files-found: warn
+          retention-days: 14
