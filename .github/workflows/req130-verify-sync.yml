@@ -1,0 +1,41 @@
+name: REQ-130 Verify Sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req130-verify-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Promote REQ-130 and clear active WIP
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          q=Path('WORK_QUEUE.md'); t=q.read_text()
+          old='| 112 | REQ-130 | P1 | IN_PROGRESS | Chapter 1 Adventure Record Completion | `requirements/REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md` | No READY remained after REQ-129. Directive-authorized player-visible completion projection: reuse canonical chapter1Complete in ADVENTURE RECORD without inventing Chapter 2. Implementation ffa72c14...; dedicated gate/public Pages pending. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          new='| 112 | REQ-130 | P1 | VERIFY | Chapter 1 Adventure Record Completion | `requirements/REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md` | Canonical chapter1Complete now projects COMPLETE/IN PROGRESS in ADVENTURE RECORD without story mutation. Implementation ffa72c14...; dedicated run 34091720377 SUCCESS; cache-busted public run 34091818716 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if old not in t: raise SystemExit('REQ-130 queue row drifted')
+          q.write_text(t.replace(old,new,1))
+          p=Path('CURRENT.md'); c=p.read_text()
+          c=re.sub(r'- LATEST_IMPLEMENTATION_COMMIT_SHA: `[^`]+`','- LATEST_IMPLEMENTATION_COMMIT_SHA: `9e357cff169d1783db93e1366e06b03cfadde6ee`',c,count=1)
+          c=re.sub(r'- CURRENT_BUILD_STATUS: `[^`]+`','- CURRENT_BUILD_STATUS: `REQ-130 MACHINE+PUBLIC PASS / NO IN_PROGRESS / IOS_PHYSICAL_VERIFICATION=PENDING`',c,count=1)
+          c=re.sub(r'- ACTIVE_REQUIREMENT_ID: `[^`]+`','- ACTIVE_REQUIREMENT_ID: `NONE`',c,count=1)
+          c=re.sub(r'- ACTIVE_REQUIREMENT_PATH: `[^`]+`','- ACTIVE_REQUIREMENT_PATH: `NONE`',c,count=1)
+          c=re.sub(r'- NEXT_ACTION: `[^`]+`','- NEXT_ACTION: `Fresh-audit Chapter 1 completion surfaces for the next safe player-visible consistency defect; do not invent Chapter 2.`',c,count=1)
+          c=re.sub(r'- NEXT_ACTION_COMPLETION_CONDITION: `[^`]+`','- NEXT_ACTION_COMPLETION_CONDITION: `A fresh, non-duplicate player-visible defect is proven from code and registered as the sole next IN_PROGRESS requirement, or a true blocker is recorded.`',c,count=1)
+          p.write_text(c)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md CURRENT.md
+          git commit -m 'queue: promote REQ-130 completion record to VERIFY'
+          git push origin HEAD:main
