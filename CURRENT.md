@@ -1,29 +1,29 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 11:05 JST
+- UPDATED_AT: 2026-09-07 13:20 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `707dab7a888bb7a0ba8e25f00316ee07d2e66327`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `8c7fb3588778708ae0f4639f8903f20bc590337f`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `REQ-117 A/B/C/D MACHINE+PUBLIC PASS / PAGES SUCCESS / RENDER LIVENESS SUCCESS / IOS_PHYSICAL_VERIFICATION=PENDING`
-- ACTIVE_REQUIREMENT_ID: `REQ-118`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md`
+- CURRENT_BUILD_STATUS: `REQ-118 A-H MACHINE+PUBLIC PASS / REQ-128 ACTIVE / IOS_PHYSICAL_VERIFICATION=PENDING`
+- ACTIVE_REQUIREMENT_ID: `REQ-128`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
 - READY_REQUIREMENTS: `REQ-121_CLOUDBREAK_WIND_STAIR_TRANSITION_DEADLOCK_FIX; REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE; REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING`
 - VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- QUEUE_PROJECTION_STATUS: `REQ-117 promoted to VERIFY after A/B/C/D + Pages + render-liveness PASS. REQ-118 is the sole IN_PROGRESS WIP.`
+- QUEUE_PROJECTION_STATUS: `REQ-118 promoted to VERIFY after full A-H + Pages + render gates. REQ-128 is the sole IN_PROGRESS WIP.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
 - RECENT_CHECKPOINTS: `ef184888... world-state proof before pixel PASS; 79b0cae0... PWA runtime diagnostics; 6c9fff52... isolated REQ-127 world smoke; 16590c97... clean SHA-versioned render diagnostic; b40204e6... post-Pages cache-busted recovery deploy; dd5f26ed... incident evidence sync.`
 - TESTS_AND_VERIFICATION: `Render run 34070096956 SUCCESS: 390x844 clean world, near_black=0.265579, bright=0.629712, 626 color bins. Normal Pages run 34070194697 SUCCESS. Cache-busted recovery run 34070253834 SUCCESS: 346 runtime script URLs versioned with build SHA dd5f26ed..., clean world pixel PASS near_black=0.265555, bright=0.629679, 626 color bins, deployment SUCCESS.`
 - KNOWN_ISSUES: `Last Owner physical evidence before the new cache-busted deployment was still a black iPhone Home Screen PWA. Chromium/public-artifact machine checks are healthy, so remaining uncertainty is physical iPhone PWA/WebKit state. IOS_PHYSICAL_VERIFICATION=PENDING.`
 - BLOCKERS: `No machine-side blocker. Exact Owner iPhone Home Screen WebKit state is not reproducible in the current CI environment.`
-- NEXT_ACTION: `REQ-118 Checkpoint A+B. Fresh-audit title/newGame/continue/save/bootstrap/world/dialogue/audio/fade/input architecture; implement a recoverable cold-open plus playable Aldia opening path without forcing progressed saves backward.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Fresh NEW GAME enters Opening A+B through canonical architecture; progressed saves bypass safely; REQ-021/022/001 regressions pass; checkpoint leaves HEAD playable and recoverable.`
+- NEXT_ACTION: `REQ-128 fresh implementation audit: recover actual current Chapter 1 route, Leon encounter, battle, dialogue, save and P0 input authorities; choose the smallest canon-safe climax staging path.`
+- NEXT_ACTION_COMPLETION_CONDITION: `Actual current route/Leon authority is identified and the first recoverable Chapter 1 climax checkpoint is implemented without naming the sister, inventing Chapter 2, or regressing save/input/fullscreen.`
 - DO_NOT_REPEAT: `Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not restore the broad post-04:00 feature range before black-screen isolation is stable. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup remain protected.`
@@ -172,3 +172,22 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - Checkpoint D preserves approved Luke 4-direction × 3-frame raster, routes it through the canonical visual body, and prevents sprite rerender from deleting the foot-shadow/body wrapper.
 - Dedicated A/B/C/D gate `34074892503`: SUCCESS. Pages `34074892512`: SUCCESS. Render Liveness `34074892523`: SUCCESS. REQ-121 regression `34074892552`: SUCCESS.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+
+## REQ-118 — HIGH-QUALITY HERO SELECTION OPENING — MACHINE COMPLETE
+
+- STATUS: `VERIFY`.
+- Full A-through-H integration run `34076886814`: SUCCESS.
+- Standard Pages `34076886815`: SUCCESS.
+- Render Liveness `34076886817`: SUCCESS.
+- REQ-121 progression regression `34076886818`: SUCCESS.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+
+## REQ-128 — CHAPTER 1 CLIMAX — ACTIVE
+
+- STATUS: `IN_PROGRESS`.
+- Requirement: `requirements/REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md`.
+- Authority: Owner-confirmed `STORY_CANON.md` Chapter 1 core only.
+- Protected unknowns: sister name/age/detailed personality; Chapter 2.
+- Required shape: reach Leon -> hero revelation -> nonlethal defensive confrontation -> sister interruption/nonfatal wound -> Luke aids her -> return to kingdom -> Chapter 1 end.
+- Next: fresh-audit actual route/Leon/battle/save/input implementation before coding.

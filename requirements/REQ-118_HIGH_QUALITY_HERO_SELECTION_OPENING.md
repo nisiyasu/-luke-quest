@@ -3,7 +3,7 @@
 - ID: `REQ-118`
 - TITLE: `High-Quality Hero Selection Opening / Playable Prologue`
 - PRIORITY: `P1`
-- STATUS: `IN_PROGRESS`
+- STATUS: `VERIFY`
 - CREATED_AT: `2026-09-07 JST`
 - TYPE: `PLAYER_VISIBLE / STORY / OPENING / TUTORIAL / PRESENTATION`
 - REPOSITORY: `nisiyasu/-luke-quest`
@@ -456,3 +456,15 @@ REQ-118 may move to `VERIFY` only when:
 - Do not copy a copyrighted game's art, map, music, text or exact cinematic staging.
 
 EOF
+
+
+---
+
+## 11. MACHINE VERIFICATION CHECKPOINT
+
+- Full A-through-H integration gate run `34076886814`: `SUCCESS`.
+- Standard Pages run `34076886815`: `SUCCESS`.
+- Render-liveness run `34076886817`: `SUCCESS`.
+- Existing REQ-121 progression regression run `34076886818`: `SUCCESS`.
+- Sub-gates A+B / C / D+E / F+G / H are green on the same implementation lineage.
+- Machine-verifiable implementation is complete; `IOS_PHYSICAL_VERIFICATION=PENDING`.
