@@ -1,0 +1,46 @@
+name: REQ-130 Queue Sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req130-queue-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Sync queue and CURRENT
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          q=Path('WORK_QUEUE.md'); t=q.read_text()
+          old='| 111 | REQ-129 | P1 | IN_PROGRESS | Chapter 1 Complete Objective / Journal Closure | `requirements/REQ-129_CHAPTER_01_COMPLETE_OBJECTIVE_CLOSURE.md` | Fix ghost pursuit objective after chapter1Complete. Terminal objective must outrank stale north-route flags without inventing Chapter 2. Dedicated gate 34091231900 SUCCESS; Pages confirmation pending. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          new='| 111 | REQ-129 | P1 | VERIFY | Chapter 1 Complete Objective / Journal Closure | `requirements/REQ-129_CHAPTER_01_COMPLETE_OBJECTIVE_CLOSURE.md` | chapter1Complete now outranks stale pursuit flags. Dedicated gate 34091231900 SUCCESS; cache-busted public Pages run 34091374201 SUCCESS on descendant HEAD. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if old in t: t=t.replace(old,new,1)
+          if 'REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md' not in t:
+              row='| 112 | REQ-130 | P1 | IN_PROGRESS | Chapter 1 Adventure Record Completion | `requirements/REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md` | No READY remained after REQ-129. Directive-authorized player-visible completion projection: reuse canonical chapter1Complete in ADVENTURE RECORD without inventing Chapter 2. Implementation ffa72c14...; dedicated gate/public Pages pending. IOS_PHYSICAL_VERIFICATION=PENDING. |\n'
+              if new+'\n' not in t: raise SystemExit('REQ-129 marker missing')
+              t=t.replace(new+'\n',new+'\n'+row,1)
+          q.write_text(t)
+          p=Path('CURRENT.md'); c=p.read_text()
+          c=re.sub(r'- LATEST_IMPLEMENTATION_COMMIT_SHA: `[^`]+`','- LATEST_IMPLEMENTATION_COMMIT_SHA: `20b62f98732450d83f19e08cdfed956a14920b36`',c,count=1)
+          c=re.sub(r'- CURRENT_BUILD_STATUS: `[^`]+`','- CURRENT_BUILD_STATUS: `REQ-129 MACHINE+PUBLIC PASS / REQ-130 ACTIVE / IOS_PHYSICAL_VERIFICATION=PENDING`',c,count=1)
+          c=re.sub(r'- ACTIVE_REQUIREMENT_ID: `[^`]+`','- ACTIVE_REQUIREMENT_ID: `REQ-130`',c,count=1)
+          c=re.sub(r'- ACTIVE_REQUIREMENT_PATH: `[^`]+`','- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md`',c,count=1)
+          c=re.sub(r'- NEXT_ACTION: `[^`]+`','- NEXT_ACTION: `REQ-130 collect dedicated gate and Pages results; repair any regression, then promote only after public inclusion succeeds.`',c,count=1)
+          c=re.sub(r'- NEXT_ACTION_COMPLETION_CONDITION: `[^`]+`','- NEXT_ACTION_COMPLETION_CONDITION: `Chapter 1 completion is visibly projected in ADVENTURE RECORD from canonical chapter1Complete, existing counters remain intact, dedicated gate and Pages succeed.`',c,count=1)
+          p.write_text(c)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md CURRENT.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'queue: promote REQ-129 and activate REQ-130 completion record'
+          git push origin HEAD:main
