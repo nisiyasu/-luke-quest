@@ -1,0 +1,35 @@
+name: REQ-130 Chapter 1 Adventure Record
+
+on:
+  push:
+    paths:
+      - 'addons/adventure-records.js'
+      - 'requirements/REQ-130_CHAPTER_01_ADVENTURE_RECORD_COMPLETION.md'
+      - '.github/workflows/req130-chapter1-adventure-record.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check addons/adventure-records.js
+      - name: Verify canonical Chapter 1 projection
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const src=fs.readFileSync('addons/adventure-records.js','utf8');
+          if(!src.includes("function chapter1Status(flags=s.flags||{}){return flags?.chapter1Complete===true?'COMPLETE':'IN PROGRESS';}")) throw new Error('canonical helper missing');
+          if(!src.includes('<small>CHAPTER 1</small>')) throw new Error('record cell missing');
+          if(!src.includes('chapter1Completion:true')) throw new Error('status coverage missing');
+          const m=src.match(/function chapter1Status\(flags=s\.flags\|\|\{\}\)\{([^}]*)\}/);
+          if(!m) throw new Error('helper extraction failed');
+          global.s={flags:{}};
+          eval('function chapter1Status(flags=s.flags||{}){'+m[1]+'}');
+          if(chapter1Status({chapter1Complete:true})!=='COMPLETE') throw new Error('complete flag not projected');
+          if(chapter1Status({chapter1Complete:false})!=='IN PROGRESS') throw new Error('false state wrong');
+          if(chapter1Status({})!=='IN PROGRESS') throw new Error('missing state wrong');
+          for(const needle of ['BATTLES WON','MONSTERS DOWN','AREAS FOUND','TREASURE FINDS','OPTIONAL DONE','LEVEL']) if(!src.includes(needle)) throw new Error('existing record cell lost: '+needle);
+          console.log('REQ-130 PASS');
+          NODE
