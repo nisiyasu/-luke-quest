@@ -20,11 +20,13 @@ style.textContent=`
 document.head.appendChild(style);
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function chapter1Complete(state){return !!state?.flags?.chapter1Complete;}
 function canonicalGoal(state){
   const fn=window.LQ_ADVENTURE_JOURNAL_TEST?.mainGoal;
   return typeof fn==='function'?String(fn(state)||''):'';
 }
 function model(state=s){
+  if(chapter1Complete(state))return null;
   const id=state?.map;
   if(!NORTH_ROUTE_IDS.includes(id)||!MAPS?.[id])return null;
   const area=String(MAPS[id].name||id);
@@ -44,7 +46,7 @@ function card(m){
 
 function sync(){
   document.querySelectorAll('.lqNorthRouteCompass').forEach((el,i)=>{if(i>0)el.remove();});
-  if(!s?.pauseOpen||s?.screen!=='world'){
+  if(chapter1Complete(s)||!s?.pauseOpen||s?.screen!=='world'){
     document.querySelectorAll('.lqNorthRouteCompass').forEach(el=>el.remove());
     return;
   }
@@ -73,22 +75,24 @@ function smoke(){
   try{
     assert(NORTH_ROUTE_IDS.every(id=>ROUTE_COPY[id]),'registry coverage');
     assert(model({...s,map:'town',flags:{...(s.flags||{})}})===null,'unrelated map suppression');
-    const evacBefore=model({...s,map:'evacRoute',flags:{...(s.flags||{}),withdrawProofSeen:false}});
-    const evacAfter=model({...s,map:'evacRoute',flags:{...(s.flags||{}),withdrawProofSeen:true}});
+    assert(model({...s,map:'evacRoute',flags:{...(s.flags||{}),chapter1Complete:true,withdrawProofSeen:false}})===null,'chapter1 complete evac suppression');
+    assert(model({...s,map:'cloudbreakSaddle',flags:{...(s.flags||{}),chapter1Complete:true,withdrawProofSeen:true}})===null,'chapter1 complete route suppression');
+    const evacBefore=model({...s,map:'evacRoute',flags:{...(s.flags||{}),chapter1Complete:false,withdrawProofSeen:false}});
+    const evacAfter=model({...s,map:'evacRoute',flags:{...(s.flags||{}),chapter1Complete:false,withdrawProofSeen:true}});
     assert(evacBefore&&evacBefore.area===MAPS.evacRoute.name,'canonical evacuation area');
     assert(/撤収命令/.test(evacBefore.now)&&!/北端の出口へ戻/.test(evacBefore.now),'evac clue-first guidance');
     assert(/北端の出口/.test(evacAfter.now)&&/北端/.test(evacAfter.forward),'evac post-proof north guidance');
     for(const id of ['northCliffRoad','cloudbreakSaddle']){
-      const mm=model({...s,map:id,flags:{...(s.flags||{}),withdrawProofSeen:true}});
-      assert(mm&&mm.now===canonicalGoal({...s,map:id,flags:{...(s.flags||{}),withdrawProofSeen:true}}),'journal objective reuse '+id);
+      const mm=model({...s,map:id,flags:{...(s.flags||{}),chapter1Complete:false,withdrawProofSeen:true}});
+      assert(mm&&mm.now===canonicalGoal({...s,map:id,flags:{...(s.flags||{}),chapter1Complete:false,withdrawProofSeen:true}}),'journal objective reuse '+id);
     }
     const futureNames=NORTH_ROUTE_IDS.map(id=>MAPS?.[id]?.name).filter(Boolean);
     for(const id of NORTH_ROUTE_IDS){
-      const mm=model({...s,map:id,flags:{...(s.flags||{}),withdrawProofSeen:true}});if(!mm)continue;
+      const mm=model({...s,map:id,flags:{...(s.flags||{}),chapter1Complete:false,withdrawProofSeen:true}});if(!mm)continue;
       const later=futureNames.filter(name=>name!==mm.area);
       assert(!later.some(name=>String(mm.forward).includes(name)),'future map-name leak '+id);
     }
-    s.screen='world';s.pauseOpen=true;s.map='cloudbreakSaddle';s.flags={...(s.flags||{}),withdrawProofSeen:true};
+    s.screen='world';s.pauseOpen=true;s.map='cloudbreakSaddle';s.flags={...(s.flags||{}),chapter1Complete:false,withdrawProofSeen:true};
     render();sync();
     const panel=app.querySelector('.lqPausePanel'),journal=panel?.querySelector('.lqAdventureJournalSection'),compass=journal?.querySelector('.lqNorthRouteCompass');
     assert(panel&&journal&&compass,'pause journal compass DOM');
@@ -97,18 +101,19 @@ function smoke(){
     assert(getComputedStyle(compass).pointerEvents==='none','compass pointer safety');
     assert([...compass.querySelectorAll('*')].every(el=>getComputedStyle(el).pointerEvents==='none'),'decorative pointer safety');
     assert(panel.querySelector('.lqPauseButtons'),'pause buttons preserved');
-    sync();assert(journal.querySelectorAll('.lqNorthRouteCompass').length===1,'repeat render dedupe');
+    s.flags.chapter1Complete=true;sync();assert(!app.querySelector('.lqNorthRouteCompass'),'chapter1 complete stale cleanup');
+    s.flags.chapter1Complete=false;sync();assert(journal.querySelectorAll('.lqNorthRouteCompass').length===1,'pre-completion restoration');
     s.map='town';sync();assert(!app.querySelector('.lqNorthRouteCompass'),'unrelated map stale cleanup');
     s.map='cloudbreakSaddle';s.pauseOpen=false;sync();assert(!app.querySelector('.lqNorthRouteCompass'),'pause close stale cleanup');
     assert(window.LQ_TAP_ANYWHERE_ACTION_STATUS||window.LQ_UNIFIED_WORLD_TOUCH_STATUS||window.LQ_FLOATING_TOUCH_STATUS,'P0 touch status present');
     assert(window.LQ_FULLSCREEN_WORLD_STATUS||document.querySelector('.gameShell'),'P0 fullscreen status present');
-    const marker=document.createElement('div');marker.className='lqNorthRouteCompassSmokeMarker';marker.hidden=true;marker.dataset.req109='true';marker.dataset.registry='true';marker.dataset.evacBefore='true';marker.dataset.evacAfter='true';marker.dataset.dom='true';marker.dataset.pointerSafe='true';marker.dataset.noStale='true';document.body.appendChild(marker);
+    const marker=document.createElement('div');marker.className='lqNorthRouteCompassSmokeMarker';marker.hidden=true;marker.dataset.req109='true';marker.dataset.req132='true';marker.dataset.chapter1CompleteSuppression='true';marker.dataset.registry='true';marker.dataset.evacBefore='true';marker.dataset.evacAfter='true';marker.dataset.dom='true';marker.dataset.pointerSafe='true';marker.dataset.noStale='true';document.body.appendChild(marker);
   } finally {
     s.map=snapshot.map;s.flags=snapshot.flags;s.screen=snapshot.screen;s.pauseOpen=snapshot.pauseOpen;render();
   }
 }
 
-window.LQ_NORTH_ROUTE_COMPASS_STATUS={requirement:'REQ-109',maps:[...NORTH_ROUTE_IDS],journalOnly:true,noSaveSchemaChange:true,noWorldPointerAuthority:true,iosPhysicalVerification:'PENDING'};
+window.LQ_NORTH_ROUTE_COMPASS_STATUS={requirement:'REQ-109',chapter1CompleteClosure:'REQ-132',maps:[...NORTH_ROUTE_IDS],journalOnly:true,noSaveSchemaChange:true,noWorldPointerAuthority:true,iosPhysicalVerification:'PENDING'};
 window.LQ_NORTH_ROUTE_COMPASS_TEST={model,sync,smoke,routeIds:[...NORTH_ROUTE_IDS]};
 setTimeout(()=>{defer();if(new URLSearchParams(location.search).has('lqSmoke'))smoke();},0);
 })();
