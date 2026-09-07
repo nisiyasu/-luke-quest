@@ -9,17 +9,19 @@ if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqT
 
 const FAILURE_ID='lqFloatingTouchSmokeFailure';
 const MARKER_ID='lqP0TouchReauditSmokeMarker';
-let started=false;
+let started=false,scheduled=false;
 
 function pointer(type,target,id,x,y,isPrimary=true){
   const ev=new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',isPrimary,clientX:x,clientY:y,buttons:type==='pointerup'||type==='pointercancel'?0:1});
   target.dispatchEvent(ev);
 }
 function fail(reason){
+  const text='P0 touch re-audit: '+String(reason||'unknown');
+  console.error('LQ_P0_TOUCH_REAUDIT_FAIL',text);
   if(document.getElementById(FAILURE_ID))return;
   const f=document.createElement('i');
   f.id=FAILURE_ID;
-  f.dataset.reason='P0 touch re-audit: '+String(reason||'unknown');
+  f.dataset.reason=text;
   f.hidden=true;
   document.body.appendChild(f);
 }
@@ -54,12 +56,9 @@ function run(){
     const p=pointInShell(shell);
     const startX=s.x,startY=s.y;
 
-    // Primary stationary press owns the sequence and may show the pad, but it
-    // must not become Action merely because it was held beyond TAP_MAX_MS.
     pointer('pointerdown',shell,920,p.x,p.y,true);
     primaryVisible=pad.classList.contains('visible');
 
-    // A second touch must not steal/redirect/release the active primary pointer.
     pointer('pointerdown',shell,921,p.x+20,p.y+20,false);
     pointer('pointermove',window,921,p.x+100,p.y+20,false);
     secondaryIgnored=!pad.querySelector('.lqFloatArrow.active')&&s.x===startX&&s.y===startY;
@@ -73,7 +72,7 @@ function run(){
         longPressNoMove=s.x===startX&&s.y===startY;
         releasedClean=!pad.classList.contains('visible')&&!pad.querySelector('.lqFloatArrow.active')&&!window.__lqFloatFallbackTimer;
         if(!(primaryVisible&&secondaryIgnored&&secondaryReleasePreserved&&longPressNoAction&&longPressNoMove&&releasedClean)){
-          fail('stationary long-press or multitouch ownership assertion false');
+          fail('stationary long-press or multitouch ownership assertion false; '+JSON.stringify({primaryVisible,secondaryIgnored,secondaryReleasePreserved,longPressNoAction,longPressNoMove,releasedClean,actionCalls}));
         }
         action=originalAction;
         Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
@@ -95,10 +94,11 @@ function run(){
 
 const poll=setInterval(()=>{
   if(document.getElementById('lqFloatingTouchRuntimeSmokeMarker')){
-    clearInterval(poll);run();
+    clearInterval(poll);
+    if(!scheduled){scheduled=true;setTimeout(run,260);}
   }
 },40);
 setTimeout(()=>{
-  if(!started){clearInterval(poll);fail('base floating-touch smoke did not complete before re-audit timeout');}
-},1900);
+  if(!started&&!scheduled){clearInterval(poll);fail('base floating-touch smoke did not complete before re-audit timeout');}
+},2100);
 })();
