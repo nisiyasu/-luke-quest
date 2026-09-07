@@ -1,4 +1,4 @@
-name: REQ-117 queue transition
+name: REQ-127 queue authority repair
 
 on:
   push:
@@ -15,30 +15,57 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Promote REQ-117 to IN_PROGRESS
+      - name: Reopen REQ-127 as the single P0 WIP
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
+
           p=Path('WORK_QUEUE.md')
           text=p.read_text()
-          old='| 108 | REQ-117 | P1 | READY | World / Character Visual Richness Upgrade | `requirements/REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE.md` | Owner-directed presentation upgrade: character foot shadows, restrained idle motion, interaction popup easing, map edge blending/depth shadows/ambient air, and field-sprite outline/3-tone/detail/eye richness. Preserve input/collision/save/story authorities. |'
-          new='| 108 | REQ-117 | P1 | IN_PROGRESS | World / Character Visual Richness Upgrade | `requirements/REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE.md` | Active WIP. Execute staged presentation-only Checkpoints A-D; begin with universal foot shadows, restrained idle motion and interaction affordance easing. Preserve canonical input/collision/save/story and approved art authority. IOS_PHYSICAL_VERIFICATION=PENDING. |'
-          if new in text: raise SystemExit(0)
-          if old not in text: raise SystemExit('REQ-117 READY row not found exactly; fail closed')
-          if '| IN_PROGRESS |' in text: raise SystemExit('another IN_PROGRESS row exists; fail closed')
-          p.write_text(text.replace(old,new,1))
+          lines=text.splitlines()
+          req127=[i for i,line in enumerate(lines) if re.match(r'^\|\s*\d+\s*\|\s*REQ-127\s*\|', line)]
+          if len(req127) != 1:
+              raise SystemExit(f'expected exactly one REQ-127 queue row, found {len(req127)}')
+
+          idx=req127[0]
+          row=lines[idx]
+          cells=[c.strip() for c in row.split('|')]
+          # ['', ORDER, ID, PRIORITY, STATUS, TITLE, PATH, NOTE, '']
+          if len(cells) < 8 or cells[2] != 'REQ-127':
+              raise SystemExit('REQ-127 row shape unexpected; fail closed')
+
+          other_wip=[line for i,line in enumerate(lines) if i != idx and '| IN_PROGRESS |' in line]
+          if other_wip:
+              raise SystemExit('another IN_PROGRESS row exists; WIP_LIMIT=1 fail closed')
+
+          if cells[4] == 'IN_PROGRESS':
+              raise SystemExit(0)
+          if cells[4] != 'VERIFY':
+              raise SystemExit(f'REQ-127 expected VERIFY before reopen, found {cells[4]!r}')
+
+          cells[4]='IN_PROGRESS'
+          if len(cells) >= 8:
+              cells[7]='Owner 2026-09-08 physical report says persistent dark/black iPhone PWA is still unresolved. Reopened P0. Lifecycle full-screen fade cleanup candidate implemented; Pages/render/cache-busted validation required; IOS_PHYSICAL_VERIFICATION=PENDING.'
+          lines[idx]='| ' + ' | '.join(cells[1:-1]) + ' |'
+          out='\n'.join(lines) + ('\n' if text.endswith('\n') else '')
+          p.write_text(out)
           PY
       - name: Verify WIP and commit
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           t=Path('WORK_QUEUE.md').read_text()
+          rows=[line for line in t.splitlines() if re.match(r'^\|\s*\d+\s*\|\s*REQ-127\s*\|', line)]
+          assert len(rows) == 1
+          assert '| IN_PROGRESS |' in rows[0]
           assert t.count('| IN_PROGRESS |') == 1
-          assert '| 108 | REQ-117 | P1 | IN_PROGRESS |' in t
           PY
           if git diff --quiet -- WORK_QUEUE.md; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add WORK_QUEUE.md
-          git commit -m 'queue: promote REQ-117 visual richness to IN_PROGRESS'
+          git commit -m 'queue: reopen REQ-127 black-screen recovery'
+          git pull --rebase origin main
           git push origin HEAD:main
