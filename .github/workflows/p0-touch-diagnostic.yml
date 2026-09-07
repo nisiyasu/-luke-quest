@@ -6,13 +6,15 @@ on:
       - '.github/workflows/p0-touch-diagnostic.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Assemble public injection order
         run: |
           python3 - <<'PY'
@@ -38,17 +40,46 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           sleep 1
           timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=3200 --dump-dom 'http://127.0.0.1:8124/?lqTouchSmoke=1' >/tmp/lq-touch-dom.html 2>/tmp/lq-touch-chrome.log || true
-          echo '--- NEW P0 MARKERS ---'
           grep -o '<i id="lqReq021LongPressSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
           grep -o '<i id="lqReq001MultitouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
-          echo '--- VISIBILITY SUBCONDITIONS ---'
           grep -o '<i id="lqVisibilityTouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
-          echo '--- FAILURE MARKER ---'
           grep -o '<i id="lqFloatingTouchSmokeFailure"[^>]*>' /tmp/lq-touch-dom.html || true
-          if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html; then
-            echo 'P0 touch diagnostic FAILED'
-            exit 1
-          fi
+          if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html; then exit 1; fi
           grep -q 'data-no-action="true"' /tmp/lq-touch-dom.html
+          grep -q 'data-no-move="true"' /tmp/lq-touch-dom.html
           grep -q 'data-secondary-ignored="true"' /tmp/lq-touch-dom.html
+          grep -q 'data-primary-owns="true"' /tmp/lq-touch-dom.html
+          grep -q 'data-cleaned="true"' /tmp/lq-touch-dom.html
           echo 'P0 touch diagnostic PASS'
+      - name: Harden authoritative Pages marker gate
+        run: |
+          git checkout -- index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/pages.yml')
+          lines=p.read_text().splitlines()
+          if any('lqReq021LongPressSmokeMarker' in x for x in lines):
+              print('Pages already hardened')
+          else:
+              idx=next((i for i,x in enumerate(lines) if 'lqFullscreenWorldRuntimeSmokeMarker' in x),None)
+              if idx is None: raise SystemExit('fullscreen marker line missing')
+              slash=' '+chr(92)
+              insert=[
+                "            'lqReq021LongPressSmokeMarker'"+slash,
+                "            'data-no-action=\"true\"'"+slash,
+                "            'data-no-move=\"true\"'"+slash,
+                "            'lqReq001MultitouchSmokeMarker'"+slash,
+                "            'data-secondary-ignored=\"true\"'"+slash,
+                "            'data-primary-owns=\"true\"'"+slash,
+                "            'data-cleaned=\"true\"'"+slash,
+              ]
+              lines[idx:idx]=insert
+              p.write_text('\n'.join(lines)+'\n')
+          PY
+          git diff --check -- .github/workflows/pages.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/pages.yml
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'ci: require P0 long-press and multitouch markers in Pages gate'
+          git push origin HEAD:main
