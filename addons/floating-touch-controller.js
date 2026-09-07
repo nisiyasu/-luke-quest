@@ -53,7 +53,7 @@ function ensurePad(){
   if(pad&&pad.isConnected)return pad;
   pad=document.createElement('div');
   pad.id=PAD_ID;
-  pad.dataset.lqControllerVersion='1.8';
+  pad.dataset.lqControllerVersion='1.9';
   pad.setAttribute('aria-hidden','true');
   pad.innerHTML='<div class="lqFloatRing"></div><div class="lqFloatArrow up" data-dir="up">↑</div><div class="lqFloatArrow left" data-dir="left">←</div><div class="lqFloatCore"></div><div class="lqFloatArrow right" data-dir="right">→</div><div class="lqFloatArrow down" data-dir="down">↓</div>';
   document.body.appendChild(pad);
@@ -74,6 +74,11 @@ function safeAreaInsets(){
   const cs=getComputedStyle(ensureSafeAreaProbe());
   const px=value=>Number.parseFloat(value)||0;
   return {top:px(cs.paddingTop),right:px(cs.paddingRight),bottom:px(cs.paddingBottom),left:px(cs.paddingLeft)};
+}
+
+function visibleViewportSize(){
+  const vv=window.visualViewport;
+  return {width:vv&&vv.width?vv.width:innerWidth,height:vv&&vv.height?vv.height:innerHeight};
 }
 
 function isExplicitControl(target){
@@ -142,10 +147,11 @@ function positionPad(){
   const p=ensurePad();
   const half=84,margin=8;
   const safe=safeAreaInsets();
+  const viewport=visibleViewportSize();
   const minX=half+margin+safe.left;
-  const maxX=Math.max(minX,innerWidth-half-margin-safe.right);
+  const maxX=Math.max(minX,viewport.width-half-margin-safe.right);
   const minY=half+margin+safe.top;
-  const maxY=Math.max(minY,innerHeight-half-margin-safe.bottom);
+  const maxY=Math.max(minY,viewport.height-half-margin-safe.bottom);
   const x=Math.max(minX,Math.min(maxX,originX));
   const y=Math.max(minY,Math.min(maxY,originY));
   p.style.left=x+'px';p.style.top=y+'px';
@@ -153,6 +159,8 @@ function positionPad(){
   p.dataset.lqSafeRight=String(safe.right);
   p.dataset.lqSafeBottom=String(safe.bottom);
   p.dataset.lqSafeLeft=String(safe.left);
+  p.dataset.lqViewportWidth=String(Math.round(viewport.width));
+  p.dataset.lqViewportHeight=String(Math.round(viewport.height));
   return p;
 }
 
@@ -210,6 +218,7 @@ function finishPointer(event,allowTap){
 function onPointerUp(event){finishPointer(event,true);}
 function onPointerCancel(event){finishPointer(event,false);}
 function onViewportChange(){if(pointerId!==null)stop();}
+function onVisualViewportChange(){if(pointerId!==null)positionPad();}
 
 function armShell(){
   const shell=document.querySelector('.gameShell');
@@ -231,7 +240,7 @@ window.addEventListener('pointercancel',onPointerCancel,{capture:true,passive:tr
 window.addEventListener('blur',()=>onPointerCancel({}));
 window.addEventListener('resize',onViewportChange,{passive:true});
 window.addEventListener('orientationchange',onViewportChange,{passive:true});
-if(window.visualViewport)window.visualViewport.addEventListener('resize',onViewportChange,{passive:true});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',onVisualViewportChange,{passive:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)onPointerCancel({});});
 
 if(typeof render==='function'){
@@ -245,5 +254,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.8',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportChangeStops:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.9',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportAware:true,visualViewportResizeKeepsHold:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
