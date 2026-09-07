@@ -2,6 +2,7 @@
 'use strict';
 
 /* REQ-094 — presentation-only local guidance for REQ-093 windcutPass.
+   REQ-132 closes stale pursuit presentation after Chapter 1 completion.
    No story/save/encounter/collision authority is changed. */
 const WIND='windcutPass';
 const FOOT_KIND='lqWindcutFootprints';
@@ -27,6 +28,7 @@ function injectStyle(){
   document.head.appendChild(style);
 }
 
+function chapter1Complete(){return !!s?.flags?.chapter1Complete;}
 function objectiveText(){
   return footprintsObserved
     ? '靴跡はさらに北へ続く。<strong>北側の「北へ続く尾根道」</strong>を確認する'
@@ -35,10 +37,11 @@ function objectiveText(){
 
 function cleanupOutsideWindcut(){
   document.querySelectorAll('.lqWindcutGuideFallback,.lqWindcutQuestMark').forEach(el=>el.remove());
+  document.querySelectorAll('.lqWindcutObjective').forEach(el=>el.classList.remove('lqWindcutObjective'));
 }
 
 function decorateGuidance(){
-  if(typeof s==='undefined'||s.screen!=='world'||s.map!==WIND){cleanupOutsideWindcut();return;}
+  if(typeof s==='undefined'||chapter1Complete()||s.screen!=='world'||s.map!==WIND){cleanupOutsideWindcut();return;}
   const shell=document.querySelector('.gameShell');
   const worldEl=shell&&shell.querySelector('.world');
   if(!shell||!worldEl)return;
@@ -72,7 +75,7 @@ function decorateGuidance(){
 }
 
 function facingKind(kind){
-  if(typeof s==='undefined'||s.screen!=='world'||s.map!==WIND||s.dialog)return false;
+  if(typeof s==='undefined'||chapter1Complete()||s.screen!=='world'||s.map!==WIND||s.dialog)return false;
   const p=front();
   return !!MAPS[WIND]?.npcs?.find(n=>n.x===p.x&&n.y===p.y&&n.kind===kind);
 }
@@ -93,7 +96,7 @@ const beforeWindcutGuidanceRender=render;
 render=function(){const result=beforeWindcutGuidanceRender();decorateGuidance();return result;};
 
 window.LQ_WINDCUT_GUIDANCE_STATUS={
-  version:'1.0',map:WIND,footprints:{kind:FOOT_KIND,...FOOT},boundary:{kind:BOUNDARY_KIND,...BOUNDARY},
-  phase:()=>footprintsObserved?'northBoundary':'footprints',runtimeOnly:true,saveSemanticsChanged:false,gameplayLogicChanged:false,iosPhysicalVerification:'PENDING'
+  version:'1.1',map:WIND,footprints:{kind:FOOT_KIND,...FOOT},boundary:{kind:BOUNDARY_KIND,...BOUNDARY},
+  phase:()=>footprintsObserved?'northBoundary':'footprints',chapter1CompleteClosure:'REQ-132',runtimeOnly:true,saveSemanticsChanged:false,gameplayLogicChanged:false,iosPhysicalVerification:'PENDING'
 };
 })();
