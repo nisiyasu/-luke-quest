@@ -1,10 +1,18 @@
 (() => {
 'use strict';
 
-/* REQ-023 browser probe. Runs only in the already-CI-covered touch smoke mode.
-   The critical progression proof must be earned through canonical action(),
-   not by the test directly writing withdrawProofSeen. */
-if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
+/* REQ-023 browser probe. It can run inside the canonical touch-smoke suite or
+   independently through ?lqReq023Smoke=1. The critical progression proof must
+   be earned through canonical action(), not by the test directly writing
+   withdrawProofSeen. */
+if(typeof location==='undefined')return;
+const params=new URLSearchParams(location.search);
+const touchMode=params.has('lqTouchSmoke');
+const isolatedMode=params.has('lqReq023Smoke');
+if(!touchMode&&!isolatedMode)return;
+
+const markerId=isolatedMode?'lqReq023IsolatedSmokeMarker':'lqEvacGuidanceSmokeMarker';
+const failureId=isolatedMode?'lqReq023IsolatedSmokeFailure':'lqFloatingTouchSmokeFailure';
 
 setTimeout(()=>{
   const snapshot=structuredClone(s);
@@ -41,16 +49,16 @@ setTimeout(()=>{
     const pass=clueObjective&&clueMarker&&optionalClueNoProgress&&canonicalActionProgress&&northObjective&&northMarker&&clueGone;
     if(!pass){
       console.error('LQ_REQ023_SMOKE_FAIL',JSON.stringify(data));
-      const failure=document.createElement('i');failure.id='lqFloatingTouchSmokeFailure';failure.dataset.reason='REQ-023 evacuation canonical-action assertion false';Object.entries(data).forEach(([k,v])=>failure.dataset[k]=String(v));failure.hidden=true;document.body.appendChild(failure);
+      const failure=document.createElement('i');failure.id=failureId;failure.dataset.reason='REQ-023 evacuation canonical-action assertion false';Object.entries(data).forEach(([k,v])=>failure.dataset[k]=String(v));failure.hidden=true;document.body.appendChild(failure);
     }
 
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
-    const marker=document.createElement('i');marker.id='lqEvacGuidanceSmokeMarker';marker.hidden=true;
+    const marker=document.createElement('i');marker.id=markerId;marker.hidden=true;
     Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(v));
     document.body.appendChild(marker);
   }catch(err){
     console.error('LQ_REQ023_SMOKE_EXCEPTION',err);
-    const failure=document.createElement('i');failure.id='lqFloatingTouchSmokeFailure';failure.dataset.reason='REQ-023 evacuation guidance smoke exception: '+String(err&&err.message||err);failure.hidden=true;document.body.appendChild(failure);
+    const failure=document.createElement('i');failure.id=failureId;failure.dataset.reason='REQ-023 evacuation guidance smoke exception: '+String(err&&err.message||err);failure.hidden=true;document.body.appendChild(failure);
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
   }
 },120);
