@@ -15,34 +15,36 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Insert REQ-127 as absolute P0 WIP
+      - name: Transition REQ-127 machine-stable incident to VERIFY
         run: |
           python - <<'PY'
           from pathlib import Path
           p=Path('WORK_QUEUE.md')
           text=p.read_text()
-          row='| -2 | REQ-127 | P0 | IN_PROGRESS | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md` | Owner direct absolute priority. Persistent iPhone Home Screen PWA black screen; machine-side visual-liveness, runtime diagnostics, screenshot/black-frame detection, resume regression, deterministic Service Worker/cache handling, and autonomous recovery. Do not require repeated Owner checks for speculative iterations. IOS_PHYSICAL_VERIFICATION=PENDING. |\n'
-          if 'REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md' not in text:
-              marker='|---:|---|---|---|---|---|---|\n'
-              if marker not in text:
-                  raise SystemExit('queue header marker not found')
-              text=text.replace(marker, marker+row, 1)
-              p.write_text(text)
+          old='| -2 | REQ-127 | P0 | IN_PROGRESS | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md` | Owner direct absolute priority. Persistent iPhone Home Screen PWA black screen; machine-side visual-liveness, runtime diagnostics, screenshot/black-frame detection, resume regression, deterministic Service Worker/cache handling, and autonomous recovery. Do not require repeated Owner checks for speculative iterations. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          new='| -2 | REQ-127 | P0 | VERIFY | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md` | Machine recovery complete: Chromium + Safari-family WebKit 390x844 world-state/pixel liveness PASS, standard Pages SUCCESS, cache-busted recovery deployment SUCCESS, one-shot PWA stale-document navigation deployed. IOS_PHYSICAL_VERIFICATION=PENDING; do not claim device PASS until Owner confirms. |'
+          if new in text:
+              raise SystemExit(0)
+          if old not in text:
+              raise SystemExit('REQ-127 IN_PROGRESS row not found exactly; fail closed')
+          text=text.replace(old,new,1)
+          p.write_text(text)
           PY
-      - name: Verify WIP invariant and commit
+      - name: Verify transition and commit
         run: |
           python - <<'PY'
           from pathlib import Path
           t=Path('WORK_QUEUE.md').read_text()
-          assert t.count('REQ-127_IPHONE_BLACK_SCREEN_AUTONOMOUS_DETECTION_RECOVERY.md') == 1
-          assert '| -2 | REQ-127 | P0 | IN_PROGRESS |' in t
+          assert t.count('REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md') == 1
+          assert '| -2 | REQ-127 | P0 | VERIFY |' in t
+          assert '| -2 | REQ-127 | P0 | IN_PROGRESS |' not in t
           PY
           if git diff --quiet -- WORK_QUEUE.md; then
-            echo 'Queue already patched.'
+            echo 'Queue already transitioned.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add WORK_QUEUE.md
-          git commit -m 'queue: promote REQ-127 black-screen recovery to absolute P0'
+          git commit -m 'queue: transition REQ-127 black-screen recovery to VERIFY'
           git push origin HEAD:main
