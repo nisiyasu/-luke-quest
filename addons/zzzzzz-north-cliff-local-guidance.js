@@ -2,6 +2,7 @@
 'use strict';
 
 /* REQ-083 — presentation-only local guidance for REQ-081 northCliffRoad.
+   REQ-132 closes stale pursuit presentation after Chapter 1 completion.
    No story/save/encounter/collision authority is changed. */
 const CLIFF='northCliffRoad';
 const FOOT_KIND='lqNorthCliffFootprints';
@@ -27,6 +28,7 @@ function injectStyle(){
   document.head.appendChild(style);
 }
 
+function chapter1Complete(){return !!s?.flags?.chapter1Complete;}
 function objectiveText(){
   return footprintsObserved
     ? '足跡は北へ続く。<strong>北側の「北へ曲がる崖道」</strong>を確認する'
@@ -35,10 +37,11 @@ function objectiveText(){
 
 function cleanupOutsideCliff(){
   document.querySelectorAll('.lqNorthCliffGuideFallback,.lqNorthCliffQuestMark').forEach(el=>el.remove());
+  document.querySelectorAll('.lqNorthCliffObjective').forEach(el=>el.classList.remove('lqNorthCliffObjective'));
 }
 
 function decorateGuidance(){
-  if(typeof s==='undefined'||s.screen!=='world'||s.map!==CLIFF){cleanupOutsideCliff();return;}
+  if(typeof s==='undefined'||chapter1Complete()||s.screen!=='world'||s.map!==CLIFF){cleanupOutsideCliff();return;}
   const shell=document.querySelector('.gameShell');
   const worldEl=shell&&shell.querySelector('.world');
   if(!shell||!worldEl)return;
@@ -72,7 +75,7 @@ function decorateGuidance(){
 }
 
 function facingKind(kind){
-  if(typeof s==='undefined'||s.screen!=='world'||s.map!==CLIFF||s.dialog)return false;
+  if(typeof s==='undefined'||chapter1Complete()||s.screen!=='world'||s.map!==CLIFF||s.dialog)return false;
   const p=front();
   return !!MAPS[CLIFF]?.npcs?.find(n=>n.x===p.x&&n.y===p.y&&n.kind===kind);
 }
@@ -93,7 +96,7 @@ const beforeNorthCliffGuidanceRender=render;
 render=function(){const result=beforeNorthCliffGuidanceRender();decorateGuidance();return result;};
 
 window.LQ_NORTH_CLIFF_GUIDANCE_STATUS={
-  version:'1.0',map:CLIFF,footprints:{kind:FOOT_KIND,...FOOT},boundary:{kind:BOUNDARY_KIND,...BOUNDARY},
-  phase:()=>footprintsObserved?'northBoundary':'footprints',runtimeOnly:true,saveSemanticsChanged:false,gameplayLogicChanged:false,iosPhysicalVerification:'PENDING'
+  version:'1.1',map:CLIFF,footprints:{kind:FOOT_KIND,...FOOT},boundary:{kind:BOUNDARY_KIND,...BOUNDARY},
+  phase:()=>footprintsObserved?'northBoundary':'footprints',chapter1CompleteClosure:'REQ-132',runtimeOnly:true,saveSemanticsChanged:false,gameplayLogicChanged:false,iosPhysicalVerification:'PENDING'
 };
 })();
