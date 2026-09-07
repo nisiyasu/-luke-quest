@@ -1,0 +1,54 @@
+name: REQ-127 asset cache-bust hotpatch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req127-cache-bust-hotpatch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Version every assembled JS URL by build SHA
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def patch(path):
+              p=Path(path)
+              t=p.read_text()
+              old=t
+              t=t.replace("guard = '<div id=\"app\"></div><script src=\"prelude/autosave-bootstrap-guard.js\"></script><script>'",
+                          "guard = f'<div id=\"app\"></div><script src=\"prelude/autosave-bootstrap-guard.js?v={__import__(\"os\").environ[\"GITHUB_SHA\"]}\"></script><script>'")
+              t=t.replace('for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\\"$f\\"></script></body>#" index.html; done',
+                          'for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\\"$f?v=${GITHUB_SHA}\\"></script></body>#" index.html; done')
+              t=t.replace('for f in addons/*.js; do sed -i "s#</body>#<script src=\\"$f\\"></script></body>#" index.html; done',
+                          'for f in addons/*.js; do sed -i "s#</body>#<script src=\\"$f?v=${GITHUB_SHA}\\"></script></body>#" index.html; done')
+              t=t.replace("const guard='<script src=\"prelude/autosave-bootstrap-guard.js\"></script>';",
+                          "const guard='<script src=\"prelude/autosave-bootstrap-guard.js?v=';")
+              if t==old:
+                  raise SystemExit(f'no cache-bust substitutions applied to {path}')
+              p.write_text(t)
+
+          patch('.github/workflows/pages.yml')
+          patch('.github/workflows/render-liveness.yml')
+          Path('.github/workflows/req127-cache-bust-hotpatch.yml').unlink()
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          for path in ['.github/workflows/pages.yml','.github/workflows/render-liveness.yml']:
+              t=Path(path).read_text()
+              assert '$f?v=${GITHUB_SHA}' in t, path
+              assert 'autosave-bootstrap-guard.js?v=' in t, path
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/pages.yml .github/workflows/render-liveness.yml .github/workflows/req127-cache-bust-hotpatch.yml
+          git commit -m 'REQ-127 cache-bust public JS by build SHA'
+          git push origin HEAD:main
