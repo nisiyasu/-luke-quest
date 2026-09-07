@@ -13,6 +13,8 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 - Emergency service-worker purge/unregister commit `c989f545a07096a894f67184aa6d3c93c69e3e5a` was deployed successfully.
 - Owner symptom before that purge: black world, then no audio, with top HUD briefly visible on app foreground/resume before black returns.
 - Therefore code-after-04:00 alone is not a sufficient explanation. PWA/WebKit/cache/compositor state remains plausible.
+- Corrected Chromium 390x844 rendered-world evidence proves the assembled world actually paints outside the Owner iPhone PWA path.
+- Public Pages assembly historically used stable external runtime script URLs (`ux-v*.js`, `addons/*.js`, prelude), so stale WebApp/HTTP asset caching remains a concrete recovery target even after source rollback.
 
 ## Requirements
 1. Preserve current known-good gameplay logic while diagnosing.
@@ -25,18 +27,29 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 8. Add runtime diagnostics for iPhone-only follow-up if automated Chromium remains visually healthy: uncaught error/unhandled rejection capture, computed world/player geometry, visibility/opacity, and topmost elements at viewport center.
 9. Do not claim physical iPhone PASS from Chromium or CI.
 10. Do not restore rolled-back post-04:00 feature commits until black-screen root cause is isolated.
+11. Public recovery deployment must version runtime script URLs by build SHA so an installed PWA cannot silently reuse a prior runtime asset solely because its path is unchanged.
+12. Black-screen startup diagnostics must use a dedicated REQ-127 world mode rather than global `lqSmoke=1`, because the latter intentionally executes many historical subsystem smoke tests and is not a clean production-like error baseline.
 
 ## Checkpoints
 - `c989f545a07096a894f67184aa6d3c93c69e3e5a`: deployed emergency service-worker cache purge + unregister; Pages SUCCESS.
 - `ddb925f8f0cc71e9367772415e2af9f738f2a780`: added dependency-free PNG rendered-pixel black-screen checker.
 - `bf51dd2a531a0cd0b7dccc67542819f783ceefbc`: added dedicated 390x844 render-liveness workflow using assembled Pages injection order, real Chromium screenshot, pixel metrics, and retained diagnostic artifact.
-- This checkpoint intentionally triggers the newly added diagnostic workflow on a subsequent push so its measured result can be inspected before further speculative gameplay rollback.
+- `ef184888e647f6e897c5cf49b092339b50fbfb27`: corrected false-positive title capture by requiring proven `world` state before pixel PASS.
+- Render run `34066818698`: SUCCESS with real 390x844 world pixels; near-black ratio `0.264698`, bright ratio `0.624803`, mean luminance `87.353`, quantized color bins `634`.
+- `79b0cae02055027ef6bac1dca23df4f266d8093a`: added runtime diagnostics for errors/rejections, world/player geometry, center-stack occluders, lifecycle/resume, visual viewport and service-worker state.
+- `971c57b6edac4f20a7dc45c3b1b0971e3773edc3`: aligned the diagnostic addon with the repository IIFE contract after Pages correctly failed closed on the initial formatting mismatch.
+- `6c9fff529569633d9cf33f7d45fb214a33eb7c6d`: added isolated `lqReq127RenderSmoke=1` deterministic world mode so black-screen diagnostics no longer trigger every historical `lqSmoke=1` test at once.
+- `16590c9711a3d91f1bd75da0ae73528faf4f40f8`: switched the dedicated render diagnostic to clean world mode and build-SHA-versioned runtime URLs.
+- Render run `34070096956`: SUCCESS on the clean REQ-127 world path with diagnostics and pixel gate enabled.
+- `b40204e6ff6cb0b71c999d3053c043978e13e5a2`: added a post-Pages recovery deployment that reassembles the exact successful source with build-SHA-versioned prelude/patch/addon URLs, reruns the clean 390x844 world pixel gate, then deploys that immutable-URL artifact.
+- Failed one-shot cache-bust workflow was not an implementation failure: GitHub Actions token was denied permission to update workflow files. It is superseded by the connector-authored recovery workflow and must not be retried as the recovery mechanism.
 
 ## Completion conditions
 - Automated rendered-pixel diagnostic exists and has run on the public-build assembly path.
 - Result is recorded as PASS/FAIL with measured evidence.
 - If automated render FAILS, repair until PASS before normal feature work resumes.
 - If automated render PASSES while Owner iPhone remains black, narrow incident to iPhone/PWA/WebKit-specific path and ship safe runtime diagnostics/recovery without falsifying physical verification.
+- A cache-busted recovery artifact is deployed successfully after the normal Pages workflow, with all runtime JS URLs versioned by the exact build SHA.
 - Pages deployment remains successful.
 - WORK_QUEUE.md and CURRENT.md reflect this P0 incident and recovery state.
 - IOS_PHYSICAL_VERIFICATION remains PENDING until Owner confirms the actual device no longer goes black.
