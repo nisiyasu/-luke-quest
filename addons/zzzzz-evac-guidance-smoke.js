@@ -19,22 +19,17 @@ setTimeout(()=>{
 
     if(typeof action!=='function')throw new Error('canonical action authority missing');
 
-    // Optional escapeProof is canonical tile (20,7). Interacting with it may set
-    // its own discovery flag, but must never satisfy the mandatory withdraw proof.
     s.x=20;s.y=8;s.dir='up';s.dialog=null;s.flags.withdrawProofSeen=false;s.flags.escapeProofSeen=false;
     render();
     action();
     optionalClueNoProgress=s.flags.escapeProofSeen===true&&s.flags.withdrawProofSeen===false;
     s.dialog=null;
 
-    // withdrawProof is canonical tile (6,17); face it from the walkable tile directly south.
     s.x=6;s.y=18;s.dir='up';s.dialog=null;s.flags.withdrawProofSeen=false;
     render();
     action();
     canonicalActionProgress=s.flags.withdrawProofSeen===true;
 
-    // The interaction may open dialogue. Close only presentation state so the
-    // post-proof objective can be inspected without invoking a second action.
     s.dialog=null;
     render();
     shell=document.querySelector('.gameShell');
@@ -42,16 +37,19 @@ setTimeout(()=>{
     northMarker=!!shell&&!!shell.querySelector('.lqNextExitMark[data-target="northExit"]');
     clueGone=!!shell&&!shell.querySelector('.lqCriticalClueMark');
 
+    const data={clueObjective,clueMarker,optionalClueNoProgress,canonicalActionProgress,northObjective,northMarker,clueGone,escapeProofSeen:s.flags.escapeProofSeen,withdrawProofSeen:s.flags.withdrawProofSeen,map:s.map,x:s.x,y:s.y,dir:s.dir};
     const pass=clueObjective&&clueMarker&&optionalClueNoProgress&&canonicalActionProgress&&northObjective&&northMarker&&clueGone;
     if(!pass){
-      const failure=document.createElement('i');failure.id='lqFloatingTouchSmokeFailure';failure.dataset.reason='REQ-023 evacuation canonical-action assertion false';failure.hidden=true;document.body.appendChild(failure);
+      console.error('LQ_REQ023_SMOKE_FAIL',JSON.stringify(data));
+      const failure=document.createElement('i');failure.id='lqFloatingTouchSmokeFailure';failure.dataset.reason='REQ-023 evacuation canonical-action assertion false';Object.entries(data).forEach(([k,v])=>failure.dataset[k]=String(v));failure.hidden=true;document.body.appendChild(failure);
     }
 
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
     const marker=document.createElement('i');marker.id='lqEvacGuidanceSmokeMarker';marker.hidden=true;
-    marker.dataset.clueObjective=String(clueObjective);marker.dataset.clueMarker=String(clueMarker);marker.dataset.optionalClueNoProgress=String(optionalClueNoProgress);marker.dataset.canonicalActionProgress=String(canonicalActionProgress);marker.dataset.northObjective=String(northObjective);marker.dataset.northMarker=String(northMarker);marker.dataset.clueGone=String(clueGone);
+    Object.entries(data).forEach(([k,v])=>marker.dataset[k]=String(v));
     document.body.appendChild(marker);
   }catch(err){
+    console.error('LQ_REQ023_SMOKE_EXCEPTION',err);
     const failure=document.createElement('i');failure.id='lqFloatingTouchSmokeFailure';failure.dataset.reason='REQ-023 evacuation guidance smoke exception: '+String(err&&err.message||err);failure.hidden=true;document.body.appendChild(failure);
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();
   }
