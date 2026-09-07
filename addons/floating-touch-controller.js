@@ -53,7 +53,7 @@ function ensurePad(){
   if(pad&&pad.isConnected)return pad;
   pad=document.createElement('div');
   pad.id=PAD_ID;
-  pad.dataset.lqControllerVersion='1.7';
+  pad.dataset.lqControllerVersion='1.8';
   pad.setAttribute('aria-hidden','true');
   pad.innerHTML='<div class="lqFloatRing"></div><div class="lqFloatArrow up" data-dir="up">↑</div><div class="lqFloatArrow left" data-dir="left">←</div><div class="lqFloatCore"></div><div class="lqFloatArrow right" data-dir="right">→</div><div class="lqFloatArrow down" data-dir="down">↓</div>';
   document.body.appendChild(pad);
@@ -231,6 +231,7 @@ window.addEventListener('pointercancel',onPointerCancel,{capture:true,passive:tr
 window.addEventListener('blur',()=>onPointerCancel({}));
 window.addEventListener('resize',onViewportChange,{passive:true});
 window.addEventListener('orientationchange',onViewportChange,{passive:true});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',onViewportChange,{passive:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)onPointerCancel({});});
 
 if(typeof render==='function'){
@@ -244,5 +245,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.7',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.8',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportChangeStops:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
