@@ -1,0 +1,62 @@
+name: REQ-131 metadata sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req131-metadata-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Repair queue and CURRENT to fresh implementation reality
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          q=Path('WORK_QUEUE.md')
+          qt=q.read_text()
+          row='| 113 | REQ-131 | P1 | VERIFY | Chapter 1 Complete NPC Dialogue Closure | `requirements/REQ-131_CHAPTER_01_COMPLETE_NPC_DIALOGUE_CLOSURE.md` | chapter1Complete now outranks stale pursuit flags in reactive Aldia/field NPC dialogue. Implementation 4f67718f...; public cache-busted Pages run 34095873109 SUCCESS. Existing stages 0-5 preserved. IOS_PHYSICAL_VERIFICATION=PENDING. |\n'
+          if 'REQ-131_CHAPTER_01_COMPLETE_NPC_DIALOGUE_CLOSURE.md' not in qt:
+              marker='\n## STATUS DEFINITIONS\n'
+              if marker not in qt:
+                  raise SystemExit('queue status marker missing')
+              qt=qt.replace(marker,'\n'+row+marker,1)
+          q.write_text(qt)
+
+          c=Path('CURRENT.md')
+          ct=c.read_text()
+          repl={
+            r'^- UPDATED_AT:.*$':'- UPDATED_AT: 2026-09-07 17:18 JST',
+            r'^- LATEST_IMPLEMENTATION_COMMIT_SHA:.*$':'- LATEST_IMPLEMENTATION_COMMIT_SHA: `4f67718f7654de7640105fec0ecc5abb757142e5`',
+            r'^- CURRENT_BUILD_STATUS:.*$':'- CURRENT_BUILD_STATUS: `REQ-131 MACHINE+PUBLIC PASS / NO IN_PROGRESS / IOS_PHYSICAL_VERIFICATION=PENDING`',
+            r'^- ACTIVE_REQUIREMENT_ID:.*$':'- ACTIVE_REQUIREMENT_ID: `NONE`',
+            r'^- ACTIVE_REQUIREMENT_PATH:.*$':'- ACTIVE_REQUIREMENT_PATH: `NONE`',
+            r'^- QUEUE_PROJECTION_STATUS:.*$':'- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131 VERIFY; no IN_PROGRESS after fresh HEAD recovery.`',
+            r'^- NEXT_ACTION:.*$':'- NEXT_ACTION: `Fresh-audit remaining Chapter 1 completion surfaces for non-duplicate player-visible stale pursuit/progression leakage; do not invent Chapter 2.`',
+            r'^- NEXT_ACTION_COMPLETION_CONDITION:.*$':'- NEXT_ACTION_COMPLETION_CONDITION: `A fresh player-visible defect is proven from code and registered as sole IN_PROGRESS, or no canon-safe defect remains.`'
+          }
+          for pat,val in repl.items():
+              ct=re.sub(pat,val,ct,flags=re.M)
+          sync='''\n## REQ-131 — CHAPTER 1 COMPLETE NPC DIALOGUE CLOSURE — MACHINE COMPLETE\n\n- STATUS: `VERIFY`.\n- Requirement: `requirements/REQ-131_CHAPTER_01_COMPLETE_NPC_DIALOGUE_CLOSURE.md`.\n- Implementation checkpoint: `4f67718f7654de7640105fec0ecc5abb757142e5`.\n- `chapter1Complete` is the terminal dialogue stage and outranks stale pursuit flags.\n- Existing reactive NPC stages 0-5 remain intact; terminal lines contain no active north/pursuit instruction.\n- Cache-busted Pages recovery run `34095873109`: SUCCESS.\n- IOS_PHYSICAL_VERIFICATION: `PENDING`.\n\n## BOOT REALITY REPAIR — 2026-09-07 17:18 JST\n\n- SELF_AUDIT_GUARD: `LOADED_APPLIED`.\n- BOOT_REALITY_AUDIT: `REPAIRED`.\n- OWNER_PRIORITY_AUDIT: `PASS`.\n- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED` because CURRENT/QUEUE lagged committed REQ-131 work.\n- SELF_REPAIR_ACTIONS: `Registered REQ-131 in WORK_QUEUE and synchronized CURRENT to fresh HEAD/public evidence.`\n- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.\n'''
+          if '## REQ-131 — CHAPTER 1 COMPLETE NPC DIALOGUE CLOSURE — MACHINE COMPLETE' not in ct:
+              ct += sync
+          c.write_text(ct)
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md CURRENT.md
+          if git diff --cached --quiet; then
+            echo 'metadata already synchronized'
+            exit 0
+          fi
+          git commit -m 'ops: sync REQ-131 queue and CURRENT reality'
+          git push origin HEAD:main
