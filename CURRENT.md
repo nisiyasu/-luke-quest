@@ -1,13 +1,13 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-07 23:31 JST
+- UPDATED_AT: 2026-09-08 02:24 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `e8cbe227390a3b59673d6ed2a92fd08e8eeae53d`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `c86b3bc01364723d4ea3b8603680a9dc4c4dda9b`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN / EVAC GUIDANCE MACHINE RE-AUDIT GREEN / PAGES + RENDER LIVENESS GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`
+- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN / EVAC GUIDANCE MACHINE RE-AUDIT ACTIVE; visualViewport touch cleanup hardened at c86b3bc...; latest workflows pending; IOS_PHYSICAL_VERIFICATION=PENDING`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -16,21 +16,21 @@
 - VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- QUEUE_PROJECTION_STATUS: `No ordinary IN_PROGRESS or READY row. REQ-021/022/001/023 remain VERIFY with machine gates green; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
+- QUEUE_PROJECTION_STATUS: `No ordinary IN_PROGRESS or READY row. REQ-021/022/001/023 remain VERIFY under latest Owner P0 re-audit authority; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
-- RECENT_CHECKPOINTS: `e8cbe227... REQ-023 smoke isolated from shared touch suite; 414431a7... isolated REQ-023 mode wiring; 72b49b32... dedicated REQ-023 browser gate; c0cae32a... P0 re-audit checkpoint.`
-- TESTS_AND_VERIFICATION: `HEAD e8cbe227...: REQ-023 gate run 34133245532 SUCCESS; standard Pages run 34133245493 SUCCESS; Render Liveness run 34133245531 SUCCESS; REQ-121 run 34133245454 SUCCESS; REQ-128 run 34133245510 SUCCESS. Prior false-red shared-smoke race eliminated by dedicated REQ-023 mode.`
-- KNOWN_ISSUES: `No machine regression currently observed in P0 touch/fullscreen/evacuation guidance paths. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
-- BLOCKERS: `No machine-side blocker for current VERIFY set. REQ-059 and Chapter 2 Story Canon work remain separately BLOCKED per WORK_QUEUE.`
-- NEXT_ACTION: `With no ordinary IN_PROGRESS/READY work, continue highest-value safe player-visible gap audit without inventing Chapter 2 or formal Owner-art decisions; preserve P0 input authorities.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Any newly discovered defect is registered and repaired with focused browser regression + Pages/public inclusion evidence; otherwise preserve VERIFY and continue safe audit.`
+- RECENT_CHECKPOINTS: `c86b3bc... smoke covers visualViewport resize cleanup; 5fe1a30f... Dynamic Touch v1.8 visualViewport cleanup; d8e01aa1... viewport-safe touch controller contract; e8cbe227... REQ-023 smoke isolated.`
+- TESTS_AND_VERIFICATION: `Prior HEAD d8e01aa... machine/public gates were green. Fresh c86b3bc... workflows were triggered and are pending at this autosave; do not claim latest Pages/Render PASS until completed.`
+- KNOWN_ISSUES: `No confirmed machine regression currently observed. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
+- BLOCKERS: `No machine-side blocker for current P0 re-audit. REQ-059 and Chapter 2 Story Canon work remain separately BLOCKED per WORK_QUEUE.`
+- NEXT_ACTION: `Collect c86b3bc... P0 touch/Pages/Render results; repair immediately if red. If green, continue highest-value safe player-visible P0 audit without inventing Chapter 2 or formal Owner-art decisions.`
+- NEXT_ACTION_COMPLETION_CONDITION: `Latest P0 touch/browser regression and public Pages inclusion are green; any newly discovered defect is registered/repaired; IOS physical verification remains PENDING.`
 - DO_NOT_REPEAT: `Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not restore the broad post-04:00 feature range before black-screen isolation is stable. Do not claim physical iPhone PASS from CI.`
-- TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY`
-- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup remain protected.`
-- TOUCH_CONTROLLER_KNOWN_ISSUES: `No new machine regression observed during REQ-127 recovery; physical iPhone behavior remains pending.`
+- TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.8 machine re-audit active`
+- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area clamp + window/orientation/visualViewport resize cleanup.`
+- TOUCH_CONTROLLER_KNOWN_ISSUES: `No confirmed machine regression. Latest v1.8 workflow result pending; physical iPhone behavior remains pending.`
 - TOUCH_CONTROLLER_IOS_VERIFICATION: `PENDING`
-- TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / protected during REQ-127 recovery`
-- IPHONE_FULLSCREEN_UI_STATUS: `REQ-022 VERIFY / protected during REQ-127 recovery`
+- TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / protected by unified touch smoke`
+- IPHONE_FULLSCREEN_UI_STATUS: `REQ-022 VERIFY / 100dvh + safe-area overlays + visualViewport camera recenter protected`
 
 ## REQ-127 — IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY
 
@@ -248,5 +248,17 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - REQ-021 RE-AUDIT HARDENING: `1421c9e8... adds stationary >420ms long-press release => no Action/no movement/cleanup regression under ?lqTouchSmoke=1.`
 - REQ-001 RE-AUDIT HARDENING: `c0cae32a... adds first-pointer ownership / second-touch cannot steal movement regression under ?lqTouchSmoke=1.`
 - REQ-022 FRESH REALITY: `100dvh world, safe-area overlays, transparent controls plane and 390x844 geometry gate remain present at fresh HEAD.`
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
+
+## BOOT REALITY REPAIR — 2026-09-08 02:24 JST
+
+- SELF_AUDIT_GUARD: `LOADED_APPLIED`.
+- BOOT_REALITY_AUDIT: `REPAIRED`: CURRENT checkpoint lagged fresh HEAD and the previous run's P0 touch hardening.
+- OWNER_PRIORITY_AUDIT: `PASS`: Owner absolute order REQ-021 -> REQ-022 -> REQ-001 remains the active re-audit authority; no lower-priority IN_PROGRESS work preempts it.
+- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED`: previous handoff explicitly left CURRENT stale; this run synchronized it forward before continuing.
+- SELF_REPAIR_ACTIONS: `Fresh-loaded P0 requirements and implementations; added Dynamic Touch v1.8 visualViewport resize cleanup; added deterministic visualViewport held-gesture smoke; synchronized CURRENT to implementation HEAD.`
+- REQ-001 HARDENING: `5fe1a30f... adds visualViewport.resize -> central stop/reset; c86b3bc... makes the browser smoke actively prove the cleanup and requires version 1.8/visualViewportChangeStops.`
+- REQ-022 INTEGRATION NOTE: `Fullscreen camera already listens to visualViewport.resize. Dynamic Touch now revokes a held pointer on the same event before/alongside layout recentering, closing the cross-system viewport-change gap.`
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
