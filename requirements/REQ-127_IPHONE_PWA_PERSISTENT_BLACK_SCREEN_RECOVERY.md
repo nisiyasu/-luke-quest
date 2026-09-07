@@ -1,22 +1,23 @@
 # REQ-127 — iPhone PWA Persistent Black Screen Recovery
 
 PRIORITY: P0
-STATUS: VERIFY
-OWNER_EVIDENCE: 2026-09-07 iPhone Home Screen PWA remains black after rollback to a known-working ~04:00 JST code point; audio later disappeared; foreground resume briefly flashes the top HUD before returning black.
+STATUS: IN_PROGRESS
+OWNER_EVIDENCE: 2026-09-08 Owner reconfirmed that the iPhone screen-dark/black symptom is still not fixed. This supersedes the prior machine-only VERIFY state.
 
 ## Problem
-The public LUKE QUEST iPhone Home Screen PWA can present a persistent black screen even when the DOM/game state appears alive. Existing automated checks validate DOM geometry and runtime markers but do not prove that pixels are actually painted.
+The public LUKE QUEST iPhone Home Screen PWA can present a persistent black screen even when the DOM/game state appears alive. Existing automated checks validate DOM geometry and runtime markers but do not prove that pixels are actually painted on the physical iPhone PWA lifecycle path.
 
 ## Fresh incident facts
-- Owner reports the game was working on-device until roughly 04:00 JST.
+- Owner reports the game was working on-device until roughly 04:00 JST on the original incident day.
 - main was rolled back to commit `9e6cb5732aff2c98b4008f2019615769495fc9c6` (2026-09-07 03:56:57 JST) and Pages deployment succeeded, but the device symptom did not change.
 - Emergency service-worker purge/unregister commit `c989f545a07096a894f67184aa6d3c93c69e3e5a` was deployed successfully.
 - Owner symptom before that purge: black world, then no audio, with top HUD briefly visible on app foreground/resume before black returns.
-- Therefore code-after-04:00 alone is not a sufficient explanation. PWA/WebKit/cache/compositor state remains plausible.
+- Therefore code-after-04:00 alone is not a sufficient explanation. PWA/WebKit/cache/compositor/lifecycle state remains plausible.
 - Corrected Chromium 390x844 rendered-world evidence proves the assembled world actually paints outside the Owner iPhone PWA path.
 - Public Pages assembly historically used stable external runtime script URLs (`ux-v*.js`, `addons/*.js`, prelude), so stale WebApp/HTTP asset caching remains a concrete recovery target even after source rollback.
-- Playwright WebKit 26.0 now also proves the assembled world paints through a Safari-family WebKit engine at 390x844 with no page errors and valid shell/world/player geometry.
-- Remaining uncertainty is narrowed to the physical iPhone Home Screen PWA container / persisted client state. Machine-verifiable recovery work is complete; physical verification remains Owner-only.
+- Playwright WebKit 26.0 also proves the assembled world paints through a Safari-family WebKit engine at 390x844 with no page errors and valid shell/world/player geometry.
+- 2026-09-08 fresh audit found `addons/map-transition-fade.js` creates a fixed full-viewport dark layer at z-index 105. Its cleanup depended on `animationend` / a 700 ms timer plus `pagehide`; iOS PWA suspension can freeze timers/animations, while the Owner specifically reports a foreground-resume HUD flash followed by darkness. This is a credible lifecycle-specific failure class, not yet a proven physical root cause.
+- REQ-034 was a distinct earlier black-world defect and was physically confirmed fixed by Owner on 2026-09-06; it must not be confused with this persistent REQ-127 incident.
 
 ## Requirements
 1. Preserve current known-good gameplay logic while diagnosing.
@@ -33,6 +34,8 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 12. Black-screen startup diagnostics must use a dedicated REQ-127 world mode rather than global `lqSmoke=1`, because the latter intentionally executes many historical subsystem smoke tests and is not a clean production-like error baseline.
 13. A Safari-family WebKit engine must execute the same deterministic 390x844 world proof and rendered-pixel liveness gate before REQ-127 may leave IN_PROGRESS.
 14. Emergency Service Worker recovery must purge CacheStorage, perform a one-shot versioned client navigation to bypass a stale Home Screen document, avoid navigation loops, and unregister itself without a persistent fetch handler.
+15. Any full-viewport transient presentation layer capable of covering the world must fail-safe across iOS lifecycle boundaries: `pagehide`, `pageshow`, `visibilitychange`, and `freeze` must synchronously remove it without depending on timers or animation events.
+16. A regression smoke must prove the map-transition dark layer is removed by lifecycle cleanup and by `pageshow` resume.
 
 ## Checkpoints
 - `c989f545a07096a894f67184aa6d3c93c69e3e5a`: deployed emergency service-worker cache purge + unregister; Pages SUCCESS.
@@ -53,13 +56,15 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 - Standard Pages run `34072962526`: SUCCESS on `66beaa16272e353f039164028e8de9b34c185528`.
 - Cache-busted recovery run `34073013636`: SUCCESS on the same source commit.
 - Render run `34072962506`: SUCCESS. Chromium metrics: near-black `0.265555`, bright `0.629679`, mean luminance `87.889`, color bins `626`. WebKit metrics: near-black `0.259062`, bright `0.643335`, mean luminance `90.467`, color bins `621`. WebKit proved `screen=world`, `map=town`, 288 tiles, visible non-zero shell/world/player geometry, and no page errors. Evidence artifact ID `10001098641` retained for 14 days.
+- `ccae60edb053c999b69d989478277871983387c6`: REQ-127 lifecycle hardening. `map-transition-fade.js` now synchronously clears its full-viewport dark layer on `pagehide`, `pageshow`, `visibilitychange`, and `freeze` rather than relying on frozen timers/animation events.
+- `d7c1c545cc1c5f010b209b52bef1f5c30d663815`: regression gate now explicitly creates the dark transition layer and proves lifecycle cleanup plus `pageshow` cleanup remove it.
 
 ## Completion conditions
-- Automated rendered-pixel diagnostic exists and has run on the public-build assembly path. PASS.
-- Result is recorded as PASS/FAIL with measured evidence. PASS.
-- If automated render FAILS, repair until PASS before normal feature work resumes. PASS on both Chromium and WebKit.
-- If automated render PASSES while Owner iPhone remains black, narrow incident to iPhone/PWA/WebKit-specific path and ship safe runtime diagnostics/recovery without falsifying physical verification. PASS; physical iPhone Home Screen container remains the only unverified boundary.
-- A cache-busted recovery artifact is deployed successfully after the normal Pages workflow, with all runtime JS URLs versioned by the exact build SHA. PASS.
-- Pages deployment remains successful. PASS.
-- WORK_QUEUE.md and CURRENT.md reflect this P0 incident and recovery state. Pending synchronization checkpoint in this transition to VERIFY.
+- Automated rendered-pixel diagnostic exists and has run on the public-build assembly path. PASS historically; rerun required for current repair.
+- Result is recorded as PASS/FAIL with measured evidence. PASS historically; current repair pending workflow evidence.
+- If automated render FAILS, repair until PASS before normal feature work resumes.
+- If automated render PASSES while Owner iPhone remains black, continue narrowing the incident to physical iPhone/PWA lifecycle behavior; do not falsify physical verification.
+- A cache-busted recovery artifact must deploy successfully after the current repair before returning to VERIFY.
+- Pages deployment must remain successful after the current repair.
+- WORK_QUEUE.md and CURRENT.md must reflect this reopened P0 incident.
 - IOS_PHYSICAL_VERIFICATION remains PENDING until Owner confirms the actual device no longer goes black.
