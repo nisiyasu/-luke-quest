@@ -31,7 +31,6 @@ jobs:
           idx=req127[0]
           row=lines[idx]
           cells=[c.strip() for c in row.split('|')]
-          # ['', ORDER, ID, PRIORITY, STATUS, TITLE, PATH, NOTE, '']
           if len(cells) < 8 or cells[2] != 'REQ-127':
               raise SystemExit('REQ-127 row shape unexpected; fail closed')
 
@@ -45,8 +44,7 @@ jobs:
               raise SystemExit(f'REQ-127 expected VERIFY before reopen, found {cells[4]!r}')
 
           cells[4]='IN_PROGRESS'
-          if len(cells) >= 8:
-              cells[7]='Owner 2026-09-08 physical report says persistent dark/black iPhone PWA is still unresolved. Reopened P0. Lifecycle full-screen fade cleanup candidate implemented; Pages/render/cache-busted validation required; IOS_PHYSICAL_VERIFICATION=PENDING.'
+          cells[7]='Owner 2026-09-08 physical report says persistent dark/black iPhone PWA is still unresolved. Reopened P0. Lifecycle full-screen fade cleanup candidate implemented; Pages/render/cache-busted validation required; IOS_PHYSICAL_VERIFICATION=PENDING.'
           lines[idx]='| ' + ' | '.join(cells[1:-1]) + ' |'
           out='\n'.join(lines) + ('\n' if text.endswith('\n') else '')
           p.write_text(out)
