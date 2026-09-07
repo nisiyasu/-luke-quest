@@ -1,0 +1,125 @@
+name: REQ-133 upper guidance patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req133-upper-guidance-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch upper pursuit guidance and regression
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p=Path(path); t=p.read_text()
+              if new in t: return
+              if old not in t: raise SystemExit(f'needle not found: {path}')
+              p.write_text(t.replace(old,new,1))
+
+          replace_once('addons/wind-shelf.js',
+          "function decorate(){\n  if(lastMap!==s.map){if(lastMap===SHELF)guidePhase='clue';lastMap=s.map;}\n  if(s.screen!=='world'||s.map!==SHELF)return;",
+          "function decorate(){\n  if(lastMap!==s.map){if(lastMap===SHELF)guidePhase='clue';lastMap=s.map;}\n  if(s.screen!=='world'||s.map!==SHELF||s?.flags?.chapter1Complete){\n    document.querySelectorAll('.lqWindShelfGuide,.lqWindShelfMarker').forEach(n=>n.remove());\n    return;\n  }")
+
+          replace_once('addons/zz-skyline-traverse.js',
+          "function decorate(){\n  if(lastMap!==s.map){if(lastMap===SKY)guidePhase='clue';lastMap=s.map;}\n  if(s.screen!=='world'||s.map!==SKY)return;",
+          "function decorate(){\n  if(lastMap!==s.map){if(lastMap===SKY)guidePhase='clue';lastMap=s.map;}\n  if(s.screen!=='world'||s.map!==SKY||s?.flags?.chapter1Complete){\n    document.querySelectorAll('.lqSkylineGuide,.lqSkylineMarker').forEach(n=>n.remove());\n    return;\n  }")
+
+          replace_once('addons/zzz-cloudbreak-saddle.js',
+          "function decorate(){\n if(lastMap!==s.map){if(lastMap===SADDLE)guidePhase='clue';lastMap=s.map;}\n if(s.screen!=='world'||s.map!==SADDLE)return;",
+          "function decorate(){\n if(lastMap!==s.map){if(lastMap===SADDLE)guidePhase='clue';lastMap=s.map;}\n if(s.screen!=='world'||s.map!==SADDLE||s?.flags?.chapter1Complete){\n  document.querySelectorAll('.lqCloudbreakGuide,.lqCloudbreakMarker').forEach(n=>n.remove());\n  return;\n }")
+
+          smoke=Path('addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req133-upper-guidance-acceptance-smoke.js')
+          smoke.write_text(r'''(() => {
+'use strict';
+function fail(reason){
+ const old=document.querySelector('.lqReq133SmokeFailure');if(old)old.remove();
+ const el=document.createElement('div');el.className='lqReq133SmokeFailure';el.hidden=true;el.dataset.reason=String(reason);document.body.appendChild(el);
+ throw new TypeError(`REQ-133 upper pursuit guidance smoke failed: ${reason}`);
+}
+function assert(ok,reason){if(!ok)fail(reason);}
+const cases=[
+ {map:'windShelf',guide:'.lqWindShelfGuide',marker:'.lqWindShelfMarker'},
+ {map:'skylineTraverse',guide:'.lqSkylineGuide',marker:'.lqSkylineMarker'},
+ {map:'cloudbreakSaddle',guide:'.lqCloudbreakGuide',marker:'.lqCloudbreakMarker'}
+];
+function run(){
+ const snap={screen:s.screen,map:s.map,x:s.x,y:s.y,dir:s.dir,flags:{...(s.flags||{})},dialog:s.dialog,pauseOpen:s.pauseOpen};
+ try{
+  for(const c of cases){
+   assert(MAPS?.[c.map],`map exists ${c.map}`);
+   s.screen='world';s.map=c.map;s.x=10;s.y=18;s.dir='up';s.dialog=null;s.pauseOpen=false;s.flags={...(s.flags||{}),chapter1Complete:false};
+   render();
+   assert(document.querySelector(c.guide),`pre-completion guide ${c.map}`);
+   assert(document.querySelector(c.marker),`pre-completion marker ${c.map}`);
+   s.flags.chapter1Complete=true;render();
+   assert(!document.querySelector(c.guide),`terminal guide cleanup ${c.map}`);
+   assert(!document.querySelector(c.marker),`terminal marker cleanup ${c.map}`);
+   s.flags.chapter1Complete=false;render();
+   assert(document.querySelector(c.guide),`pre-completion guide restoration ${c.map}`);
+   assert(document.querySelector(c.marker),`pre-completion marker restoration ${c.map}`);
+  }
+  assert(window.LQ_TAP_ANYWHERE_ACTION_STATUS||window.LQ_UNIFIED_WORLD_TOUCH_STATUS||window.LQ_FLOATING_TOUCH_STATUS,'P0 touch authority present');
+  assert(window.LQ_FULLSCREEN_WORLD_STATUS||document.querySelector('.gameShell'),'P0 fullscreen authority present');
+  const ok=document.createElement('div');ok.className='lqReq133SmokeMarker';ok.hidden=true;ok.dataset.req133='true';ok.dataset.terminalSuppression='true';ok.dataset.preCompletionRestore='true';ok.dataset.maps='windShelf,skylineTraverse,cloudbreakSaddle';document.body.appendChild(ok);
+ } finally {
+  s.screen=snap.screen;s.map=snap.map;s.x=snap.x;s.y=snap.y;s.dir=snap.dir;s.flags=snap.flags;s.dialog=snap.dialog;s.pauseOpen=snap.pauseOpen;render();
+ }
+}
+window.LQ_REQ133_UPPER_GUIDANCE_TEST={run,cases};
+if(new URLSearchParams(location.search).has('lqSmoke'))setTimeout(run,0);
+})();
+''')
+
+          q=Path('WORK_QUEUE.md'); t=q.read_text()
+          old='| 114 | REQ-132 | P1 | IN_PROGRESS | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Fresh-code audit proved stale post-Chapter-1 north pursuit projection in NORTH ROUTE COMPASS plus northCliffRoad/windcutPass local guidance. Guard checkpoints 49464947..., 0678aca1..., eeee9350...; Pages run 34100767214 SUCCESS. Dedicated terminal/pre-completion regression pending. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          new='| 114 | REQ-132 | P1 | VERIFY | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Final regression e4c7585f...; Pages 34100979461 SUCCESS; Render Liveness 34100979510 SUCCESS; REQ-121 34100979538 SUCCESS; REQ-128 34100979558 SUCCESS; cache-busted deploy 34101080278 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if old in t:t=t.replace(old,new,1)
+          elif new not in t: raise SystemExit('REQ-132 queue row mismatch')
+          row='| 115 | REQ-133 | P1 | IN_PROGRESS | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | Fresh-code audit found active post-completion guide+marker projections on windShelf, skylineTraverse, cloudbreakSaddle. Preserve traversal/scenery; suppress only pursuit command UI. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if 'REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md' not in t:
+              marker='\n## STATUS DEFINITIONS'
+              if marker not in t: raise SystemExit('queue status marker missing')
+              t=t.replace(marker,'\n\n'+row+marker,1)
+          q.write_text(t)
+
+          # fail closed on WIP invariant
+          rows=[line for line in t.splitlines() if '| IN_PROGRESS |' in line and line.startswith('|')]
+          if len(rows)!=1 or 'REQ-133' not in rows[0]: raise SystemExit(f'WIP invariant failed: {rows}')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add addons WORK_QUEUE.md
+          git commit -m 'REQ-133: close upper pursuit guidance after chapter 1'
+          git push origin HEAD:main
+      - name: Sync CURRENT to implementation reality
+        run: |
+          SHA=$(git rev-parse HEAD)
+          SHA="$SHA" python - <<'PY'
+          import os,re
+          from pathlib import Path
+          p=Path('CURRENT.md');t=p.read_text();sha=os.environ['SHA']
+          t=re.sub(r'- UPDATED_AT: .*', '- UPDATED_AT: 2026-09-07 18:20 JST', t, count=1)
+          t=re.sub(r'- LATEST_IMPLEMENTATION_COMMIT_SHA: `[^`]+`', f'- LATEST_IMPLEMENTATION_COMMIT_SHA: `{sha}`', t, count=1)
+          t=re.sub(r'- CURRENT_BUILD_STATUS: `[^`]+`', '- CURRENT_BUILD_STATUS: `REQ-133 IN_PROGRESS / UPPER PURSUIT GUIDANCE TERMINAL CLOSURE WIRED / CI-PAGES VERIFICATION PENDING / IOS_PHYSICAL_VERIFICATION=PENDING`', t, count=1)
+          t=re.sub(r'- ACTIVE_REQUIREMENT_ID: `[^`]+`', '- ACTIVE_REQUIREMENT_ID: `REQ-133`', t, count=1)
+          t=re.sub(r'- ACTIVE_REQUIREMENT_PATH: `[^`]+`', '- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md`', t, count=1)
+          t=re.sub(r'- QUEUE_PROJECTION_STATUS: `[^`]+`', '- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132 VERIFY; REQ-133 sole IN_PROGRESS.`', t, count=1)
+          t=re.sub(r'- NEXT_ACTION: `[^`]+`', '- NEXT_ACTION: `Collect REQ-133 deterministic regression + Pages + render-liveness results; repair if red; promote VERIFY only when machine/public gates are green.`', t, count=1)
+          t=re.sub(r'- NEXT_ACTION_COMPLETION_CONDITION: `[^`]+`', '- NEXT_ACTION_COMPLETION_CONDITION: `REQ-133 terminal suppression + pre-completion restoration PASS across all three upper maps, Pages/render regressions green; IOS physical remains PENDING.`', t, count=1)
+          block=f'''\n## REQ-133 — CHAPTER 1 COMPLETE UPPER PURSUIT GUIDANCE CLOSURE — ACTIVE\n\n- STATUS: `IN_PROGRESS`.\n- Fresh audit found explicit guide+marker pursuit projections on `windShelf`, `skylineTraverse`, and `cloudbreakSaddle` after Chapter 1 completion.\n- `chapter1Complete` now suppresses and cleans only those active command projections; traversal, encounters, maps, and environmental history remain intact.\n- Dedicated regression tests pre-completion visible -> completion hidden -> unfinished-state restoration for all three maps.\n- Implementation checkpoint: `{sha}`.\n- Chapter 2 remains intentionally undesigned.\n- IOS_PHYSICAL_VERIFICATION: `PENDING`.\n'''
+          if '## REQ-133 — CHAPTER 1 COMPLETE UPPER PURSUIT GUIDANCE CLOSURE — ACTIVE' not in t:t+=block
+          p.write_text(t)
+          PY
+          git add CURRENT.md
+          git commit -m 'CURRENT: sync REQ-133 upper guidance checkpoint'
+          git push origin HEAD:main
