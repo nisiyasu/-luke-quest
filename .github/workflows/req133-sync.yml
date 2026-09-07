@@ -1,0 +1,60 @@
+name: REQ-133 sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req133-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Sync queue and current
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          q = Path('WORK_QUEUE.md')
+          t = q.read_text()
+          old = '| 114 | REQ-132 | P1 | IN_PROGRESS | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Fresh-code audit proved stale post-Chapter-1 north pursuit projection in NORTH ROUTE COMPASS plus northCliffRoad/windcutPass local guidance. Guard checkpoints 49464947..., 0678aca1..., eeee9350...; Pages run 34100767214 SUCCESS. Dedicated terminal/pre-completion regression pending. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          new = '| 114 | REQ-132 | P1 | VERIFY | Chapter 1 Complete Route Guidance Closure | `requirements/REQ-132_CHAPTER_01_COMPLETE_ROUTE_GUIDANCE_CLOSURE.md` | Final regression e4c7585f...; Pages 34100979461 SUCCESS; Render Liveness 34100979510 SUCCESS; REQ-121 34100979538 SUCCESS; REQ-128 34100979558 SUCCESS; cache-busted deploy 34101080278 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if old in t:
+              t = t.replace(old, new, 1)
+          elif new not in t:
+              raise SystemExit('REQ-132 row mismatch')
+          row = '| 115 | REQ-133 | P1 | IN_PROGRESS | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | windShelf / skylineTraverse / cloudbreakSaddle active pursuit guide+marker are terminally suppressed after chapter1Complete by presentation-only late guard. Pages 34106696700 SUCCESS; REQ-121 34106696470 SUCCESS; REQ-128 34106697030 SUCCESS. Render Liveness pending. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if 'REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md' not in t:
+              t = t.replace('\n## STATUS DEFINITIONS', '\n\n' + row + '\n## STATUS DEFINITIONS', 1)
+          q.write_text(t)
+
+          c = Path('CURRENT.md')
+          s = c.read_text()
+          replacements = {
+            r'- UPDATED_AT: .*': '- UPDATED_AT: 2026-09-07 18:38 JST',
+            r'- LATEST_IMPLEMENTATION_COMMIT_SHA: `[^`]+`': '- LATEST_IMPLEMENTATION_COMMIT_SHA: `aae39688198f0587386ce7225390488fe490a2d1`',
+            r'- CURRENT_BUILD_STATUS: `[^`]+`': '- CURRENT_BUILD_STATUS: `REQ-133 IN_PROGRESS / UPPER PURSUIT TERMINAL GUARD + DETERMINISTIC SMOKE WIRED / PAGES SUCCESS / RENDER LIVENESS PENDING / IOS_PHYSICAL_VERIFICATION=PENDING`',
+            r'- ACTIVE_REQUIREMENT_ID: `[^`]+`': '- ACTIVE_REQUIREMENT_ID: `REQ-133`',
+            r'- ACTIVE_REQUIREMENT_PATH: `[^`]+`': '- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md`',
+            r'- QUEUE_PROJECTION_STATUS: `[^`]+`': '- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132 VERIFY; REQ-133 sole IN_PROGRESS.`',
+            r'- NEXT_ACTION: `[^`]+`': '- NEXT_ACTION: `Collect REQ-133 Render Liveness and cache-busted public deploy; promote VERIFY only when remaining machine/public gates are green, then continue fresh post-Chapter-1 stale-guidance audit.`',
+            r'- NEXT_ACTION_COMPLETION_CONDITION: `[^`]+`': '- NEXT_ACTION_COMPLETION_CONDITION: `REQ-133 Pages + render-liveness + protected route/climax regressions green; queue/CURRENT synchronized; IOS physical remains PENDING.`'
+          }
+          for pat, val in replacements.items():
+              s = re.sub(pat, val, s, count=1)
+          marker = '## REQ-133 — CHAPTER 1 COMPLETE UPPER PURSUIT GUIDANCE CLOSURE — ACTIVE'
+          if marker not in s:
+              s += '''\n\n## REQ-133 — CHAPTER 1 COMPLETE UPPER PURSUIT GUIDANCE CLOSURE — ACTIVE\n\n- STATUS: `IN_PROGRESS`.\n- Fresh audit found stale always-on pursuit guide+marker UI on `windShelf`, `skylineTraverse`, and `cloudbreakSaddle` after `chapter1Complete`.\n- A presentation-only late guard removes only those active command projections after Chapter 1 completion; maps, traversal, encounters and environmental history remain unchanged.\n- Deterministic assembled-browser smoke proves unfinished visible -> completion hidden -> unfinished restoration for all three maps.\n- Standard Pages `34106696700`: SUCCESS.\n- REQ-121 route regression `34106696470`: SUCCESS.\n- REQ-128 Chapter 1 climax regression `34106697030`: SUCCESS.\n- Render Liveness: PENDING at this autosave.\n- Chapter 2 remains intentionally undesigned.\n- IOS_PHYSICAL_VERIFICATION: `PENDING`.\n'''
+          c.write_text(s)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md CURRENT.md
+          git commit -m 'queue: sync REQ-132 VERIFY and REQ-133 active'
+          git push origin HEAD:main
