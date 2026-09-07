@@ -1,18 +1,17 @@
 (() => {
 'use strict';
 
-/* REQ-023 browser probe. It can run inside the canonical touch-smoke suite or
-   independently through ?lqReq023Smoke=1. The critical progression proof must
-   be earned through canonical action(), not by the test directly writing
-   withdrawProofSeen. */
+/* REQ-023 isolated browser probe. The evacuation guidance assertions mutate
+   canonical state while exercising action(), so running them inside the shared
+   lqTouchSmoke suite can race with unrelated pointer probes. Keep this probe on
+   its dedicated ?lqReq023Smoke=1 path; the assembled Pages injection order is
+   still exercised by the dedicated workflow. */
 if(typeof location==='undefined')return;
 const params=new URLSearchParams(location.search);
-const touchMode=params.has('lqTouchSmoke');
-const isolatedMode=params.has('lqReq023Smoke');
-if(!touchMode&&!isolatedMode)return;
+if(!params.has('lqReq023Smoke'))return;
 
-const markerId=isolatedMode?'lqReq023IsolatedSmokeMarker':'lqEvacGuidanceSmokeMarker';
-const failureId=isolatedMode?'lqReq023IsolatedSmokeFailure':'lqFloatingTouchSmokeFailure';
+const markerId='lqReq023IsolatedSmokeMarker';
+const failureId='lqReq023IsolatedSmokeFailure';
 
 setTimeout(()=>{
   const snapshot=structuredClone(s);
