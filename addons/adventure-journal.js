@@ -9,6 +9,7 @@ const style=document.createElement('style');style.textContent=`
 function mainGoal(state=s){
  const flags=state?.flags||{};
  const wins=state===s?s.wins:state?.wins;
+ if(flags.chapter1Complete)return'第一章完了。次の物語は準備中です。王都でひと息つこう。';
  if(flags.withdrawProofSeen&&state?.map==='cloudbreakSaddle')return'北尾根・雲上の鞍部で新しい擦れ跡を追い、さらに高所へ続く石段跡を確認する。';
  if(flags.withdrawProofSeen&&state?.map==='skylineTraverse')return'北尾根・雲裂きの稜線で新しい足跡を追い、さらに高みへ折れる踏み跡を確認する。';
  if(flags.withdrawProofSeen&&state?.map==='windShelf')return'北尾根・風蝕の岩棚で新しい足跡を追い、さらに高みへ続く細道を確認する。';
@@ -64,7 +65,7 @@ function addJournal(){
 }
 function defer(){queueMicrotask(addJournal);}
 const worldJ=world;world=function(){worldJ();defer();};const renderJ=render;render=function(){const r=renderJ();defer();return r;};
-window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true,menuIntegrated:true,northCliffLocationAware:true,windcutPassLocationAware:true,northRidgeApproachLocationAware:true,windShelfLocationAware:true,skylineTraverseLocationAware:true,cloudbreakSaddleLocationAware:true};
+window.LQ_ADVENTURE_JOURNAL_STATUS={mainObjective:true,discoveredClues:true,sideQuests:['elderCharm','forestBounty','forestHerbSample','forestMiniBoss'],spoilerSafe:true,menuIntegrated:true,northCliffLocationAware:true,windcutPassLocationAware:true,northRidgeApproachLocationAware:true,windShelfLocationAware:true,skylineTraverseLocationAware:true,cloudbreakSaddleLocationAware:true,chapter1CompleteAware:true};
 window.LQ_ADVENTURE_JOURNAL_TEST={sideQuests,mainGoal};
 defer();
 })();
