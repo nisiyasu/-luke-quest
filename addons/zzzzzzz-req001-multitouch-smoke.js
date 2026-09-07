@@ -3,7 +3,9 @@
 
 /* REQ-001 P0 re-audit hardening.
    Inert in normal play. Under ?lqTouchSmoke=1 it proves that only the first
-   active pointer owns movement and a second touch cannot steal direction. */
+   active pointer owns movement and a second touch cannot steal direction.
+   Runs after the REQ-021 long-press regression so global pointer state is not
+   shared by concurrent smoke cases. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function pointer(type,target,id,x,y,isPrimary){
@@ -60,5 +62,5 @@ setTimeout(()=>{
     fail(err&&err.message);
     mark({secondaryIgnored:false,primaryOwns:false,cleaned:false,error:true});
   }
-},2100);
+},2420);
 })();
