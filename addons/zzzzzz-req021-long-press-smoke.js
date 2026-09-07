@@ -4,8 +4,8 @@
 /* REQ-021 P0 re-audit hardening.
    Inert in normal play. Under ?lqTouchSmoke=1 it proves that a stationary hold
    beyond the tap window does not become canonical Action on release.
-   Runs after the existing visibilitychange regression to avoid shared-state
-   test interference. */
+   It waits for the existing visibilitychange regression marker instead of
+   relying on a fixed start time, preventing shared global-pointer interference. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function pointer(type,target,id,x,y){
@@ -25,8 +25,8 @@ function mark(data){
   if(!m){m=document.createElement('i');m.id='lqReq021LongPressSmokeMarker';m.hidden=true;document.body.appendChild(m);}
   Object.entries(data).forEach(([k,v])=>m.dataset[k]=String(v));
 }
-
-setTimeout(()=>{
+function run(){
+  if(document.getElementById('lqReq021LongPressSmokeMarker'))return;
   if(typeof s==='undefined'||typeof action!=='function')return fail('REQ-021 runtime authority missing');
   const snapshot=structuredClone(s);
   const originalAction=action;
@@ -60,5 +60,12 @@ setTimeout(()=>{
     fail(err&&err.message);
     mark({noAction:false,noMove:false,cleaned:false,error:true});
   }
-},1880);
+}
+function waitForVisibility(){
+  const v=document.getElementById('lqVisibilityTouchSmokeMarker');
+  if(v&&v.dataset.pass==='true')return run();
+  if(document.getElementById('lqFloatingTouchSmokeFailure'))return;
+  setTimeout(waitForVisibility,20);
+}
+setTimeout(waitForVisibility,1650);
 })();
