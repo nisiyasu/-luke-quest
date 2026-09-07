@@ -1,9 +1,13 @@
 (() => {
 'use strict';
 
-/* REQ-108 dedicated late assembled-browser acceptance. */
+/* REQ-108 dedicated late assembled-browser acceptance.
+   REQ-121 forward compatibility: the original Cloudbreak boundary remains the
+   same canonical interactable, but when published windStairRidge exists its
+   successful Action now continues into that existing map instead of stopping
+   on a flavor-only dialogue. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqNorthCliffEncounterSmoke'))return;
-const SKY='skylineTraverse',SADDLE='cloudbreakSaddle',UNKNOWN='__req108UnknownMap__';
+const SKY='skylineTraverse',SADDLE='cloudbreakSaddle',WIND='windStairRidge',UNKNOWN='__req108UnknownMap__';
 function add(id,data={}){const el=document.createElement('i');el.id=id;el.hidden=true;Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));document.body.appendChild(el);return el;}
 function fail(reason){add('lqReq108RuntimeSmokeFailure',{reason:reason||'unknown'});if(!document.getElementById('lqNorthCliffEncounterSmokeFailure'))add('lqNorthCliffEncounterSmokeFailure',{reason:`REQ-108: ${reason||'unknown'}`});}
 setTimeout(()=>{
@@ -25,7 +29,10 @@ setTimeout(()=>{
   result.guideAdvance=status?.guidePhase?.()==='north';
   s.dialog=null;s.map=SADDLE;s.x=6;s.y=13;s.dir='up';render();action();result.hollow=!!s.dialog&&s.dialog.kind==='lqCloudbreakHollow';
   s.dialog=null;s.map=SADDLE;s.x=16;s.y=8;s.dir='up';render();action();result.view=!!s.dialog&&s.dialog.kind==='lqCloudbreakView';
-  s.dialog=null;s.map=SADDLE;s.x=10;s.y=2;s.dir='up';render();action();result.boundary=!!s.dialog&&s.dialog.kind==='lqCloudbreakBoundary'&&s.map===SADDLE;
+  s.dialog=null;s.map=SADDLE;s.x=10;s.y=2;s.dir='up';render();action();
+  result.boundary=MAPS[WIND]
+    ? s.map===WIND&&!!s.dialog&&s.dialog.kind==='lqCloudbreakBoundary'
+    : !!s.dialog&&s.dialog.kind==='lqCloudbreakBoundary'&&s.map===SADDLE;
 
   s.dialog=null;s.map=SADDLE;s.x=10;s.y=18;s.dir='down';render();move('down');result.returnSafe=s.map===SKY&&s.x===10&&s.y===2&&!blocked(s.x,s.y);
 
