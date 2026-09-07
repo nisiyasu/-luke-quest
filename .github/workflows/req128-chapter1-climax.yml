@@ -1,0 +1,61 @@
+name: REQ-128 Chapter 1 Climax Gate
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req128-chapter1-climax"
+  cancel-in-progress: true
+
+jobs:
+  climax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and addon contract
+        run: |
+          node --check addons/zzzzzzzzzzzzzzzzzz-req128-chapter1-climax.js
+          node --check addons/zzzzzzzzzzzzzzzzzzz-req128-chapter1-climax-smoke.js
+          node tools/lq-addon-contract.mjs
+          node tools/lq-static-regression.mjs
+      - name: Assemble exact public script order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html');html=p.read_text();marker='<div id="app"></div><script>';guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          cp index.html req128.html
+      - name: Run 390x844 Chapter 1 climax acceptance
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
+          python3 -m http.server 8158 >/tmp/req128-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
+          set +e
+          timeout 50 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=17000 --dump-dom 'http://127.0.0.1:8158/req128.html?lqReq128Smoke=1' >/tmp/req128-dom.html 2>/tmp/req128-browser.log
+          code=$?; set -e; test -s /tmp/req128-dom.html
+          for needle in 'id="lqReq128Marker"' 'data-status="PASS"' 'data-trigger="wind-stair-boundary"' 'data-hero-before-attack="true"' 'data-nonlethal="true"' 'data-normal-win-calls="0"' 'data-reward-leak="false"' 'data-sister-nonfatal="true"' 'data-return-aldia="true"' 'data-chapter1-complete="true"' 'data-chapter2-invented="false"'; do
+            grep -q "$needle" /tmp/req128-dom.html || { echo "REQ-128 missing: $needle"; grep -o 'lqReq128[^<]*\|data-[a-z0-9-]*="[^"]*"' /tmp/req128-dom.html | tail -160 || true; cat /tmp/req128-browser.log || true; exit 1; }
+          done
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req128-browser.log; then cat /tmp/req128-browser.log; exit 1; fi
+          echo "REQ-128 Chapter 1 climax PASS (browser status $code)"
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req128-climax-${{ github.sha }}
+          path: |
+            /tmp/req128-*.html
+            /tmp/req128-*.log
+          retention-days: 7
+          if-no-files-found: warn
