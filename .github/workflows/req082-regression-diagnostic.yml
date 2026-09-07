@@ -1,0 +1,61 @@
+name: REQ-082 Regression Diagnostic
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req082-regression-diagnostic"
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble public script order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+      - name: Reproduce and print exact REQ-082 marker
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          set +e
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=5200 --dump-dom "file://${GITHUB_WORKSPACE}/index.html?lqTouchSmoke=1&lqNorthCliffEncounterSmoke=1" >/tmp/req082-dom.html 2>/tmp/req082-browser.log
+          browser_status=$?
+          set -e
+          echo "browser_status=$browser_status"
+          echo '--- failure marker ---'
+          grep -o 'id="lqNorthCliffEncounterSmokeFailure"[^>]*' /tmp/req082-dom.html || true
+          echo '--- result marker ---'
+          grep -o 'id="lqNorthCliffEncounterSmokeMarker"[^>]*' /tmp/req082-dom.html || true
+          echo '--- browser relevant errors ---'
+          grep -E 'REQ-082|lqNorthCliffEncounterSmokeFailure|ReferenceError|TypeError|SyntaxError' /tmp/req082-browser.log || true
+          test -s /tmp/req082-dom.html
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req082-regression-${{ github.sha }}
+          path: |
+            /tmp/req082-dom.html
+            /tmp/req082-browser.log
+          retention-days: 3
+          if-no-files-found: warn
