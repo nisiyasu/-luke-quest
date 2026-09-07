@@ -1,0 +1,66 @@
+name: REQ-133 and P0 re-audit sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req133-p0-reaudit-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Repair queue and CURRENT to fresh reality
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          q=Path('WORK_QUEUE.md')
+          text=q.read_text()
+          lines=text.splitlines()
+          out=[]
+          seen=False
+          for line in lines:
+              if line.startswith('| 115 | REQ-133 |'):
+                  line='| 115 | REQ-133 | P1 | VERIFY | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | windShelf / skylineTraverse / cloudbreakSaddle terminal guidance closure machine-complete. Pages 34106890062 SUCCESS; Render Liveness 34106890050 SUCCESS; cache-busted public deploy 34106990439 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+                  seen=True
+              out.append(line)
+          if not seen:
+              raise SystemExit('REQ-133 queue row missing')
+          q.write_text('\n'.join(out)+'\n')
+
+          p=Path('CURRENT.md')
+          c=p.read_text()
+          replacements={
+            '- UPDATED_AT: 2026-09-07 18:38 JST':'- UPDATED_AT: 2026-09-07 20:28 JST',
+            '- LATEST_IMPLEMENTATION_COMMIT_SHA: `aae39688198f0587386ce7225390488fe490a2d1`':'- LATEST_IMPLEMENTATION_COMMIT_SHA: `c0cae32aabf14547c903ce976f83cc6aa4681c9b`',
+            '- CURRENT_BUILD_STATUS: `REQ-133 IN_PROGRESS / UPPER PURSUIT TERMINAL GUARD + DETERMINISTIC SMOKE WIRED / PAGES SUCCESS / RENDER LIVENESS PENDING / IOS_PHYSICAL_VERIFICATION=PENDING`':'- CURRENT_BUILD_STATUS: `P0 INPUT RE-AUDIT / REQ-021 + REQ-022 + REQ-001 FRESH CODE VERIFIED / LONG-PRESS + MULTITOUCH REGRESSION HARDENING IN FLIGHT / IOS_PHYSICAL_VERIFICATION=PENDING`',
+            '- ACTIVE_REQUIREMENT_ID: `REQ-133`':'- ACTIVE_REQUIREMENT_ID: `REQ-021`',
+            '- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md`':'- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-021_TAP_ANYWHERE_ACTION.md`',
+            '- READY_REQUIREMENTS: `REQ-121_CLOUDBREAK_WIND_STAIR_TRANSITION_DEADLOCK_FIX; REQ-117_WORLD_CHARACTER_VISUAL_RICHNESS_UPGRADE; REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING`':'- READY_REQUIREMENTS: `NONE at fresh queue; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`',
+            '- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132 VERIFY; REQ-133 sole IN_PROGRESS.`':'- QUEUE_PROJECTION_STATUS: `REQ-128/129/130/131/132/133 VERIFY; no ordinary IN_PROGRESS row. Owner-mandated P0 REQ-021/022/001 re-audit is active authority.`',
+            '- NEXT_ACTION: `Collect REQ-133 Render Liveness and cache-busted public deploy; promote VERIFY only when remaining machine/public gates are green, then continue fresh post-Chapter-1 stale-guidance audit.`':'- NEXT_ACTION: `Collect fresh P0 input/fullscreen regression results for stationary long-press no-Action and multitouch pointer ownership; confirm standard Pages + render/cache-busted public path, then preserve VERIFY with IOS physical PENDING and continue the next safe player-visible gap audit.`',
+            '- NEXT_ACTION_COMPLETION_CONDITION: `REQ-133 Pages + render-liveness + protected route/climax regressions green; queue/CURRENT synchronized; IOS physical remains PENDING.`':'- NEXT_ACTION_COMPLETION_CONDITION: `Fresh 390x844 P0 input/fullscreen regression + Pages/public deployment green; REQ-021/022/001 remain machine-verified with IOS_PHYSICAL_VERIFICATION=PENDING.`'
+          }
+          for old,new in replacements.items():
+              if old not in c:
+                  print('WARN missing CURRENT projection:',old[:80])
+              else:
+                  c=c.replace(old,new,1)
+          c += '''\n\n## BOOT REALITY REPAIR — 2026-09-07 20:28 JST\n\n- SELF_AUDIT_GUARD: `LOADED_APPLIED`.\n- BOOT_REALITY_AUDIT: `REPAIRED`.\n- OWNER_PRIORITY_AUDIT: `REPAIRED`: latest loader explicitly re-calls REQ-021 -> REQ-022 -> REQ-001 as absolute P0 re-audit authority.\n- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED`: CURRENT still listed REQ-121/117/118 as READY even though fresh queue/requirements are VERIFY, and REQ-133 had completed machine/public gates while metadata still said Render pending.\n- SELF_REPAIR_ACTIONS: `REQ-133 promoted VERIFY; stale READY projection removed; active authority returned to P0 input re-audit; fresh controller/fullscreen implementation and current Pages touch gate re-read.`\n- REQ-133 EVIDENCE: `Pages 34106890062 SUCCESS; Render Liveness 34106890050 SUCCESS; cache-busted public deploy 34106990439 SUCCESS.`\n- REQ-021 RE-AUDIT HARDENING: `1421c9e8... adds stationary >420ms long-press release => no Action/no movement/cleanup regression under ?lqTouchSmoke=1.`\n- REQ-001 RE-AUDIT HARDENING: `c0cae32a... adds first-pointer ownership / second-touch cannot steal movement regression under ?lqTouchSmoke=1.`\n- REQ-022 FRESH REALITY: `100dvh world, safe-area overlays, transparent controls plane and 390x844 geometry gate remain present at fresh HEAD.`\n- IOS_PHYSICAL_VERIFICATION: `PENDING`.\n- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.\n'''
+          p.write_text(c)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md CURRENT.md
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Already synchronized.'
+            exit 0
+          fi
+          git commit -m 'queue: close REQ-133 and restore P0 input re-audit authority'
+          git push origin HEAD:main
