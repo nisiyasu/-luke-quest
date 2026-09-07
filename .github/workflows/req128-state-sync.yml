@@ -1,0 +1,81 @@
+name: REQ-118 to REQ-128 state sync
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req128-state-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Synchronize requirement queue and current
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          # REQ-118 canonical status
+          p=Path('requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md')
+          t=p.read_text()
+          old='- STATUS: `IN_PROGRESS`'
+          if old in t:
+              t=t.replace(old,'- STATUS: `VERIFY`',1)
+          if '## 11. MACHINE VERIFICATION CHECKPOINT' not in t:
+              t += '''\n\n---\n\n## 11. MACHINE VERIFICATION CHECKPOINT\n\n- Full A-through-H integration gate run `34076886814`: `SUCCESS`.\n- Standard Pages run `34076886815`: `SUCCESS`.\n- Render-liveness run `34076886817`: `SUCCESS`.\n- Existing REQ-121 progression regression run `34076886818`: `SUCCESS`.\n- Sub-gates A+B / C / D+E / F+G / H are green on the same implementation lineage.\n- Machine-verifiable implementation is complete; `IOS_PHYSICAL_VERIFICATION=PENDING`.\n'''
+          p.write_text(t)
+
+          # Queue: promote REQ-118 and add unique REQ-128 WIP
+          p=Path('WORK_QUEUE.md'); t=p.read_text()
+          line118='| 109 | REQ-118 | P1 | IN_PROGRESS | High-Quality Hero Selection Opening / Playable Prologue | `requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md` | Fresh Owner-approved Opening A-H. Selected after REQ-117 machine/public gates passed. Implement in staged recoverable checkpoints; existing progressed saves must bypass safely; preserve REQ-021/022/001. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          repl118='| 109 | REQ-118 | P1 | VERIFY | High-Quality Hero Selection Opening / Playable Prologue | `requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md` | Opening A-H implemented end-to-end. Full integration gate 34076886814 SUCCESS; Pages 34076886815 SUCCESS; Render Liveness 34076886817 SUCCESS; REQ-121 regression 34076886818 SUCCESS. Existing-save bypass and P0 touch/fullscreen protections covered. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+          if line118 in t:
+              t=t.replace(line118,repl118,1)
+          elif '| 109 | REQ-118 | P1 | VERIFY |' not in t:
+              raise SystemExit('REQ-118 queue row drift')
+          row128='| 110 | REQ-128 | P1 | IN_PROGRESS | Chapter 1 Climax — Leon Confrontation / Sister Interruption / Return to Aldia | `requirements/REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md` | Owner-confirmed Chapter 1 climax only. Reuse actual current route/Leon authority; nonlethal defensive confrontation; sister interruption/nonfatal wound; return to kingdom ends Chapter 1. Do not name sister or invent Chapter 2. IOS_PHYSICAL_VERIFICATION=PENDING. |\n'
+          if 'REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md' not in t:
+              anchor=repl118+'\n'
+              if anchor not in t: raise SystemExit('REQ-118 anchor missing')
+              t=t.replace(anchor,anchor+row128,1)
+          # fail closed on WIP
+          wip=[ln for ln in t.splitlines() if '| IN_PROGRESS |' in ln and ln.startswith('|')]
+          if len(wip)!=1 or 'REQ-128' not in wip[0]:
+              raise SystemExit(f'WIP invariant failed: {wip}')
+          p.write_text(t)
+
+          # CURRENT autosave: replace top control fields conservatively and append checkpoint block.
+          p=Path('CURRENT.md'); t=p.read_text()
+          def sub(label,value):
+              global t
+              pat=rf'^- {re.escape(label)}:.*$'
+              if not re.search(pat,t,re.M): raise SystemExit(f'missing CURRENT field {label}')
+              t=re.sub(pat,f'- {label}: {value}',t,count=1,flags=re.M)
+          sub('UPDATED_AT','2026-09-07 13:20 JST')
+          sub('LATEST_IMPLEMENTATION_COMMIT_SHA','`8c7fb3588778708ae0f4639f8903f20bc590337f`')
+          sub('CURRENT_BUILD_STATUS','`REQ-118 A-H MACHINE+PUBLIC PASS / REQ-128 ACTIVE / IOS_PHYSICAL_VERIFICATION=PENDING`')
+          sub('ACTIVE_REQUIREMENT_ID','`REQ-128`')
+          sub('ACTIVE_REQUIREMENT_PATH','`requirements/REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md`')
+          sub('QUEUE_PROJECTION_STATUS','`REQ-118 promoted to VERIFY after full A-H + Pages + render gates. REQ-128 is the sole IN_PROGRESS WIP.`')
+          sub('NEXT_ACTION','`REQ-128 fresh implementation audit: recover actual current Chapter 1 route, Leon encounter, battle, dialogue, save and P0 input authorities; choose the smallest canon-safe climax staging path.`')
+          sub('NEXT_ACTION_COMPLETION_CONDITION','`Actual current route/Leon authority is identified and the first recoverable Chapter 1 climax checkpoint is implemented without naming the sister, inventing Chapter 2, or regressing save/input/fullscreen.`')
+          marker='## REQ-128 — CHAPTER 1 CLIMAX — ACTIVE'
+          if marker not in t:
+              t += '''\n\n## REQ-118 — HIGH-QUALITY HERO SELECTION OPENING — MACHINE COMPLETE\n\n- STATUS: `VERIFY`.\n- Full A-through-H integration run `34076886814`: SUCCESS.\n- Standard Pages `34076886815`: SUCCESS.\n- Render Liveness `34076886817`: SUCCESS.\n- REQ-121 progression regression `34076886818`: SUCCESS.\n- IOS_PHYSICAL_VERIFICATION: `PENDING`.\n\n## REQ-128 — CHAPTER 1 CLIMAX — ACTIVE\n\n- STATUS: `IN_PROGRESS`.\n- Requirement: `requirements/REQ-128_CHAPTER_01_CLIMAX_LEON_CONFRONTATION.md`.\n- Authority: Owner-confirmed `STORY_CANON.md` Chapter 1 core only.\n- Protected unknowns: sister name/age/detailed personality; Chapter 2.\n- Required shape: reach Leon -> hero revelation -> nonlethal defensive confrontation -> sister interruption/nonfatal wound -> Luke aids her -> return to kingdom -> Chapter 1 end.\n- Next: fresh-audit actual route/Leon/battle/save/input implementation before coding.\n'''
+          p.write_text(t)
+          PY
+      - name: Commit synchronized state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add requirements/REQ-118_HIGH_QUALITY_HERO_SELECTION_OPENING.md WORK_QUEUE.md CURRENT.md
+          git diff --cached --check
+          git commit -m 'queue: promote REQ-118 and activate REQ-128'
+          git pull --rebase origin main
+          git push origin HEAD:main
