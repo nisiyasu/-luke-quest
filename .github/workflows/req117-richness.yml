@@ -13,13 +13,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checkpoint-a:
+  richness:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Syntax and addon contract
         run: |
           node --check addons/world-character-grounding.js
+          node --check addons/world-map-depth.js
           node --check addons/zzzzz-req117-richness-checkpoint-a-smoke.js
           node tools/lq-addon-contract.mjs
       - name: Assemble public Pages script order
@@ -53,24 +54,52 @@ jobs:
           test -s /tmp/req117-dom.html
           for needle in 'id="lqReq117CheckpointAMarker"' 'data-status="PASS"' 'data-pointer-safe="true"' 'data-rerender-stable="true"' 'data-state-preserved="true"' 'data-save-preserved="true"' 'data-checkpoint="A"' 'data-authority="canonical-grounding"'; do
             if ! grep -q "$needle" /tmp/req117-dom.html; then
-              echo "REQ-117 acceptance missing: $needle"
-              grep -o 'lqReq117CheckpointAMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req117-dom.html | tail -80 || true
+              echo "REQ-117 A acceptance missing: $needle"
               cat /tmp/req117-browser.log || true
               exit 1
             fi
           done
           if grep -q 'data-status="FAIL"' /tmp/req117-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req117-browser.log; then
-            echo 'REQ-117 runtime failure'; cat /tmp/req117-browser.log; exit 1
+            echo 'REQ-117 A runtime failure'; cat /tmp/req117-browser.log; exit 1
           fi
           echo "REQ-117 Checkpoint A PASS on canonical world-character-grounding.js (browser status $status)"
+      - name: Run 390x844 Checkpoint B compositor-safe map depth acceptance
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8148 >/tmp/req117-b-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=6500 --dump-dom 'http://127.0.0.1:8148/?lqReq117DepthSmoke=1' >/tmp/req117-b-dom.html 2>/tmp/req117-b-browser.log
+          status=$?
+          set -e
+          test -s /tmp/req117-b-dom.html
+          for needle in 'id="lqReq117CheckpointBMarker"' 'data-status="PASS"' 'data-town="true"' 'data-field="true"' 'data-forest="true"' 'data-edges="true"' 'data-drop-shadows="true"' 'data-presentation-only="true"' 'data-compositor-safe="true"' 'data-filter-effects="false"' 'data-isolation-layers="false"'; do
+            if ! grep -q "$needle" /tmp/req117-b-dom.html; then
+              echo "REQ-117 B acceptance missing: $needle"
+              grep -o 'lqReq117CheckpointBMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req117-b-dom.html | tail -80 || true
+              cat /tmp/req117-b-browser.log || true
+              exit 1
+            fi
+          done
+          if grep -q 'lqReq117CheckpointBSmokeFailure' /tmp/req117-b-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req117-b-browser.log; then
+            echo 'REQ-117 B runtime failure'; cat /tmp/req117-b-browser.log; exit 1
+          fi
+          echo "REQ-117 Checkpoint B PASS with filter/isolation compositor layers disabled (browser status $status)"
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: req117-a-${{ github.sha }}
+          name: req117-ab-${{ github.sha }}
           path: |
             /tmp/req117-dom.html
             /tmp/req117-browser.log
             /tmp/req117-http.log
+            /tmp/req117-b-dom.html
+            /tmp/req117-b-browser.log
+            /tmp/req117-b-http.log
           retention-days: 7
           if-no-files-found: warn
