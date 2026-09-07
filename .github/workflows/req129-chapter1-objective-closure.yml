@@ -1,0 +1,36 @@
+name: REQ-129 Chapter 1 Objective Closure
+
+on:
+  push:
+    paths:
+      - 'addons/adventure-journal.js'
+      - 'requirements/REQ-129_CHAPTER_01_COMPLETE_OBJECTIVE_CLOSURE.md'
+      - '.github/workflows/req129-chapter1-objective-closure.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check addons/adventure-journal.js
+      - name: Verify terminal objective precedence
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const src=fs.readFileSync('addons/adventure-journal.js','utf8');
+          const m=src.match(/function mainGoal\(state=s\)\{([\s\S]*?)\n\}\n\nfunction discoveredClues/);
+          if(!m) throw new Error('mainGoal extraction failed');
+          global.s={wins:2,flags:{}};
+          eval('function mainGoal(state=s){'+m[1]+'\n}');
+          const complete={map:'cloudbreakSaddle',wins:99,flags:{chapter1Complete:true,withdrawProofSeen:true,evacEntered:true,glennSeen:true,observationEntered:true,glennTraceSeen:true,mistEntered:true,leonSeen:true}};
+          const done=mainGoal(complete);
+          if(!done.includes('第一章完了')) throw new Error('chapter1Complete did not win precedence: '+done);
+          if(done.includes('レオンを追')) throw new Error('ghost pursuit objective survived: '+done);
+          const pre={map:'northCliffRoad',wins:2,flags:{withdrawProofSeen:true}};
+          const before=mainGoal(pre);
+          if(!before.includes('北の崖道')) throw new Error('pre-completion route objective regressed: '+before);
+          if(!src.includes('chapter1CompleteAware:true')) throw new Error('status marker missing');
+          console.log('REQ-129 PASS', {done,before});
+          NODE
