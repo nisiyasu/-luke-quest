@@ -41,6 +41,8 @@ jobs:
           echo '--- NEW P0 MARKERS ---'
           grep -o '<i id="lqReq021LongPressSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
           grep -o '<i id="lqReq001MultitouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
+          echo '--- VISIBILITY SUBCONDITIONS ---'
+          grep -o '<i id="lqVisibilityTouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
           echo '--- FAILURE MARKER ---'
           grep -o '<i id="lqFloatingTouchSmokeFailure"[^>]*>' /tmp/lq-touch-dom.html || true
           if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html; then
