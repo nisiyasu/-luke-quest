@@ -76,9 +76,15 @@ function safeAreaInsets(){
   return {top:px(cs.paddingTop),right:px(cs.paddingRight),bottom:px(cs.paddingBottom),left:px(cs.paddingLeft)};
 }
 
-function visibleViewportSize(){
+function visibleViewportMetrics(){
   const vv=window.visualViewport;
-  return {width:vv&&vv.width?vv.width:innerWidth,height:vv&&vv.height?vv.height:innerHeight};
+  const finite=value=>Number.isFinite(value)?value:0;
+  return {
+    width:vv&&vv.width?vv.width:innerWidth,
+    height:vv&&vv.height?vv.height:innerHeight,
+    offsetLeft:vv?finite(vv.offsetLeft):0,
+    offsetTop:vv?finite(vv.offsetTop):0
+  };
 }
 
 function isExplicitControl(target){
@@ -147,11 +153,11 @@ function positionPad(){
   const p=ensurePad();
   const half=84,margin=8;
   const safe=safeAreaInsets();
-  const viewport=visibleViewportSize();
-  const minX=half+margin+safe.left;
-  const maxX=Math.max(minX,viewport.width-half-margin-safe.right);
-  const minY=half+margin+safe.top;
-  const maxY=Math.max(minY,viewport.height-half-margin-safe.bottom);
+  const viewport=visibleViewportMetrics();
+  const minX=viewport.offsetLeft+half+margin+safe.left;
+  const maxX=Math.max(minX,viewport.offsetLeft+viewport.width-half-margin-safe.right);
+  const minY=viewport.offsetTop+half+margin+safe.top;
+  const maxY=Math.max(minY,viewport.offsetTop+viewport.height-half-margin-safe.bottom);
   const x=Math.max(minX,Math.min(maxX,originX));
   const y=Math.max(minY,Math.min(maxY,originY));
   p.style.left=x+'px';p.style.top=y+'px';
@@ -161,6 +167,8 @@ function positionPad(){
   p.dataset.lqSafeLeft=String(safe.left);
   p.dataset.lqViewportWidth=String(Math.round(viewport.width));
   p.dataset.lqViewportHeight=String(Math.round(viewport.height));
+  p.dataset.lqViewportOffsetLeft=String(viewport.offsetLeft);
+  p.dataset.lqViewportOffsetTop=String(viewport.offsetTop);
   return p;
 }
 
@@ -240,7 +248,10 @@ window.addEventListener('pointercancel',onPointerCancel,{capture:true,passive:tr
 window.addEventListener('blur',()=>onPointerCancel({}));
 window.addEventListener('resize',onViewportChange,{passive:true});
 window.addEventListener('orientationchange',onViewportChange,{passive:true});
-if(window.visualViewport)window.visualViewport.addEventListener('resize',onVisualViewportChange,{passive:true});
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',onVisualViewportChange,{passive:true});
+  window.visualViewport.addEventListener('scroll',onVisualViewportChange,{passive:true});
+}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)onPointerCancel({});});
 
 if(typeof render==='function'){
@@ -254,5 +265,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.9',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportAware:true,visualViewportResizeKeepsHold:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.9',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportAware:true,visualViewportOffsetAware:true,visualViewportScrollReclamp:true,visualViewportResizeKeepsHold:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
