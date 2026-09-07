@@ -6,8 +6,8 @@
    the final canonical action() exactly once. Outside dialogue, sliding beyond
    the dead zone summons/uses the translucent four-way controller and enters
    movement mode. Dialogue taps remain valid Action taps, but movement can never
-   start while dialogue is already active. Release/cancel/blur/hidden always
-   stops movement. Mouse is intentionally excluded so desktop clicks are unchanged. */
+   start while dialogue is already active. Release/cancel/blur/hidden/pagehide
+   always stops movement. Mouse is intentionally excluded so desktop clicks are unchanged. */
 
 const STYLE_ID='lq-floating-touch-controller-style';
 const PAD_ID='lq-floating-touch-controller';
@@ -246,6 +246,7 @@ window.addEventListener('pointermove',onPointerMove,{capture:true,passive:false}
 window.addEventListener('pointerup',onPointerUp,{capture:true,passive:true});
 window.addEventListener('pointercancel',onPointerCancel,{capture:true,passive:true});
 window.addEventListener('blur',()=>onPointerCancel({}));
+window.addEventListener('pagehide',()=>onPointerCancel({}),{passive:true});
 window.addEventListener('resize',onViewportChange,{passive:true});
 window.addEventListener('orientationchange',onViewportChange,{passive:true});
 if(window.visualViewport){
@@ -265,5 +266,5 @@ if(typeof render==='function'){
   };
 }
 armShell();
-window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.9',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportAware:true,visualViewportOffsetAware:true,visualViewportScrollReclamp:true,visualViewportResizeKeepsHold:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
+window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS={version:'1.9',anywhereOnGameShell:true,slideAndHold:true,tapAnywhereAction:true,tapMaxMs:TAP_MAX_MS,deadZone:DEAD_ZONE,visualDiameter:168,visualContrastHardened:true,safeAreaAware:true,viewportChangeStops:true,visualViewportAware:true,visualViewportOffsetAware:true,visualViewportScrollReclamp:true,visualViewportResizeKeepsHold:true,pagehideStops:true,mouseExcluded:true,releaseSafety:true,cancelNeverActions:true,directionSwitchTimerCleanup:true,ordinaryRenderKeepsHold:true,transitionRenderStops:true,dialogueStartStopsPendingGesture:true,explicitControlExclusion:true,dialogueTapAllowed:true,dialogueMovementBlocked:true,dialoguePadHidden:true,iosPhysicalVerification:'PENDING'};
 })();
