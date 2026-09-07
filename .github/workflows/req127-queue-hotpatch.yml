@@ -24,7 +24,7 @@ jobs:
           p=Path('WORK_QUEUE.md')
           text=p.read_text()
           lines=text.splitlines()
-          req127=[i for i,line in enumerate(lines) if re.match(r'^\|\s*\d+\s*\|\s*REQ-127\s*\|', line)]
+          req127=[i for i,line in enumerate(lines) if re.match(r'^\|\s*-?\d+\s*\|\s*REQ-127\s*\|', line)]
           if len(req127) != 1:
               raise SystemExit(f'expected exactly one REQ-127 queue row, found {len(req127)}')
 
@@ -55,7 +55,7 @@ jobs:
           from pathlib import Path
           import re
           t=Path('WORK_QUEUE.md').read_text()
-          rows=[line for line in t.splitlines() if re.match(r'^\|\s*\d+\s*\|\s*REQ-127\s*\|', line)]
+          rows=[line for line in t.splitlines() if re.match(r'^\|\s*-?\d+\s*\|\s*REQ-127\s*\|', line)]
           assert len(rows) == 1
           assert '| IN_PROGRESS |' in rows[0]
           assert t.count('| IN_PROGRESS |') == 1
