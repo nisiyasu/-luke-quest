@@ -1,0 +1,107 @@
+name: REQ-121 Cloudbreak Wind Stair Progression Gate
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req121-transition"
+  cancel-in-progress: true
+
+jobs:
+  transition:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax and contract preflight
+        run: |
+          node --check addons/zzz-cloudbreak-saddle.js
+          node --check addons/zzz-wind-stair-ridge.js
+          node --check addons/zzzzzz-req121-cloudbreak-wind-stair-smoke.js
+          node tools/lq-addon-contract.mjs
+
+      - name: Assemble the public Pages script order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1:
+              raise SystemExit(f'expected one base marker, found {html.count(marker)}')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          grep -q 'zzz-cloudbreak-saddle.js' index.html
+          grep -q 'zzz-wind-stair-ridge.js' index.html
+          grep -q 'zzzzzz-req121-cloudbreak-wind-stair-smoke.js' index.html
+
+      - name: Run canonical Action transition acceptance
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8141 >/tmp/req121-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          set +e
+          timeout 35 "$BROWSER" \
+            --headless=new \
+            --no-sandbox \
+            --disable-dev-shm-usage \
+            --disable-background-networking \
+            --disable-extensions \
+            --disable-sync \
+            --no-first-run \
+            --window-size=390,844 \
+            --virtual-time-budget=5200 \
+            --dump-dom \
+            'http://127.0.0.1:8141/?lqReq121Smoke=1' \
+            >/tmp/req121-dom.html 2>/tmp/req121-chrome.log
+          status=$?
+          set -e
+          test -s /tmp/req121-dom.html
+          for needle in \
+            'id="lqReq121TransitionSmokeMarker"' \
+            'data-status="PASS"' \
+            'data-entered="true"' \
+            'data-entry-walkable="true"' \
+            'data-returned="true"' \
+            'data-flags-preserved="true"' \
+            'data-destination="windStairRidge"' \
+            'data-new-map-created="false"'; do
+            if ! grep -q "$needle" /tmp/req121-dom.html; then
+              echo "REQ-121 acceptance missing: $needle"
+              grep -o 'lqReq121TransitionSmokeMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/req121-dom.html | tail -80 || true
+              cat /tmp/req121-chrome.log || true
+              exit 1
+            fi
+          done
+          if grep -q 'data-status="FAIL"' /tmp/req121-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req121-chrome.log; then
+            echo 'REQ-121 browser runtime failure'
+            cat /tmp/req121-chrome.log
+            exit 1
+          fi
+          echo "REQ-121 canonical Action Cloudbreak -> Wind Stair -> Cloudbreak PASS (chrome status $status)"
+
+      - name: Preserve acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req121-transition-${{ github.sha }}
+          path: |
+            /tmp/req121-dom.html
+            /tmp/req121-chrome.log
+            /tmp/req121-http.log
+          if-no-files-found: warn
+          retention-days: 7
