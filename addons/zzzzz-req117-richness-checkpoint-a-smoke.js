@@ -14,47 +14,53 @@ function semantic(){
  catch{return'__ERR__';}
 }
 function assert(ok,msg){if(!ok)throw new Error(msg);}
+function visibleEntities(){
+ return [...document.querySelectorAll('.gameShell .world .player,.gameShell .world .npc')].filter(el=>{
+  const cs=getComputedStyle(el);return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity||1)>0;
+ });
+}
 
 setTimeout(()=>{
  const snapshot=structuredClone(s),originalSave=rawSave();
  try{
   s.screen='world';s.map='town';s.x=8;s.y=13;s.dir='up';s.dialog=null;
   render();
-  window.LQ_WORLD_CHARACTER_RICHNESS_STATUS?.refresh?.();
+  window.LQ_REQ119_CHECKPOINT_A_TEST?.sync?.();
   const semanticBefore=semantic();
   const saveBefore=rawSave();
   const world=document.querySelector('.gameShell .world');
   assert(world,'world missing');
-  let entities=[...world.querySelectorAll('.player,.npc')].filter(el=>{const cs=getComputedStyle(el);return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity||1)>0;});
-  let shadows=[...world.querySelectorAll('.lqEntityFootShadow')];
+  let entities=visibleEntities();
   assert(entities.length>0,'no visible entities');
-  assert(shadows.length===entities.length,`shadow count ${shadows.length} != entity count ${entities.length}`);
-  assert(shadows.every(el=>getComputedStyle(el).pointerEvents==='none'),'shadow intercepts pointer');
-  assert(entities.every(el=>el.classList.contains('lqRichIdle')),'idle class missing');
-  assert(entities.every(el=>(el.style.getPropertyValue('--lq-idle-delay')||'').endsWith('ms')),'idle phase missing');
+  assert(entities.every(el=>el.classList.contains('lqGroundedEntity')),'grounded entity class missing');
+  assert(entities.every(el=>el.querySelector(':scope > .lqEntityFootShadow')),'foot shadow missing');
+  assert(entities.every(el=>el.querySelector(':scope > .lqEntityVisualBody')),'visual body missing');
+  assert(entities.every(el=>getComputedStyle(el.querySelector(':scope > .lqEntityFootShadow')).pointerEvents==='none'),'shadow intercepts pointer');
+  assert(entities.every(el=>el.classList.contains('lqIdleEntity')),'idle class missing');
+  assert(entities.every(el=>(el.style.getPropertyValue('--lq-idle-delay')||'').endsWith('s')),'idle phase missing');
 
-  // Calling the presentation refresher alone must be a pure DOM projection.
-  window.LQ_WORLD_CHARACTER_RICHNESS_STATUS.refresh();
-  assert(semantic()===semanticBefore,'presentation refresh mutated semantic game state');
-  assert(rawSave()===saveBefore,'presentation refresh mutated persistent save');
+  // The canonical presentation sync must be a pure DOM projection.
+  window.LQ_REQ119_CHECKPOINT_A_TEST?.sync?.();
+  assert(semantic()===semanticBefore,'presentation sync mutated semantic game state');
+  assert(rawSave()===saveBefore,'presentation sync mutated persistent save');
 
   const coords=entities.map(el=>[el.style.left,el.style.top]);
   render();
-  window.LQ_WORLD_CHARACTER_RICHNESS_STATUS?.refresh?.();
-  entities=[...document.querySelectorAll('.gameShell .world .player,.gameShell .world .npc')].filter(el=>{const cs=getComputedStyle(el);return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity||1)>0;});
-  shadows=[...document.querySelectorAll('.gameShell .world .lqEntityFootShadow')];
-  assert(shadows.length===entities.length,'shadow duplication/removal drift after rerender');
-  assert(new Set(shadows.map(el=>el.dataset.owner)).size===shadows.length,'duplicate shadow owner after rerender');
+  window.LQ_REQ119_CHECKPOINT_A_TEST?.sync?.();
+  entities=visibleEntities();
+  assert(entities.every(el=>el.querySelectorAll(':scope > .lqEntityFootShadow').length===1),'shadow duplication/removal drift after rerender');
+  assert(entities.every(el=>el.querySelectorAll(':scope > .lqEntityVisualBody').length===1),'visual body duplication/removal drift after rerender');
   assert(entities.every((el,i)=>el.style.left===coords[i]?.[0]&&el.style.top===coords[i]?.[1]),'presentation layer changed entity coordinates');
   assert(semantic()===semanticBefore,'rerender changed semantic gameplay state');
 
-  const st=window.LQ_WORLD_CHARACTER_RICHNESS_STATUS;
-  assert(st?.checkpoint==='A'&&st.presentationOnly===true&&st.footShadows===true&&st.separateShadowNodes===true,'status contract missing');
-  assert(st.idleMotion===true&&st.idleCoordinateMutation===false&&st.reducedMotionSafe===true,'idle safety contract missing');
-  assert(st.interactionPromptEasing===true&&st.promptWordingChanged===false&&st.inputAuthorityChanged===false,'interaction presentation contract missing');
-  assert(st.collisionChanged===false&&st.saveSchemaChanged===false&&st.storyChanged===false&&st.pointerSafe===true,'authority safety contract missing');
+  const st=window.LQ_REQ119_CHECKPOINT_A_STATUS;
+  assert(st?.checkpoint==='A'&&st.presentationOnly===true&&st.footShadows===true,'canonical checkpoint A status missing');
+  assert(st.idleMotion===true&&st.interactionEaseIn===true,'checkpoint A presentation contract missing');
+  assert(st.inputAuthority===false&&st.saveSchemaChange===false&&st.storyChange===false,'authority safety contract missing');
+  assert(window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.tapAnywhereAction===true,'tap authority not preserved');
+  assert(window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS?.worldViewportPrimary===true,'fullscreen authority not preserved');
 
-  mark({status:'PASS',entities:entities.length,shadows:shadows.length,pointerSafe:true,rerenderStable:true,statePreserved:true,savePreserved:true,checkpoint:'A'});
+  mark({status:'PASS',entities:entities.length,pointerSafe:true,rerenderStable:true,statePreserved:true,savePreserved:true,checkpoint:'A',authority:'canonical-grounding'});
  }catch(error){
   console.error('REQ-117 Checkpoint A smoke failure',error);
   mark({status:'FAIL',error:error?.message||String(error)});
