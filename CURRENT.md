@@ -1,29 +1,29 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-08 06:25 JST
+- UPDATED_AT: 2026-09-08 08:31 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - LATEST_IMPLEMENTATION_COMMIT_SHA: `002cff2c10b8d5e8abb18d4eda240b112e17641b`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN MACHINE+PUBLIC RE-AUDIT GREEN at implementation 002cff2... + latest regression checkpoint 25b5d716...; Pages 34162942937 SUCCESS including assembled browser smoke, full A/MENU action-overlay exclusion coverage, iPhone world visual smoke and real deploy; Render 34162942772 SUCCESS including Chromium + WebKit iPhone-sized world render; REQ-023 34162942771 SUCCESS; REQ-121 34162942781 SUCCESS; REQ-128 34162942780 SUCCESS; IOS_PHYSICAL_VERIFICATION=PENDING`
-- ACTIVE_REQUIREMENT_ID: `NONE`
-- ACTIVE_REQUIREMENT_PATH: `NONE`
+- CURRENT_BUILD_STATUS: `REQ-127 P0 REOPENED from fresh Owner physical evidence. Full-viewport map transition fade now fails safe on pagehide/pageshow/visibilitychange/freeze; Standard Pages 34170019367 SUCCESS; Render Liveness 34170019384 SUCCESS including Chromium + WebKit; cache-busted recovery 34170083404 SUCCESS. Physical iPhone result is still unresolved; IOS_PHYSICAL_VERIFICATION=PENDING.`
+- ACTIVE_REQUIREMENT_ID: `REQ-127`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113_CLOUDBREAK_NORTH_PLAYABLE_CONTINUATION; REQ-114_STORY_CANON_WIRING_AFTER_CHAPTER_02`
 - READY_REQUIREMENTS: `NONE at fresh queue; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - VERIFY_REQUIREMENTS: `REQ-021; REQ-022; REQ-001; REQ-023; REQ-102; REQ-092; REQ-115; REQ-116; other historical VERIFY rows in WORK_QUEUE.md`
 - BACKLOG_REQUIREMENTS: `REQ-004, REQ-005` formal Leon/Glen art remain Owner-quality-source dependent.
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
-- QUEUE_PROJECTION_STATUS: `No ordinary IN_PROGRESS or READY row. REQ-021/022/001/023 remain VERIFY under latest Owner P0 re-audit authority; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
+- QUEUE_PROJECTION_STATUS: `REQ-127 is the sole IN_PROGRESS P0 after Owner reconfirmed persistent dark/black iPhone PWA. Other VERIFY/BLOCKED/BACKLOG rows do not consume WIP.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
 - RECENT_CHECKPOINTS: `25b5d716... extends the inert P0 touch probe to prove every rendered A/MENU actionPad button is excluded from world pointer ownership; 14f8f7d6... serializes extended P0 smoke after the primary touch smoke; f93d1b55... actively proves window resize/orientation hard-stop boundaries; 002cff2... remains the latest production implementation checkpoint for dialogue-native pan-y arbitration.`
 - TESTS_AND_VERIFICATION: `Pages 34162942937 SUCCESS including browser assembled game, floating touch + iPhone world visual smoke, full A/MENU action-overlay exclusion proof, route regressions, upload and real Pages deploy; Render Liveness 34162942772 SUCCESS including Chromium + WebKit iPhone-sized world rendering; REQ-023 evacuation guidance 34162942771 SUCCESS; REQ-121 progression gate 34162942781 SUCCESS; REQ-128 Chapter 1 climax 34162942780 SUCCESS.`
-- KNOWN_ISSUES: `No confirmed machine regression at production 002cff2... with regression checkpoint 25b5d716.... iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
-- BLOCKERS: `No machine-side blocker for current P0 re-audit. REQ-059 and Chapter 2 Story Canon work remain separately BLOCKED per WORK_QUEUE.`
-- NEXT_ACTION: `Continue highest-value safe player-visible P0 audit from fresh HEAD; repair only fresh evidence-backed defects without inventing Chapter 2 or formal Owner-art decisions.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Any newly discovered P0 defect is reproduced, repaired, machine-tested and publicly included; otherwise preserve the green P0 baseline and IOS physical verification PENDING.`
+- KNOWN_ISSUES: `Owner physical iPhone Home Screen PWA remains dark/black as of 2026-09-08. Lifecycle stale full-screen fade is a repaired candidate failure class, not yet proven as the physical root cause. IOS_PHYSICAL_VERIFICATION=PENDING.`
+- BLOCKERS: `No machine-side blocker: current candidate is machine/public green. Physical iPhone confirmation is Owner-only and remains pending; continue evidence-based REQ-127 diagnosis if symptom persists.`
+- NEXT_ACTION: `Keep REQ-127 active until Owner physical verification. If device remains dark after this deployment, use lifecycle/runtime evidence to isolate the next iPhone-PWA-only occluder/compositor failure without reapplying already-failed rollback/cache theories.`
+- NEXT_ACTION_COMPLETION_CONDITION: `Physical iPhone no longer presents the persistent dark/black world, or a new evidence-backed REQ-127 defect is reproduced and repaired with Standard Pages + Render Liveness + cache-busted public recovery green.`
 - DO_NOT_REPEAT: `Do not test only the first .actionPad button and infer all explicit controls are safe: keep A and MENU both explicitly excluded from world pointer ownership. Do not block native vertical scrolling inside an already-open overflow dialogue by applying shell touch-action:none plus preventDefault to every dialogue swipe. Preserve short tap -> canonical Action, but route dialogue swipe -> native pan-y with no world movement/no Action. Do not clamp Dynamic Touch from visualViewport width/height alone: preserve offsetLeft/offsetTop and re-clamp on visualViewport scroll without cancelling a valid held drag. Do not treat every visualViewport.resize as a movement-cancel boundary. Do not leave held movement ownership alive across pagehide/BFCache navigation. Do not treat a single headless Chromium timeout as a gameplay regression without an unchanged-code retry. Do not accept a title/menu screenshot as world liveness. Do not claim physical iPhone PASS from CI.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.9 offset-aware + pagehide-safe + dialogue-pan arbitration machine+public green`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; visualViewport offsetLeft/offsetTop included in clamp; visualViewport scroll/resize re-clamps while preserving valid held drag; window resize/orientation hard-stop; pagehide clears ownership/timers; already-open dialogue switches shell/dialog to pan-y and leaves pointerdown/move default unblocked while swipe distance suppresses Action and movement; explicit A/MENU controls are verified non-world-touch owners.`
@@ -34,7 +34,7 @@
 
 ## REQ-127 — IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY
 
-- STATUS: `VERIFY / MACHINE RECOVERY COMPLETE / IOS_PHYSICAL_VERIFICATION=PENDING`.
+- STATUS: `IN_PROGRESS / OWNER PHYSICAL BLACK-SCREEN REPORT REOPENED / MACHINE+PUBLIC CANDIDATE GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`.
 - Owner evidence before the latest recovery deployment: Home Screen PWA black; audio later absent; app foreground could briefly flash top HUD before returning black.
 - Rollback to the physical-good-time candidate `9e6cb573...` did not change the Owner symptom, so post-04:00 source changes alone were not a sufficient explanation.
 - Service-worker purge/unregister alone also did not prove recovery.
