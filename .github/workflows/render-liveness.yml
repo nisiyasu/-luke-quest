@@ -81,10 +81,12 @@ jobs:
             'lqRuntimeSmokeMarker' \
             'data-screen="world"' \
             'data-shell="true"' \
-            'data-player="true"'; do
+            'data-player="true"' \
+            'id="lqReq127DiagnosticsMarker"' \
+            'data-req="127"'; do
             if ! grep -q "$needle" /tmp/lq-render-dom.html; then
-              echo "Rendered-pixel preflight did not prove world state: $needle"
-              grep -o 'lqRuntimeSmokeMarker[^<]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"' /tmp/lq-render-dom.html | tail -40 || true
+              echo "Rendered-pixel preflight did not prove required world/diagnostic state: $needle"
+              grep -o 'lqRuntimeSmokeMarker[^<]*\|lqReq127DiagnosticsMarker[^<]*\|data-screen="[^"]*"\|data-map="[^"]*"\|data-shell="[^"]*"\|data-player="[^"]*"\|data-req="[^"]*"' /tmp/lq-render-dom.html | tail -60 || true
               exit 1
             fi
           done
@@ -97,7 +99,12 @@ jobs:
             cat /tmp/lq-render-chrome.log
             exit 1
           fi
-          echo 'REQ-127 world-state preflight PASS before pixel analysis'
+          if grep -q '"errors":\[[^]]' /tmp/lq-render-dom.html; then
+            echo 'REQ-127 runtime diagnostics captured startup errors'
+            grep -o 'id="lqReq127DiagnosticsMarker"[^>]*>[^<]*' /tmp/lq-render-dom.html | tail -1 || true
+            exit 1
+          fi
+          echo 'REQ-127 world-state + runtime-diagnostics preflight PASS before pixel analysis'
 
       - name: Analyze rendered world pixels for black-screen regression
         run: python3 tools/lq-png-black-check.py /tmp/lq-world-390x844.png | tee /tmp/lq-render-metrics.txt
