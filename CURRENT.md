@@ -1,13 +1,13 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-08 04:34 JST
+- UPDATED_AT: 2026-09-08 04:43 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `302f4c1b8fc6c1294c488bf559754e5a9da95434`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `002cff2c10b8d5e8abb18d4eda240b112e17641b`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN MACHINE RE-AUDIT GREEN at implementation 302f4c1... + regression checkpoint 993cd21...; Pages 34155713639 SUCCESS including touch/iPhone visual smoke and real deploy; Render 34155713656 SUCCESS including Chromium + WebKit iPhone-sized world render; REQ-121 34155713615 attempt 2 SUCCESS after attempt 1 transient Chromium timeout; IOS_PHYSICAL_VERIFICATION=PENDING`
+- CURRENT_BUILD_STATUS: `P0 INPUT / FULLSCREEN MACHINE RE-AUDIT GREEN at implementation 002cff2... + regression checkpoint 2028c54...; Pages 34156443361 SUCCESS including unified touch/iPhone visual smoke and real deploy; Render 34156443365 SUCCESS including Chromium + WebKit iPhone-sized world render; REQ-121 34156443338 SUCCESS; REQ-128 34156443389 SUCCESS; IOS_PHYSICAL_VERIFICATION=PENDING`
 - ACTIVE_REQUIREMENT_ID: `NONE`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -18,19 +18,19 @@
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
 - QUEUE_PROJECTION_STATUS: `No ordinary IN_PROGRESS or READY row. REQ-021/022/001/023 remain VERIFY under latest Owner P0 re-audit authority; remaining non-VERIFY work is BLOCKED or Owner-art BACKLOG.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
-- RECENT_CHECKPOINTS: `302f4c1... adds pagehide/BFCache touch ownership cleanup through canonical stop path; 993cd21... proves held-drag pagehide cleanup; ba2d57... + 1c4c718... harden visualViewport offset/scroll clamping; cbd2ae... previously proved visualViewport resize hold preservation.`
-- TESTS_AND_VERIFICATION: `Pages 34155713639 SUCCESS including browser assembled game, floating touch + iPhone world visual smoke, route regressions, upload and real Pages deploy; Render Liveness 34155713656 SUCCESS including Chromium + WebKit iPhone-sized world rendering; REQ-121 progression gate 34155713615 attempt 2 SUCCESS after attempt 1 browser timeout.`
-- KNOWN_ISSUES: `No confirmed machine regression at 302f4c1/993cd21. REQ-121 attempt 1 timed out in headless Chromium but the unchanged-code failed-job rerun passed all acceptance steps. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
+- RECENT_CHECKPOINTS: `002cff2... allows native pan-y in already-open dialogue while preserving canonical short-tap Action and blocking world movement; 2028c54... proves dialogue swipe is native/no-move/no-Action; 302f4c1... + 993cd21... add pagehide/BFCache cleanup; ba2d57... + 1c4c718... harden visualViewport offset/scroll clamping.`
+- TESTS_AND_VERIFICATION: `Pages 34156443361 SUCCESS including browser assembled game, floating touch + iPhone world visual smoke, route regressions, upload and real Pages deploy; Render Liveness 34156443365 SUCCESS including Chromium + WebKit iPhone-sized world rendering; REQ-121 progression gate 34156443338 SUCCESS; REQ-128 Chapter 1 climax 34156443389 SUCCESS.`
+- KNOWN_ISSUES: `No confirmed machine regression at 002cff2/2028c54. iPhone physical behavior for VERIFY items remains Owner-confirmation pending.`
 - BLOCKERS: `No machine-side blocker for current P0 re-audit. REQ-059 and Chapter 2 Story Canon work remain separately BLOCKED per WORK_QUEUE.`
 - NEXT_ACTION: `Continue highest-value safe player-visible P0 audit from fresh HEAD; repair only fresh evidence-backed defects without inventing Chapter 2 or formal Owner-art decisions.`
 - NEXT_ACTION_COMPLETION_CONDITION: `Any newly discovered P0 defect is reproduced, repaired, machine-tested and publicly included; otherwise preserve the green P0 baseline and IOS physical verification PENDING.`
-- DO_NOT_REPEAT: `Do not clamp Dynamic Touch from visualViewport width/height alone: visualViewport can be offset inside the layout viewport, so preserve offsetLeft/offsetTop and re-clamp on visualViewport scroll without cancelling a valid held drag. Do not treat every visualViewport.resize as a movement-cancel boundary; browser chrome/layout can emit it during a valid drag hold. Do not leave held movement ownership alive across pagehide/BFCache navigation. Do not treat a single headless Chromium timeout as a gameplay regression without an unchanged-code retry. Do not accept a title/menu screenshot as world liveness. Do not use global ?lqSmoke=1 as a clean startup-error baseline. Do not retry GitHub Actions self-edit of workflow files without workflows permission. Do not claim physical iPhone PASS from CI.`
-- TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.9 offset-aware + pagehide-safe machine+public green`
-- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; visualViewport offsetLeft/offsetTop included in clamp; visualViewport scroll/resize re-clamps while preserving a valid held drag; window resize/orientation hard-stop; pagehide clears ownership/timers through canonical stop.`
-- TOUCH_CONTROLLER_KNOWN_ISSUES: `No confirmed machine regression at v1.9 offset/pagehide hardening; physical iPhone behavior remains pending.`
+- DO_NOT_REPEAT: `Do not block native vertical scrolling inside an already-open overflow dialogue by applying shell touch-action:none plus preventDefault to every dialogue swipe. Preserve short tap -> canonical Action, but route dialogue swipe -> native pan-y with no world movement/no Action. Do not clamp Dynamic Touch from visualViewport width/height alone: preserve offsetLeft/offsetTop and re-clamp on visualViewport scroll without cancelling a valid held drag. Do not treat every visualViewport.resize as a movement-cancel boundary. Do not leave held movement ownership alive across pagehide/BFCache navigation. Do not treat a single headless Chromium timeout as a gameplay regression without an unchanged-code retry. Do not accept a title/menu screenshot as world liveness. Do not claim physical iPhone PASS from CI.`
+- TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.9 offset-aware + pagehide-safe + dialogue-pan arbitration machine+public green`
+- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; visualViewport offsetLeft/offsetTop included in clamp; visualViewport scroll/resize re-clamps while preserving valid held drag; window resize/orientation hard-stop; pagehide clears ownership/timers; already-open dialogue switches shell/dialog to pan-y and leaves pointerdown/move default unblocked while swipe distance suppresses Action and movement.`
+- TOUCH_CONTROLLER_KNOWN_ISSUES: `No confirmed machine regression at v1.9 offset/pagehide/dialogue-pan hardening; physical iPhone behavior remains pending.`
 - TOUCH_CONTROLLER_IOS_VERIFICATION: `PENDING`
-- TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / protected by unified touch smoke`
-- IPHONE_FULLSCREEN_UI_STATUS: `REQ-022 VERIFY / 100dvh + safe-area overlays + visualViewport camera recenter protected`
+- TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / canonical short tap protected; dialogue swipe explicitly non-Action`
+- IPHONE_FULLSCREEN_UI_STATUS: `REQ-022 VERIFY / 100dvh + safe-area overlays + visualViewport camera recenter + native overflow dialogue pan-y protected`
 
 ## REQ-127 — IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY
 
@@ -173,7 +173,6 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - Dedicated A/B/C/D gate `34074892503`: SUCCESS. Pages `34074892512`: SUCCESS. Render Liveness `34074892523`: SUCCESS. REQ-121 regression `34074892552`: SUCCESS.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 
-
 ## REQ-118 — HIGH-QUALITY HERO SELECTION OPENING — MACHINE COMPLETE
 
 - STATUS: `VERIFY`.
@@ -222,7 +221,6 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - Chapter 2 destination/objective remains intentionally undefined.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 
-
 ## REQ-133 — CHAPTER 1 COMPLETE UPPER PURSUIT GUIDANCE CLOSURE — ACTIVE
 
 - STATUS: `IN_PROGRESS`.
@@ -235,7 +233,6 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - Render Liveness: PENDING at this autosave.
 - Chapter 2 remains intentionally undesigned.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
-
 
 ## BOOT REALITY REPAIR — 2026-09-07 20:28 JST
 
@@ -302,4 +299,19 @@ Fresh HEAD and actual requirement contents outrank stale projections. WIP remain
 - REQ-021 / REQ-022 / REQ-001: `VERIFY / MACHINE+PUBLIC GREEN`.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 - DO_NOT_REPEAT: `Do not retain held movement ownership across pagehide/BFCache entry; do not diagnose a single headless browser timeout as a gameplay defect before an unchanged-code retry.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
+
+## P0 DIALOGUE NATIVE TOUCH SCROLLING — 2026-09-08 04:43 JST
+
+- STATUS: `REPAIRED / PUBLIC GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`.
+- FRESH DEFECT: Fullscreen dialogue is an overflow:auto bottom overlay, but the unified world shell used touch-action:none and the controller prevented default on every dialogue pointer move. Long dialogue could therefore be visually scrollable yet practically unscrollable by finger on iPhone.
+- IMPLEMENTATION: `002cff2c10b8d5e8abb18d4eda240b112e17641b` adds a dialogue-only `pan-y` touch surface. A gesture beginning while dialogue is already open keeps controller visuals/world movement disabled, leaves pointerdown/move default unblocked for native vertical scrolling, and still tracks dead-zone distance so a swipe cannot become canonical Action on release. A short stationary dialogue tap remains canonical Action.
+- REGRESSION: `2028c5436c6085bf86ff6d88999a9f093de80e6d` extends the inert P0 touch probe to require shell/dialog `touch-action: pan-y`, non-prevented dialogue pointerdown/move, unchanged player coordinates, and unchanged dialogue object after a swipe. Existing touch smoke also continues to prove dialogue tap open/close and dialogue drag no-move/no-Action.
+- PAGES: `34156443361 SUCCESS`; assembled game, unified floating touch + iPhone world visual smoke, route regressions, upload and real GitHub Pages deploy all passed.
+- RENDER_LIVENESS: `34156443365 SUCCESS`; Chromium and WebKit iPhone-sized world render/pixel analysis passed.
+- REQ-121: `34156443338 SUCCESS`.
+- REQ-128: `34156443389 SUCCESS`.
+- REQ-021 / REQ-022 / REQ-001: `VERIFY / MACHINE+PUBLIC GREEN`.
+- IOS_PHYSICAL_VERIFICATION: `PENDING`.
+- DO_NOT_REPEAT: `Do not solve Tap Anywhere by swallowing every pointer event in an already-open scrollable dialogue; dialogue swipe and world drag are distinct modes sharing the same surface.`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`.
