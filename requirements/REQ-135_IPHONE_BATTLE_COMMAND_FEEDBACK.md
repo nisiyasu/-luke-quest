@@ -1,7 +1,7 @@
 # REQ-135 — iPhone Battle Command Touch Feedback
 
 PRIORITY: P1
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 SOURCE: Directive-authorized player-visible continuation selected after REQ-134 moved to VERIFY, with no READY queue rows and remaining BACKLOG restricted to Owner-only formal-art work.
 
 ## Purpose
@@ -32,6 +32,14 @@ REQ-134 makes the assembled battle command surface physically usable on iPhone. 
 - Existing P0 touch/fullscreen regression remains PASS.
 - Standard Pages build/deploy SUCCESS with implementation included.
 - IOS_PHYSICAL_VERIFICATION: PENDING until Owner checks actual device feel.
+
+## Machine / Public Verification
+- Implementation checkpoint: `23b474a8cd0775e22172c79ca23de0306d6bbe60` adds presentation-only active, focus-visible, disabled and reduced-motion feedback to existing REQ-134 command targets. No click or pointer battle handlers are added.
+- Hardened acceptance HEAD: `dcaee504d4567a2cf51e3a81d563060c789a81f3`.
+- Dedicated workflow run `34195389737`: SUCCESS. 390×844 assembled battle feedback acceptance PASS and embedded REQ-134 battle-touch regression PASS.
+- Standard Pages workflow run `34195389767`: SUCCESS on exact HEAD `dcaee504d4567a2cf51e3a81d563060c789a81f3`.
+- Command semantics remain canonical; one attack interaction dispatches exactly once and world Action/movement ownership remains zero.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## Non-goals
 - No new battle command system.
