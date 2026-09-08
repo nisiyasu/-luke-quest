@@ -202,3 +202,4 @@ Future polish, optional content and non-urgent enhancement.
 - Do not keep more than one `IN_PROGRESS` item unless Owner explicitly changes WIP policy.
 - Requirement completion must be judged against the detailed requirement file.
 - Queue updates, commits, CURRENT updates and Pages success are checkpoints, not reasons to end execution.
+| 122 | REQ-140 | P0 | VERIFY | iPhone Compositor Black-Screen Recovery + Safe Save Rescue | `requirements/REQ-140_IPHONE_COMPOSITOR_BLACK_SCREEN_RECOVERY.md` | Compositor pressure reduction + stale intro cleanup + validated save export/import. P0 Touch 34220306982 SUCCESS; Pages 34220399635 SUCCESS; Render Liveness 34220399555 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
