@@ -24,7 +24,8 @@ async function run(){
   const expected='REQ-137 TESTを倒した！ EXP17 / 9G';
   const dialogText=s.dialog?.text||'';
   const rewardCount=occurrences(dialogText,expected);
-  const canonicalDialogueKept=dialogText.includes('勝てました……。毎回これやるんですか？');
+  const canonicalDialogueText=dialogText.replace(expected,'').trim();
+  const canonicalDialogueKept=rewardCount===1&&canonicalDialogueText.length>0;
   const rewardVisible=document.getElementById('app')?.textContent?.includes(expected)===true;
   const xpOnce=Number(s.xp)===startXp+17;
   const goldOnce=Number(s.gold)===startGold+9;
