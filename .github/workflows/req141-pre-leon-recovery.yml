@@ -1,0 +1,28 @@
+name: REQ-141 Pre-Leon Recovery Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'prelude/autosave-bootstrap-guard.js'
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req141-pre-leon-recovery.js'
+      - 'tools/lq-req141-pre-leon-recovery-smoke.mjs'
+      - 'requirements/REQ-141_PRE_LEON_RECOVERY_SCHEMA_SAFE_BOOT.md'
+      - '.github/workflows/req141-pre-leon-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  req141:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: |
+          node --check prelude/autosave-bootstrap-guard.js
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req141-pre-leon-recovery.js
+          node --check tools/lq-req141-pre-leon-recovery-smoke.mjs
+      - name: Schema-safe two-stage recovery smoke
+        run: node tools/lq-req141-pre-leon-recovery-smoke.mjs
