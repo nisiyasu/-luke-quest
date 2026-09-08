@@ -1,6 +1,6 @@
 # REQ-139 — WORLD DIALOGUE TAP HINT
 
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 PRIORITY: P1
 OWNER_INTENT_SOURCE: REQ-021 Tap Anywhere Action + current Chapter 1 iPhone UX audit
 
@@ -39,6 +39,13 @@ The implementation must:
 6. Existing gameplay/state/save behavior is unchanged.
 7. Pages build includes the change and succeeds.
 8. iPhone physical verification remains `PENDING` until the Owner checks the public build on device.
+
+## Verification evidence
+
+- Dedicated REQ-139 acceptance workflow: SUCCESS.
+- P0 Touch Diagnostic on implementation checkpoint `7e07179369b22b106d0b1e9f28e88481a1a1eae9`: SUCCESS (`34215919409`).
+- GitHub Pages deploy on the same implementation checkpoint: SUCCESS (`34215919367`).
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## Completion policy
 
