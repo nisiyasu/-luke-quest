@@ -21,7 +21,7 @@ Scoring is 0-5. Safety axes may not regress. Visual scoring is a critic decision
 | UI_HIERARCHY | 3.2 | 4.1 | candidate win |
 | MOVEMENT_GAME_FEEL | 4.0 | 4.0 | safety-preserved tie |
 | INTERACTION_FEEDBACK | 3.4 | 4.0 | candidate win |
-| BATTLE_FEEDBACK | 4.0 | 4.1 | slight candidate lead only |
+| BATTLE_FEEDBACK | 4.0 | 4.5 | candidate win |
 | OBJECTIVE_CLARITY | 3.7 | 4.2 | candidate win |
 | DRAMATIC_IMPACT | 3.8 | 4.1 | dialogue-focus win |
 | MOBILE_PERFORMANCE | 4.0 | 4.0 | no regression evidenced |
@@ -43,7 +43,7 @@ Scoring is 0-5. Safety axes may not regress. Visual scoring is a critic decision
 
 ## Remaining gap before non-draft promotion
 
-- Battle improvement is not yet large enough to claim a strong win.
+- Battle focal hierarchy now shows a clear static A/B win; dynamic battle feel still needs continued playtest iteration.
 - Owner physical/subjective iPhone review remains pending.
 - Candidate should receive at least one more runtime/visual iteration before merge recommendation.
 

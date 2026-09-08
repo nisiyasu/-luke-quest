@@ -84,3 +84,26 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 3 — battle focal hierarchy
+
+### Critic finding
+
+- Prior candidate battle CSS mostly targeted legacy selectors, so the screenshot stayed too close to main despite the intended treatment.
+- Earlier experimental variants that hid the enemy silhouette were correctly rejected.
+
+### Candidate repair
+
+- Target the actual assembled battle classes: `enemySpriteStage`, `lqOriginalEnemySvg`, `enemyPlate`, `enemyNameV10`, `enemyBarV10`, `battleLogV10`, and `commandBtn`.
+- Increase enemy focal size modestly, strengthen the stage halo and enemy plate connection, and keep the large iPhone-safe command targets intact.
+- Preserve canonical enemy art, HP values, battle command handlers, rewards, progression, and battle state authority.
+- Avoid compositor-heavy fullscreen filters; the stage uses simple gradients and bounded drop-shadow on the existing enemy SVG.
+
+### A/B result
+
+- 390x844 candidate capture now gives the enemy materially stronger presence and connects the enemy art to the HP/name plate more coherently.
+- Main remains fully readable; candidate wins focal hierarchy without hiding command information or changing mechanics.
+- JS syntax and deterministic capture harness PASS locally before checkpoint.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING

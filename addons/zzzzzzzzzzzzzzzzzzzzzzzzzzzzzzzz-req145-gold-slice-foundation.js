@@ -56,12 +56,15 @@ function appendBattleStyle(){
   st.textContent+=`
 body.${ROOT_CLASS}.lq145Battle #app{background:radial-gradient(circle at 50% 18%,#182b3e 0,#07111f 55%,#03080e 100%)}
 body.${ROOT_CLASS}.lq145Battle #app>.card{background:linear-gradient(180deg,rgba(14,30,48,.90),rgba(5,15,27,.96))!important;border:1px solid rgba(255,235,184,.16)!important;box-shadow:0 12px 30px rgba(0,0,0,.38)!important}
-body.${ROOT_CLASS}.lq145Battle .enemyName{color:#fff2c7;letter-spacing:.05em;text-shadow:0 2px 4px #000}
-body.${ROOT_CLASS}.lq145Battle .enemy{filter:drop-shadow(0 12px 12px rgba(0,0,0,.42));transform-origin:50% 100%;animation:lq145EnemyIdle 2.2s ease-in-out infinite}
-body.${ROOT_CLASS}.lq145Battle .bar{height:8px!important;background:#07101b!important;border:1px solid rgba(255,255,255,.08)}
-body.${ROOT_CLASS}.lq145Battle .log,body.${ROOT_CLASS}.lq145Battle .battleLogV10{background:rgba(2,9,17,.72)!important;border:1px solid rgba(142,216,228,.12)!important;line-height:1.65!important}
-body.${ROOT_CLASS}.lq145Battle .btn{min-height:52px;border:1px solid rgba(255,255,255,.10)!important;box-shadow:0 5px 14px rgba(0,0,0,.25)!important}
-body.${ROOT_CLASS}.lq145Battle .btn:active{transform:translateY(1px) scale(.99)}
+body.${ROOT_CLASS}.lq145Battle .enemySpriteStage{width:166px!important;height:158px!important;background:radial-gradient(circle,rgba(255,236,176,.20) 0 29%,rgba(142,216,228,.11) 43%,rgba(0,0,0,.12) 61%,transparent 73%)!important;filter:none!important}
+body.${ROOT_CLASS}.lq145Battle .enemy.lqOriginalEnemy{transform-origin:50% 100%;animation:lq145EnemyIdle 2.2s ease-in-out infinite}
+body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg{width:min(232px,80vw)!important;height:184px!important;filter:drop-shadow(0 12px 7px rgba(0,0,0,.62))!important}
+body.${ROOT_CLASS}.lq145Battle .enemyPlate{border-color:rgba(240,201,91,.34)!important;background:linear-gradient(180deg,rgba(5,16,29,.94),rgba(4,12,23,.88))!important}
+body.${ROOT_CLASS}.lq145Battle .enemyNameV10{color:#fff2c7!important;letter-spacing:.035em;text-shadow:0 2px 4px #000}
+body.${ROOT_CLASS}.lq145Battle .enemyBarV10{height:11px!important;background:#07101b!important;border-color:rgba(255,255,255,.10)!important}
+body.${ROOT_CLASS}.lq145Battle .battleLogV10{background:rgba(2,9,17,.76)!important;border-color:rgba(142,216,228,.14)!important;line-height:1.65!important}
+body.${ROOT_CLASS}.lq145Battle .commandBtn{border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.24)!important}
+body.${ROOT_CLASS}.lq145Battle .commandBtn:active{transform:translateY(1px) scale(.995)}
 @keyframes lq145EnemyIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){body.${ROOT_CLASS}.lq145Battle .enemy{animation:none!important}}
 `;
