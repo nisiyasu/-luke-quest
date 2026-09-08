@@ -107,3 +107,25 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 4 — field traversal evidence coverage
+
+### Coverage gap found
+
+- The deterministic A/B harness covered town, dialogue, and battle but skipped the field traversal portion of the declared Gold Slice.
+- That left objective hierarchy and world composition outside Aldia under-tested.
+
+### Repair
+
+- Add a deterministic `field` capture at 390x844 with canonical world state and no story mutation.
+- Extend the challenger workflow capture loop, non-black rejection, and uploaded evidence artifact to include candidate/baseline field frames.
+- Keep the exact-main assembly separate from candidate assembly.
+
+### Local critic
+
+- Candidate field frame preserves the existing terrain/depth work and keeps the objective pill compact over the world.
+- Player, route, water, and destination hierarchy remain readable; no new gameplay/navigation authority is introduced.
+- Python compile, assembler, capture harness, and diff checks PASS locally before checkpoint.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING
