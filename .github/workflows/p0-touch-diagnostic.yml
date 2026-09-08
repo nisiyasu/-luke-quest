@@ -4,6 +4,14 @@ on:
   push:
     paths:
       - '.github/workflows/p0-touch-diagnostic.yml'
+      - 'addons/floating-touch-controller.js'
+      - 'addons/zzz-floating-touch-smoke.js'
+      - 'addons/zzzz-visibility-touch-regression.js'
+      - 'addons/zzzzzz-req021-long-press-smoke.js'
+      - 'addons/zzzzzzz-req001-multitouch-smoke.js'
+      - 'addons/zzzzzzzz-p0-touch-sequence-guard.js'
+      - 'addons/zzzzzzzzzz-req001-visual-viewport-offset-smoke.js'
+      - 'addons/zzzz-iphone-fullscreen-world-ui.js'
   workflow_dispatch:
 
 permissions:
@@ -39,11 +47,12 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           sleep 1
-          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=3200 --dump-dom 'http://127.0.0.1:8124/?lqTouchSmoke=1' >/tmp/lq-touch-dom.html 2>/tmp/lq-touch-chrome.log || true
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=5200 --dump-dom 'http://127.0.0.1:8124/?lqTouchSmoke=1' >/tmp/lq-touch-dom.html 2>/tmp/lq-touch-chrome.log || true
           grep -o '<i id="lqFloatingTouchRuntimeSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
+          grep -o '<i id="lqVisibilityTouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
           grep -o '<i id="lqReq021LongPressSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
           grep -o '<i id="lqReq001MultitouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
-          grep -o '<i id="lqVisibilityTouchSmokeMarker"[^>]*>' /tmp/lq-touch-dom.html || true
+          grep -o '<i id="lqP0TouchSequenceGuardMarker"[^>]*>' /tmp/lq-touch-dom.html || true
           grep -o '<i id="lqFloatingTouchSmokeFailure"[^>]*>' /tmp/lq-touch-dom.html || true
           if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-dom.html; then exit 1; fi
           grep -q 'data-tap-action="true"' /tmp/lq-touch-dom.html
@@ -56,6 +65,7 @@ jobs:
           grep -q 'data-dialogue-start-no-action="true"' /tmp/lq-touch-dom.html
           grep -q 'data-map-transition-stops="true"' /tmp/lq-touch-dom.html
           grep -q 'data-battle-transition-stops="true"' /tmp/lq-touch-dom.html
+          grep -q 'data-pass="true"' /tmp/lq-touch-dom.html
           grep -q 'data-no-action="true"' /tmp/lq-touch-dom.html
           grep -q 'data-no-move="true"' /tmp/lq-touch-dom.html
           grep -q 'data-secondary-ignored="true"' /tmp/lq-touch-dom.html
