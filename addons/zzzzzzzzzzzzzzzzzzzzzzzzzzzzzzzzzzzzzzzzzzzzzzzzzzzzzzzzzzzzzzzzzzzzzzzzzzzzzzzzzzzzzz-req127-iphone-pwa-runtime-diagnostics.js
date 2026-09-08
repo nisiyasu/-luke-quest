@@ -7,7 +7,9 @@
   const STRUCTURAL_IDS=new Set(['app']);
   const STRUCTURAL_CLASSES=new Set(['gameShell','world']);
   const state={
-    version:'1.2.0',
+    version:'1.1.0',
+    visualOccluderDomScan:true,
+    visualOccluderScanContract:'hit-test-plus-bounded-dom-geometry-v2',
     requirement:'REQ-127',
     presentationOnly:true,
     startedAt:new Date().toISOString(),
@@ -58,9 +60,6 @@
       }
     }
 
-    // Some engines omit pointer-transparent paint from elementsFromPoint(). A visual
-    // black layer can therefore cover the PWA while remaining invisible to hit tests.
-    // Bounded DOM geometry/style scanning observes paint independently of pointer ownership.
     const nodes=[...document.body.querySelectorAll('*')].slice(0,3000);
     for(const el of nodes){
       const candidate=suspiciousOccluder(el);
@@ -78,7 +77,7 @@
     return {points,occluderCandidates:[...byKey.values()].sort((a,b)=>b.probeHits-a.probeHits||b.coverage-a.coverage)};
   };
   const marker=()=>{let el=document.getElementById('lqReq127DiagnosticsMarker');if(!el){el=document.createElement('pre');el.id='lqReq127DiagnosticsMarker';el.hidden=true;document.documentElement.appendChild(el);}return el;};
-  const writeMarker=()=>{const el=marker();el.dataset.req='127';el.dataset.version=state.version;el.dataset.screen=state.latest?.screen||'unknown';el.dataset.map=state.latest?.map||'unknown';el.dataset.shell=String(!!state.latest?.shell);el.dataset.world=String(!!state.latest?.world);el.dataset.player=String(!!state.latest?.player);el.dataset.hidden=String(document.hidden);const candidates=state.latest?.viewportProbe?.occluderCandidates||[];el.dataset.occluderCount=String(candidates.length);el.dataset.topOccluder=candidates[0]?`${candidates[0].tag}#${candidates[0].id}.${candidates[0].className}`:'';el.textContent=JSON.stringify({latest:state.latest,errors:state.errors.slice(-8),serviceWorker:state.serviceWorker});};
+  const writeMarker=()=>{const el=marker();el.dataset.req='127';el.dataset.version=state.version;el.dataset.visualOccluderDomScan=String(state.visualOccluderDomScan);el.dataset.screen=state.latest?.screen||'unknown';el.dataset.map=state.latest?.map||'unknown';el.dataset.shell=String(!!state.latest?.shell);el.dataset.world=String(!!state.latest?.world);el.dataset.player=String(!!state.latest?.player);el.dataset.hidden=String(document.hidden);const candidates=state.latest?.viewportProbe?.occluderCandidates||[];el.dataset.occluderCount=String(candidates.length);el.dataset.topOccluder=candidates[0]?`${candidates[0].tag}#${candidates[0].id}.${candidates[0].className}`:'';el.textContent=JSON.stringify({latest:state.latest,errors:state.errors.slice(-8),serviceWorker:state.serviceWorker});};
   const snapshot=label=>{
     const shell=document.querySelector('.gameShell'),world=shell?.querySelector('.world')||document.querySelector('.world'),player=world?.querySelector('.player')||document.querySelector('.player'),tile=world?.querySelector('.tile')||document.querySelector('.tile'),probe=viewportProbe();
     const snap={at:new Date().toISOString(),label,visibility:document.visibilityState,hidden:document.hidden,hasFocus:document.hasFocus?.()??null,viewport:{innerWidth,innerHeight,visualWidth:window.visualViewport?.width||null,visualHeight:window.visualViewport?.height||null,scale:window.visualViewport?.scale||null},screen:typeof s!=='undefined'&&s?s.screen:null,map:typeof s!=='undefined'&&s?s.map:null,app:describe(document.getElementById('app')),shell:describe(shell),world:describe(world),player:describe(player),tile:describe(tile),viewportProbe:probe,centerStack:probe.points.find(p=>p.name==='center')?.stack||[]};
