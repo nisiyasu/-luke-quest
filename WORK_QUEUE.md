@@ -148,6 +148,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 123 | REQ-141 | P0 | VERIFY | Pre-Leon Recovery Schema-Safe Boot | `requirements/REQ-141_PRE_LEON_RECOVERY_SCHEMA_SAFE_BOOT.md` | Previous prelude hand-built recovery save replaced by two-stage runtime-schema-safe recovery. Starts at cloudbreakSaddle (10,2), LV11, one canonical transition before Wind Stair. Dedicated run 34226073276 SUCCESS; exact-head Pages 34226073258 SUCCESS on 473bd3df. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 124 | REQ-142 | P1 | VERIFY | Adventure Memo Modern Controls Hint | `requirements/REQ-142_ADVENTURE_MEMO_MODERN_CONTROLS_HINT.md` | Stale fixed D-pad/A-only adventure memo guidance replaced with drag/tap + keyboard guidance. Zero new input handlers. Dedicated 34226908113 SUCCESS; Pages 34226908028 SUCCESS; P0 Touch 34227266577 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
