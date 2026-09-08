@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="144" viewBox="0 0 96 144" role="img" aria-label="Eleanor stage actor">
+  <rect width="96" height="144" fill="none"/>
+  <ellipse cx="48" cy="137" rx="26" ry="5" fill="#07101b" opacity=".38"/>
+  <path d="M34 59 20 124h56L62 59z" fill="#e9e3d2" stroke="#706858" stroke-width="2"/>
+  <path d="M39 64 31 116h34L57 64z" fill="#faf7eb"/>
+  <path d="M34 62 17 91l10 6 16-27zm28 0 17 29-10 6-16-27z" fill="#d8ceb7" stroke="#706858" stroke-width="2"/>
+  <path d="m19 89-7 17 7 3 10-15zm58 0 7 17-7 3-10-15z" fill="#e9c9ad" stroke="#6d4d40" stroke-width="1.5"/>
+  <path d="M39 115 35 134h11l2-19zm18 0 4 19H50l-2-19z" fill="#b7aa91"/>
+  <path d="M33 134h14v5H29c-3 0-4-3-2-4zm30 0H49v5h18c3 0 4-3 2-4z" fill="#786d5b"/>
+  <path d="M37 58c1-8 6-14 11-14 6 0 11 6 12 14l-5 9H42z" fill="#e8d59d" stroke="#7d6a34" stroke-width="1.5"/>
+  <ellipse cx="48" cy="34" rx="16" ry="19" fill="#eccbb1" stroke="#704e43" stroke-width="2"/>
+  <path d="M32 35c-1-13 5-24 16-25 13-1 21 10 18 25-5-7-10-10-18-10-7 0-12 3-16 10z" fill="#d8d4ce" stroke="#716d67" stroke-width="2"/>
+  <path d="M36 24c4-8 13-12 21-8l-2 7-8-4-3 7-6-4z" fill="#f4f2ed"/>
+  <path d="M39 35h4m10 0h4" stroke="#34303c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M43 45c3 2 7 2 10 0" fill="none" stroke="#985f61" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M48 66v47" stroke="#b59a47" stroke-width="3"/>
+  <path d="M42 78h12M48 72v18" stroke="#d6b858" stroke-width="3" stroke-linecap="round"/>
+  <path d="M27 66 20 79l10 4 8-13m31-4 7 13-10 4-8-13" fill="#f2ead8" stroke="#8a806e" stroke-width="1.5"/>
+</svg>
