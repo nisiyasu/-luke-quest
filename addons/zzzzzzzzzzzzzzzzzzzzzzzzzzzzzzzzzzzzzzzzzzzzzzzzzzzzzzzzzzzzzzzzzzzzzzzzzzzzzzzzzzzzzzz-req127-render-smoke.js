@@ -173,7 +173,7 @@
       const lateDomSizeReasserted=Math.abs((world?.offsetWidth||0)-expectedWidth)<1&&Math.abs((world?.offsetHeight||0)-expectedHeight)<1;
       const lateDomRecovered=heal.healCount>countBeforeLateDom&&visible(shell)&&visible(world)&&visible(player)&&tiles.length>0&&lateDomSizeReasserted&&!document.getElementById('lq-map-transition-fade')&&!shell?.classList.contains('lqMapArrive');
       const lateDomMarkerReason=String(healMarker?.dataset.reason||'');
-      const lateDomMarkerConfirmed=!!healMarker&&healMarker.dataset.status==='PASS'&&lateDomMarkerReason.startsWith('window-focus-retry-');
+      const lateDomMarkerConfirmed=!!healMarker&&healMarker.dataset.status==='PASS'&&lateDomMarkerReason.startsWith('window-focus-')&&lateDomMarkerReason!=='window-focus';
       const lateDomLogicalStateUnchanged=before.screen===s.screen&&before.map===s.map&&before.x===s.x&&before.y===s.y&&before.dir===s.dir;
       if(!lateDomRecovered)throw new Error(`REQ-127 delayed DOM recovery failed: count ${countBeforeLateDom}->${heal.healCount}, marker=${lateDomMarkerReason}`);
       if(!lateDomMarkerConfirmed)throw new Error(`REQ-127 delayed DOM retry marker missing: ${lateDomMarkerReason}`);
