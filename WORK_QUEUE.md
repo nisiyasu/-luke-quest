@@ -138,6 +138,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 117 | REQ-135 | P1 | VERIFY | iPhone Battle Command Touch Feedback | `requirements/REQ-135_IPHONE_BATTLE_COMMAND_FEEDBACK.md` | Presentation-only active/focus/disabled feedback on existing REQ-134 battle command targets. Dedicated run 34195389737 SUCCESS and exact-HEAD Pages run 34195389767 SUCCESS on `dcaee504...`; embedded REQ-134 regression PASS; no duplicate battle handlers. IOS_PHYSICAL_VERIFICATION=PENDING. |
 | 118 | REQ-136 | P1 | VERIFY | Battle Log Latest Message Follow | `requirements/REQ-136_BATTLE_LOG_LATEST_MESSAGE_FOLLOW.md` | Final assembled battle log now follows the latest combat result after base render and late presentation replacement. Dedicated 390x844 run 34199130632 SUCCESS; REQ-134/135 regressions PASS; exact-head Pages 34199130663 SUCCESS on `e29b136f...`; IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 119 | REQ-137 | P1 | VERIFY | Battle Victory Reward Summary | `requirements/REQ-137_BATTLE_VICTORY_REWARD_SUMMARY.md` | Canonical win() remains sole reward authority; post-victory dialogue now surfaces defeated enemy + exact EXP/G once. Dedicated run 34210082335 SUCCESS and exact-head Pages 34210082290 SUCCESS on `aa8c189c...`. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
