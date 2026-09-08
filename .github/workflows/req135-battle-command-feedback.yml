@@ -21,6 +21,7 @@ jobs:
         run: |
           node --check addons/req135-battle-command-feedback.js
           node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req135-battle-feedback-smoke.js
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req134-battle-touch-smoke.js
       - name: Assemble Pages-equivalent runtime
         run: |
           python3 - <<'PY'
@@ -51,6 +52,20 @@ jobs:
           grep -o '<i id="lqReq135BattleFeedbackSmokeMarker"[^>]*>' /tmp/lq-req135-dom.html | tee /tmp/lq-req135-marker.txt || true
           grep -q 'id="lqReq135BattleFeedbackSmokeMarker"[^>]*data-pass="true"' /tmp/lq-req135-dom.html
           echo 'REQ-135 assembled battle command feedback acceptance PASS'
+      - name: REQ-134 battle touch regression
+        id: req134
+        continue-on-error: true
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8136 >/tmp/lq-req134-under-135-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=6500 --dump-dom 'http://127.0.0.1:8136/?lqReq134Smoke=1' >/tmp/lq-req134-under-135-dom.html 2>/tmp/lq-req134-under-135-chrome.log || true
+          grep -o '<i id="lqReq134BattleTouchSmokeMarker"[^>]*>' /tmp/lq-req134-under-135-dom.html | tee /tmp/lq-req134-under-135-marker.txt || true
+          grep -q 'id="lqReq134BattleTouchSmokeMarker"[^>]*data-pass="true"' /tmp/lq-req134-under-135-dom.html
+          echo 'REQ-134 regression under REQ-135 PASS'
       - name: Upload REQ-135 diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -61,8 +76,12 @@ jobs:
             /tmp/lq-req135-dom.html
             /tmp/lq-req135-chrome.log
             /tmp/lq-req135-http.log
+            /tmp/lq-req134-under-135-marker.txt
+            /tmp/lq-req134-under-135-dom.html
+            /tmp/lq-req134-under-135-chrome.log
+            /tmp/lq-req134-under-135-http.log
           if-no-files-found: warn
           retention-days: 1
       - name: Enforce REQ-135 acceptance
-        if: steps.acceptance.outcome != 'success'
+        if: steps.acceptance.outcome != 'success' || steps.req134.outcome != 'success'
         run: exit 1
