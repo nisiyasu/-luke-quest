@@ -4,17 +4,16 @@ on:
   push:
     paths:
       - '.github/workflows/p0-touch-diagnostic.yml'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Assemble public injection order
         run: |
           echo 'P0 re-audit checkpoint'
@@ -32,7 +31,7 @@ jobs:
           if compgen -G 'addons/*.js' > /dev/null; then
             for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           fi
-      - name: Run 390x844 touch diagnostic and print reason
+      - name: Run 390x844 touch diagnostic
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
@@ -63,35 +62,3 @@ jobs:
           grep -q 'data-primary-owns="true"' /tmp/lq-touch-dom.html
           grep -q 'data-cleaned="true"' /tmp/lq-touch-dom.html
           echo 'P0 touch diagnostic PASS'
-      - name: Harden authoritative Pages marker gate
-        run: |
-          git checkout -- index.html
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('.github/workflows/pages.yml')
-          lines=p.read_text().splitlines()
-          if any('lqReq021LongPressSmokeMarker' in x for x in lines):
-              print('Pages already hardened')
-          else:
-              idx=next((i for i,x in enumerate(lines) if 'lqFullscreenWorldRuntimeSmokeMarker' in x),None)
-              if idx is None: raise SystemExit('fullscreen marker line missing')
-              slash=' '+chr(92)
-              insert=[
-                "            'lqReq021LongPressSmokeMarker'"+slash,
-                "            'data-no-action=\"true\"'"+slash,
-                "            'data-no-move=\"true\"'"+slash,
-                "            'lqReq001MultitouchSmokeMarker'"+slash,
-                "            'data-secondary-ignored=\"true\"'"+slash,
-                "            'data-primary-owns=\"true\"'"+slash,
-                "            'data-cleaned=\"true\"'"+slash,
-              ]
-              lines[idx:idx]=insert
-              p.write_text('\n'.join(lines)+'\n')
-          PY
-          git diff --check -- .github/workflows/pages.yml
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .github/workflows/pages.yml
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'ci: require P0 long-press and multitouch markers in Pages gate'
-          git push origin HEAD:main
