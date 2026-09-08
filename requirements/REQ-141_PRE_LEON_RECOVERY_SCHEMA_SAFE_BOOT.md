@@ -4,32 +4,34 @@
 P0 / OWNER DIRECT
 
 ## STATUS
-IN_PROGRESS
+VERIFY
 
 ## OWNER OBSERVED FAILURE
 Physical iPhone still renders black when opening the dedicated pre-Leon recovery path. Owner specifically observed that the clean LV11 save placed immediately before Leon still becomes black and questioned whether the pre-Leon location itself is the problem.
 
 ## FRESH ROOT-CAUSE EVIDENCE
-The current `?leon-recovery=1` implementation executes in `prelude/autosave-bootstrap-guard.js`, before the base game and all later save migrations/add-ons initialize. It manually constructs a partial save object. This makes the recovery payload schema-fragile as the game evolves and can omit state expected by later runtime modules. The observation therefore does not yet prove that `windStairRidge` itself is defective.
+The previous `?leon-recovery=1` implementation executed in `prelude/autosave-bootstrap-guard.js`, before the base game and all later save migrations/add-ons initialized. It manually constructed a partial save object. This made the recovery payload schema-fragile as the game evolved and could omit state expected by later runtime modules. The observation therefore did not prove that `windStairRidge` itself was defective.
 
-## IMPLEMENTATION INTENT
-Replace the one-phase hand-built recovery save with a two-stage schema-safe recovery boot:
+Fresh map/progression inspection also confirmed that the published `windStairRidge` map is structurally valid and that the canonical Cloudbreak → Wind Stair transition already has a dedicated progression gate. The physical black-screen cause remains unproven until Owner retries the new recovery path.
+
+## IMPLEMENTED FIX
+The one-phase hand-built recovery save has been replaced by a two-stage schema-safe recovery boot:
 
 1. Prelude stage:
-   - detect explicit `?leon-recovery=1` request;
-   - preserve the previous canonical save under a timestamped backup key;
-   - remove only the canonical `lukeQuestV2` key;
-   - set a short-lived `sessionStorage` recovery marker;
-   - reload once without `leon-recovery` so the game starts through its normal DEFAULT + migration/add-on initialization path.
+   - detects explicit `?leon-recovery=1` request;
+   - preserves the previous canonical save under a timestamped backup key;
+   - removes only the canonical `lukeQuestV2` key;
+   - sets a short-lived `sessionStorage` recovery marker;
+   - reloads once without `leon-recovery` so the game starts through its normal DEFAULT + migration/add-on initialization path.
 2. Late runtime stage:
-   - run after normal game/add-on initialization;
-   - consume the session marker exactly once;
-   - modify only the fields required for the Owner recovery checkpoint: LV11 combat values, Chapter-1 pursuit progress, map/position/facing, and transient battle/dialogue state;
-   - preserve all other schema fields produced by the current runtime;
-   - save through canonical `save()` and render through canonical `render()`.
+   - runs after normal game/add-on initialization;
+   - consumes the session marker exactly once;
+   - modifies only the fields required for the Owner recovery checkpoint: LV11 combat values, Chapter-1 pursuit progress, map/position/facing, and transient battle/dialogue state;
+   - preserves unrelated/current/future schema fields produced by the runtime;
+   - saves through canonical `save()` and renders through canonical `render()`.
 
 ## SAFE LOCATION POLICY
-Until physical evidence proves `windStairRidge` itself is safe, the staged recovery must start at the already-published predecessor `cloudbreakSaddle`, immediately before the canonical Cloudbreak → Wind Stair transition. This avoids conflating a synthetic-save failure with the destination map while keeping the player one transition from the Leon approach.
+Until physical evidence proves `windStairRidge` itself is safe, recovery now starts at the already-published predecessor `cloudbreakSaddle`, immediately before the canonical Cloudbreak → Wind Stair transition. This separates synthetic-save failure from destination-map failure while keeping the player one transition from the Leon approach.
 
 Target recovery checkpoint:
 - map: `cloudbreakSaddle`
@@ -40,22 +42,37 @@ Target recovery checkpoint:
 - ATK: `34`
 - MP/MMP: `30/30`
 - no active enemy/dialogue/menu/shop transient state
-- Chapter 1 pursuit flags preserved/advanced only to the state required to reach the existing Wind Stair transition; Chapter 1 climax flags remain incomplete.
+- Chapter 1 pursuit flags advanced to the existing approach state; Chapter 1 climax flags remain incomplete.
+
+## IMPLEMENTATION CHECKPOINT
+- `473bd3df98a26660875c00103487f9fcd11695bf` — schema-safe two-stage recovery + dedicated smoke correction.
+
+## VERIFICATION EVIDENCE
+- Dedicated REQ-141 gate run `34226073276`: SUCCESS.
+- Stage-1 smoke verifies exact prior-save backup, canonical-key removal, one-shot session marker and query removal.
+- Stage-2 smoke begins with an intentionally extended runtime-shaped save and verifies unrelated/future schema fields survive the recovery unchanged.
+- Stage-2 smoke verifies canonical save/render/stop each execute exactly once and recovery lands at `cloudbreakSaddle (10,2)` with Owner-proven LV11 combat values.
+- Standard Pages run `34226073258`: SUCCESS on the same implementation HEAD, including the repository's assembled-game/browser regression suite and deployment.
+- Existing REQ-121 canonical Cloudbreak → Wind Stair transition remains the transition authority; no new input or transition authority was added.
+- `IOS_PHYSICAL_VERIFICATION=PENDING`.
 
 ## ACCEPTANCE
-- Explicit recovery request never constructs a partial canonical save in prelude.
-- Previous save is backed up before canonical removal.
-- Recovery reload happens at most once per explicit request.
-- Late stage starts from the runtime-initialized state and changes only checkpoint fields.
-- Canonical `save()` and `render()` are used after applying the checkpoint.
-- Recovery begins on `cloudbreakSaddle`, not `windStairRidge`.
-- LV11 and combat values match Owner-proven stable play level.
-- Existing normal startup without recovery query is unchanged.
-- JS syntax / Pages build / existing P0 touch regressions remain PASS.
-- `IOS_PHYSICAL_VERIFICATION=PENDING` until Owner tests the deployed path.
+- [x] Explicit recovery request never constructs a partial canonical save in prelude.
+- [x] Previous save is backed up before canonical removal.
+- [x] Recovery reload is staged as a one-shot session flow.
+- [x] Late stage starts from the runtime-initialized state and changes only checkpoint/progression fields.
+- [x] Unrelated/future schema sentinel fields survive automated recovery smoke.
+- [x] Canonical `save()` and `render()` are used after applying the checkpoint.
+- [x] Recovery begins on `cloudbreakSaddle`, not `windStairRidge`.
+- [x] LV11 and combat values match Owner-proven stable play level.
+- [x] Existing normal startup without recovery query remains outside the recovery branch.
+- [x] JS syntax / dedicated gate PASS.
+- [x] Pages build/deployment PASS.
+- [ ] Owner physical iPhone verification remains PENDING.
 
 ## NON-GOALS
 - Do not declare `windStairRidge` root cause proven from the prior black screen alone.
+- Do not claim the physical black-screen issue fixed until Owner verifies it on iPhone.
 - Do not invent Chapter 2 content.
 - Do not alter canonical transition/action ownership.
 - Do not delete backup saves.
