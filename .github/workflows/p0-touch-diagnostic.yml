@@ -17,6 +17,8 @@ on:
       - 'addons/zzzzzzzzzzzzzzzzzzzz-req140-iphone-compositor-budget.js'
       - 'addons/zzzzzzzzzzzzzzzzzzzz-req140-pwa-save-rescue.js'
       - 'requirements/REQ-140_IPHONE_COMPOSITOR_BLACK_SCREEN_RECOVERY.md'
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req142-adventure-memo-controls.js'
+      - 'requirements/REQ-142_ADVENTURE_MEMO_MODERN_CONTROLS_HINT.md'
   workflow_dispatch:
 
 permissions:
