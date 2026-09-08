@@ -1,7 +1,7 @@
 # REQ-136 — Battle Log Latest Message Follow
 
 PRIORITY: P1
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 SOURCE: Directive-authorized player-visible continuation selected after fresh HEAD/QUEUE/CURRENT audit found no READY rows and REQ-134/REQ-135 are machine/public green VERIFY items.
 
 ## Purpose
@@ -33,6 +33,16 @@ Make the assembled battle log follow the latest message automatically whenever t
 - Existing REQ-134 and REQ-135 regressions remain PASS.
 - Standard Pages build/deploy SUCCESS with implementation included.
 - IOS_PHYSICAL_VERIFICATION: PENDING until Owner verifies actual iPhone feel/readability.
+
+## Verification — 2026-09-08
+- IMPLEMENTATION_CHECKPOINT: `e29b136ff27cec5232cc260d22a0abd47b051e10`
+- REQ-136 dedicated workflow run: `34199130632` — SUCCESS.
+- 390×844 assembled marker: `pass=true`, `resolved=true`, `bounded=true`, `semantic=true`, `initialLatest=true`, `rerenderResolved=true`, `rerenderBounded=true`, `rerenderLatest=true`, `semanticAfter=true`, `worldExcluded=true`.
+- REQ-135 regression under REQ-136: PASS.
+- REQ-134 regression under REQ-136: PASS.
+- Standard Pages run: `34199130663` — SUCCESS at the same implementation checkpoint.
+- Cache-busted public Pages recovery: `34199200909` — SUCCESS at the same implementation checkpoint.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## Non-goals
 - No Chapter 2 work.
