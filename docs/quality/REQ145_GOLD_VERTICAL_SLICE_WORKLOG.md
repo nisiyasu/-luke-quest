@@ -32,3 +32,30 @@ TARGET: Aldia departure loop, NPC interaction, field traversal, battle, reward, 
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 1 — capture fidelity + dialogue focus
+
+FRESH_BASELINE: `main@0366d47550a4fc035736e754d492b11bfbef2825`
+
+### Self-audit defect found
+
+- The original A/B capture HTML lived under `/.req145/`, so repository-relative script and asset URLs resolved under `/.req145/...` and did not load.
+- Non-black screenshot checks still passed because the base HTML rendered, which made the A/B evidence look valid while silently excluding the assembled addon stack.
+- Capture harness now injects `<base href="/">`; candidate and baseline screenshots execute their real assembled builds.
+- Workflow adds dialogue as a third deterministic comparison scene and a runtime-fidelity gate that requires the candidate REQ-145 layer while rejecting it from exact-main baseline.
+
+### Player-visible repair
+
+- Dialogue-open state now deliberately reduces HUD/objective competition so conversation becomes the visual focus.
+- Speaker name is presented as a compact gold-accent identity chip.
+- Dialogue type size/line height were tightened so the same canonical text fits without the previous candidate clipping.
+- Canonical dialogue text, action semantics, story flags and input authority are unchanged.
+
+### A/B critic result
+
+- Baseline dialogue keeps full-strength HUD/objective chrome competing with the conversation.
+- Candidate dialogue produces a clearer conversation focus while retaining visible world context and readable text.
+- Candidate dialogue treatment is a material win; terrain remains inherited from main rather than repainted.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING

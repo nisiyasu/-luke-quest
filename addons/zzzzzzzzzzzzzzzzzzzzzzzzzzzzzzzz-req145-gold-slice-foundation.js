@@ -32,10 +32,11 @@ body.${ROOT_CLASS} .hud{gap:7px!important;align-items:flex-start!important}
 body.${ROOT_CLASS} .hud .chip{border:1px solid rgba(255,240,196,.16)!important;background:rgba(5,16,29,.76)!important;color:#fff3d2!important;box-shadow:0 4px 14px rgba(0,0,0,.22)!important;letter-spacing:.015em}
 body.${ROOT_CLASS} .hud .chip:first-child{color:var(--lq145-cyan)!important}
 body.${ROOT_CLASS} .questGuide{border:1px solid rgba(240,201,91,.20)!important;border-left:3px solid var(--lq145-gold)!important;border-radius:8px!important;color:#fff5d8!important;box-shadow:0 5px 18px rgba(0,0,0,.22)!important}
-body.${ROOT_CLASS} .dialogBox{border:1px solid rgba(255,241,208,.72)!important;border-top:2px solid var(--lq145-gold)!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(4,13,25,.96),rgba(7,20,35,.94))!important;box-shadow:0 12px 34px rgba(0,0,0,.48)!important}
-body.${ROOT_CLASS} .dialogBox .speaker{color:var(--lq145-gold)!important;letter-spacing:.04em;text-shadow:0 1px 0 #000}
-body.${ROOT_CLASS} .dialogBox .dialog{font-size:15px;line-height:1.7;color:#fff8e6}
-body.${ROOT_CLASS} .dialogBox .sub{font-size:10px!important;color:#b9cada!important;letter-spacing:.08em}
+body.${ROOT_CLASS} .dialogBox{padding:11px 12px 10px!important;border:1px solid rgba(255,248,224,.86)!important;border-top:2px solid var(--lq145-gold)!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(4,13,25,.97),rgba(7,20,35,.95))!important;box-shadow:0 12px 34px rgba(0,0,0,.48)!important}
+body.${ROOT_CLASS} .dialogBox .speaker{display:inline-block!important;padding:3px 8px!important;margin:-1px 0 6px!important;border:1px solid rgba(240,201,91,.38)!important;border-radius:999px!important;background:rgba(240,201,91,.10)!important;color:#ffe18a!important;font-size:13px!important;letter-spacing:.04em;text-shadow:0 1px 0 #000}
+body.${ROOT_CLASS} .dialogBox .dialog{font-size:14px!important;line-height:1.58!important;color:#fff8e6}
+body.${ROOT_CLASS} .dialogBox .sub{margin-top:4px!important;font-size:9px!important;color:#c4d4e2!important;letter-spacing:.06em}
+body.${ROOT_CLASS}.lqWorldDialogueOpen .lqWorldStatusOverlay,body.${ROOT_CLASS}.lqWorldDialogueOpen .hud,body.${ROOT_CLASS}.lqWorldDialogueOpen .questGuide{opacity:.34!important;transition:opacity .12s ease}
 body.${ROOT_CLASS} .lqWorldControlsOverlay .dpad{opacity:.08!important}
 body.${ROOT_CLASS} .lqWorldControlsOverlay .dpad:active{opacity:.30!important}
 body.${ROOT_CLASS} .lqWorldControlsOverlay .actionPad{opacity:.72;transition:opacity .15s ease}
