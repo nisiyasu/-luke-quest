@@ -19,9 +19,9 @@ const GLYPH_ROLES=new Map([
 const PERSON_GLYPHS=['👴','👩','🧑‍⚕️','🧑‍🌾'];
 
 function isWorld(){return typeof s!=='undefined'&&s&&s.screen==='world';}
-function currentDirection(){
-  const d=typeof s!=='undefined'&&s&&['up','down','left','right'].includes(s.dir)?s.dir:'down';
-  return d;
+function directionFor(entity){
+  const d=entity?.dataset?.dir;
+  return ['up','down','left','right'].includes(d)?d:'down';
 }
 function roleFor(entity,body){
   if(!entity||!body)return null;
@@ -55,7 +55,7 @@ function applyEntity(entity){
   const body=entity.querySelector(`:scope > .${BODY_CLASS}`)||entity;
   const role=roleFor(entity,body);
   if(!role)return false;
-  const direction=currentDirection();
+  const direction=directionFor(entity);
   const existing=body.querySelector(`:scope > .${ART_CLASS}`);
   if(existing&&existing.dataset.role===role&&existing.dataset.direction===direction){
     entity.dataset.lqOriginalNpcArt='true';
@@ -124,7 +124,7 @@ function smoke(){
     s.map='field';s.x=11;s.y=16;s.dir='left';render();
     const farmer=document.querySelector('.gameShell .npc[data-lq-original-npc-role="farmer"]');
     assert(farmer&&farmer.querySelector(`.${ART_CLASS}`),'field worker original art');
-    assert(farmer.querySelector(`.${ART_CLASS}`).dataset.direction==='left','direction symbol selection');
+    assert(farmer.querySelector(`.${ART_CLASS}`).dataset.direction==='down','static NPC defaults to stable front view');
     assert(!visiblePersonEmoji(document.querySelector('.gameShell')),'field person emoji hidden/replaced');
 
     s.map='observation';s.x=15;s.y=22;s.dir='down';render();
