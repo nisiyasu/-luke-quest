@@ -1,35 +1,35 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: `2026-09-08 15:xx JST`
+- UPDATED_AT: `2026-09-08 16:xx JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `23b474a8cd0775e22172c79ca23de0306d6bbe60`
-- LATEST_VERIFIED_RUNTIME_HEAD_SHA: `dcaee504d4567a2cf51e3a81d563060c789a81f3`
-- LATEST_METADATA_COMMIT_SHA: `18a335710f34f67505c3070eedc87c3c27055d6d`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `e29b136ff27cec5232cc260d22a0abd47b051e10`
+- LATEST_VERIFIED_RUNTIME_HEAD_SHA: `e29b136ff27cec5232cc260d22a0abd47b051e10`
+- LATEST_METADATA_COMMIT_SHA: `878483d3f774eab0948c647e10238a63ccadba69`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1`
 - WORK_MANAGER: `WORK_MANAGER.md`
 - WORK_QUEUE: `WORK_QUEUE.md`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md / LOADED_APPLIED`
-- BOOT_REALITY_AUDIT: `PASS — actual default branch main; fresh HEAD 7d8dadb0... was ahead of stale CURRENT and was used as reality. REQ-134 was recovered as the only IN_PROGRESS item.`
-- OWNER_PRIORITY_AUDIT: `PASS — Owner P0 REQ-021 / REQ-022 / REQ-001 remain VERIFY and machine/public green; REQ-023 north evacuation guidance remains VERIFY and same-lineage regression green. Physical iPhone checks remain PENDING.`
+- BOOT_REALITY_AUDIT: `PASS — actual default branch main; fresh run-start HEAD d271b5e6... was ahead of stale CURRENT and was used as reality. REQ-135 queue sync was already complete at fresh HEAD.`
+- OWNER_PRIORITY_AUDIT: `PASS — Owner P0 REQ-021 / REQ-022 / REQ-001 remain VERIFY and machine/public green; REQ-023 north evacuation guidance remains VERIFY and current-lineage regression green. Physical iPhone checks remain PENDING.`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
-- EXECUTION_DEGRADATION_STATUS: `SELF_REPAIRED — REQ-134 red gate isolated to assembled battle-log selector drift, not battle command semantics.`
-- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLIC GREEN at verified runtime HEAD dcaee504...; REQ-134 and REQ-135 machine/public acceptance complete; physical iPhone confirmation remains PENDING.`
-- ACTIVE_REQUIREMENT_ID: `NONE — REQ-134 and REQ-135 have moved to VERIFY; queue has no READY rows.`
+- EXECUTION_DEGRADATION_STATUS: `SELF_REPAIRED — new REQ-136 first assembled gate exposed a real late-DOM replacement timing defect; bounded post-assembly follow retries fixed the final live battle log without battle-state mutation.`
+- CURRENT_BUILD_STATUS: `PLAYABLE / PUBLIC GREEN at verified runtime HEAD e29b136f...; REQ-136 dedicated gate and exact-head Pages are SUCCESS; physical iPhone confirmation remains PENDING.`
+- ACTIVE_REQUIREMENT_ID: `NONE — REQ-136 moved to VERIFY after dedicated/public green; continue safe player-visible audit under directive.`
 - ACTIVE_REQUIREMENT_PATH: `NONE`
-- VERIFY_REQUIREMENTS: `REQ-135; REQ-134; REQ-127; REQ-021; REQ-022; REQ-001; REQ-023; REQ-121; REQ-102; REQ-092; plus historical VERIFY inventory in WORK_QUEUE.md`
+- VERIFY_REQUIREMENTS: `REQ-136; REQ-135; REQ-134; REQ-127; REQ-021; REQ-022; REQ-001; REQ-023; REQ-121; REQ-102; REQ-092; plus historical VERIFY inventory in WORK_QUEUE.md`
 - BLOCKED_REQUIREMENTS: `REQ-059; REQ-113; REQ-114`
-- READY_REQUIREMENTS: `NONE in fresh WORK_QUEUE.md`
+- READY_REQUIREMENTS: `NONE in fresh WORK_QUEUE.md before REQ-136 registration`
 - BACKLOG_REQUIREMENTS: `REQ-004 and REQ-005 only; both require Owner-quality formal-art source/decision and are not safe autonomous picks.`
 - STORY_CANON_STATUS: `CHAPTER_01_CONFIRMED_AND_IMPLEMENTED / CHAPTER_02_NOT_DESIGNED / DO_NOT_INVENT`
-- RECENT_CHECKPOINTS: `b52cd720 expose assembled REQ-134 log candidates; 9fa05ec7 bind REQ-134 to assembled battle log; 3e412caf acceptance hardening; 659d58c6 REQ-134 VERIFY metadata; 8c0588a1 queue REQ-134 VERIFY; ff49fcd9 register REQ-135; 23b474a8 implement battle command feedback; aaf9a170 add REQ-135 smoke; 012ab2fc add REQ-135 CI; dcaee504 protect REQ-134 beneath REQ-135; 18a33571 REQ-135 VERIFY metadata.`
-- TESTS_AND_VERIFICATION: `REQ-134 dedicated 34194753965 SUCCESS on 3e412caf; Standard Pages 34194753926 SUCCESS on 3e412caf; REQ-023 34194753940 SUCCESS. REQ-135 dedicated 34195389737 SUCCESS on dcaee504, including 390x844 assembled feedback acceptance and embedded REQ-134 regression; Standard Pages 34195389767 SUCCESS on exact dcaee504.`
-- KNOWN_ISSUES: `REQ-134 and REQ-135 physical iPhone feel/result are unknown; do not claim physical PASS. REQ-021/022/001/023 also await Owner physical verification. Chapter 2 is intentionally blocked pending Owner design. WORK_QUEUE.md must receive the REQ-135 VERIFY inventory row if not already synchronized.`
+- RECENT_CHECKPOINTS: `d271b5e6 REQ-135 queue sync cleanup; 98d1db0e register REQ-136; 63bc9a95 initial latest-log follower; f7abc39b REQ-136 smoke; 37e9e3c3 dedicated CI; e29b136f fix final assembled battle-log follow; 878483d3 promote REQ-136 VERIFY.`
+- TESTS_AND_VERIFICATION: `REQ-136 initial dedicated run 34199006216 correctly FAILED with semantic=false/initialLatest=false, proving late assembled DOM replacement. After e29b136f repair, dedicated run 34199130632 SUCCESS: 390x844 pass/resolved/bounded/semantic/initialLatest/rerenderLatest/worldExcluded all true; REQ-135 regression PASS; REQ-134 regression PASS. Exact implementation-head Pages run 34199130663 SUCCESS; cache-busted public Pages recovery 34199200909 SUCCESS.`
+- KNOWN_ISSUES: `REQ-136, REQ-135 and REQ-134 physical iPhone feel/readability are unknown; do not claim physical PASS. REQ-021/022/001/023 also await Owner physical verification. Chapter 2 is intentionally blocked pending Owner design. WORK_QUEUE.md requires REQ-136 VERIFY inventory synchronization.`
 - BLOCKERS: `No machine-side blocker for current public build. Owner-only blockers are physical iPhone verification, formal Leon/Glen art source/approval, generated-raster byte handoff, and Chapter 2 canon design.`
-- NEXT_ACTION: `Synchronize WORK_QUEUE.md with REQ-135 VERIFY inventory, then fresh-audit the assembled battle UI for the next highest-value safe player-visible issue. Do not extend Chapter 2 canon and do not duplicate battle handlers.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Queue reality matches REQ-135 VERIFY and, if a genuine safe player-visible gap exists, exactly one new detailed requirement becomes IN_PROGRESS under WIP_LIMIT=1.`
-- DO_NOT_REPEAT: `Do not target only legacy .log for battle log layout; assembled runtime may replace it with .battleLogV10. Do not add battle click/pointer handlers for presentation feedback. Do not weaken REQ-134 acceptance to make CI green. Do not claim iPhone physical PASS from CI. Do not invent Chapter 2 or downgrade approved visual assets.`
+- NEXT_ACTION: `Synchronize WORK_QUEUE.md with REQ-136 VERIFY inventory, then fresh-audit the assembled public game for the next highest-value safe player-visible first-chapter/usability gap. Do not extend Chapter 2 canon.`
+- NEXT_ACTION_COMPLETION_CONDITION: `Queue reality contains REQ-136 VERIFY and, if a genuine safe player-visible gap exists, exactly one new detailed requirement becomes IN_PROGRESS under WIP_LIMIT=1.`
+- DO_NOT_REPEAT: `Do not assume MutationObserver timing reaches the final assembled battle DOM; late presentation add-ons may replace nodes after base battle(). Do not target only legacy .log. Do not add battle click/pointer handlers for presentation. Do not weaken red CI. Do not claim iPhone physical PASS from CI. Do not invent Chapter 2 or downgrade approved visual assets.`
 
 ## P0 INPUT / FULLSCREEN PROTECTION
 
@@ -67,6 +67,17 @@
 - DEDICATED_RUN: `34195389737 SUCCESS`
 - PAGES_RUN: `34195389767 SUCCESS`
 - CURRENT_BEHAVIOR: `Presentation-only active press response, keyboard focus-visible halo, disabled distinction, reduced-motion support, late command/rerender decoration. No duplicate click/pointer battle handlers. Embedded REQ-134 regression PASS.`
+- IOS_PHYSICAL_VERIFICATION: `PENDING`
+
+## REQ-136 BATTLE LOG LATEST MESSAGE FOLLOW
+
+- STATUS: `VERIFY`
+- MACHINE_PUBLIC_VERIFICATION: `PASS`
+- VERIFIED_RUNTIME_HEAD_SHA: `e29b136ff27cec5232cc260d22a0abd47b051e10`
+- DEDICATED_RUN: `34199130632 SUCCESS`
+- PAGES_RUN: `34199130663 SUCCESS`
+- CACHE_BUSTED_PUBLIC_RUN: `34199200909 SUCCESS`
+- CURRENT_BEHAVIOR: `Battle-only final assembled log receives role=log/aria-live=polite and follows latest message after base render plus bounded late-DOM settle window. 390x844 smoke proves initial latest visibility, rerender latest visibility, bounded scrolling, REQ-134/135 regressions, and zero world Action/movement leakage.`
 - IOS_PHYSICAL_VERIFICATION: `PENDING`
 
 ## REQ-127 IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY
