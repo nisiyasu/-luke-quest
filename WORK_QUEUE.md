@@ -152,7 +152,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 125 | REQ-143 | P0 | VERIFY | Game Quality System / Leon Gold Standard Scene Rebuild | `requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md` | Quality System v1 + Leon Q5 candidate machine/public verification complete. Gold Standard gate contract aligned with intentional production metadata removal; exact-head `6af1192...`: REQ-143 Quality 34257265355 SUCCESS, P0 Touch 34257265527 SUCCESS, Pages 34257265365 SUCCESS, Render Liveness 34257265711 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING; IOS_PHYSICAL_VERIFICATION=PENDING. |
 
-| 126 | REQ-144 | P1 | IN_PROGRESS | Original Generic Field NPC Art | `requirements/REQ-144_ORIGINAL_GENERIC_FIELD_NPC_ART.md` | Fresh audit proved canonical generic human NPC emoji remain visible through the grounding body layer. Replace only scoped generic people with lightweight original repository SVG art; no protected-character canon, input, save or story authority change. |
+| 126 | REQ-144 | P1 | READY | Original Generic Field NPC Art | `requirements/REQ-144_ORIGINAL_GENERIC_FIELD_NPC_ART.md` | Owner 2026-09-09 direct priority preempted this work for REQ-145 Gold Vertical Slice. Existing requirement/evidence preserved; resume after challenger lane checkpoint. |
+| 127 | REQ-145 | P0 | IN_PROGRESS | Gold Vertical Slice Continuous Quality Lane | `requirements/REQ-145_GOLD_VERTICAL_SLICE_CONTINUOUS_QUALITY_LANE.md` | Separate-branch challenger: preserve canon/input/save/regression baseline while iterating target experience -> build -> play -> critique -> repair -> A/B quality gate. Development branch: `experiment/gold-vertical-slice`. |
 
 ## STATUS DEFINITIONS
 

@@ -8,26 +8,26 @@
 - LATEST_METADATA_COMMIT_SHA: `79db1541905d217489b4c439c7e2808926622fc2`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - CURRENT_BUILD_STATUS: `REQ-143 VERIFY candidate. Root red-gate cause was a CI contract contradiction: production-polish intentionally removes internal quality metadata while the old Gold Standard gate required it in DOM. Gate repaired to verify production DOM cleanup + canonical diagnostic API. Exact-head 6af1192: REQ-143 Quality 34257265355 SUCCESS; P0 Touch 34257265527 SUCCESS; Pages 34257265365 SUCCESS; Render Liveness 34257265711 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING; IOS_PHYSICAL_VERIFICATION=PENDING.`
-- ACTIVE_REQUIREMENT_ID: `REQ-144`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-144_ORIGINAL_GENERIC_FIELD_NPC_ART.md`
+- ACTIVE_REQUIREMENT_ID: `REQ-145`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-145_GOLD_VERTICAL_SLICE_CONTINUOUS_QUALITY_LANE.md`
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
 - MANDATORY_BOOT_FILES: `docs/quality/QUALITY_SYSTEM.md; docs/quality/QUALITY_RESEARCH_BASIS.md; docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`
 - RECENT_CHECKPOINTS: `79db1541 Leon Gold Standard status aligned to VERIFY candidate; 7048defa QUALITY_SYSTEM status aligned to VERIFY; 6af1192e REQ-143 runtime regression watch; ede53279 REQ-143 P0 watch expansion; 01ac0463 production cleanup; 473bd3df REQ-141 verified implementation; 8e7638be REQ-142 dedicated gate; 68ff67fc REQ-142 final VERIFY autosave; 3ecf3b70 REQ-143 requirement; a173c2d6 quality research basis; b19d449c canonical QUALITY_SYSTEM v1.0; d22a00a8 Leon Gold Standard scene design.`
 - TESTS_AND_VERIFICATION: `REQ-143 exact-head 6af1192 P0 Touch 34257265527 SUCCESS; Quality 34257265355 SUCCESS; Pages 34257265365 SUCCESS; Render Liveness 34257265711 SUCCESS. Subsequent commits 7048defa and 79db1541 are metadata/design-status synchronization only; they do not change runtime implementation. Existing REQ-142 dedicated 34226908113 SUCCESS, Pages 34226908028 SUCCESS, P0 Touch 34227266577 SUCCESS remain historical evidence for previous product head.`
 - KNOWN_ISSUES: `Owner physical iPhone must retry schema-safe recovery. REQ-021/022/001, REQ-023, REQ-140/141/142 retain IOS_PHYSICAL_VERIFICATION=PENDING. REQ-143 is VERIFY but OWNER_EXPERIENCE_PASS remains PENDING. Chapter 2 remains intentionally undesigned.`
-- BLOCKERS: `No machine/public hard blocker. REQ-143 subjective Owner experience and physical iPhone confirmation remain PENDING. Queue has no READY requirement after REQ-143 VERIFY; remaining formal-art BACKLOG items require Owner-only asset/design decisions, so autonomous work must select only a newly evidenced safe player-visible gap.`
-- NEXT_ACTION: `Fresh-audit the current public Chapter 1 experience for the highest-value evidenced player-visible quality gap. If a concrete gap exists, register one directive-authorized requirement under WIP=1 and execute it without changing protected canon/input/save authority.`
-- NEXT_ACTION_COMPLETION_CONDITION: `A concrete current player-visible defect/gap is evidenced from fresh HEAD/public behavior, formally queued with acceptance criteria, and implementation begins; do not manufacture a requirement solely to keep numbering moving.`
+- BLOCKERS: `No hard blocker for REQ-145. REQ-143 subjective Owner experience and physical iPhone confirmation remain PENDING. REQ-144 is safely suspended READY under newer Owner priority.`
+- NEXT_ACTION: `Run REQ-145 on experiment/gold-vertical-slice: freeze an exact 5-10 minute Chapter 1 Gold Slice, establish current-main baseline, implement the first coherent presentation foundation, then play/critic/repair in repeated checkpoints.`
+- NEXT_ACTION_COMPLETION_CONDITION: `A playable separate-branch candidate exists with an explicit experience contract, current-vs-candidate quality rubric, preserved P0 input/save/story authorities, and at least one material player-visible improvement validated without relying on paperwork alone.`
 - DO_NOT_REPEAT: `Do not claim physical iPhone PASS from CI. Do not add duplicate input/save/battle authority. Do not hand-build partial canonical saves in prelude. Do not use expensive filters as fake quality. Do not mark current REQ-128/REQ-143 as Gold Standard PASS before Owner experience approval.`
 
 ## SELF-AUDIT GUARD
 
 - SELF_AUDIT_GUARD: `LOADED / APPLIED`
 - BOOT_REALITY_AUDIT: `REPAIRED — fresh repository metadata, actual default branch main, fresh HEAD, directive, self-audit guard, manager, queue, CURRENT, mandatory quality files, recent commits and workflow state were loaded. Fresh HEAD 7048defa was ahead of CURRENT metadata and the mandatory Leon Gold Standard design still incorrectly said IMPLEMENTATION_PENDING despite REQ-143 VERIFY. The design status was repaired forward in 79db1541 and CURRENT was resynchronized without changing runtime implementation.`
-- OWNER_PRIORITY_AUDIT: `PASS — latest Owner authority requires continuous HEAD-first development with P0 input/fullscreen protections. No IN_PROGRESS or READY item currently outranks the verified REQ-143 state; next autonomous selection must be an evidenced safe player-visible gap rather than fabricated work.`
-- CONTINUE_GATE_LAST_RESULT: `CONTINUE — REQ-144 is an evidenced Q2 player-visible gap and is safe to implement under WIP=1.`
-- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED — prior CURRENT/mandatory design metadata remained materially stale after REQ-143 VERIFY. Repaired before selecting new work.`
-- PREEMPTED_REQUIREMENT: `NONE`
+- OWNER_PRIORITY_AUDIT: `PASS — latest Owner direct authority explicitly orders a separate-branch Gold Vertical Slice challenger and queue registration. This preempts lower-priority REQ-144 while preserving it READY.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE — REQ-145 is explicit Owner P0 work and is safe to execute on an isolated challenger branch under WIP=1.`
+- EXECUTION_DEGRADATION_STATUS: `NONE KNOWN for REQ-145 startup; main remains production baseline.`
+- PREEMPTED_REQUIREMENT: `REQ-144 -> READY / OWNER_PREEMPTED`
 - SELF_REPAIR_ACTIONS: `Aligned docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md from DESIGN_READY / IMPLEMENTATION_PENDING to GOLD_STANDARD_CANDIDATE / IMPLEMENTATION_VERIFY / OWNER_EXPERIENCE_PASS=PENDING; synchronized CURRENT metadata to fresh HEAD lineage; preserved runtime implementation SHA and all physical/subjective verification as PENDING.`
 
 ## REQ-143 GAME QUALITY SYSTEM / LEON GOLD STANDARD
@@ -43,9 +43,20 @@
 - NEXT: `Owner experience / physical iPhone review remains PENDING. Autonomous loop continues independently on the next evidenced safe player-visible gap.`
 - OWNER_EXPERIENCE_PASS: `PENDING`
 
-## REQ-144 ORIGINAL GENERIC FIELD NPC ART
+## REQ-145 GOLD VERTICAL SLICE CONTINUOUS QUALITY LANE
 
 - STATUS: `IN_PROGRESS`
+- PRIORITY: `P0 / OWNER_DIRECT`
+- DEVELOPMENT_BRANCH: `experiment/gold-vertical-slice`
+- QUALITY_LEVEL: `Q5`
+- LOOP: `TARGET EXPERIENCE -> BUILD -> PLAY -> CRITIQUE -> REPAIR -> A/B QUALITY GATE -> REPEAT`
+- PRESERVE: `Chapter 1 canon; canonical action/touch/save/battle authorities; current main as production baseline`
+- OWNER_EXPERIENCE_PASS: `PENDING`
+- IOS_PHYSICAL_VERIFICATION: `PENDING`
+
+## REQ-144 ORIGINAL GENERIC FIELD NPC ART
+
+- STATUS: `READY / OWNER_PREEMPTED`
 - QUALITY_LEVEL: `Q2`
 - EVIDENCE: `Canonical generic person emoji remain visible after world-character-grounding because that layer wraps existing glyph nodes rather than replacing them.`
 - SCOPE: `Generic elder / merchant / acolyte / farmer / observation watch only. Protected named-character identity excluded.`
