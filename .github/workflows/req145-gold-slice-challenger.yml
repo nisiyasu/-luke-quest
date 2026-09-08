@@ -73,6 +73,8 @@ jobs:
           grep -q 'id="lqReq145GoldSliceSmokeMarker"' .req145/candidate-req145-dom.html
           grep -q 'data-canonical-action="true"' .req145/candidate-req145-dom.html
           grep -q 'data-single-pulse="true"' .req145/candidate-req145-dom.html
+          grep -q 'data-pulse-target="true"' .req145/candidate-req145-dom.html
+          grep -q 'data-pointer-safe="true"' .req145/candidate-req145-dom.html
           grep -q 'data-input-authority="false"' .req145/candidate-req145-dom.html
           grep -q 'data-save-authority="false"' .req145/candidate-req145-dom.html
           grep -q 'data-story-authority="preserved"' .req145/candidate-req145-dom.html

@@ -153,3 +153,25 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 6 — canonical Action feedback safety contract
+
+### Safety gap found
+
+- The candidate already proved that canonical `action()` produced one presentation pulse, but the smoke did not verify that the pulse was attached to the actual front interaction tile or that it was pointer-transparent.
+- A visually useful feedback layer must never become a second touch target or steal the next pointer sequence.
+
+### Repair
+
+- Strengthen the REQ-145 runtime smoke with exact front-tile pulse-coordinate verification.
+- Assert the pulse computes to `pointer-events: none`.
+- Keep the existing canonical-action, single-pulse, no-input-authority, no-save-authority, and story-preservation gates.
+- Extend the challenger workflow to fail if pulse targeting or pointer transparency regresses.
+
+### Evidence
+
+- Local assembled browser marker: canonical-action=true, single-pulse=true, pulse-target=true, pointer-safe=true, input-authority=false, save-authority=false, story-authority=preserved.
+- No new pointer/touch/click listener is introduced by this iteration.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING

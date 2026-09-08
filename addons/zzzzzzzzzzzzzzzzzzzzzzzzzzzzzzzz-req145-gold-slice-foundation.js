@@ -137,12 +137,16 @@ function smoke(){
   const flagSnapshot=JSON.stringify(s.flags||{});
   try{
     s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='up';s.dialog=null;render();
+    const expectedLeft=`${s.x*TS+4}px`,expectedTop=`${(s.y-1)*TS+2}px`;
     action();
     const pulses=document.querySelectorAll('.lq145ActionPulse');
+    const pulse=pulses[0]||null;
     const marker=document.createElement('i');
     marker.id='lqReq145GoldSliceSmokeMarker';marker.hidden=true;
     marker.dataset.canonicalAction=String(!!s.dialog);
     marker.dataset.singlePulse=String(pulses.length===1);
+    marker.dataset.pulseTarget=String(!!pulse&&pulse.style.left===expectedLeft&&pulse.style.top===expectedTop);
+    marker.dataset.pointerSafe=String(!!pulse&&getComputedStyle(pulse).pointerEvents==='none');
     marker.dataset.inputAuthority='false';
     marker.dataset.saveAuthority='false';
     marker.dataset.storyAuthority=String(JSON.stringify(s.flags||{})===flagSnapshot?'preserved':'changed');
