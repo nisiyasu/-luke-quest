@@ -1,0 +1,54 @@
+name: Queue Reconcile REQ-134
+
+on:
+  push:
+    paths:
+      - '.github/workflows/queue-reconcile-req134.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch authoritative queue narrowly
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('WORK_QUEUE.md')
+          text=p.read_text()
+          old="| -2 | REQ-127 | P0 | IN_PROGRESS | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md` | Owner 2026-09-08 physical report says persistent dark/black iPhone PWA is still unresolved. Reopened P0. Lifecycle full-screen fade cleanup candidate implemented; Pages/render/cache-busted validation required; IOS_PHYSICAL_VERIFICATION=PENDING. |"
+          new="| -2 | REQ-127 | P0 | VERIFY | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md` | v1.4 machine/public recovery complete on source `70ac181...`: P0 Touch 34190819658 SUCCESS; Pages 34190819654 SUCCESS; Render Liveness 34190819853 SUCCESS; cache-busted exact-source deploy 34190886118 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. Reopen only on fresh Owner failure evidence. |"
+          if old in text:
+              text=text.replace(old,new,1)
+          elif new not in text:
+              raise SystemExit('REQ-127 queue row did not match expected old/new state')
+          row="| 116 | REQ-134 | P1 | IN_PROGRESS | iPhone Battle Touch UI Hardening | `requirements/REQ-134_IPHONE_BATTLE_TOUCH_UI.md` | Directive-authorized player-visible work selected because READY=0 and remaining BACKLOG is Owner-art-only. Harden assembled 390x844 battle command surface without changing battle semantics/canon. IOS_PHYSICAL_VERIFICATION=PENDING. |"
+          if row not in text:
+              marker='## STATUS DEFINITIONS'
+              if text.count(marker)!=1:
+                  raise SystemExit('queue status marker mismatch')
+              text=text.replace(marker,row+'\n\n'+marker,1)
+          if text.count('| REQ-127 |')!=1 or text.count('| REQ-134 |')!=1:
+              raise SystemExit('queue ID cardinality violation')
+          if text.count('| IN_PROGRESS |')!=1:
+              raise SystemExit(f'WIP invariant failed: IN_PROGRESS count={text.count("| IN_PROGRESS |")}')
+          p.write_text(text)
+          PY
+          git diff --check
+          git diff -- WORK_QUEUE.md
+      - name: Commit reconciled queue
+        run: |
+          if git diff --quiet -- WORK_QUEUE.md; then
+            echo 'Queue already reconciled.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md
+          git commit -m 'chore: reconcile queue and activate REQ-134'
+          git push origin HEAD:main
