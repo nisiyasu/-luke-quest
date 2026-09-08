@@ -38,6 +38,7 @@ function run(){
   const noHorizontalOverflow=document.documentElement.scrollWidth<=Math.ceil(vvWidth)+1;
   const cardFits=!!cardRect&&cardRect.left>=-1&&cardRect.right<=vvWidth+1;
   const handlers=buttons.map(canonicalHandler);
+  const texts=buttons.map(b=>(b.textContent||'').trim().replace(/\s+/g,' '));
   const hasBase=['attack()','guard()','potion()','runAway()'].every(handler=>handlers.includes(handler));
   const hasSkill=buttons.some(b=>b.classList.contains('lqSkillBtn')||b.textContent.includes('蒼閃'));
   const styled=enabled.length>=4&&enabled.every(b=>b.classList.contains('lqBattleCommandButton'));
@@ -46,8 +47,17 @@ function run(){
   attack=function(){attackCalls++;};
   action=function(){worldActionCalls++;};
   move=function(){worldMoveCalls++;};
-  const attackButton=buttons.find(b=>canonicalHandler(b)==='attack()');
-  if(!attackButton)throw new Error('canonical attack button missing');
+  const attackButton=buttons.find(b=>canonicalHandler(b)==='attack()')||buttons.find(b=>(b.textContent||'').includes('こうげき'));
+  if(!attackButton){
+   fail('canonical attack button missing',{
+    buttonCount:buttons.length,
+    texts:texts.join('|').slice(0,500),
+    handlers:handlers.join('|').slice(0,500),
+    cardText:(card?.textContent||'').trim().replace(/\s+/g,' ').slice(0,700),
+    allAppButtons:[...document.querySelectorAll('#app button')].map(b=>(b.textContent||'').trim().replace(/\s+/g,' ')).join('|').slice(0,800)
+   });
+   return;
+  }
   attackButton.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerId:9134,pointerType:'touch',isPrimary:true,clientX:20,clientY:20,buttons:1}));
   attackButton.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,pointerId:9134,pointerType:'touch',isPrimary:true,clientX:20,clientY:20,buttons:0}));
   attackButton.click();
@@ -62,7 +72,7 @@ function run(){
   const pass=!!window.LQ_REQ134_BATTLE_TOUCH_UI&&
    window.LQ_REQ134_BATTLE_TOUCH_UI.presentationOnly===true&&
    minHeight>=48&&noHorizontalOverflow&&cardFits&&hasBase&&hasSkill&&styled&&logBounded&&singleDispatch&&worldExcluded&&rerenderProtected;
-  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length,handlers:handlers.join('|')});
+  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length,texts:texts.join('|'),handlers:handlers.join('|')});
   if(!pass)console.error('REQ-134 acceptance details',document.getElementById('lqReq134BattleTouchSmokeMarker')?.dataset);
  }catch(error){
   fail(error?.message||String(error));
