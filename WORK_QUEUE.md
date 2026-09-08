@@ -146,6 +146,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 122 | REQ-140 | P0 | VERIFY | iPhone Compositor Black-Screen Recovery + Safe Save Rescue | `requirements/REQ-140_IPHONE_COMPOSITOR_BLACK_SCREEN_RECOVERY.md` | Compositor pressure reduction + stale intro cleanup + validated save export/import. P0 Touch 34220306982 SUCCESS; Pages 34220399635 SUCCESS; Render Liveness 34220399555 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 123 | REQ-141 | P0 | VERIFY | Pre-Leon Recovery Schema-Safe Boot | `requirements/REQ-141_PRE_LEON_RECOVERY_SCHEMA_SAFE_BOOT.md` | Previous prelude hand-built recovery save replaced by two-stage runtime-schema-safe recovery. Starts at cloudbreakSaddle (10,2), LV11, one canonical transition before Wind Stair. Dedicated run 34226073276 SUCCESS; exact-head Pages 34226073258 SUCCESS on 473bd3df. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
