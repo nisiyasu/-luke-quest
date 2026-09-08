@@ -150,7 +150,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 124 | REQ-142 | P1 | VERIFY | Adventure Memo Modern Controls Hint | `requirements/REQ-142_ADVENTURE_MEMO_MODERN_CONTROLS_HINT.md` | Stale fixed D-pad/A-only adventure memo guidance replaced with drag/tap + keyboard guidance. Zero new input handlers. Dedicated 34226908113 SUCCESS; Pages 34226908028 SUCCESS; P0 Touch 34227266577 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
-| 125 | REQ-143 | P0 | IN_PROGRESS | Game Quality System / Leon Gold Standard Scene Rebuild | `requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md` | Quality System v1 active; Leon climax Q5 candidate published. Developer-facing quality labels removed; P0 Touch, REQ-143 quality gate, Pages and Render Liveness GREEN on `01ac0463...`. OWNER_EXPERIENCE_PASS=PENDING. |
+| 125 | REQ-143 | P0 | VERIFY | Game Quality System / Leon Gold Standard Scene Rebuild | `requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md` | Quality System v1 + Leon Q5 candidate machine/public verification complete. Gold Standard gate contract aligned with intentional production metadata removal; exact-head `6af1192...`: REQ-143 Quality 34257265355 SUCCESS, P0 Touch 34257265527 SUCCESS, Pages 34257265365 SUCCESS, Render Liveness 34257265711 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING; IOS_PHYSICAL_VERIFICATION=PENDING. |
 
 ## STATUS DEFINITIONS
 

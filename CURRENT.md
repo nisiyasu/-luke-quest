@@ -1,23 +1,23 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: `2026-09-08 22:28 JST`
+- UPDATED_AT: `2026-09-09 02:31 JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `01ac0463ab0f4b27053066f5e3b5abcebc286981`
-- LATEST_VERIFIED_RUNTIME_HEAD_SHA: `01ac0463ab0f4b27053066f5e3b5abcebc286981`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `6af1192ef4531e6bf903761b22fba1067eac2b16`
+- LATEST_VERIFIED_RUNTIME_HEAD_SHA: `6af1192ef4531e6bf903761b22fba1067eac2b16`
 - LATEST_METADATA_COMMIT_SHA: `68ff67fca5911758c5fab001314a1386bf0c2029`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
-- CURRENT_BUILD_STATUS: `REQ-143 IN_PROGRESS. Leon climax Q5 candidate is public; production cleanup removed internal quality labels. Exact-head P0 Touch 34231724124 SUCCESS, REQ-143 Quality 34231724111 SUCCESS, Pages 34231724251 SUCCESS, Render Liveness 34231724366 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING.`
-- ACTIVE_REQUIREMENT_ID: `REQ-143`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md`
+- CURRENT_BUILD_STATUS: `REQ-143 VERIFY candidate. Root red-gate cause was a CI contract contradiction: production-polish intentionally removes internal quality metadata while the old Gold Standard gate required it in DOM. Gate repaired to verify production DOM cleanup + canonical diagnostic API. Exact-head 6af1192: REQ-143 Quality 34257265355 SUCCESS; P0 Touch 34257265527 SUCCESS; Pages 34257265365 SUCCESS; Render Liveness 34257265711 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING; IOS_PHYSICAL_VERIFICATION=PENDING.`
+- ACTIVE_REQUIREMENT_ID: `NONE`
+- ACTIVE_REQUIREMENT_PATH: `NONE`
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
 - MANDATORY_BOOT_FILES: `docs/quality/QUALITY_SYSTEM.md; docs/quality/QUALITY_RESEARCH_BASIS.md; docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`
 - RECENT_CHECKPOINTS: `ede53279 REQ-143 P0 watch expansion; 01ac0463 production cleanup; 473bd3df REQ-141 verified implementation; 8e7638be REQ-142 dedicated gate; 68ff67fc REQ-142 final VERIFY autosave; 3ecf3b70 REQ-143 requirement; a173c2d6 quality research basis; b19d449c canonical QUALITY_SYSTEM v1.0; d22a00a8 Leon Gold Standard scene design.`
 - TESTS_AND_VERIFICATION: `REQ-143 exact-head P0 Touch 34231724124 SUCCESS; Quality 34231724111 SUCCESS; Pages 34231724251 SUCCESS; Render Liveness 34231724366 SUCCESS. REQ-143 documentation/design checkpoints only so far; no runtime quality rebuild PASS claimed. Existing REQ-142 dedicated 34226908113 SUCCESS, Pages 34226908028 SUCCESS, P0 Touch 34227266577 SUCCESS remain historical evidence for previous product head.`
 - KNOWN_ISSUES: `Owner physical iPhone must retry schema-safe recovery. REQ-021/022/001, REQ-023, REQ-140/141/142 retain IOS_PHYSICAL_VERIFICATION=PENDING. REQ-128 is functionally VERIFY but OWNER_QUALITY_RESULT=FAIL and is being rebuilt under REQ-143. Chapter 2 remains intentionally undesigned.`
-- BLOCKERS: `No machine/public hard blocker. REQ-143 final subjective Gold Standard acceptance remains Owner experience PENDING.`
-- NEXT_ACTION: `Continue REQ-143 Gold Standard player-visible refinement from fresh HEAD without changing canon/input/save authority; preserve exact-head P0/public gates and remove any remaining prototype/debug presentation.`
-- NEXT_ACTION_COMPLETION_CONDITION: `REQ-143 remains machine/public green after further material polish and reaches a credible owner-review candidate; do not claim OWNER_EXPERIENCE_PASS until Owner confirms.`
+- BLOCKERS: `No machine/public hard blocker. REQ-143 subjective Owner experience and physical iPhone confirmation remain PENDING. Queue has no READY requirement after REQ-143 VERIFY; remaining formal-art BACKLOG items require Owner-only asset/design decisions, so autonomous work must select only a newly evidenced safe player-visible gap.`
+- NEXT_ACTION: `Fresh-audit the current public Chapter 1 experience for the highest-value evidenced player-visible quality gap. If a concrete gap exists, register one directive-authorized requirement under WIP=1 and execute it without changing protected canon/input/save authority.`
+- NEXT_ACTION_COMPLETION_CONDITION: `A concrete current player-visible defect/gap is evidenced from fresh HEAD/public behavior, formally queued with acceptance criteria, and implementation begins; do not manufacture a requirement solely to keep numbering moving.`
 - DO_NOT_REPEAT: `Do not claim physical iPhone PASS from CI. Do not add duplicate input/save/battle authority. Do not hand-build partial canonical saves in prelude. Do not use expensive filters as fake quality. Do not mark current REQ-128 as Gold Standard merely because old machine tests passed.`
 
 ## SELF-AUDIT GUARD
@@ -32,15 +32,15 @@
 
 ## REQ-143 GAME QUALITY SYSTEM / LEON GOLD STANDARD
 
-- STATUS: `IN_PROGRESS`
+- STATUS: `VERIFY`
 - OWNER_QUALITY_EVIDENCE: `Current Leon climax judged too weak in physical play despite functional machine success.`
 - QUALITY_LEVEL: `Q5 CLIMAX`
 - OWNER_QUALITY_RESULT: `FAIL`
 - QUALITY_SSOT: `docs/quality/QUALITY_SYSTEM.md`
 - RESEARCH_BASIS: `docs/quality/QUALITY_RESEARCH_BASIS.md`
 - SCENE_DESIGN: `docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`
-- CURRENT_GAP: `Current REQ-128 uses standalone card, emoji actor stand-ins, static staging, narration-heavy sister interruption/return and limited camera/audio/world-response orchestration.`
-- NEXT: `Audit existing presentation primitives and implement smallest safe Gold Standard rebuild.`
+- CURRENT_GAP: `Machine/public gate contradiction repaired. Production DOM intentionally contains no developer quality metadata; internal beat contract remains testable through LQ_REQ143_TEST. Subjective Owner experience remains unverified.`
+- NEXT: `Owner experience / physical iPhone review remains PENDING. Autonomous loop continues independently on the next evidenced safe player-visible gap.`
 - OWNER_EXPERIENCE_PASS: `PENDING`
 
 ## P0 INPUT / FULLSCREEN PROTECTION
