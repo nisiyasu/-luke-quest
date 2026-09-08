@@ -19,8 +19,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate diagnostic checker
-        run: python3 -m py_compile tools/lq-png-black-check.py
+      - name: Validate diagnostic checkers
+        run: |
+          python3 -m py_compile tools/lq-png-black-check.py
+          python3 -m py_compile tools/lq-render-failure-classify.py
 
       - name: Assemble public game order with immutable build URLs
         shell: bash
@@ -96,13 +98,15 @@ jobs:
             'data-world-reasserted="true"' \
             'data-fullscreen-reasserted="true"' \
             'data-logical-state-unchanged="true"' \
+            'data-occluder-diagnostics="true"' \
             'id="lqReq127ResumeWorldHealMarker"' \
             'data-shell-visible="true"' \
             'id="lqReq127DiagnosticsMarker"' \
-            'data-req="127"'; do
+            'data-req="127"' \
+            'data-visual-occluder-dom-scan="true"'; do
             if ! grep -q "$needle" /tmp/lq-render-dom.html; then
               echo "REQ-127 rendered-pixel preflight missing: $needle"
-              grep -o 'lqReq127RenderSmokeMarker[^<]*\|lqReq127ResumeWorldHealMarker[^<]*\|lqReq127DiagnosticsMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-render-dom.html | tail -120 || true
+              grep -o 'lqReq127RenderSmokeMarker[^<]*\|lqReq127ResumeWorldHealMarker[^<]*\|lqReq127DiagnosticsMarker[^<]*\|data-[a-z-]*="[^"]*"' /tmp/lq-render-dom.html | tail -140 || true
               exit 1
             fi
           done
@@ -116,10 +120,20 @@ jobs:
             grep -o 'id="lqReq127DiagnosticsMarker"[^>]*>[^<]*' /tmp/lq-render-dom.html | tail -1 || true
             exit 1
           fi
-          echo 'REQ-127 frozen-arrival + world-plane resume recovery preflight PASS before pixel analysis'
+          echo 'REQ-127 lifecycle + visual-occluder recovery preflight PASS before pixel analysis'
 
-      - name: Analyze Chromium rendered world pixels
-        run: python3 tools/lq-png-black-check.py /tmp/lq-world-390x844.png | tee /tmp/lq-render-metrics.txt
+      - name: Analyze and classify Chromium rendered world pixels
+        shell: bash
+        run: |
+          set +e
+          python3 tools/lq-png-black-check.py /tmp/lq-world-390x844.png | tee /tmp/lq-render-metrics.txt
+          pixel_status=${PIPESTATUS[0]}
+          set -e
+          python3 tools/lq-render-failure-classify.py \
+            --metrics /tmp/lq-render-metrics.txt \
+            --chromium-dom /tmp/lq-render-dom.html \
+            --out /tmp/lq-render-classification.json
+          exit "$pixel_status"
 
       - name: Install Playwright WebKit diagnostic engine
         shell: bash
@@ -139,8 +153,18 @@ jobs:
           test -s /tmp/lq-world-webkit-390x844.png
           test -s /tmp/lq-webkit-diagnostics.json
 
-      - name: Analyze WebKit rendered world pixels
-        run: python3 tools/lq-png-black-check.py /tmp/lq-world-webkit-390x844.png | tee /tmp/lq-webkit-render-metrics.txt
+      - name: Analyze and classify WebKit rendered world pixels
+        shell: bash
+        run: |
+          set +e
+          python3 tools/lq-png-black-check.py /tmp/lq-world-webkit-390x844.png | tee /tmp/lq-webkit-render-metrics.txt
+          pixel_status=${PIPESTATUS[0]}
+          set -e
+          python3 tools/lq-render-failure-classify.py \
+            --metrics /tmp/lq-webkit-render-metrics.txt \
+            --webkit-json /tmp/lq-webkit-diagnostics.json \
+            --out /tmp/lq-webkit-render-classification.json
+          exit "$pixel_status"
 
       - name: Upload render evidence
         if: always()
@@ -150,11 +174,13 @@ jobs:
           path: |
             /tmp/lq-world-390x844.png
             /tmp/lq-render-metrics.txt
+            /tmp/lq-render-classification.json
             /tmp/lq-render-dom.html
             /tmp/lq-render-chrome.log
             /tmp/lq-render-http.log
             /tmp/lq-world-webkit-390x844.png
             /tmp/lq-webkit-render-metrics.txt
+            /tmp/lq-webkit-render-classification.json
             /tmp/lq-webkit-diagnostics.json
             /tmp/lq-webkit.log
             /tmp/lq-webkit-http.log
