@@ -11,10 +11,13 @@
      that payload. Build a clean canonical-shaped save before index.html
      reads localStorage, while preserving the old bytes under a backup key.
 
-     Target is intentionally one interaction before REQ-128:
-       windStairRidge / (10,2) / facing up -> north-boundary Action -> Leon.
-     Owner physical play evidence establishes LV11 as the appropriate level
-     here: LV8 was too harsh and LV11 was where this stretch became stable.
+     Owner requested the map counted as 3 when Leon's windStairRidge is 1:
+       1 windStairRidge
+       2 cloudbreakSaddle
+       3 skylineTraverse
+     Use the canonical REQ-107 south entry spawn for skylineTraverse:
+       (10,18), facing up.
+     Owner physical play evidence establishes LV11 as appropriate here.
   */
   const installCleanPreLeonRecovery = () => {
     let requested = false;
@@ -45,15 +48,15 @@
       nx: 1135,
       gold: 1797,
       potions: 6,
-      map: 'windStairRidge',
+      map: 'skylineTraverse',
       x: 10,
-      y: 2,
+      y: 18,
       dir: 'up',
       step: 0,
       wins: 90,
       enemy: null,
       ehp: 0,
-      log: ['長い追跡の末、風鳴りの石段の最北端へ着いた。レオンはこの先にいる。'],
+      log: ['北尾根・雲裂きの稜線へ入った。レオンを追って、さらに北へ進む。'],
       dialog: null,
       flags: {
         leonSeen: true,
@@ -88,25 +91,25 @@
       discoveredMaps: [
         'town','field','forest','deepForest','mistTrail','observation',
         'evacRoute','northCliffRoad','northRidgeApproach','windShelf',
-        'skylineTraverse','cloudbreakSaddle','windStairRidge'
+        'skylineTraverse'
       ]
     };
 
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(clean));
       const verify = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
-      if (!verify || verify.map !== 'windStairRidge' || verify.lv !== 11 || verify.x !== 10 || verify.y !== 2) {
+      if (!verify || verify.map !== 'skylineTraverse' || verify.lv !== 11 || verify.x !== 10 || verify.y !== 18) {
         throw new Error('post-write verification mismatch');
       }
       try {
         const url = new URL(location.href);
         url.searchParams.delete('leon-recovery');
-        url.searchParams.set('recovered', 'pre-leon-lv11');
+        url.searchParams.set('recovered', 'skyline-lv11');
         history.replaceState(null, '', url.pathname + '?' + url.searchParams.toString() + url.hash);
       } catch (_) {}
-      console.info('[LUKE QUEST] clean pre-Leon LV11 recovery installed');
+      console.info('[LUKE QUEST] clean skyline LV11 recovery installed');
     } catch (error) {
-      console.warn('[LUKE QUEST] clean pre-Leon recovery write failed', error);
+      console.warn('[LUKE QUEST] clean skyline recovery write failed', error);
     }
     return true;
   };
