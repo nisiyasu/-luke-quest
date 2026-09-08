@@ -47,7 +47,13 @@ s.enemy=ENEMIES[1];s.ehp=17;s.log=['ツノウサギが現れた！','ルーク�
 document.body.dataset.req145Capture='battle';
 }catch(e){document.body.dataset.req145CaptureError=String(e&&e.message||e)}},250);</script>"""
 
-for scene,boot in [('town',WORLD_BOOT),('field',FIELD_BOOT),('evac',EVAC_BOOT),('dialogue',DIALOGUE_BOOT),('battle',BATTLE_BOOT)]:
+BATTLE_HIT_BOOT="""<script>setTimeout(()=>{try{
+localStorage.removeItem('lukeQuestV2');
+s=structuredClone(DEFAULT);s.screen='battle';s.map='field';s.lv=3;s.hp=60;s.mh=60;s.gold=38;s.wins=2;s.atk=7;
+s.enemy=ENEMIES[1];s.ehp=25;s.log=['ツノウサギが現れた！'];Math.random=()=>0;render();document.body.dataset.req145Capture='battle-hit';setTimeout(()=>{attack();document.body.dataset.req145CanonicalAttack=String(s.ehp<25)},4950);
+}catch(e){document.body.dataset.req145CaptureError=String(e&&e.message||e)}},250);</script>"""
+
+for scene,boot in [('town',WORLD_BOOT),('field',FIELD_BOOT),('evac',EVAC_BOOT),('dialogue',DIALOGUE_BOOT),('battle',BATTLE_BOOT),('battle-hit',BATTLE_HIT_BOOT)]:
     if '</body>' not in html:
         raise SystemExit('missing body close')
     out=out_dir/f'{args.label}-{scene}.html'
