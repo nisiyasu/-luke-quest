@@ -1,23 +1,23 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: `2026-09-08 22:14 JST`
+- UPDATED_AT: `2026-09-08 22:28 JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `d22a00a83cc5befcf3bf1926f4a73c20ba29c2bf`
-- LATEST_VERIFIED_RUNTIME_HEAD_SHA: `8e7638be6752e271309dd23c50f9a71b7201b652`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `01ac0463ab0f4b27053066f5e3b5abcebc286981`
+- LATEST_VERIFIED_RUNTIME_HEAD_SHA: `01ac0463ab0f4b27053066f5e3b5abcebc286981`
 - LATEST_METADATA_COMMIT_SHA: `68ff67fca5911758c5fab001314a1386bf0c2029`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
-- CURRENT_BUILD_STATUS: `REQ-143 IN_PROGRESS. Quality architecture, external research basis, canonical QUALITY_SYSTEM v1.0 and Leon Q5 Gold Standard scene design are committed. Runtime Leon rebuild and public verification remain pending. Previous REQ-142 machine/public VERIFY remains valid.`
+- CURRENT_BUILD_STATUS: `REQ-143 IN_PROGRESS. Leon climax Q5 candidate is public; production cleanup removed internal quality labels. Exact-head P0 Touch 34231724124 SUCCESS, REQ-143 Quality 34231724111 SUCCESS, Pages 34231724251 SUCCESS, Render Liveness 34231724366 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING.`
 - ACTIVE_REQUIREMENT_ID: `REQ-143`
 - ACTIVE_REQUIREMENT_PATH: `requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md`
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
 - MANDATORY_BOOT_FILES: `docs/quality/QUALITY_SYSTEM.md; docs/quality/QUALITY_RESEARCH_BASIS.md; docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`
-- RECENT_CHECKPOINTS: `473bd3df REQ-141 verified implementation; 8e7638be REQ-142 dedicated gate; 68ff67fc REQ-142 final VERIFY autosave; 3ecf3b70 REQ-143 requirement; a173c2d6 quality research basis; b19d449c canonical QUALITY_SYSTEM v1.0; d22a00a8 Leon Gold Standard scene design.`
-- TESTS_AND_VERIFICATION: `REQ-143 documentation/design checkpoints only so far; no runtime quality rebuild PASS claimed. Existing REQ-142 dedicated 34226908113 SUCCESS, Pages 34226908028 SUCCESS, P0 Touch 34227266577 SUCCESS remain historical evidence for previous product head.`
+- RECENT_CHECKPOINTS: `ede53279 REQ-143 P0 watch expansion; 01ac0463 production cleanup; 473bd3df REQ-141 verified implementation; 8e7638be REQ-142 dedicated gate; 68ff67fc REQ-142 final VERIFY autosave; 3ecf3b70 REQ-143 requirement; a173c2d6 quality research basis; b19d449c canonical QUALITY_SYSTEM v1.0; d22a00a8 Leon Gold Standard scene design.`
+- TESTS_AND_VERIFICATION: `REQ-143 exact-head P0 Touch 34231724124 SUCCESS; Quality 34231724111 SUCCESS; Pages 34231724251 SUCCESS; Render Liveness 34231724366 SUCCESS. REQ-143 documentation/design checkpoints only so far; no runtime quality rebuild PASS claimed. Existing REQ-142 dedicated 34226908113 SUCCESS, Pages 34226908028 SUCCESS, P0 Touch 34227266577 SUCCESS remain historical evidence for previous product head.`
 - KNOWN_ISSUES: `Owner physical iPhone must retry schema-safe recovery. REQ-021/022/001, REQ-023, REQ-140/141/142 retain IOS_PHYSICAL_VERIFICATION=PENDING. REQ-128 is functionally VERIFY but OWNER_QUALITY_RESULT=FAIL and is being rebuilt under REQ-143. Chapter 2 remains intentionally undesigned.`
-- BLOCKERS: `No machine-side hard blocker for REQ-143 design/runtime audit.`
-- NEXT_ACTION: `Fresh-audit reusable actor/camera/audio/fade/dialogue primitives, then rebuild REQ-128 Q5 presentation against LEON_GOLD_STANDARD_SCENE_DESIGN without changing protected canon or input/save authorities.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Leon climax is materially staged rather than narration/card dominated, Q5 quality gates and regressions pass, Pages deploy succeeds, and Owner experience remains PENDING until physical play.`
+- BLOCKERS: `No machine/public hard blocker. REQ-143 final subjective Gold Standard acceptance remains Owner experience PENDING.`
+- NEXT_ACTION: `Continue REQ-143 Gold Standard player-visible refinement from fresh HEAD without changing canon/input/save authority; preserve exact-head P0/public gates and remove any remaining prototype/debug presentation.`
+- NEXT_ACTION_COMPLETION_CONDITION: `REQ-143 remains machine/public green after further material polish and reaches a credible owner-review candidate; do not claim OWNER_EXPERIENCE_PASS until Owner confirms.`
 - DO_NOT_REPEAT: `Do not claim physical iPhone PASS from CI. Do not add duplicate input/save/battle authority. Do not hand-build partial canonical saves in prelude. Do not use expensive filters as fake quality. Do not mark current REQ-128 as Gold Standard merely because old machine tests passed.`
 
 ## SELF-AUDIT GUARD
@@ -28,7 +28,7 @@
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE — runtime audit/rebuild work remains safe and executable.`
 - EXECUTION_DEGRADATION_STATUS: `NONE`
 - PREEMPTED_REQUIREMENT: `NONE`
-- SELF_REPAIR_ACTIONS: `Created REQ-143; separated functional completion from quality completion; added external research basis; created canonical QUALITY_SYSTEM; created Leon Q5 Gold Standard scene design; wired quality files into CURRENT mandatory boot.`
+- SELF_REPAIR_ACTIONS: `Detected REQ-143 missing from WORK_QUEUE; added P0 touch watch coverage; removed player-visible developer quality labels; Created REQ-143; separated functional completion from quality completion; added external research basis; created canonical QUALITY_SYSTEM; created Leon Q5 Gold Standard scene design; wired quality files into CURRENT mandatory boot.`
 
 ## REQ-143 GAME QUALITY SYSTEM / LEON GOLD STANDARD
 
