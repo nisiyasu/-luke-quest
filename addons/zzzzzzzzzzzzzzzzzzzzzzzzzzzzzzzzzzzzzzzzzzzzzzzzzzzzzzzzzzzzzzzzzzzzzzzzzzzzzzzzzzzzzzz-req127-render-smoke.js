@@ -20,7 +20,19 @@
     el.dataset.error=String(error&&error.stack||error||'unknown');
   };
 
-  const run=()=>{
+  const visible=el=>{
+    if(!el)return false;
+    const cs=getComputedStyle(el);
+    const r=el.getBoundingClientRect();
+    return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity)>0&&r.width>0&&r.height>0;
+  };
+
+  const waitFrames=(count=1)=>new Promise(resolve=>{
+    const step=()=>count--<=0?resolve():requestAnimationFrame(step);
+    requestAnimationFrame(step);
+  });
+
+  const run=async()=>{
     try{
       if(typeof s==='undefined'||!s)throw new Error('canonical state unavailable');
       if(typeof render!=='function')throw new Error('canonical render unavailable');
@@ -35,38 +47,83 @@
       s.enemy=null;
       if('ehp' in s)s.ehp=0;
       render();
+      await waitFrames(2);
 
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        try{
-          const shell=document.querySelector('.gameShell');
-          const world=shell?.querySelector('.world')||document.querySelector('.world');
-          const player=world?.querySelector('.player')||document.querySelector('.player');
-          const tiles=world?.querySelectorAll('.tile')||[];
-          const sr=shell?.getBoundingClientRect();
-          const wr=world?.getBoundingClientRect();
-          const pr=player?.getBoundingClientRect();
-          const visible=el=>{
-            if(!el)return false;
-            const cs=getComputedStyle(el);
-            const r=el.getBoundingClientRect();
-            return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity)>0&&r.width>0&&r.height>0;
-          };
-          const el=marker();
-          el.dataset.status='PASS';
-          el.dataset.screen=String(s.screen||'');
-          el.dataset.map=String(s.map||'');
-          el.dataset.shell=String(visible(shell));
-          el.dataset.world=String(visible(world));
-          el.dataset.player=String(visible(player));
-          el.dataset.tiles=String(tiles.length);
-          el.dataset.shellWidth=String(Math.round(sr?.width||0));
-          el.dataset.worldWidth=String(Math.round(wr?.width||0));
-          el.dataset.playerX=String(Math.round(pr?.x||0));
-          window.LQ_REQ127_RUNTIME_DIAGNOSTICS?.snapshot?.('req127-render-smoke-ready');
-        }catch(error){fail(error);}
-      }));
+      let shell=document.querySelector('.gameShell');
+      let world=shell?.querySelector('.world')||document.querySelector('.world');
+      let player=world?.querySelector('.player')||document.querySelector('.player');
+      let tiles=world?.querySelectorAll('.tile')||[];
+      if(!visible(shell)||!visible(world)||!visible(player)||!tiles.length){
+        throw new Error('initial world render not visible');
+      }
+
+      const heal=window.LQ_REQ127_RESUME_WORLD_HEAL;
+      if(!heal||typeof heal.heal!=='function')throw new Error('REQ-127 resume world heal unavailable');
+      if(heal.presentationOnly!==true||heal.gameplayStateMutation!==false||heal.saveSchemaChange!==false){
+        throw new Error('REQ-127 resume heal safety contract invalid');
+      }
+
+      const fade=document.createElement('div');
+      fade.id='lq-map-transition-fade';
+      fade.style.cssText='position:fixed;inset:0;background:#000;z-index:99999;opacity:1';
+      document.body.appendChild(fade);
+
+      // Simulate a stale/suspended iOS presentation plane without touching logical game state.
+      world.style.visibility='hidden';
+      world.style.opacity='0';
+      world.style.width='0px';
+      world.style.height='0px';
+
+      const before={screen:s.screen,map:s.map,x:s.x,y:s.y,dir:s.dir};
+      const started=heal.heal('render-smoke');
+      if(!started)throw new Error('REQ-127 resume heal did not start in world state');
+      await waitFrames(4);
+
+      shell=document.querySelector('.gameShell');
+      world=shell?.querySelector('.world')||document.querySelector('.world');
+      player=world?.querySelector('.player')||document.querySelector('.player');
+      tiles=world?.querySelectorAll('.tile')||[];
+      const sr=shell?.getBoundingClientRect();
+      const wr=world?.getBoundingClientRect();
+      const pr=player?.getBoundingClientRect();
+      const expectedWidth=typeof MAPS!=='undefined'&&typeof TS!=='undefined'&&MAPS[s.map]?MAPS[s.map].w*TS:0;
+      const expectedHeight=typeof MAPS!=='undefined'&&typeof TS!=='undefined'&&MAPS[s.map]?MAPS[s.map].h*TS:0;
+      const logicalStateUnchanged=before.screen===s.screen&&before.map===s.map&&before.x===s.x&&before.y===s.y&&before.dir===s.dir;
+      const healMarker=document.getElementById('lqReq127ResumeWorldHealMarker');
+      const fadeCleared=!document.getElementById('lq-map-transition-fade');
+      const fullscreenReasserted=document.documentElement.classList.contains('lqWorldFullscreen')&&document.body.classList.contains('lqWorldFullscreen');
+      const sizeReasserted=Math.abs((wr?.width||0)-expectedWidth)<1&&Math.abs((wr?.height||0)-expectedHeight)<1;
+      const worldReasserted=visible(world)&&visible(player)&&tiles.length>0&&sizeReasserted;
+
+      if(!fadeCleared)throw new Error('REQ-127 resume heal left transition fade behind');
+      if(!fullscreenReasserted)throw new Error('REQ-127 resume heal did not reassert fullscreen world class');
+      if(!worldReasserted)throw new Error(`REQ-127 resume heal did not restore world presentation: ${wr?.width||0}x${wr?.height||0} expected ${expectedWidth}x${expectedHeight}`);
+      if(!logicalStateUnchanged)throw new Error('REQ-127 resume heal mutated logical gameplay state');
+      if(!healMarker||healMarker.dataset.status!=='PASS'||healMarker.dataset.fadeCleared!=='true'){
+        throw new Error('REQ-127 resume heal marker did not confirm recovery');
+      }
+
+      const el=marker();
+      el.dataset.status='PASS';
+      el.dataset.screen=String(s.screen||'');
+      el.dataset.map=String(s.map||'');
+      el.dataset.shell=String(visible(shell));
+      el.dataset.world=String(visible(world));
+      el.dataset.player=String(visible(player));
+      el.dataset.tiles=String(tiles.length);
+      el.dataset.shellWidth=String(Math.round(sr?.width||0));
+      el.dataset.worldWidth=String(Math.round(wr?.width||0));
+      el.dataset.worldHeight=String(Math.round(wr?.height||0));
+      el.dataset.playerX=String(Math.round(pr?.x||0));
+      el.dataset.resumeHeal='true';
+      el.dataset.fadeCleared=String(fadeCleared);
+      el.dataset.worldReasserted=String(worldReasserted);
+      el.dataset.fullscreenReasserted=String(fullscreenReasserted);
+      el.dataset.logicalStateUnchanged=String(logicalStateUnchanged);
+      el.dataset.healVersion=String(heal.version||'unknown');
+      window.LQ_REQ127_RUNTIME_DIAGNOSTICS?.snapshot?.('req127-render-smoke-ready');
     }catch(error){fail(error);}
   };
 
-  setTimeout(run,0);
+  setTimeout(()=>{void run();},0);
 })();
