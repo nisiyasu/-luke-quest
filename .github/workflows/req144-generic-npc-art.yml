@@ -1,0 +1,82 @@
+name: REQ-144 Generic NPC Art
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'addons/world-generic-npc-art.js'
+      - 'assets/characters/npc/field-generic-sprites.svg'
+      - 'requirements/REQ-144_ORIGINAL_GENERIC_FIELD_NPC_ART.md'
+      - '.github/workflows/req144-generic-npc-art.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static contract
+        run: |
+          node --check addons/world-generic-npc-art.js
+          test -s assets/characters/npc/field-generic-sprites.svg
+          for id in elder-down merchant-down acolyte-down farmer-down watch-down elder-up merchant-up acolyte-up farmer-up watch-up elder-left merchant-left acolyte-left farmer-left watch-left elder-right merchant-right acolyte-right farmer-right watch-right; do
+            grep -q "id=\"$id\"" assets/characters/npc/field-generic-sprites.svg
+          done
+          grep -q "formalArt:false" addons/world-generic-npc-art.js
+          grep -q "inputAuthorityChange:false" addons/world-generic-npc-art.js
+          grep -q "saveSchemaChange:false" addons/world-generic-npc-art.js
+          grep -q "storyChange:false" addons/world-generic-npc-art.js
+      - name: Assemble production order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base bootstrap marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          grep -q 'addons/world-character-grounding.js' index.html
+          grep -q 'addons/world-generic-npc-art.js' index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          h=Path('index.html').read_text()
+          if h.index('addons/world-character-grounding.js') > h.index('addons/world-generic-npc-art.js'):
+              raise SystemExit('REQ-144 must load after world character grounding')
+          PY
+      - name: Browser acceptance
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8144 >/tmp/lq-req144-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=6500 --dump-dom 'http://127.0.0.1:8144/?lqSmoke=1' >/tmp/lq-req144-dom.html 2>/tmp/lq-req144-chrome.log || true
+          test -s /tmp/lq-req144-dom.html
+          grep -q 'lqReq144SmokeMarker' /tmp/lq-req144-dom.html
+          grep -q 'data-town="true"' /tmp/lq-req144-dom.html
+          grep -q 'data-field="true"' /tmp/lq-req144-dom.html
+          grep -q 'data-watch="true"' /tmp/lq-req144-dom.html
+          grep -q 'data-props-preserved="true"' /tmp/lq-req144-dom.html
+          grep -q 'data-input-authority="preserved"' /tmp/lq-req144-dom.html
+          if grep -q 'lqReq144SmokeFailure' /tmp/lq-req144-dom.html; then
+            echo 'REQ-144 smoke failure marker found'
+            grep -o 'lqReq144SmokeFailure[^<]*\|data-reason="[^"]*"' /tmp/lq-req144-dom.html | tail -30 || true
+            exit 1
+          fi
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-req144-chrome.log; then
+            cat /tmp/lq-req144-chrome.log
+            exit 1
+          fi
+          curl -fsS http://127.0.0.1:8144/assets/characters/npc/field-generic-sprites.svg | grep -q 'id="elder-down"'
+          echo 'REQ-144 generic NPC original-art acceptance PASS'
