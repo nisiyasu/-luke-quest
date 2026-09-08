@@ -1,13 +1,13 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: 2026-09-08 08:31 JST
+- UPDATED_AT: 2026-09-08 09:38 JST
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `002cff2c10b8d5e8abb18d4eda240b112e17641b`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `d57783b2bb28b719b08504557d772c47411d9dc9`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY`
 - SELF_AUDIT_GUARD: `EXECUTION_SELF_AUDIT_GUARD.md` / LOADED_APPLIED
-- CURRENT_BUILD_STATUS: `REQ-127 P0 REOPENED from fresh Owner physical evidence. Full-viewport map transition fade now fails safe on pagehide/pageshow/visibilitychange/freeze; Standard Pages 34170019367 SUCCESS; Render Liveness 34170019384 SUCCESS including Chromium + WebKit; cache-busted recovery 34170083404 SUCCESS. Physical iPhone result is still unresolved; IOS_PHYSICAL_VERIFICATION=PENDING.`
+- CURRENT_BUILD_STATUS: `REQ-127 remains P0 IN_PROGRESS. Fresh machine evidence reproduced a full-world dark presentation state: .gameShell.lqMapArrive was captured at animation 0% with opacity:0 / brightness(.55). Resume-world heal v1.1 now removes frozen lqMapArrive state, clears transient map fade, restores shell/world visibility and geometry, and reasserts the existing fullscreen/compositor contract without gameplay/save mutation. Standard Pages 34173850582 SUCCESS; Render Liveness 34173850593 SUCCESS including deliberate frozen-arrival reproduction/recovery plus Chromium and WebKit pixel analysis. Physical iPhone result remains unresolved; IOS_PHYSICAL_VERIFICATION=PENDING.`
 - ACTIVE_REQUIREMENT_ID: `REQ-127`
 - ACTIVE_REQUIREMENT_PATH: `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md`
 - CONTINUE_GATE_LAST_RESULT: `CONTINUE`
@@ -18,13 +18,13 @@
 - SUPERSEDED_REQUIREMENTS: `REQ-035, REQ-091, requirements/REQ-113_STORY_CANON_AUTONOMOUS_WIRING.md`
 - QUEUE_PROJECTION_STATUS: `REQ-127 is the sole IN_PROGRESS P0 after Owner reconfirmed persistent dark/black iPhone PWA. Other VERIFY/BLOCKED/BACKLOG rows do not consume WIP.`
 - STORY_CANON_STATUS: `PARTIAL / OPENING_CONFIRMED / CHAPTER_01_CORE_CONFIRMED / CHAPTER_02_NOT_DESIGNED`
-- RECENT_CHECKPOINTS: `25b5d716... extends the inert P0 touch probe to prove every rendered A/MENU actionPad button is excluded from world pointer ownership; 14f8f7d6... serializes extended P0 smoke after the primary touch smoke; f93d1b55... actively proves window resize/orientation hard-stop boundaries; 002cff2... remains the latest production implementation checkpoint for dialogue-native pan-y arbitration.`
-- TESTS_AND_VERIFICATION: `Pages 34162942937 SUCCESS including browser assembled game, floating touch + iPhone world visual smoke, full A/MENU action-overlay exclusion proof, route regressions, upload and real Pages deploy; Render Liveness 34162942772 SUCCESS including Chromium + WebKit iPhone-sized world rendering; REQ-023 evacuation guidance 34162942771 SUCCESS; REQ-121 progression gate 34162942781 SUCCESS; REQ-128 Chapter 1 climax 34162942780 SUCCESS.`
-- KNOWN_ISSUES: `Owner physical iPhone Home Screen PWA remains dark/black as of 2026-09-08. Lifecycle stale full-screen fade is a repaired candidate failure class, not yet proven as the physical root cause. IOS_PHYSICAL_VERIFICATION=PENDING.`
-- BLOCKERS: `No machine-side blocker: current candidate is machine/public green. Physical iPhone confirmation is Owner-only and remains pending; continue evidence-based REQ-127 diagnosis if symptom persists.`
-- NEXT_ACTION: `Keep REQ-127 active until Owner physical verification. If device remains dark after this deployment, use lifecycle/runtime evidence to isolate the next iPhone-PWA-only occluder/compositor failure without reapplying already-failed rollback/cache theories.`
-- NEXT_ACTION_COMPLETION_CONDITION: `Physical iPhone no longer presents the persistent dark/black world, or a new evidence-backed REQ-127 defect is reproduced and repaired with Standard Pages + Render Liveness + cache-busted public recovery green.`
-- DO_NOT_REPEAT: `Do not test only the first .actionPad button and infer all explicit controls are safe: keep A and MENU both explicitly excluded from world pointer ownership. Do not block native vertical scrolling inside an already-open overflow dialogue by applying shell touch-action:none plus preventDefault to every dialogue swipe. Preserve short tap -> canonical Action, but route dialogue swipe -> native pan-y with no world movement/no Action. Do not clamp Dynamic Touch from visualViewport width/height alone: preserve offsetLeft/offsetTop and re-clamp on visualViewport scroll without cancelling a valid held drag. Do not treat every visualViewport.resize as a movement-cancel boundary. Do not leave held movement ownership alive across pagehide/BFCache navigation. Do not treat a single headless Chromium timeout as a gameplay regression without an unchanged-code retry. Do not accept a title/menu screenshot as world liveness. Do not claim physical iPhone PASS from CI.`
+- RECENT_CHECKPOINTS: `6e50e93a... adds presentation-only PWA resume world-plane heal; d57783b2... upgrades it to clear a frozen lqMapArrive 0% presentation state; a8611ba3... deliberately reproduces frozen arrival + dark fade + stale world plane and proves recovery; c402c3bb... requires the same recovery in Playwright WebKit; cf544fa3... makes Render Liveness fail closed on the recovery contract; c26b67b0... removes the test-only addon load-order race without weakening fail-closed assertions.`
+- TESTS_AND_VERIFICATION: `Pages 34173850582 SUCCESS including static/addon/PWA guards, assembled browser game, floating touch + iPhone world visual liveness, north-route regressions, upload and real Pages deploy; Render Liveness 34173850593 SUCCESS including frozen lqMapArrive reproduction, resume-heal proof, Chromium pixels, WebKit iPhone-sized capture and WebKit pixel analysis; REQ-023 evacuation guidance 34173850629 SUCCESS; REQ-121 progression 34173850600 SUCCESS; REQ-128 Chapter 1 climax 34173850580 SUCCESS.`
+- KNOWN_ISSUES: `Owner physical iPhone Home Screen PWA was still dark/black before this frozen-arrival recovery deployment. The newly reproduced lqMapArrive 0% freeze is a strong evidence-backed root-cause candidate, but physical causality is not yet proven. IOS_PHYSICAL_VERIFICATION=PENDING.`
+- BLOCKERS: `No machine-side blocker. Current REQ-127 candidate is public/machine green; physical iPhone confirmation remains Owner-only. Continue evidence-based lifecycle/occluder/compositor diagnosis if the symptom persists.`
+- NEXT_ACTION: `Keep REQ-127 active until Owner physical verification. If the device remains dark after the d57783b2 recovery is live, expand runtime evidence to identify iPhone-only full-viewport occluders/compositor state rather than repeating source rollback, cache purge, gamepad, ambient-audio, generic compositor-safe-mode, or fade-only theories.`
+- NEXT_ACTION_COMPLETION_CONDITION: `Physical iPhone no longer presents the persistent dark/black world, or a new evidence-backed REQ-127 failure is reproduced and repaired with Standard Pages + Render Liveness/public deployment green.`
+- DO_NOT_REPEAT: `Do not claim physical iPhone PASS from CI. Do not re-run already-failed broad source rollback, service-worker/cache-only purge, gamepad rollback, ambient-audio rollback, generic compositor-safe-mode, or fade-only fixes without new evidence. Do not allow decorative lqMapArrive animation-fill-mode:both to remain a lifecycle recovery authority: resume heal must clear a frozen 0% opacity/brightness presentation state. Do not weaken the deliberate frozen-arrival render smoke merely to obtain green. Preserve P0 canonical touch/fullscreen contracts.`
 - TOUCH_CONTROLLER_STATUS: `PROTECTED / REQ-001 VERIFY / v1.9 offset-aware + pagehide-safe + dialogue-pan arbitration machine+public green`
 - TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership + dead zone + drag movement + central stop/cleanup + safe-area/visualViewport clamp; visualViewport offsetLeft/offsetTop included in clamp; visualViewport scroll/resize re-clamps while preserving valid held drag; window resize/orientation hard-stop; pagehide clears ownership/timers; already-open dialogue switches shell/dialog to pan-y and leaves pointerdown/move default unblocked while swipe distance suppresses Action and movement; explicit A/MENU controls are verified non-world-touch owners.`
 - TOUCH_CONTROLLER_KNOWN_ISSUES: `No confirmed machine regression at v1.9 offset/pagehide/dialogue-pan hardening; physical iPhone behavior remains pending.`
@@ -34,18 +34,24 @@
 
 ## REQ-127 — IPHONE PWA PERSISTENT BLACK SCREEN RECOVERY
 
-- STATUS: `IN_PROGRESS / OWNER PHYSICAL BLACK-SCREEN REPORT REOPENED / MACHINE+PUBLIC CANDIDATE GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`.
+- STATUS: `IN_PROGRESS / OWNER PHYSICAL BLACK-SCREEN REPORT REOPENED / FROZEN-ARRIVAL RECOVERY MACHINE+PUBLIC GREEN / IOS_PHYSICAL_VERIFICATION=PENDING`.
 - Owner evidence before the latest recovery deployment: Home Screen PWA black; audio later absent; app foreground could briefly flash top HUD before returning black.
 - Rollback to the physical-good-time candidate `9e6cb573...` did not change the Owner symptom, so post-04:00 source changes alone were not a sufficient explanation.
 - Service-worker purge/unregister alone also did not prove recovery.
-- Corrected machine visual-liveness now proves a real `world` render before pixel analysis, rather than accidentally accepting the title screen.
-- Runtime diagnostics now capture startup errors/rejections, world/player geometry/styles, viewport, center occluder stack, lifecycle/resume events and service-worker state.
-- Dedicated `?lqReq127RenderSmoke=1` isolates the world diagnostic from historical global smoke suites.
-- Clean render run `34070096956` is SUCCESS with `near_black_ratio=0.265579`, `bright_ratio=0.629712`, `mean_luminance=87.893`, `quantized_color_bins=626`.
-- Normal Pages run `34070194697` is SUCCESS.
-- Post-Pages recovery run `34070253834` is SUCCESS and verified `346` runtime script URLs are build-SHA-versioned with `dd5f26ed9eaedf03539f3aec9ee14ae7a1823aae`.
-- The exact cache-busted recovery artifact passed clean 390x844 world rendering with `near_black_ratio=0.265555`, `bright_ratio=0.629679`, `mean_luminance=87.889`, `quantized_color_bins=626`, then deployed successfully to GitHub Pages.
-- This closes the known stable-runtime-URL cache hole without claiming it was definitively the sole root cause.
+- Earlier map-transition fade lifecycle cleanup is retained but was insufficient to claim physical recovery.
+- Runtime diagnostics capture startup errors/rejections, world/player geometry/styles, viewport, occluder/lifecycle evidence and service-worker state.
+- Dedicated `?lqReq127RenderSmoke=1` isolates world diagnostics from historical global smoke suites.
+- Fresh failed diagnostic evidence captured `.gameShell.lqMapArrive` at its animation 0% presentation: `opacity:0`, `filter:brightness(.55)`, `transform:scale(.992)`. Because the animation uses `both` fill mode, a suspended iOS standalone compositor can plausibly retain this dark/transparent presentation through foreground resume.
+- Production checkpoint `6e50e93a42244b709376445c979063f0ff185123` introduced a world-state-only resume heal that clears known transient fade, reasserts fullscreen classes/world visibility/geometry and requests compositor repaint without mutating gameplay or save state.
+- Production checkpoint `d57783b2bb28b719b08504557d772c47411d9dc9` upgraded the heal to remove `lqMapArrive` and fail-safe a shell stuck at opacity 0 / hidden / display none. Exported contract version is `1.1.0` with `presentationOnly=true`, `gameplayStateMutation=false`, `saveSchemaChange=false`, `frozenArrivalCleanup=true`.
+- Test checkpoint `a8611ba324f4f4b35026fc7c5b67a73b38ebb9d7` deliberately reproduces frozen `lqMapArrive`, injects a full-screen dark fade, collapses the world presentation, then requires fade cleared + arrival cleared + shell/world/player visible + geometry restored + fullscreen authority restored + logical gameplay state unchanged.
+- WebKit checkpoint `c402c3bb871b6f494f2b2b738cc229eee5e4ec2b` requires the same recovery in Playwright WebKit.
+- CI checkpoint `cf544fa39f1416660a646b3de52e3403ac6f8adf` makes Render Liveness fail closed on those recovery markers before pixel analysis.
+- Test-only checkpoint `c26b67b0380a75121292159d270b44c500c5bc7d` removes a parser/load-order race by running the smoke after document load; the smoke still fails if the late resume-heal addon is absent or violates its contract.
+- Standard Pages run `34173850582` is SUCCESS including real GitHub Pages deployment.
+- Render Liveness run `34173850593` is SUCCESS: Chromium recovery proof + pixel analysis PASS; Playwright WebKit iPhone-sized recovery proof + pixel analysis PASS; render evidence artifact uploaded.
+- REQ-023 evacuation guidance `34173850629`, REQ-121 progression `34173850600`, and REQ-128 Chapter 1 climax `34173850580` are SUCCESS on the same HEAD, so no corresponding gameplay-flow regression was detected.
+- This is the strongest evidence-backed black-screen candidate repaired so far, but it is not a physical iPhone PASS.
 - IOS_PHYSICAL_VERIFICATION: `PENDING`.
 
 ## OWNER-APPROVED STORY REALITY — 2026-09-07
