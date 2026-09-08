@@ -64,10 +64,10 @@ body.${ROOT_CLASS}.lq145Battle .enemyPlate{border-color:rgba(240,201,91,.34)!imp
 body.${ROOT_CLASS}.lq145Battle .enemyNameV10{color:#fff2c7!important;letter-spacing:.035em;text-shadow:0 2px 4px #000}
 body.${ROOT_CLASS}.lq145Battle .enemyBarV10{height:11px!important;background:#07101b!important;border-color:rgba(255,255,255,.10)!important}
 body.${ROOT_CLASS}.lq145Battle .battleLogV10{background:rgba(2,9,17,.76)!important;border-color:rgba(142,216,228,.14)!important;line-height:1.65!important}
-body.${ROOT_CLASS}.lq145Battle .lq145HitCue{position:absolute;z-index:12;left:50%;top:43%;min-width:118px;padding:5px 10px;transform:translate(-50%,-50%);border:1px solid rgba(255,226,145,.48);border-radius:9px;background:rgba(5,16,29,.88);color:#fff1ad;font-size:30px;font-weight:1000;line-height:1;text-align:center;letter-spacing:.03em;text-shadow:0 2px 0 #000,0 0 10px rgba(255,215,105,.36);box-shadow:0 8px 20px rgba(0,0,0,.32);pointer-events:none;animation:lq145HitCue .48s cubic-bezier(.16,.78,.28,1) both}
+body.${ROOT_CLASS}.lq145Battle .lq145HitCue{position:absolute;z-index:12;left:50%;top:43%;min-width:58px;padding:4px 9px;transform:translate(-50%,-50%);border:1px solid rgba(255,226,145,.58);border-radius:999px;background:rgba(5,16,29,.86);color:#fff1ad;font-size:32px;font-weight:1000;line-height:1;text-align:center;letter-spacing:.02em;text-shadow:0 2px 0 #000,0 0 12px rgba(255,215,105,.42);box-shadow:0 8px 20px rgba(0,0,0,.30);pointer-events:none;animation:lq145HitCue .68s cubic-bezier(.16,.78,.28,1) both}
 body.${ROOT_CLASS}.lq145Battle .enemySpriteStage.lq145ImpactNow{animation:lq145StageImpact .34s cubic-bezier(.2,.72,.3,1) both!important}
 body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg.lq145ImpactNow{animation:lq145EnemyImpact .30s cubic-bezier(.2,.72,.3,1) both!important}
-@keyframes lq145HitCue{0%{opacity:0;transform:translate(-50%,-26%) scale(.72)}26%{opacity:1;transform:translate(-50%,-56%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-82%) scale(.98)}}
+@keyframes lq145HitCue{0%{opacity:0;transform:translate(-50%,-18%) scale(.70)}18%{opacity:1;transform:translate(-50%,-52%) scale(1.10)}70%{opacity:1;transform:translate(-50%,-72%) scale(1)}100%{opacity:0;transform:translate(-50%,-92%) scale(.96)}}
 @keyframes lq145StageImpact{0%{box-shadow:0 0 0 0 rgba(255,225,145,0)}35%{box-shadow:0 0 0 5px rgba(255,225,145,.22)}100%{box-shadow:0 0 0 13px rgba(255,225,145,0)}}
 @keyframes lq145EnemyImpact{0%{transform:translateX(0) scale(1)}28%{transform:translateX(5px) scale(.97)}58%{transform:translateX(-3px) scale(1.015)}100%{transform:translateX(0) scale(1)}}
 body.${ROOT_CLASS}.lq145Battle .commandBtn{border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.24)!important}
@@ -118,11 +118,11 @@ function showBattleImpact(damage){
   stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');
   void stage?.offsetWidth;
   stage?.classList.add('lq145ImpactNow');art?.classList.add('lq145ImpactNow');
-  const cue=document.createElement('div');cue.className='lq145HitCue';cue.textContent=`${damage} DAMAGE`;
+  const cue=document.createElement('div');cue.className='lq145HitCue';cue.textContent=`${damage}`;
   cue.setAttribute('aria-hidden','true');scene.appendChild(cue);
   lq145ImpactPresentations++;
   clearTimeout(lq145ImpactCleanup);
-  lq145ImpactCleanup=setTimeout(()=>{cue.remove();stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');},560);
+  lq145ImpactCleanup=setTimeout(()=>{cue.remove();stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');},760);
 }
 
 function observeBattleImpact(){

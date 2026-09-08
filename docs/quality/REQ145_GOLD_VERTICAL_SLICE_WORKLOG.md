@@ -175,3 +175,29 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 7 — canonical battle-hit A/B evidence
+
+### Gap found
+- Static battle composition had improved, but the challenger did not yet prove a canonical attack path at the exact captured battle-hit state.
+- The capture/runtime gate was extended so `attack()` must actually lower enemy HP and the candidate must record exactly one presentation impact.
+
+### Evidence
+- Branch workflow verifies `data-req145-canonical-attack=true`, one impact presentation, and preserved P0 touch/fullscreen runtime behavior.
+- No reward, enemy-turn, battle-state, or input authority was replaced.
+
+## Iteration 8 — battle impact readability refinement
+
+### Critic finding
+- The first hit cue used a wide `${damage} DAMAGE` label. It read more like diagnostic chrome than JRPG combat feedback and disappeared too quickly for deterministic visual inspection.
+
+### Repair
+- Reduce the cue to the damage number only, tighten the pill around the number, and lengthen the visual hold while retaining deterministic cleanup.
+- Keep the cue pointer-transparent and presentation-only; canonical HP mutation remains the trigger source.
+
+### Local verification
+- JS syntax PASS; assembler/capture generation PASS; REQ-145 canonical Action smoke remains PASS across canonical-action/single-pulse/target/pointer/input/save/story gates.
+- Battle-hit runtime still reports exactly one impact presentation after canonical attack.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING
