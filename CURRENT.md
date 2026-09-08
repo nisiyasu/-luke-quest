@@ -8,8 +8,8 @@
 - LATEST_METADATA_COMMIT_SHA: `79db1541905d217489b4c439c7e2808926622fc2`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - CURRENT_BUILD_STATUS: `REQ-143 VERIFY candidate. Root red-gate cause was a CI contract contradiction: production-polish intentionally removes internal quality metadata while the old Gold Standard gate required it in DOM. Gate repaired to verify production DOM cleanup + canonical diagnostic API. Exact-head 6af1192: REQ-143 Quality 34257265355 SUCCESS; P0 Touch 34257265527 SUCCESS; Pages 34257265365 SUCCESS; Render Liveness 34257265711 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING; IOS_PHYSICAL_VERIFICATION=PENDING.`
-- ACTIVE_REQUIREMENT_ID: `NONE`
-- ACTIVE_REQUIREMENT_PATH: `NONE`
+- ACTIVE_REQUIREMENT_ID: `REQ-144`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-144_ORIGINAL_GENERIC_FIELD_NPC_ART.md`
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
 - MANDATORY_BOOT_FILES: `docs/quality/QUALITY_SYSTEM.md; docs/quality/QUALITY_RESEARCH_BASIS.md; docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`
 - RECENT_CHECKPOINTS: `79db1541 Leon Gold Standard status aligned to VERIFY candidate; 7048defa QUALITY_SYSTEM status aligned to VERIFY; 6af1192e REQ-143 runtime regression watch; ede53279 REQ-143 P0 watch expansion; 01ac0463 production cleanup; 473bd3df REQ-141 verified implementation; 8e7638be REQ-142 dedicated gate; 68ff67fc REQ-142 final VERIFY autosave; 3ecf3b70 REQ-143 requirement; a173c2d6 quality research basis; b19d449c canonical QUALITY_SYSTEM v1.0; d22a00a8 Leon Gold Standard scene design.`
@@ -25,7 +25,7 @@
 - SELF_AUDIT_GUARD: `LOADED / APPLIED`
 - BOOT_REALITY_AUDIT: `REPAIRED — fresh repository metadata, actual default branch main, fresh HEAD, directive, self-audit guard, manager, queue, CURRENT, mandatory quality files, recent commits and workflow state were loaded. Fresh HEAD 7048defa was ahead of CURRENT metadata and the mandatory Leon Gold Standard design still incorrectly said IMPLEMENTATION_PENDING despite REQ-143 VERIFY. The design status was repaired forward in 79db1541 and CURRENT was resynchronized without changing runtime implementation.`
 - OWNER_PRIORITY_AUDIT: `PASS — latest Owner authority requires continuous HEAD-first development with P0 input/fullscreen protections. No IN_PROGRESS or READY item currently outranks the verified REQ-143 state; next autonomous selection must be an evidenced safe player-visible gap rather than fabricated work.`
-- CONTINUE_GATE_LAST_RESULT: `CONTINUE — public Chapter 1 quality-gap audit remains safe and executable after metadata repair.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE — REQ-144 is an evidenced Q2 player-visible gap and is safe to implement under WIP=1.`
 - EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED — prior CURRENT/mandatory design metadata remained materially stale after REQ-143 VERIFY. Repaired before selecting new work.`
 - PREEMPTED_REQUIREMENT: `NONE`
 - SELF_REPAIR_ACTIONS: `Aligned docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md from DESIGN_READY / IMPLEMENTATION_PENDING to GOLD_STANDARD_CANDIDATE / IMPLEMENTATION_VERIFY / OWNER_EXPERIENCE_PASS=PENDING; synchronized CURRENT metadata to fresh HEAD lineage; preserved runtime implementation SHA and all physical/subjective verification as PENDING.`
@@ -42,6 +42,18 @@
 - CURRENT_GAP: `Machine/public gate contradiction repaired. Production DOM intentionally contains no developer quality metadata; internal beat contract remains testable through LQ_REQ143_TEST. Subjective Owner experience remains unverified.`
 - NEXT: `Owner experience / physical iPhone review remains PENDING. Autonomous loop continues independently on the next evidenced safe player-visible gap.`
 - OWNER_EXPERIENCE_PASS: `PENDING`
+
+## REQ-144 ORIGINAL GENERIC FIELD NPC ART
+
+- STATUS: `IN_PROGRESS`
+- QUALITY_LEVEL: `Q2`
+- EVIDENCE: `Canonical generic person emoji remain visible after world-character-grounding because that layer wraps existing glyph nodes rather than replacing them.`
+- SCOPE: `Generic elder / merchant / acolyte / farmer / observation watch only. Protected named-character identity excluded.`
+- ART_STATUS: `INTERIM_ORIGINAL_SVG / NOT_FORMAL_CHARACTER_CANON`
+- INPUT_AUTHORITY_CHANGE: `NONE`
+- SAVE_SCHEMA_CHANGE: `NONE`
+- STORY_CHANGE: `NONE`
+- IOS_PHYSICAL_VERIFICATION: `PENDING`
 
 ## P0 INPUT / FULLSCREEN PROTECTION
 
