@@ -21,6 +21,7 @@ on:
       - 'requirements/REQ-142_ADVENTURE_MEMO_MODERN_CONTROLS_HINT.md'
       - 'addons/zzzzzzzzzzzzzzzzzzzzzzzz-req143-leon-gold-standard.js'
       - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-cleanup.js'
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-polish.js'
       - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzz-req143-original-stage-art.js'
       - 'assets/req143/leon-stage.svg'
       - 'assets/req143/leon-sister-stage.svg'
