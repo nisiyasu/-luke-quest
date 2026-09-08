@@ -31,6 +31,7 @@ function assert(v,msg){if(!v)throw new Error(msg)}
     replace:v=>{replaced=String(v)}
   };
   const ctx={console,localStorage,sessionStorage,location,URL,URLSearchParams,Date};
+  ctx.window=ctx;
   vm.createContext(ctx);vm.runInContext(prelude,ctx);
   assert(localStorage.getItem('lukeQuestV2')===null,'stage1 canonical save must be removed');
   const backup=localStorage.keys().find(k=>k.startsWith('lukeQuestV2_req141_before_pre_leon_recovery_'));
@@ -61,6 +62,7 @@ function assert(v,msg){if(!v)throw new Error(msg)}
   const render=()=>{renderCount++};
   const stopMoving=()=>{stopCount++};
   const ctx={console,localStorage,sessionStorage,s,MAPS,location,history,save,render,stopMoving,URL,URLSearchParams,setTimeout:fn=>{fn();return 1}};
+  ctx.window=ctx;
   vm.createContext(ctx);vm.runInContext(late,ctx);
   assert(saveCount===1,'stage2 canonical save must run exactly once');
   assert(renderCount===1,'stage2 canonical render must run exactly once');
