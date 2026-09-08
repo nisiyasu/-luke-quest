@@ -1,0 +1,94 @@
+name: REQ-127 Visual Occluder Scan Repair
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/req127-visual-occluder-scan-repair.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: req127-visual-occluder-scan-repair
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Add pointer-transparent visual occluder scan and self-clean
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          diag=Path('addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req127-iphone-pwa-runtime-diagnostics.js')
+          s=diag.read_text()
+          if s.count("version:'1.1.0'")!=1: raise SystemExit('diagnostic version anchor missing')
+          s=s.replace("version:'1.1.0'","version:'1.2.0'",1)
+          anchor="""    for(const point of points){
+      for(const candidate of point.occluders){
+        const key=`${candidate.tag}|${candidate.id}|${candidate.className}`;
+        const entry=byKey.get(key)||{...candidate,probeHits:0,points:[]};
+        entry.probeHits++;
+        entry.points.push(point.name);
+        byKey.set(key,entry);
+      }
+    }
+    return {points,occluderCandidates:[...byKey.values()].sort((a,b)=>b.probeHits-a.probeHits)};
+"""
+          replacement="""    for(const point of points){
+      for(const candidate of point.occluders){
+        const key=`${candidate.tag}|${candidate.id}|${candidate.className}`;
+        const entry=byKey.get(key)||{...candidate,probeHits:0,points:[],hitTest:true,domScan:false};
+        entry.probeHits++;
+        if(!entry.points.includes(point.name))entry.points.push(point.name);
+        entry.hitTest=true;
+        byKey.set(key,entry);
+      }
+    }
+
+    // elementsFromPoint intentionally omits pointer-transparent paint in some engines.
+    // A visual black occluder can therefore cover the entire PWA while remaining absent
+    // from hit-testing. Add a bounded geometry/style scan so diagnostics observe paint,
+    // not only pointer ownership. Unknown candidates remain observation-only.
+    const nodes=[...document.body.querySelectorAll('*')].slice(0,3000);
+    for(const el of nodes){
+      const candidate=suspiciousOccluder(el);
+      if(!candidate)continue;
+      const key=`${candidate.tag}|${candidate.id}|${candidate.className}`;
+      const entry=byKey.get(key)||{...candidate,probeHits:0,points:[],hitTest:false,domScan:true};
+      entry.domScan=true;
+      const r=candidate.rect;
+      for(const point of points){
+        const covered=point.x>=r.left&&point.x<=r.right&&point.y>=r.top&&point.y<=r.bottom;
+        if(covered&&!entry.points.includes(point.name))entry.points.push(point.name);
+      }
+      entry.probeHits=Math.max(entry.probeHits,entry.points.length);
+      byKey.set(key,entry);
+    }
+    return {points,occluderCandidates:[...byKey.values()].sort((a,b)=>b.probeHits-a.probeHits||b.coverage-a.coverage)};
+"""
+          if s.count(anchor)!=1: raise SystemExit(f'viewportProbe anchor count={s.count(anchor)}')
+          diag.write_text(s.replace(anchor,replacement,1))
+
+          smoke=Path('addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req127-render-smoke.js')
+          r=smoke.read_text()
+          old="String(diagnostics.version)!=='1.1.0'"
+          new="String(diagnostics.version)!=='1.2.0'"
+          if r.count(old)!=1: raise SystemExit(f'smoke diagnostics version anchor count={r.count(old)}')
+          r=r.replace(old,new,1)
+          old_err="throw new Error('REQ-127 runtime diagnostics v1.1 unavailable');"
+          new_err="throw new Error('REQ-127 runtime diagnostics v1.2 unavailable');"
+          if r.count(old_err)!=1: raise SystemExit(f'smoke error anchor count={r.count(old_err)}')
+          smoke.write_text(r.replace(old_err,new_err,1))
+          PY
+          rm -f .github/workflows/req127-visual-occluder-scan-repair.yml
+          git config user.name "LUKE QUEST autonomous repair"
+          git config user.email "actions@users.noreply.github.com"
+          git add addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req127-iphone-pwa-runtime-diagnostics.js addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req127-render-smoke.js .github/workflows/req127-visual-occluder-scan-repair.yml
+          git commit -m "test: detect pointer-transparent REQ-127 visual occluders"
+          git push origin HEAD:main
