@@ -136,6 +136,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 116 | REQ-134 | P1 | VERIFY | iPhone Battle Touch UI Hardening | `requirements/REQ-134_IPHONE_BATTLE_TOUCH_UI.md` | Assembled battle log authority repaired for legacy `.log` / later `.battleLogV10`; dedicated run 34194753965 SUCCESS and exact-HEAD Pages run 34194753926 SUCCESS on `3e412caf...`. 390x844 min command height 50px, no horizontal overflow, canonical button ownership, bounded log, rerender protection all PASS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
 | 117 | REQ-135 | P1 | VERIFY | iPhone Battle Command Touch Feedback | `requirements/REQ-135_IPHONE_BATTLE_COMMAND_FEEDBACK.md` | Presentation-only active/focus/disabled feedback on existing REQ-134 battle command targets. Dedicated run 34195389737 SUCCESS and exact-HEAD Pages run 34195389767 SUCCESS on `dcaee504...`; embedded REQ-134 regression PASS; no duplicate battle handlers. IOS_PHYSICAL_VERIFICATION=PENDING. |
+| 118 | REQ-136 | P1 | VERIFY | Battle Log Latest Message Follow | `requirements/REQ-136_BATTLE_LOG_LATEST_MESSAGE_FOLLOW.md` | Final assembled battle log now follows the latest combat result after base render and late presentation replacement. Dedicated 390x844 run 34199130632 SUCCESS; REQ-134/135 regressions PASS; exact-head Pages 34199130663 SUCCESS on `e29b136f...`; IOS_PHYSICAL_VERIFICATION=PENDING. |
 
 ## STATUS DEFINITIONS
 
