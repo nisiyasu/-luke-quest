@@ -1,0 +1,114 @@
+name: REQ-143 Quality Gold Standard Gate
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req143-quality-gold-standard"
+  cancel-in-progress: true
+
+jobs:
+  leon-gold-standard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Quality SSOT and syntax
+        run: |
+          test -s docs/quality/QUALITY_SYSTEM.md
+          test -s docs/quality/QUALITY_RESEARCH_BASIS.md
+          test -s docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md
+          test -s requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzz-req143-leon-gold-standard.js
+          node tools/lq-addon-contract.mjs
+
+      - name: Fail closed on compositor-heavy fake quality
+        shell: bash
+        run: |
+          f=addons/zzzzzzzzzzzzzzzzzzzzzzzz-req143-leon-gold-standard.js
+          if grep -Eq 'backdrop-filter[[:space:]]*:' "$f"; then echo 'backdrop-filter forbidden in REQ-143 candidate'; exit 1; fi
+          if grep -Eq '(^|[;{])[[:space:]]*filter[[:space:]]*:' "$f"; then echo 'CSS filter forbidden in REQ-143 candidate'; exit 1; fi
+          if grep -Eq 'will-change[[:space:]]*:' "$f"; then echo 'permanent will-change forbidden in REQ-143 candidate'; exit 1; fi
+          grep -q "QUALITY_SYSTEM.md" requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md
+          grep -q "Q5" docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md
+
+      - name: Assemble public script order
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html');html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          cp index.html req143.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('req143.html');h=p.read_text()
+          probe=r'''<script>
+          setTimeout(()=>{
+            const marker=document.createElement('i');marker.id='lqReq143Marker';marker.hidden=true;
+            const snap=structuredClone(s);const raw=localStorage.getItem('lukeQuestV2');
+            try{
+              Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,structuredClone(DEFAULT));
+              s.flags={...(s.flags||{}),chapter1Complete:false,chapter1ClimaxStarted:true};
+              s.screen='req128Chapter1Climax';
+              s.lqReq128Climax={phase:'reunion',step:4,turn:0};
+              render();
+              let scene=document.querySelector('.lq128Scene[data-lq143-gold-standard="candidate"]');
+              if(!scene)throw new Error('Gold Standard decoration missing');
+              if(scene.textContent.includes('🧑')||scene.textContent.includes('👧')||scene.textContent.includes('👩'))throw new Error('emoji actor stand-ins remain');
+              if(!scene.querySelector('.lq143Actor[data-role="luke"] .lq143Figure'))throw new Error('Luke staged actor missing');
+              if(!scene.querySelector('.lq143Actor[data-role="leon"]'))throw new Error('Leon staged actor missing');
+              if(!scene.querySelector('.lq143Beat'))throw new Error('beat direction marker missing');
+              s.lqReq128Climax={phase:'confront',step:0,turn:2};render();
+              scene=document.querySelector('.lq128Scene');
+              if(!scene?.classList.contains('lq143Phase-confront')||!scene.classList.contains('lq143Turn-2'))throw new Error('confront staging missing');
+              if(!document.getElementById('lq128Guard')||!document.getElementById('lq128Call'))throw new Error('canonical nonlethal choices missing');
+              s.lqReq128Climax={phase:'aftermath',step:1,turn:3};render();
+              scene=document.querySelector('.lq128Scene');
+              if(!scene?.querySelector('.lq143Actor[data-role="sister"]'))throw new Error('sister physical staging missing');
+              if(!scene.querySelector('.lq143Impact')||!scene.querySelector('.lq143Silence'))throw new Error('impact/silence beat staging missing');
+              if(window.LQ_REQ143_QUALITY_STATUS?.canonicalReq128LogicPreserved!==true)throw new Error('REQ-128 canonical preservation status missing');
+              if(window.LQ_REQ143_QUALITY_STATUS?.heavyFilterUsed!==false)throw new Error('heavy filter safety status failed');
+              marker.dataset.status='PASS';marker.dataset.reunion='true';marker.dataset.confront='true';marker.dataset.sister='true';marker.dataset.noEmoji='true';marker.dataset.presentationOnly='true';marker.dataset.ownerExperience='PENDING';
+            }catch(e){marker.dataset.status='FAIL';marker.dataset.error=e?.message||String(e);console.error(e)}
+            finally{Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snap);if(raw===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',raw);render();document.body.appendChild(marker)}
+          },6500);
+          </script>'''
+          p.write_text(h.replace('</body>',probe+'</body>',1))
+          PY
+
+      - name: 390x844 assembled browser quality smoke
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
+          python3 -m http.server 8163 >/tmp/req143-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
+          set +e
+          timeout 45 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=12000 --dump-dom 'http://127.0.0.1:8163/req143.html' >/tmp/req143-dom.html 2>/tmp/req143-browser.log
+          code=$?; set -e
+          test -s /tmp/req143-dom.html
+          for needle in 'id="lqReq143Marker"' 'data-status="PASS"' 'data-reunion="true"' 'data-confront="true"' 'data-sister="true"' 'data-no-emoji="true"' 'data-presentation-only="true"' 'data-owner-experience="PENDING"'; do grep -q "$needle" /tmp/req143-dom.html || { cat /tmp/req143-browser.log; exit 1; }; done
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req143-browser.log; then cat /tmp/req143-browser.log; exit 1; fi
+          echo "REQ-143 quality smoke PASS (browser status $code)"
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req143-quality-${{ github.sha }}
+          path: |
+            /tmp/req143-*.html
+            /tmp/req143-*.log
+          retention-days: 7
+          if-no-files-found: warn
