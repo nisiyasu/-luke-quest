@@ -68,16 +68,17 @@ window.addEventListener('pagehide',lifecycleCleanup,{passive:true});
 window.addEventListener('pageshow',lifecycleCleanup,{passive:true});
 document.addEventListener('visibilitychange',lifecycleCleanup,{passive:true});
 document.addEventListener('freeze',lifecycleCleanup,{passive:true});
+window.addEventListener('resume',lifecycleCleanup,{passive:true});
 
 const smokeMode=typeof location!=='undefined'&&new URLSearchParams(location.search).has('lqTouchSmoke');
 window.LQ_MAP_TRANSITION_FADE_STATUS={
-  version:'1.1.0',
+  version:'1.2.0',
   presentationOnly:true,
   pointerEvents:'none',
   reducedMotion:true,
   cleanupFallbackMs:700,
   lifecycleCleanup:true,
-  lifecycleEvents:['pagehide','pageshow','visibilitychange','freeze'],
+  lifecycleEvents:['pagehide','pageshow','visibilitychange','freeze','resume'],
   existingTransitionSfxOwnership:'ux-v139.js',
   smokePreview:smokeMode?flash:undefined,
   smokeCleanup:smokeMode?removeLayer:undefined,
