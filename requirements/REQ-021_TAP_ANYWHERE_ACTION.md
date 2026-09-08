@@ -1,6 +1,6 @@
 # REQ-021 — Tap Anywhere Action
 
-STATUS: VERIFY
+STATUS: IN_PROGRESS
 PRIORITY: P0
 TYPE: UX / INPUT / IPHONE
 OWNER_REQUEST: CONFIRMED
@@ -135,3 +135,10 @@ Action tapが成立した時、必要なら軽いtap ripple / pulseを短時間�
 - drag releaseでAを誤発火しない
 - dedicated A buttonだけを残して「どこでもtap完了」としない
 - test codeだけ存在してpublic build未読込の状態を完了扱いしない
+
+## FRESH RE-AUDIT 2026-09-09
+
+Owner BOOT v3 absolute P0-1によりpublic behaviorを再監査中。
+Fresh main HEAD `7ee5b18eddd5111265b25b106adee2fd3e64175d` ではP0 authority本体は6af1192以降変更なしだが、generic NPC DOM layer追加後のexact-head regressionを要求する。
+Public Pages上の `floating-touch-controller.js` / fullscreen / P0 smoke assets はfresh repository内容と改行正規化後SHA-256一致を確認。
+`IOS_PHYSICAL_VERIFICATION = PENDING` を維持する。

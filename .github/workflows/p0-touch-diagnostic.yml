@@ -12,6 +12,7 @@ on:
       - 'addons/zzzzzzzz-p0-touch-sequence-guard.js'
       - 'addons/zzzzzzzzzz-req001-visual-viewport-offset-smoke.js'
       - 'addons/zzzz-iphone-fullscreen-world-ui.js'
+      - 'addons/world-generic-npc-art.js'
       - 'addons/zzzzzzzzzzzzzz-req139-world-dialogue-tap-hint.js'
       - 'addons/zzzzzzzzzzzzzzz-req139-world-dialogue-tap-hint-smoke.js'
       - 'addons/zzzzzzzzzzzzzzzzzzzz-req140-iphone-compositor-budget.js'

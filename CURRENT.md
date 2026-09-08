@@ -1,34 +1,34 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: `2026-09-09 03:18 JST`
+- UPDATED_AT: `2026-09-09 04:56 JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `6af1192ef4531e6bf903761b22fba1067eac2b16`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `eefa011d19e5bfb155f8d8b49cef460c66b71eaa`
 - LATEST_VERIFIED_RUNTIME_HEAD_SHA: `6af1192ef4531e6bf903761b22fba1067eac2b16`
 - LATEST_METADATA_COMMIT_SHA: `79db1541905d217489b4c439c7e2808926622fc2`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
-- CURRENT_BUILD_STATUS: `REQ-143 VERIFY candidate. Root red-gate cause was a CI contract contradiction: production-polish intentionally removes internal quality metadata while the old Gold Standard gate required it in DOM. Gate repaired to verify production DOM cleanup + canonical diagnostic API. Exact-head 6af1192: REQ-143 Quality 34257265355 SUCCESS; P0 Touch 34257265527 SUCCESS; Pages 34257265365 SUCCESS; Render Liveness 34257265711 SUCCESS. OWNER_EXPERIENCE_PASS=PENDING; IOS_PHYSICAL_VERIFICATION=PENDING.`
-- ACTIVE_REQUIREMENT_ID: `REQ-145`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-145_GOLD_VERTICAL_SLICE_CONTINUOUS_QUALITY_LANE.md`
+- CURRENT_BUILD_STATUS: `Owner BOOT v3 absolute P0 input re-audit active. Fresh main HEAD 7ee5b18; Pages 34267455389 SUCCESS and Render Liveness 34267455573 SUCCESS. Public P0 runtime files match fresh repository bytes after newline normalization. REQ-144 generic NPC DOM layer landed after the last P0 Touch run, so exact-head P0 Touch coverage is being re-triggered before REQ-021/022/001 are trusted again. IOS_PHYSICAL_VERIFICATION=PENDING.`
+- ACTIVE_REQUIREMENT_ID: `REQ-021`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-021_TAP_ANYWHERE_ACTION.md`
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
 - MANDATORY_BOOT_FILES: `docs/quality/QUALITY_SYSTEM.md; docs/quality/QUALITY_RESEARCH_BASIS.md; docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`
 - RECENT_CHECKPOINTS: `79db1541 Leon Gold Standard status aligned to VERIFY candidate; 7048defa QUALITY_SYSTEM status aligned to VERIFY; 6af1192e REQ-143 runtime regression watch; ede53279 REQ-143 P0 watch expansion; 01ac0463 production cleanup; 473bd3df REQ-141 verified implementation; 8e7638be REQ-142 dedicated gate; 68ff67fc REQ-142 final VERIFY autosave; 3ecf3b70 REQ-143 requirement; a173c2d6 quality research basis; b19d449c canonical QUALITY_SYSTEM v1.0; d22a00a8 Leon Gold Standard scene design.`
 - TESTS_AND_VERIFICATION: `REQ-143 exact-head 6af1192 P0 Touch 34257265527 SUCCESS; Quality 34257265355 SUCCESS; Pages 34257265365 SUCCESS; Render Liveness 34257265711 SUCCESS. Subsequent commits 7048defa and 79db1541 are metadata/design-status synchronization only; they do not change runtime implementation. Existing REQ-142 dedicated 34226908113 SUCCESS, Pages 34226908028 SUCCESS, P0 Touch 34227266577 SUCCESS remain historical evidence for previous product head.`
 - KNOWN_ISSUES: `Owner physical iPhone must retry schema-safe recovery. REQ-021/022/001, REQ-023, REQ-140/141/142 retain IOS_PHYSICAL_VERIFICATION=PENDING. REQ-143 is VERIFY but OWNER_EXPERIENCE_PASS remains PENDING. Chapter 2 remains intentionally undesigned.`
-- BLOCKERS: `No hard blocker for REQ-145. REQ-143 subjective Owner experience and physical iPhone confirmation remain PENDING. REQ-144 is safely suspended READY under newer Owner priority.`
-- NEXT_ACTION: `Run REQ-145 on experiment/gold-vertical-slice: freeze an exact 5-10 minute Chapter 1 Gold Slice, establish current-main baseline, implement the first coherent presentation foundation, then play/critic/repair in repeated checkpoints.`
-- NEXT_ACTION_COMPLETION_CONDITION: `A playable separate-branch candidate exists with an explicit experience contract, current-vs-candidate quality rubric, preserved P0 input/save/story authorities, and at least one material player-visible improvement validated without relying on paperwork alone.`
+- BLOCKERS: `No hard blocker. REQ-021 machine/public exact-head re-audit is executable; iPhone physical verification remains PENDING. REQ-145 is safely suspended READY until Owner-ordered REQ-021 -> REQ-022 -> REQ-001 re-audit completes.`
+- NEXT_ACTION: `Trigger and verify exact-head P0 Touch on fresh main including the REQ-144 generic NPC DOM layer. If green, return REQ-021 to VERIFY with IOS_PHYSICAL_VERIFICATION=PENDING and immediately reopen/re-audit REQ-022, then REQ-001.`
+- NEXT_ACTION_COMPLETION_CONDITION: `REQ-021 exact-head P0 browser sequence passes tap/dialogue/single-fire/UI-exclusion/drag/cancel/transition/multitouch gates, public Pages includes the same runtime authority, and no physical iPhone PASS is inferred.`
 - DO_NOT_REPEAT: `Do not claim physical iPhone PASS from CI. Do not add duplicate input/save/battle authority. Do not hand-build partial canonical saves in prelude. Do not use expensive filters as fake quality. Do not mark current REQ-128/REQ-143 as Gold Standard PASS before Owner experience approval.`
 
 ## SELF-AUDIT GUARD
 
 - SELF_AUDIT_GUARD: `LOADED / APPLIED`
-- BOOT_REALITY_AUDIT: `REPAIRED — fresh repository metadata, actual default branch main, fresh HEAD, directive, self-audit guard, manager, queue, CURRENT, mandatory quality files, recent commits and workflow state were loaded. Fresh HEAD 7048defa was ahead of CURRENT metadata and the mandatory Leon Gold Standard design still incorrectly said IMPLEMENTATION_PENDING despite REQ-143 VERIFY. The design status was repaired forward in 79db1541 and CURRENT was resynchronized without changing runtime implementation.`
-- OWNER_PRIORITY_AUDIT: `PASS — latest Owner direct authority explicitly orders a separate-branch Gold Vertical Slice challenger and queue registration. This preempts lower-priority REQ-144 while preserving it READY.`
-- CONTINUE_GATE_LAST_RESULT: `CONTINUE — REQ-145 is explicit Owner P0 work and is safe to execute on an isolated challenger branch under WIP=1.`
-- EXECUTION_DEGRADATION_STATUS: `NONE KNOWN for REQ-145 startup; main remains production baseline.`
-- PREEMPTED_REQUIREMENT: `REQ-144 -> READY / OWNER_PREEMPTED`
-- SELF_REPAIR_ACTIONS: `Aligned docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md from DESIGN_READY / IMPLEMENTATION_PENDING to GOLD_STANDARD_CANDIDATE / IMPLEMENTATION_VERIFY / OWNER_EXPERIENCE_PASS=PENDING; synchronized CURRENT metadata to fresh HEAD lineage; preserved runtime implementation SHA and all physical/subjective verification as PENDING.`
+- BOOT_REALITY_AUDIT: `REPAIRED — fresh repository metadata/default branch/main HEAD 7ee5b18, full directive/guard/manager/queue/CURRENT/active requirements/quality files and recent workflows were loaded. CURRENT latest implementation SHA was stale at 6af1192 while REQ-144 runtime changes reached eefa011; Owner BOOT v3 also superseded stored REQ-145 active priority.`
+- OWNER_PRIORITY_AUDIT: `REPAIRED — latest Owner BOOT v3 explicitly orders REQ-021 -> REQ-022 -> REQ-001 before other development. Stored REQ-145 IN_PROGRESS was safely preempted to READY and REQ-021 reopened.`
+- CONTINUE_GATE_LAST_RESULT: `CONTINUE — REQ-021 exact-head machine/public re-audit is safe and executable; then continue immediately to REQ-022 and REQ-001.`
+- EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED — queue priority and CURRENT implementation checkpoint lagged fresh Owner authority/repository runtime. Repaired forward before normal development.`
+- PREEMPTED_REQUIREMENT: `REQ-145 -> READY / OWNER BOOT V3 P0 INPUT RE-AUDIT`
+- SELF_REPAIR_ACTIONS: `Reopened REQ-021; suspended REQ-145 to READY without losing its branch/history; corrected latest implementation checkpoint to eefa011; added REQ-144 runtime DOM layer to P0 Touch workflow trigger coverage; preserved all physical/subjective verification as PENDING.`
 
 ## REQ-143 GAME QUALITY SYSTEM / LEON GOLD STANDARD
 
@@ -45,7 +45,7 @@
 
 ## REQ-145 GOLD VERTICAL SLICE CONTINUOUS QUALITY LANE
 
-- STATUS: `IN_PROGRESS`
+- STATUS: `READY / OWNER BOOT V3 PREEMPTED`
 - PRIORITY: `P0 / OWNER_DIRECT`
 - DEVELOPMENT_BRANCH: `experiment/gold-vertical-slice`
 - QUALITY_LEVEL: `Q5`
