@@ -4,9 +4,11 @@
 
   const WORLD_CLASS='lqWorldFullscreen';
   const ARRIVAL_CLASS='lqMapArrive';
+  const RETRY_DELAYS=[120,320,700];
   let healCount=0;
   let lastReason='startup';
   let raf1=0,raf2=0;
+  let retryTimers=[];
 
   function worldStateActive(){
     return typeof s!=='undefined'&&s&&s.screen==='world';
@@ -93,20 +95,60 @@
     return el;
   }
 
+  function clearRetries(){
+    retryTimers.forEach(clearTimeout);
+    retryTimers=[];
+  }
+
+  function scheduleLateDomRetries(reason){
+    clearRetries();
+    RETRY_DELAYS.forEach((delay,index)=>{
+      const timer=setTimeout(()=>{
+        if(!worldStateActive())return;
+        const ok=reassertWorldPresentation();
+        if(ok){
+          healCount++;
+          marker(true,`${reason}-retry-${index+1}`);
+          clearRetries();
+          window.LQ_REQ127_RUNTIME_DIAGNOSTICS?.snapshot?.(`req127-resume-heal-${reason}-retry-${index+1}`);
+        }
+      },delay);
+      retryTimers.push(timer);
+    });
+  }
+
   function heal(reason='manual'){
     lastReason=reason;
     cancelAnimationFrame(raf1);cancelAnimationFrame(raf2);
+    clearRetries();
     removeKnownTransientOccluders();
     const first=reassertWorldPresentation();
     if(first)healCount++;
     marker(first,reason);
 
+    // iOS standalone foreground can deliver pageshow/visibility/focus while the game's
+    // render wrapper is still rebuilding .gameShell/.world. Two RAFs cover ordinary paint
+    // settling; bounded delayed retries cover the distinct late-DOM race without polling
+    // forever or touching canonical gameplay/save state.
+    if(!first)scheduleLateDomRetries(reason);
+
     raf1=requestAnimationFrame(()=>{
       if(!worldStateActive())return marker(false,`${reason}-raf1-nonworld`);
-      reassertWorldPresentation();
+      const rafOk=reassertWorldPresentation();
+      if(rafOk&&!first){
+        healCount++;
+        marker(true,`${reason}-raf1-recovered`);
+        clearRetries();
+      }
       raf2=requestAnimationFrame(()=>{
         const ok=reassertWorldPresentation();
-        marker(ok,`${reason}-double-raf`);
+        if(ok&&!first&&!rafOk){
+          healCount++;
+          marker(true,`${reason}-raf2-recovered`);
+          clearRetries();
+        }else{
+          marker(ok,`${reason}-double-raf`);
+        }
         window.LQ_REQ127_RUNTIME_DIAGNOSTICS?.snapshot?.(`req127-resume-heal-${reason}`);
       });
     });
@@ -130,7 +172,7 @@
   },{passive:true});
 
   window.LQ_REQ127_RESUME_WORLD_HEAL={
-    version:'1.2.0',
+    version:'1.3.0',
     requirement:'REQ-127',
     presentationOnly:true,
     gameplayStateMutation:false,
@@ -138,6 +180,8 @@
     knownTransientOccluderCleanup:true,
     frozenArrivalCleanup:true,
     focusRecovery:true,
+    lateDomRetryRecovery:true,
+    retryDelaysMs:[...RETRY_DELAYS],
     lifecycleReflow:true,
     doubleRafRepaint:true,
     iosPhysicalVerification:'PENDING',
