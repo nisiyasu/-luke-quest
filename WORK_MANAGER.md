@@ -114,6 +114,33 @@ After a safe completed unit:
 
 A checkpoint, CURRENT update, Pages success, requirement completion, or convenient reporting point is not an execution-stop condition.
 
+## 6.1 Mandatory player-experience quality system
+
+For every materially player-visible requirement, the execution manager must apply `docs/quality/QUALITY_SYSTEM.md` before implementation and before completion classification.
+
+For Q3-Q5 work, also load the relevant Gold Standard/scene design when one exists. The current first reference is `docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`.
+
+Required execution sequence for materially player-visible work:
+
+1. classify the work Q1-Q5 using `docs/quality/QUALITY_SYSTEM.md`
+2. identify intended player experience, not only functional output
+3. load applicable concrete repository examples/Gold Standards
+4. for Q3-Q5, define the compact pre-implementation scene/experience contract required by the Quality System
+5. implement using existing canonical input/save/render/battle/story authorities
+6. run functional verification
+7. run visual/dialogue/cinematic/audio/game-feel/performance quality gates as applicable
+8. run the Quality System adversarial review
+9. refine material weaknesses before calling the work Quality Complete
+10. preserve `OWNER_EXPERIENCE_PASS=PENDING` whenever physical/subjective approval has not actually occurred
+
+`FUNCTIONAL_COMPLETE` is never sufficient proof of `QUALITY_COMPLETE` for material player-visible work.
+
+Do not satisfy this rule by generating paperwork, adding words, particles, filters, sound count or generic animation. The purpose is better player experience with the smallest coherent implementation.
+
+When the active work is iPhone-facing, performance stability is part of the quality gate. Desktop/browser automation does not prove physical iPhone quality.
+
+The quality system is a permanent development authority, not REQ-143-only temporary context. Future autonomous sessions must continue to load and apply it even after REQ-143 leaves IN_PROGRESS.
+
 ## 7. Requirement states
 
 - `BACKLOG`: recorded Owner request, not yet ready/ordered for implementation.
