@@ -33,10 +33,25 @@
     return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&r.height>0;
   };
 
-  const waitFrames=(count=1)=>new Promise(resolve=>{
-    const step=()=>count--<=0?resolve():requestAnimationFrame(step);
-    requestAnimationFrame(step);
+  // Headless Chrome's --dump-dom can snapshot while requestAnimationFrame callbacks are
+  // still queued even though the recovered world has already painted. That made the
+  // exact same artifact alternate GREEN/RED. Keep frame settling semantics, but give each
+  // frame a bounded timer fallback so the diagnostic marker itself cannot starve behind
+  // virtual-time scheduling. Recovery assertions below remain fail-closed.
+  const waitFrame=()=>new Promise(resolve=>{
+    let done=false;
+    const finish=()=>{
+      if(done)return;
+      done=true;
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer=setTimeout(finish,80);
+    requestAnimationFrame(finish);
   });
+  const waitFrames=async(count=1)=>{
+    for(let i=0;i<count;i++)await waitFrame();
+  };
 
   const run=async()=>{
     try{
