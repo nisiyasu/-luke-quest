@@ -1,0 +1,26 @@
+name: REQ-142 Adventure Memo Controls Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req142-adventure-memo-controls.js'
+      - 'tools/lq-req142-adventure-memo-controls-smoke.mjs'
+      - 'requirements/REQ-142_ADVENTURE_MEMO_MODERN_CONTROLS_HINT.md'
+      - '.github/workflows/req142-adventure-memo-controls.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  req142:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: |
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req142-adventure-memo-controls.js
+          node --check tools/lq-req142-adventure-memo-controls-smoke.mjs
+      - name: Adventure memo control guidance smoke
+        run: node tools/lq-req142-adventure-memo-controls-smoke.mjs
