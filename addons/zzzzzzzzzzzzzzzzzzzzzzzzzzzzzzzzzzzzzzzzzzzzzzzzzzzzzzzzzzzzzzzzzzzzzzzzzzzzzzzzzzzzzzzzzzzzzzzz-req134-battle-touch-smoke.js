@@ -12,6 +12,7 @@ function fail(reason,extra={}){
  console.error('REQ-134 smoke FAIL',reason,extra);
  marker({pass:false,reason,...extra});
 }
+function canonicalHandler(button){return (button?.getAttribute('onclick')||'').replace(/\s+/g,'');}
 function run(){
  const snapshot=structuredClone(s);
  const originalAttack=attack;
@@ -31,13 +32,13 @@ function run(){
   const log=card?.querySelector('.log');
   const buttons=[...(card?.querySelectorAll('button')||[])];
   const enabled=buttons.filter(b=>!b.disabled&&b.getAttribute('aria-disabled')!=='true');
-  const texts=buttons.map(b=>b.textContent.trim());
   const vvWidth=window.visualViewport?.width||window.innerWidth;
   const cardRect=card?.getBoundingClientRect();
   const minHeight=enabled.length?Math.min(...enabled.map(b=>b.getBoundingClientRect().height)):0;
   const noHorizontalOverflow=document.documentElement.scrollWidth<=Math.ceil(vvWidth)+1;
   const cardFits=!!cardRect&&cardRect.left>=-1&&cardRect.right<=vvWidth+1;
-  const hasBase=['こうげき','ぼうぎょ','やくそう','にげる'].every(label=>texts.some(t=>t.includes(label)));
+  const handlers=buttons.map(canonicalHandler);
+  const hasBase=['attack()','guard()','potion()','runAway()'].every(handler=>handlers.includes(handler));
   const hasSkill=buttons.some(b=>b.classList.contains('lqSkillBtn')||b.textContent.includes('蒼閃'));
   const styled=enabled.length>=4&&enabled.every(b=>b.classList.contains('lqBattleCommandButton'));
   const logBounded=!!log&&['auto','scroll'].includes(getComputedStyle(log).overflowY)&&log.clientHeight<=Math.ceil(window.innerHeight*.23)+2;
@@ -45,8 +46,8 @@ function run(){
   attack=function(){attackCalls++;};
   action=function(){worldActionCalls++;};
   move=function(){worldMoveCalls++;};
-  const attackButton=buttons.find(b=>b.textContent.includes('こうげき'));
-  if(!attackButton)throw new Error('attack button missing');
+  const attackButton=buttons.find(b=>canonicalHandler(b)==='attack()');
+  if(!attackButton)throw new Error('canonical attack button missing');
   attackButton.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerId:9134,pointerType:'touch',isPrimary:true,clientX:20,clientY:20,buttons:1}));
   attackButton.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,pointerId:9134,pointerType:'touch',isPrimary:true,clientX:20,clientY:20,buttons:0}));
   attackButton.click();
@@ -61,7 +62,7 @@ function run(){
   const pass=!!window.LQ_REQ134_BATTLE_TOUCH_UI&&
    window.LQ_REQ134_BATTLE_TOUCH_UI.presentationOnly===true&&
    minHeight>=48&&noHorizontalOverflow&&cardFits&&hasBase&&hasSkill&&styled&&logBounded&&singleDispatch&&worldExcluded&&rerenderProtected;
-  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length});
+  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length,handlers:handlers.join('|')});
   if(!pass)console.error('REQ-134 acceptance details',document.getElementById('lqReq134BattleTouchSmokeMarker')?.dataset);
  }catch(error){
   fail(error?.message||String(error));
