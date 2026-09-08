@@ -19,6 +19,9 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 - 2026-09-08 fresh audit found `addons/map-transition-fade.js` creates a fixed full-viewport dark layer at z-index 105. Its cleanup depended on `animationend` / a 700 ms timer plus `pagehide`; iOS PWA suspension can freeze timers/animations, while the Owner specifically reports a foreground-resume HUD flash followed by darkness. This is a credible lifecycle-specific failure class, not yet a proven physical root cause.
 - REQ-034 was a distinct earlier black-world defect and was physically confirmed fixed by Owner on 2026-09-06; it must not be confused with this persistent REQ-127 incident.
 - 2026-09-08 v1.3 audit identified another lifecycle-specific race: foreground `pageshow` / `visibilitychange` / `focus` can arrive while the render wrapper is still rebuilding `.gameShell/.world`. v1.2 had only immediate + two-RAF recovery attempts, so a world DOM that returned later could miss the recovery boundary entirely. v1.3 adds bounded 120/320/700 ms presentation-only retries only when the world is temporarily unavailable.
+- 2026-09-08 diagnostics v1.1 expands black-screen evidence from a center-only hit test to five viewport probes (center/top/bottom/left/right), records compositor-relevant computed styles, and names full-screen near-black DOM occluder candidates without deleting unknown UI. A synthetic full-screen black occluder must be detected at all five points before the diagnostic contract passes.
+- The first diagnostics-v1.1 Render Liveness run failed even though its retained screenshot showed a normally painted world and the delayed-DOM heal had actually succeeded. The failure was traced to an over-specific regression assertion that required the recovery reason to be `window-focus-retry-*`; under CI timing the same valid late-DOM recovery completed at `window-focus-raf1-recovered`. The assertion was repaired to accept any proven post-focus delayed recovery while preserving all visibility/state invariants.
+- 2026-09-08 v1.4 audit identified a further lifecycle edge: an installed PWA can emit Page Lifecycle `freeze` / `resume` without a useful `pageshow`, `visibilitychange`, or `focus` edge. The canonical presentation-only resume heal now listens to `resume`, and the map-transition fade synchronously clears itself on the same boundary.
 
 ## Requirements
 1. Preserve current known-good gameplay logic while diagnosing.
@@ -35,10 +38,12 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 12. Black-screen startup diagnostics must use a dedicated REQ-127 world mode rather than global `lqSmoke=1`, because the latter intentionally executes many historical subsystem smoke tests and is not a clean production-like error baseline.
 13. A Safari-family WebKit engine must execute the same deterministic 390x844 world proof and rendered-pixel liveness gate before REQ-127 may leave IN_PROGRESS.
 14. Emergency Service Worker recovery must purge CacheStorage, perform a one-shot versioned client navigation to bypass a stale Home Screen document, avoid navigation loops, and unregister itself without a persistent fetch handler.
-15. Any full-viewport transient presentation layer capable of covering the world must fail-safe across iOS lifecycle boundaries: `pagehide`, `pageshow`, `visibilitychange`, and `freeze` must synchronously remove it without depending on timers or animation events.
-16. A regression smoke must prove the map-transition dark layer is removed by lifecycle cleanup and by `pageshow` resume.
+15. Any full-viewport transient presentation layer capable of covering the world must fail-safe across iOS lifecycle boundaries: `pagehide`, `pageshow`, `visibilitychange`, `freeze`, and `resume` must synchronously remove it without depending on timers or animation events.
+16. A regression smoke must prove the map-transition dark layer is removed by lifecycle cleanup and by foreground/resume recovery.
 17. Foreground recovery must tolerate the world DOM being temporarily absent during resume/render reconstruction. Recovery retries must be bounded, presentation-only, and must not mutate gameplay state, save state, input ownership, map semantics, or poll forever.
 18. A regression smoke must detach the existing world before the foreground recovery event, restore it after the initial RAF window, and prove that the bounded late-DOM retry restores visible world/player geometry and transient-layer cleanup with logical state unchanged.
+19. Runtime black-screen diagnostics must sample multiple viewport regions and identify a near-black element that covers most of the viewport as a named occluder candidate, while remaining observation-only for unknown UI.
+20. A regression smoke must poison the world presentation, dispatch Page Lifecycle `resume` without relying on focus/visibility/pageshow, and prove that the canonical heal restores shell/world/player geometry, clears transient darkness, and leaves logical gameplay state unchanged.
 
 ## Checkpoints
 - `c989f545a07096a894f67184aa6d3c93c69e3e5a`: deployed emergency service-worker cache purge + unregister; Pages SUCCESS.
@@ -66,17 +71,24 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 - `6839420b34d304bec823bdb1c30a463df52edbd5`: regression poisons the presentation and proves focus-event-only recovery through the canonical heal path.
 - Head-self validation for `fa29dca3be90b10d47cb8938d4aee99469409162`: Pages `34180324268` SUCCESS, Render Liveness `34180324200` SUCCESS, cache-busted recovery `34180384902` SUCCESS.
 - `c29e896e3711301ef8d6dbd582c2f34be6adfab8`: resume-heal v1.3 adds bounded late-DOM retries at 120/320/700 ms only when the world is temporarily unavailable at the foreground recovery boundary. Retries reuse the canonical presentation reassertion path and stop after success; there is no persistent polling.
-- `83d7933c37c8c424fa0c1154ddbc87a8d3364cd8`: regression detaches the already-poisoned world, fires only `window focus`, reattaches the world after 180 ms, and requires a `window-focus-retry-*` recovery marker, restored shell/world/player geometry, fade/arrival cleanup, and unchanged logical gameplay state.
+- `83d7933c37c8c424fa0c1154ddbc87a8d3364cd8`: regression detaches the already-poisoned world, fires only `window focus`, reattaches the world after 180 ms, and requires a post-focus delayed recovery marker, restored shell/world/player geometry, fade/arrival cleanup, and unchanged logical gameplay state.
 - Standard Pages run `34183339174`: SUCCESS including assembled browser smoke, iPhone world/touch visual liveness, route regressions, site upload and real GitHub Pages deployment.
 - Render Liveness run `34183339183`: SUCCESS including Chromium and Playwright WebKit iPhone-sized world capture plus rendered-pixel analysis.
 - Cache-busted public recovery run `34183406542`: SUCCESS including exact successful Pages source checkout, immutable assembly, clean-world pixel proof, upload, public deploy and evidence preservation.
+- `a098ed2a94b032d4e94d7a9ec4278208ee43c5d0`: runtime diagnostics v1.1 adds five-point viewport stacks, compositor-relevant computed styles, and conservative near-black full-screen occluder candidate detection.
+- `1cc6df7222f2057fccd622de4176e19dd720d1bf`: render smoke adds a synthetic full-screen dark occluder and requires the diagnostics to detect it across all five viewport points without disturbing world/game state.
+- Render Liveness `34184272773`: FAIL, but retained failure evidence showed the world was visibly painted and the canonical late-DOM heal was PASS. The failure was isolated to the regression reason-name assertion, not a black/render regression.
+- `5ab41327` lineage: repaired the late-DOM smoke contract so a successful delayed recovery may complete through RAF or bounded retry while preserving the same visibility/state requirements.
+- `c555a98fb9946baebb834e4ee26a918bbf02f463`: resume-heal v1.4 adds Page Lifecycle `resume` as a presentation-only recovery boundary while retaining bounded retries and zero gameplay/save mutation.
+- `becdd24d6011d5817048673b0ca4f72f745aab27`: map-transition fade v1.2 synchronously removes the transient full-screen dark layer on Page Lifecycle `resume` as well as the existing lifecycle boundaries.
+- `2d1b66f20965a19a8f472b2f3ced6533d9e0aa6e`: regression poisons the presentation and proves that dispatching Page Lifecycle `resume` alone invokes the v1.4 heal, restores shell/world/player geometry, clears dark/arrival presentation, and leaves logical state unchanged. This Actions-authored self-clean commit did not itself recursively trigger the normal push workflows, so final Pages/Render/public validation is required on the next normal connector-authored HEAD before v1.4 can be called machine/public green.
 
 ## Completion conditions
-- Automated rendered-pixel diagnostic exists and has run on the public-build assembly path. PASS on current v1.3 candidate.
-- Result is recorded as PASS/FAIL with measured evidence. PASS on current v1.3 candidate.
+- Automated rendered-pixel diagnostic exists and has run on the public-build assembly path. PASS on the last fully validated v1.3 candidate; v1.4 exact-HEAD validation is pending.
+- Result is recorded as PASS/FAIL with measured evidence. v1.4 exact-HEAD evidence pending.
 - If automated render FAILS, repair until PASS before normal feature work resumes.
 - If automated render PASSES while Owner iPhone remains black, continue narrowing the incident to physical iPhone/PWA lifecycle behavior; do not falsify physical verification.
-- A cache-busted recovery artifact must deploy successfully after the current repair before returning to VERIFY. PASS for v1.3 run `34183406542`.
-- Pages deployment must remain successful after the current repair. PASS for v1.3 run `34183339174`.
+- A cache-busted recovery artifact must deploy successfully after the current repair before returning to VERIFY. v1.4 pending.
+- Pages deployment must remain successful after the current repair. v1.4 pending.
 - WORK_QUEUE.md and CURRENT.md must reflect this reopened P0 incident.
 - IOS_PHYSICAL_VERIFICATION remains PENDING until Owner confirms the actual device no longer goes black.
