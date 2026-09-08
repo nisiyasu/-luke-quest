@@ -144,6 +144,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 121 | REQ-139 | P1 | VERIFY | World Dialogue Tap Hint | `requirements/REQ-139_WORLD_DIALOGUE_TAP_HINT.md` | World dialogue close guidance now reflects existing REQ-021 touch behavior as `タップ / Aで閉じる` without new input handlers or canonical Action changes. Dedicated acceptance SUCCESS; P0 Touch 34215919409 SUCCESS and exact-head Pages 34215919367 SUCCESS on `7e071793...`. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 122 | REQ-140 | P0 | VERIFY | iPhone Compositor Black-Screen Recovery + Safe Save Rescue | `requirements/REQ-140_IPHONE_COMPOSITOR_BLACK_SCREEN_RECOVERY.md` | Compositor pressure reduction + stale intro cleanup + validated save export/import. P0 Touch 34220306982 SUCCESS; Pages 34220399635 SUCCESS; Render Liveness 34220399555 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
@@ -202,4 +204,3 @@ Future polish, optional content and non-urgent enhancement.
 - Do not keep more than one `IN_PROGRESS` item unless Owner explicitly changes WIP policy.
 - Requirement completion must be judged against the detailed requirement file.
 - Queue updates, commits, CURRENT updates and Pages success are checkpoints, not reasons to end execution.
-| 122 | REQ-140 | P0 | VERIFY | iPhone Compositor Black-Screen Recovery + Safe Save Rescue | `requirements/REQ-140_IPHONE_COMPOSITOR_BLACK_SCREEN_RECOVERY.md` | Compositor pressure reduction + stale intro cleanup + validated save export/import. P0 Touch 34220306982 SUCCESS; Pages 34220399635 SUCCESS; Render Liveness 34220399555 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
