@@ -89,7 +89,7 @@
 
       const heal=window.LQ_REQ127_RESUME_WORLD_HEAL;
       if(!heal||typeof heal.heal!=='function')throw new Error('REQ-127 resume world heal unavailable');
-      if(heal.presentationOnly!==true||heal.gameplayStateMutation!==false||heal.saveSchemaChange!==false||heal.frozenArrivalCleanup!==true||heal.focusRecovery!==true||heal.lateDomRetryRecovery!==true){
+      if(heal.presentationOnly!==true||heal.gameplayStateMutation!==false||heal.saveSchemaChange!==false||heal.frozenArrivalCleanup!==true||heal.focusRecovery!==true||heal.pageLifecycleResumeRecovery!==true||heal.lateDomRetryRecovery!==true){
         throw new Error('REQ-127 resume heal safety/recovery contract invalid');
       }
 
@@ -179,6 +179,27 @@
       if(!lateDomMarkerConfirmed)throw new Error(`REQ-127 delayed DOM retry marker missing: ${lateDomMarkerReason}`);
       if(!lateDomLogicalStateUnchanged)throw new Error('REQ-127 delayed DOM recovery mutated logical gameplay state');
 
+      poisonPresentation(shell,world);
+      const countBeforeResume=heal.healCount;
+      window.dispatchEvent(new Event('resume'));
+      await waitFrames(4);
+
+      shell=document.querySelector('.gameShell');
+      world=shell?.querySelector('.world')||document.querySelector('.world');
+      player=world?.querySelector('.player')||document.querySelector('.player');
+      tiles=world?.querySelectorAll('.tile')||[];
+      healMarker=document.getElementById('lqReq127ResumeWorldHealMarker');
+      const resumeSizeReasserted=Math.abs((world?.offsetWidth||0)-expectedWidth)<1&&Math.abs((world?.offsetHeight||0)-expectedHeight)<1;
+      const resumeRecovered=heal.healCount>countBeforeResume&&visible(shell)&&visible(world)&&visible(player)&&tiles.length>0&&resumeSizeReasserted&&!document.getElementById('lq-map-transition-fade')&&!shell?.classList.contains('lqMapArrive');
+      const resumeReason=String(heal.lastReason||'');
+      const resumeMarkerReason=String(healMarker?.dataset.reason||'');
+      const resumeMarkerConfirmed=!!healMarker&&healMarker.dataset.status==='PASS'&&resumeMarkerReason.startsWith('page-lifecycle-resume')&&healMarker.dataset.fadeCleared==='true'&&healMarker.dataset.arrivalCleared==='true'&&healMarker.dataset.shellVisible==='true';
+      const resumeLogicalStateUnchanged=before.screen===s.screen&&before.map===s.map&&before.x===s.x&&before.y===s.y&&before.dir===s.dir;
+      if(!resumeRecovered)throw new Error(`REQ-127 Page Lifecycle resume recovery failed: count ${countBeforeResume}->${heal.healCount}, reason=${resumeReason}, marker=${resumeMarkerReason}`);
+      if(!resumeReason.startsWith('page-lifecycle-resume'))throw new Error(`REQ-127 resume listener did not own recovery: ${resumeReason}`);
+      if(!resumeMarkerConfirmed)throw new Error(`REQ-127 resume marker did not confirm recovery: ${resumeMarkerReason}`);
+      if(!resumeLogicalStateUnchanged)throw new Error('REQ-127 Page Lifecycle resume recovery mutated logical gameplay state');
+
       // Diagnostic contract: detect a genuinely full-screen near-black occluder without
       // automatically deleting unknown UI. This turns future physical/CI black-screen
       // evidence into a named DOM/compositor suspect instead of another blind workaround.
@@ -229,6 +250,7 @@
       el.dataset.logicalStateUnchanged=String(logicalStateUnchanged);
       el.dataset.focusRecovery=String(focusTriggered&&focusWorldReasserted&&focusMarkerConfirmed&&focusLogicalStateUnchanged);
       el.dataset.lateDomRetryRecovery=String(lateDomRecovered&&lateDomMarkerConfirmed&&lateDomLogicalStateUnchanged);
+      el.dataset.pageLifecycleResumeRecovery=String(resumeRecovered&&resumeMarkerConfirmed&&resumeLogicalStateUnchanged);
       el.dataset.occluderDiagnostics=String(multiPoint&&diagnosticStateUnchanged);
       el.dataset.diagnosticsVersion=String(diagnostics.version||'unknown');
       el.dataset.healVersion=String(heal.version||'unknown');
