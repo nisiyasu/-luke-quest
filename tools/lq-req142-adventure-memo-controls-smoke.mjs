@@ -1,0 +1,22 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+
+const code=fs.readFileSync('addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req142-adventure-memo-controls.js','utf8');
+const old='操作：十字キーで移動、Aで会話。';
+const s={dialog:null};
+let renderCount=0;
+const openMenu=()=>{s.dialog={name:'冒険メモ',text:`目的：北へ進む。\n現在地：王都近郊\n${old}`};};
+const ctx={console,s,openMenu,render:()=>{renderCount++}};
+ctx.window=ctx;
+vm.createContext(ctx);
+vm.runInContext(code,ctx);
+ctx.openMenu();
+if(!s.dialog.text.includes('画面をドラッグで移動'))throw new Error('touch drag hint missing');
+if(!s.dialog.text.includes('短くタップで調べる・話す'))throw new Error('touch action hint missing');
+if(!s.dialog.text.includes('矢印 / WASD'))throw new Error('keyboard movement hint missing');
+if(!s.dialog.text.includes('Enter / Space'))throw new Error('keyboard action hint missing');
+if(s.dialog.text.includes(old))throw new Error('stale fixed-control hint remains');
+if(!s.dialog.text.includes('目的：北へ進む。')||!s.dialog.text.includes('現在地：王都近郊'))throw new Error('memo content was damaged');
+if(renderCount!==1)throw new Error(`expected one decoration render, got ${renderCount}`);
+if(ctx.LQ_REQ142_STATUS?.inputHandlersAdded!==0)throw new Error('REQ-142 must add zero input handlers');
+console.log('REQ-142 adventure memo modern controls smoke PASS');
