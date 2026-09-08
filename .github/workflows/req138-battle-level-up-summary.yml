@@ -1,0 +1,66 @@
+name: REQ-138 Battle Level-Up Summary
+
+on:
+  push:
+    paths:
+      - 'requirements/REQ-138_BATTLE_LEVEL_UP_SUMMARY.md'
+      - 'addons/req138-battle-level-up-summary.js'
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req138-level-up-smoke.js'
+      - '.github/workflows/req138-battle-level-up-summary.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  assembled-level-up-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check addons/req138-battle-level-up-summary.js
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req138-level-up-smoke.js
+          node --check addons/req137-battle-victory-reward-summary.js
+      - name: Assemble Pages-equivalent runtime
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          if compgen -G 'addons/*.js' > /dev/null; then for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done; fi
+      - name: 390x844 assembled level-up acceptance
+        id: acceptance
+        continue-on-error: true
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
+          python3 -m http.server 8150 >/tmp/lq-req138-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=7000 --dump-dom 'http://127.0.0.1:8150/?lqReq138Smoke=1' >/tmp/lq-req138-dom.html 2>/tmp/lq-req138-chrome.log || true
+          grep -o '<i id="lqReq138LevelUpSmokeMarker"[^>]*>' /tmp/lq-req138-dom.html | tee /tmp/lq-req138-marker.txt || true
+          grep -q 'id="lqReq138LevelUpSmokeMarker"[^>]*data-pass="true"' /tmp/lq-req138-dom.html
+      - name: REQ-137 regression
+        id: req137
+        continue-on-error: true
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          python3 -m http.server 8151 >/tmp/lq-req137-under-138-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=7000 --dump-dom 'http://127.0.0.1:8151/?lqReq137Smoke=1' >/tmp/lq-req137-under-138-dom.html 2>/tmp/lq-req137-under-138-chrome.log || true
+          grep -q 'id="lqReq137VictoryRewardSmokeMarker"[^>]*data-pass="true"' /tmp/lq-req137-under-138-dom.html
+      - name: Diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req138-diagnostics
+          path: |
+            /tmp/lq-req138-marker.txt
+            /tmp/lq-req138-dom.html
+            /tmp/lq-req138-chrome.log
+          if-no-files-found: warn
+          retention-days: 1
+      - name: Enforce
+        if: steps.acceptance.outcome != 'success' || steps.req137.outcome != 'success'
+        run: exit 1
