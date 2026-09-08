@@ -23,6 +23,8 @@ jobs:
         run: |
           python3 -m py_compile tools/lq-png-black-check.py
           python3 -m py_compile tools/lq-render-failure-classify.py
+          python3 -m py_compile tests/req127-render-failure-classifier-test.py
+          python3 tests/req127-render-failure-classifier-test.py
 
       - name: Assemble public game order with immutable build URLs
         shell: bash
