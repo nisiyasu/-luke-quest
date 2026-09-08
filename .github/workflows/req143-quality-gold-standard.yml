@@ -18,14 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Quality SSOT and syntax
+      - name: Quality SSOT assets and syntax
         run: |
           test -s docs/quality/QUALITY_SYSTEM.md
           test -s docs/quality/QUALITY_RESEARCH_BASIS.md
           test -s docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md
           test -s requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md
+          test -s assets/req143/leon-stage.svg
+          test -s assets/req143/leon-sister-stage.svg
           node --check addons/zzzzzzzzzzzzzzzzzzzzzzzz-req143-leon-gold-standard.js
           node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-cleanup.js
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzz-req143-original-stage-art.js
           node tools/lq-addon-contract.mjs
 
       - name: Fail closed on compositor-heavy fake quality
@@ -70,25 +73,31 @@ jobs:
               if(!scene)throw new Error('Gold Standard decoration missing');
               if(scene.textContent.includes('🧑')||scene.textContent.includes('👧')||scene.textContent.includes('👩'))throw new Error('emoji actor stand-ins remain');
               if(!scene.querySelector('.lq143Actor[data-role="luke"] .lq143Figure'))throw new Error('Luke staged actor missing');
-              if(!scene.querySelector('.lq143Actor[data-role="leon"]'))throw new Error('Leon staged actor missing');
+              const leon=scene.querySelector('.lq143Actor[data-role="leon"] .lq143Figure');
+              if(!leon)throw new Error('Leon staged actor missing');
+              if(!getComputedStyle(leon).backgroundImage.includes('leon-stage.svg'))throw new Error('original Leon SVG not integrated');
               const beat=scene.querySelector('.lq143Beat');
               const qualityMark=scene.querySelector('.lq143QualityMark');
               if(!beat||!qualityMark)throw new Error('internal beat metadata missing for diagnostics');
               if(getComputedStyle(beat).display!=='none'||getComputedStyle(qualityMark).display!=='none')throw new Error('developer quality labels visible to player');
               if(beat.getAttribute('aria-hidden')!=='true'||qualityMark.getAttribute('aria-hidden')!=='true')throw new Error('developer labels not hidden from accessibility tree');
               if(scene.dataset.lq143ProductionClean!=='true')throw new Error('production cleanup marker missing');
+              if(scene.dataset.lq143OriginalStageArt!=='true')throw new Error('original stage art marker missing');
               s.lqReq128Climax={phase:'confront',step:0,turn:2};render();
               scene=document.querySelector('.lq128Scene');
               if(!scene?.classList.contains('lq143Phase-confront')||!scene.classList.contains('lq143Turn-2'))throw new Error('confront staging missing');
               if(!document.getElementById('lq128Guard')||!document.getElementById('lq128Call'))throw new Error('canonical nonlethal choices missing');
               s.lqReq128Climax={phase:'aftermath',step:1,turn:3};render();
               scene=document.querySelector('.lq128Scene');
-              if(!scene?.querySelector('.lq143Actor[data-role="sister"]'))throw new Error('sister physical staging missing');
+              const sister=scene?.querySelector('.lq143Actor[data-role="sister"] .lq143Figure');
+              if(!sister)throw new Error('sister physical staging missing');
+              if(!getComputedStyle(sister).backgroundImage.includes('leon-sister-stage.svg'))throw new Error('original sister SVG not integrated');
               if(!scene.querySelector('.lq143Impact')||!scene.querySelector('.lq143Silence'))throw new Error('impact/silence beat staging missing');
               if(window.LQ_REQ143_QUALITY_STATUS?.canonicalReq128LogicPreserved!==true)throw new Error('REQ-128 canonical preservation status missing');
               if(window.LQ_REQ143_QUALITY_STATUS?.heavyFilterUsed!==false)throw new Error('heavy filter safety status failed');
               if(window.LQ_REQ143_PRODUCTION_CLEANUP_STATUS?.developerLabelsHidden!==true)throw new Error('production cleanup status missing');
-              marker.dataset.status='PASS';marker.dataset.reunion='true';marker.dataset.confront='true';marker.dataset.sister='true';marker.dataset.noEmoji='true';marker.dataset.presentationOnly='true';marker.dataset.productionClean='true';marker.dataset.ownerExperience='PENDING';
+              if(window.LQ_REQ143_ORIGINAL_STAGE_ART_STATUS?.originalRepositoryArt!==true)throw new Error('original stage art status missing');
+              marker.dataset.status='PASS';marker.dataset.reunion='true';marker.dataset.confront='true';marker.dataset.sister='true';marker.dataset.noEmoji='true';marker.dataset.presentationOnly='true';marker.dataset.productionClean='true';marker.dataset.originalStageArt='true';marker.dataset.ownerExperience='PENDING';
             }catch(e){marker.dataset.status='FAIL';marker.dataset.error=e?.message||String(e);console.error(e)}
             finally{Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snap);if(raw===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',raw);render();document.body.appendChild(marker)}
           },6500);
@@ -105,7 +114,7 @@ jobs:
           timeout 45 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=12000 --dump-dom 'http://127.0.0.1:8163/req143.html' >/tmp/req143-dom.html 2>/tmp/req143-browser.log
           code=$?; set -e
           test -s /tmp/req143-dom.html
-          for needle in 'id="lqReq143Marker"' 'data-status="PASS"' 'data-reunion="true"' 'data-confront="true"' 'data-sister="true"' 'data-no-emoji="true"' 'data-presentation-only="true"' 'data-production-clean="true"' 'data-owner-experience="PENDING"'; do grep -q "$needle" /tmp/req143-dom.html || { cat /tmp/req143-browser.log; exit 1; }; done
+          for needle in 'id="lqReq143Marker"' 'data-status="PASS"' 'data-reunion="true"' 'data-confront="true"' 'data-sister="true"' 'data-no-emoji="true"' 'data-presentation-only="true"' 'data-production-clean="true"' 'data-original-stage-art="true"' 'data-owner-experience="PENDING"'; do grep -q "$needle" /tmp/req143-dom.html || { cat /tmp/req143-browser.log; exit 1; }; done
           if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req143-browser.log; then cat /tmp/req143-browser.log; exit 1; fi
           echo "REQ-143 quality smoke PASS (browser status $code)"
 
