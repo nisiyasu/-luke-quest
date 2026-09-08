@@ -88,13 +88,15 @@ jobs:
           grep -q 'class="[^"]*lqReq145GoldSlice' .req145/candidate-capture-dom.html
           grep -q 'data-req145-capture="town"' .req145/baseline-capture-dom.html
           if grep -q 'lqReq145GoldSlice' .req145/baseline-capture-dom.html; then exit 1; fi
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8126/.req145/candidate-evac.html' > .req145/candidate-evac-dom.html 2>/tmp/req145-evac-dom.log || true
+          grep -q 'data-req145-critical-wrap="true"' .req145/candidate-evac-dom.html
 
       - name: Capture current main versus candidate
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
-          for scene in town field dialogue battle; do
+          for scene in town field evac dialogue battle; do
             "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars --user-data-dir="/tmp/chrome-candidate-$scene" --window-size=390,844 --virtual-time-budget=5500 --screenshot="$GITHUB_WORKSPACE/.req145/candidate-$scene.png" "http://127.0.0.1:8126/.req145/candidate-$scene.html" >/tmp/req145-candidate-$scene.log 2>&1
             "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars --user-data-dir="/tmp/chrome-baseline-$scene" --window-size=390,844 --virtual-time-budget=5500 --screenshot="$GITHUB_WORKSPACE/.req145/baseline-$scene.png" "http://127.0.0.1:8127/.req145/baseline-$scene.html" >/tmp/req145-baseline-$scene.log 2>&1
           done
@@ -103,10 +105,12 @@ jobs:
         run: |
           python3 tools/lq-png-black-check.py .req145/candidate-town.png
           python3 tools/lq-png-black-check.py .req145/candidate-field.png
+          python3 tools/lq-png-black-check.py .req145/candidate-evac.png
           python3 tools/lq-png-black-check.py .req145/candidate-dialogue.png
           python3 tools/lq-png-black-check.py .req145/candidate-battle.png
           python3 tools/lq-png-black-check.py .req145/baseline-town.png
           python3 tools/lq-png-black-check.py .req145/baseline-field.png
+          python3 tools/lq-png-black-check.py .req145/baseline-evac.png
           python3 tools/lq-png-black-check.py .req145/baseline-dialogue.png
           python3 tools/lq-png-black-check.py .req145/baseline-battle.png
           test -s .req145/source-shas.txt
@@ -137,10 +141,12 @@ jobs:
             .req145/source-shas.txt
             .req145/candidate-town.png
             .req145/candidate-field.png
+            .req145/candidate-evac.png
             .req145/candidate-dialogue.png
             .req145/candidate-battle.png
             .req145/baseline-town.png
             .req145/baseline-field.png
+            .req145/baseline-evac.png
             .req145/baseline-dialogue.png
             .req145/baseline-battle.png
             .req145/candidate-touch-dom.html

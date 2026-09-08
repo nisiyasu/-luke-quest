@@ -129,3 +129,27 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 5 — critical guidance anti-truncation
+
+### Regression risk found by challenger review
+
+- The compact objective pill intentionally uses single-line ellipsis for ordinary world goals.
+- REQ-023 evacuation guidance contains concrete mandatory instructions such as finding the left-lower withdrawal-order scrap and returning to the north edge after acquisition.
+- Applying generic ellipsis to those critical objectives could reintroduce the exact Owner-reported guidance failure even while text still existed in the DOM.
+
+### Repair
+
+- Exempt `lqEvacObjective` and `lqNorthCliffObjective` from the compact single-line rule.
+- Critical objectives use the available world width, normal wrapping, and no text clipping while ordinary objectives retain the compact authored pill.
+- Add deterministic evacuation-route A/B capture to the challenger evidence set.
+- Add a runtime-fidelity assertion that the candidate evacuation objective computes to a non-`nowrap` style.
+
+### Evidence
+
+- 390x844 evacuation capture shows the mandatory target instruction fully readable over the world.
+- Existing visual clue/route systems remain untouched; this is presentation safety only.
+- JS/Python syntax, assembly, deterministic capture generation, and diff checks PASS locally before checkpoint.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING

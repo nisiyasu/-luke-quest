@@ -34,6 +34,12 @@ s=structuredClone(DEFAULT);s.screen='world';s.map='field';s.x=10;s.y=15;s.dir='u
 document.body.dataset.req145Capture='field';
 }catch(e){document.body.dataset.req145CaptureError=String(e&&e.message||e)}},250);</script>"""
 
+EVAC_BOOT="""<script>setTimeout(()=>{try{
+localStorage.removeItem('lukeQuestV2');
+s=structuredClone(DEFAULT);s.screen='world';s.map='evacRoute';s.x=14;s.y=22;s.dir='up';s.wins=2;s.dialog=null;s.flags.evacEntered=true;s.flags.glennSeen=true;s.flags.withdrawProofSeen=false;render();
+document.body.dataset.req145Capture='evac';const g=document.querySelector('.questGuide.lqEvacObjective');document.body.dataset.req145CriticalWrap=String(!!g&&getComputedStyle(g).whiteSpace!=='nowrap');
+}catch(e){document.body.dataset.req145CaptureError=String(e&&e.message||e)}},250);</script>"""
+
 BATTLE_BOOT="""<script>setTimeout(()=>{try{
 localStorage.removeItem('lukeQuestV2');
 s=structuredClone(DEFAULT);s.screen='battle';s.map='field';s.lv=3;s.hp=51;s.mh=60;s.gold=38;s.wins=2;
@@ -41,7 +47,7 @@ s.enemy=ENEMIES[1];s.ehp=17;s.log=['ツノウサギが現れた！','ルーク�
 document.body.dataset.req145Capture='battle';
 }catch(e){document.body.dataset.req145CaptureError=String(e&&e.message||e)}},250);</script>"""
 
-for scene,boot in [('town',WORLD_BOOT),('field',FIELD_BOOT),('dialogue',DIALOGUE_BOOT),('battle',BATTLE_BOOT)]:
+for scene,boot in [('town',WORLD_BOOT),('field',FIELD_BOOT),('evac',EVAC_BOOT),('dialogue',DIALOGUE_BOOT),('battle',BATTLE_BOOT)]:
     if '</body>' not in html:
         raise SystemExit('missing body close')
     out=out_dir/f'{args.label}-{scene}.html'
