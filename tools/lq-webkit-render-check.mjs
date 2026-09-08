@@ -24,12 +24,23 @@ try {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => {
     const m = document.getElementById('lqReq127RenderSmokeMarker');
-    return m && m.dataset.status === 'PASS' && m.dataset.screen === 'world' && m.dataset.shell === 'true' && m.dataset.world === 'true' && m.dataset.player === 'true';
+    return m &&
+      m.dataset.status === 'PASS' &&
+      m.dataset.screen === 'world' &&
+      m.dataset.shell === 'true' &&
+      m.dataset.world === 'true' &&
+      m.dataset.player === 'true' &&
+      m.dataset.resumeHeal === 'true' &&
+      m.dataset.fadeCleared === 'true' &&
+      m.dataset.worldReasserted === 'true' &&
+      m.dataset.fullscreenReasserted === 'true' &&
+      m.dataset.logicalStateUnchanged === 'true';
   }, null, { timeout: 20000 });
 
   await page.waitForTimeout(800);
   const state = await page.evaluate(() => {
     const marker = document.getElementById('lqReq127RenderSmokeMarker');
+    const healMarker = document.getElementById('lqReq127ResumeWorldHealMarker');
     const diagnosticMarker = document.getElementById('lqReq127DiagnosticsMarker');
     const shell = document.querySelector('.gameShell');
     const world = document.querySelector('.world');
@@ -58,6 +69,7 @@ try {
       screen: globalThis.s?.screen ?? marker?.dataset.screen ?? null,
       map: globalThis.s?.map ?? marker?.dataset.map ?? null,
       marker: marker ? { ...marker.dataset } : null,
+      healMarker: healMarker ? { ...healMarker.dataset } : null,
       shell: rect(shell), world: rect(world), player: rect(player),
       tileCount: document.querySelectorAll('.tile').length,
       centerStack: center,
@@ -74,6 +86,12 @@ try {
   if (state.screen !== 'world' || !state.shell || !state.world || !state.player || state.tileCount < 1) {
     throw new Error(`WebKit world proof failed: ${JSON.stringify(state)}`);
   }
+  if (!state.marker || state.marker.resumeHeal !== 'true' || state.marker.fadeCleared !== 'true' || state.marker.worldReasserted !== 'true' || state.marker.fullscreenReasserted !== 'true' || state.marker.logicalStateUnchanged !== 'true') {
+    throw new Error(`WebKit REQ-127 resume-heal proof failed: ${JSON.stringify(state)}`);
+  }
+  if (!state.healMarker || state.healMarker.status !== 'PASS' || state.healMarker.fadeCleared !== 'true') {
+    throw new Error(`WebKit REQ-127 heal marker failed: ${JSON.stringify(state)}`);
+  }
   if (state.shell.width <= 0 || state.shell.height <= 0 || state.world.width <= 0 || state.world.height <= 0 || state.player.width <= 0 || state.player.height <= 0) {
     throw new Error(`WebKit geometry failed: ${JSON.stringify(state)}`);
   }
@@ -82,8 +100,8 @@ try {
   }
 
   await page.screenshot({ path: screenshot, fullPage: false });
-  console.log('REQ-127 WebKit world-state PASS');
-  console.log(JSON.stringify({ userAgent: state.userAgent, screen: state.screen, map: state.map, tileCount: state.tileCount, shell: state.shell, world: state.world, player: state.player }, null, 2));
+  console.log('REQ-127 WebKit world-state + resume-heal PASS');
+  console.log(JSON.stringify({ userAgent: state.userAgent, screen: state.screen, map: state.map, tileCount: state.tileCount, marker: state.marker, healMarker: state.healMarker, shell: state.shell, world: state.world, player: state.player }, null, 2));
 } finally {
   await browser.close();
 }
