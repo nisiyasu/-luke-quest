@@ -13,7 +13,8 @@ function fail(reason,extra={}){
  marker({pass:false,reason,...extra});
 }
 function canonicalHandler(button){return (button?.getAttribute('onclick')||'').replace(/\s+/g,'');}
-function run(){
+function nextMutationTurn(){return new Promise(resolve=>queueMicrotask(resolve));}
+async function run(){
  const snapshot=structuredClone(s);
  const originalAttack=attack;
  const originalAction=action;
@@ -27,6 +28,10 @@ function run(){
   s.hp=Math.max(1,s.hp||42);
   if(Number.isFinite(s.mp))s.mp=Math.max(4,s.mp);
   battle();
+  // REQ-134 intentionally uses MutationObserver so buttons appended by later
+  // battle add-ons are decorated after the synchronous battle() stack unwinds.
+  // Acceptance must observe the settled assembled DOM, not race that microtask.
+  await nextMutationTurn();
 
   const card=document.querySelector('.lqBattleCommandCard');
   const log=card?.querySelector('.log');
@@ -66,6 +71,7 @@ function run(){
 
   attack=originalAttack;action=originalAction;move=originalMove;
   battle();
+  await nextMutationTurn();
   const rerenderCard=document.querySelector('.lqBattleCommandCard');
   const rerenderProtected=!!rerenderCard&&[...rerenderCard.querySelectorAll('button')].every(b=>b.classList.contains('lqBattleCommandButton'));
 
