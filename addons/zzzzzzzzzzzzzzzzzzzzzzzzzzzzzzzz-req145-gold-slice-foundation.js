@@ -44,6 +44,9 @@ body.${ROOT_CLASS} .lqWorldControlsOverlay .actionPad{opacity:.72;transition:opa
 body.${ROOT_CLASS} .lqWorldControlsOverlay .actionPad:active{opacity:1}
 body.${ROOT_CLASS} .lqWorldControlsOverlay .lqControlLegend{display:none!important}
 body.${ROOT_CLASS} #lq-floating-touch-controller{filter:none!important}
+body.${ROOT_CLASS}.lq145WorldMoving .lqWorldStatusOverlay{opacity:.60!important}
+body.${ROOT_CLASS}.lq145WorldMoving .hud{opacity:.66!important}
+body.${ROOT_CLASS}.lq145WorldMoving .questGuide{opacity:.76!important}
 body.${ROOT_CLASS} .player.lqGroundedEntity::after{content:"";position:absolute;left:50%;bottom:-8px;width:56px;height:18px;transform:translateX(-50%);border-radius:50%;border:1px solid rgba(142,216,228,.28);box-shadow:0 0 12px rgba(142,216,228,.12),inset 0 0 8px rgba(142,216,228,.07);pointer-events:none;z-index:-1}
 body.${ROOT_CLASS} .lq145ActionPulse{position:absolute;width:44px;height:44px;margin:-3px 0 0 -3px;border:2px solid rgba(240,201,91,.92);border-radius:50%;z-index:42;pointer-events:none;box-shadow:0 0 0 4px rgba(240,201,91,.10),0 0 18px rgba(240,201,91,.36);animation:lq145ActionPulse .24s cubic-bezier(.2,.8,.3,1) both}
 @keyframes lq145ActionPulse{0%{opacity:.95;transform:scale(.56)}100%{opacity:0;transform:scale(1.28)}}
@@ -146,9 +149,16 @@ function observeBattleImpact(){
   if(Number.isFinite(playerHp)){if(lq145LastPlayerHp!==null&&playerHp<lq145LastPlayerHp)showPlayerHurt();lq145LastPlayerHp=playerHp;}
 }
 
-const lq145ImpactObserver=new MutationObserver(observeBattleImpact);
+let lq145LastWorldPos=null;let lq145WorldMotionCleanup=0;let lq145WorldMotionPresentations=0;
+function observeWorldMotion(){
+  if(typeof s==='undefined'||!s||s.screen!=='world'||s.dialog){lq145LastWorldPos=null;document.body.classList.remove('lq145WorldMoving');return;}
+  const pos=`${s.map}:${s.x}:${s.y}`;
+  if(lq145LastWorldPos!==null&&pos!==lq145LastWorldPos){document.body.classList.add('lq145WorldMoving');lq145WorldMotionPresentations++;clearTimeout(lq145WorldMotionCleanup);lq145WorldMotionCleanup=setTimeout(()=>document.body.classList.remove('lq145WorldMoving'),260);}
+  lq145LastWorldPos=pos;
+}
+const lq145ImpactObserver=new MutationObserver(()=>{observeBattleImpact();observeWorldMotion();});
 lq145ImpactObserver.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
-observeBattleImpact();
+observeBattleImpact();observeWorldMotion();
 
 function contractSnapshot(){
   return {
@@ -211,6 +221,6 @@ function smoke(){
 
 syncClasses();
 window.LQ_REQ145_GOLD_SLICE=contractSnapshot();
-window.LQ_REQ145_GOLD_SLICE_TEST={syncClasses,contractSnapshot,actionPulse,smoke,showBattleImpact,showPlayerHurt,observeBattleImpact,impactPresentations:()=>lq145ImpactPresentations,playerHurtPresentations:()=>lq145PlayerHurtPresentations};
+window.LQ_REQ145_GOLD_SLICE_TEST={syncClasses,contractSnapshot,actionPulse,smoke,showBattleImpact,showPlayerHurt,observeBattleImpact,impactPresentations:()=>lq145ImpactPresentations,playerHurtPresentations:()=>lq145PlayerHurtPresentations,worldMotionPresentations:()=>lq145WorldMotionPresentations};
 setTimeout(()=>{if(new URLSearchParams(location.search).has('lqReq145Smoke'))smoke();},0);
 })();

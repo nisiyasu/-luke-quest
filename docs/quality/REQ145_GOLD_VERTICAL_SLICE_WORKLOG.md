@@ -221,3 +221,28 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 10 — movement-time world focus
+
+### Critic finding
+- Static field composition was readable, but movement still carried the same top-chrome visual weight as an idle inspection moment.
+- That made the world feel slightly more like a dashboard than a moving JRPG scene, despite the fullscreen map already being correct.
+
+### Repair
+- Observe canonical world position changes after render rather than wrapping or replacing movement input.
+- During a short post-step window, gently dim the existing status HUD and location chips while keeping the objective readable.
+- Dialogue immediately cancels the moving presentation state; input, collision, encounter and save authorities remain untouched.
+- Add deterministic `field-move` A/B evidence and runtime gates for both motion detection and active presentation class.
+
+### A/B critic
+- Baseline keeps the full-width objective ribbon and full top-HUD emphasis while Luke moves.
+- Candidate keeps the compact objective pill readable while the HUD recedes, returning attention to Luke, road and destination.
+- Candidate wins movement-time world hierarchy without removing information or changing movement mechanics.
+
+### Evidence
+- `field-move` runtime marker: motion-presented=true and motion-class=true.
+- 390x844 candidate and exact-main baseline captures produced successfully.
+- Local P0 touch/fullscreen smoke remains green across tap, drag exclusion, cancel, transition-stop and fullscreen markers.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING
