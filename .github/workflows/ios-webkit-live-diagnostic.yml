@@ -1,0 +1,91 @@
+name: LUKE QUEST iOS WebKit Live Diagnostic
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ios-webkit-live-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROD_URL: https://nisiyasu.github.io/-luke-quest/
+  GOLD_URL: https://nisiyasu.github.io/-luke-quest/preview/gold/
+
+jobs:
+  ios-webkit-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install Playwright WebKit
+        shell: bash
+        run: |
+          mkdir -p /tmp/lq-webkit
+          cd /tmp/lq-webkit
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps webkit
+
+      - name: Probe production and Gold with WebKit
+        shell: bash
+        run: |
+          cd /tmp/lq-webkit
+          cat > probe.mjs <<'JS'
+          import { webkit, devices } from 'playwright';
+          import fs from 'node:fs';
+
+          const browser = await webkit.launch({ headless: true });
+          const context = await browser.newContext({
+            ...devices['iPhone 15 Pro'],
+            locale: 'ja-JP',
+          });
+
+          async function probe(name, url) {
+            const page = await context.newPage();
+            const consoleLines = [];
+            const pageErrors = [];
+            page.on('console', m => consoleLines.push(`[${m.type()}] ${m.text()}`));
+            page.on('pageerror', e => pageErrors.push(String(e?.stack || e)));
+            const response = await page.goto(url + `?lqLiveWebKit=${Date.now()}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+            await page.waitForTimeout(7000);
+            const info = await page.evaluate(() => ({
+              title: document.title,
+              bodyText: (document.body?.innerText || '').slice(0, 3000),
+              bodyHTMLLength: document.body?.innerHTML?.length || 0,
+              appHTMLLength: document.querySelector('#app')?.innerHTML?.length || 0,
+              bodyBg: getComputedStyle(document.body).backgroundColor,
+              viewport: [innerWidth, innerHeight],
+            }));
+            await page.screenshot({ path: `/tmp/${name}.png`, fullPage: true });
+            fs.writeFileSync(`/tmp/${name}.json`, JSON.stringify({
+              url: page.url(),
+              status: response?.status() ?? null,
+              info,
+              consoleLines,
+              pageErrors,
+            }, null, 2));
+            console.log(`===== ${name} =====`);
+            console.log(fs.readFileSync(`/tmp/${name}.json`, 'utf8'));
+            await page.close();
+          }
+
+          await probe('production-webkit', process.env.PROD_URL);
+          await probe('gold-webkit', process.env.GOLD_URL);
+          await browser.close();
+          JS
+          node probe.mjs
+
+      - name: Upload WebKit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-webkit-live-evidence
+          path: |
+            /tmp/production-webkit.png
+            /tmp/production-webkit.json
+            /tmp/gold-webkit.png
+            /tmp/gold-webkit.json
+          if-no-files-found: warn
+          retention-days: 14
