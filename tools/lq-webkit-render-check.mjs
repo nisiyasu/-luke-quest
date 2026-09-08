@@ -32,6 +32,8 @@ try {
       m.dataset.player === 'true' &&
       m.dataset.resumeHeal === 'true' &&
       m.dataset.fadeCleared === 'true' &&
+      m.dataset.arrivalCleared === 'true' &&
+      m.dataset.shellReasserted === 'true' &&
       m.dataset.worldReasserted === 'true' &&
       m.dataset.fullscreenReasserted === 'true' &&
       m.dataset.logicalStateUnchanged === 'true';
@@ -86,10 +88,10 @@ try {
   if (state.screen !== 'world' || !state.shell || !state.world || !state.player || state.tileCount < 1) {
     throw new Error(`WebKit world proof failed: ${JSON.stringify(state)}`);
   }
-  if (!state.marker || state.marker.resumeHeal !== 'true' || state.marker.fadeCleared !== 'true' || state.marker.worldReasserted !== 'true' || state.marker.fullscreenReasserted !== 'true' || state.marker.logicalStateUnchanged !== 'true') {
+  if (!state.marker || state.marker.resumeHeal !== 'true' || state.marker.fadeCleared !== 'true' || state.marker.arrivalCleared !== 'true' || state.marker.shellReasserted !== 'true' || state.marker.worldReasserted !== 'true' || state.marker.fullscreenReasserted !== 'true' || state.marker.logicalStateUnchanged !== 'true') {
     throw new Error(`WebKit REQ-127 resume-heal proof failed: ${JSON.stringify(state)}`);
   }
-  if (!state.healMarker || state.healMarker.status !== 'PASS' || state.healMarker.fadeCleared !== 'true') {
+  if (!state.healMarker || state.healMarker.status !== 'PASS' || state.healMarker.fadeCleared !== 'true' || state.healMarker.arrivalCleared !== 'true' || state.healMarker.shellVisible !== 'true') {
     throw new Error(`WebKit REQ-127 heal marker failed: ${JSON.stringify(state)}`);
   }
   if (state.shell.width <= 0 || state.shell.height <= 0 || state.world.width <= 0 || state.world.height <= 0 || state.player.width <= 0 || state.player.height <= 0) {
@@ -100,7 +102,7 @@ try {
   }
 
   await page.screenshot({ path: screenshot, fullPage: false });
-  console.log('REQ-127 WebKit world-state + resume-heal PASS');
+  console.log('REQ-127 WebKit world-state + frozen-arrival resume-heal PASS');
   console.log(JSON.stringify({ userAgent: state.userAgent, screen: state.screen, map: state.map, tileCount: state.tileCount, marker: state.marker, healMarker: state.healMarker, shell: state.shell, world: state.world, player: state.player }, null, 2));
 } finally {
   await browser.close();
