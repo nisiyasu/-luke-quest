@@ -133,7 +133,10 @@ function waitForPrimary(){
     const required=['tapAction','dialogClose','dialogDragNoAction','dragNoAction','cancelNoAction','singleFire','uiExcluded','dialogueStartNoAction','mapTransitionStops','battleTransitionStops','longPressNoAction'];
     const primaryOk=required.every(k=>primary.dataset[k]==='true');
     if(!primaryOk)return fail('primary touch smoke failed before visibility regression');
-    run();
+    // Let the primary probe's final callbacks fully unwind before installing our
+    // action counter. This keeps the regression isolated without weakening any
+    // production gesture assertion.
+    setTimeout(run,360);
     return;
   }
   if(document.getElementById('lqFloatingTouchSmokeFailure'))return;
