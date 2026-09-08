@@ -135,6 +135,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 | 115 | REQ-133 | P1 | VERIFY | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | windShelf / skylineTraverse / cloudbreakSaddle terminal guidance closure machine-complete. Pages 34106890062 SUCCESS; Render Liveness 34106890050 SUCCESS; cache-busted public deploy 34106990439 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 | 116 | REQ-134 | P1 | VERIFY | iPhone Battle Touch UI Hardening | `requirements/REQ-134_IPHONE_BATTLE_TOUCH_UI.md` | Assembled battle log authority repaired for legacy `.log` / later `.battleLogV10`; dedicated run 34194753965 SUCCESS and exact-HEAD Pages run 34194753926 SUCCESS on `3e412caf...`. 390x844 min command height 50px, no horizontal overflow, canonical button ownership, bounded log, rerender protection all PASS. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 117 | REQ-135 | P1 | VERIFY | iPhone Battle Command Touch Feedback | `requirements/REQ-135_IPHONE_BATTLE_COMMAND_FEEDBACK.md` | Presentation-only active/focus/disabled feedback on existing REQ-134 battle command targets. Dedicated run 34195389737 SUCCESS and exact-HEAD Pages run 34195389767 SUCCESS on `dcaee504...`; embedded REQ-134 regression PASS; no duplicate battle handlers. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
