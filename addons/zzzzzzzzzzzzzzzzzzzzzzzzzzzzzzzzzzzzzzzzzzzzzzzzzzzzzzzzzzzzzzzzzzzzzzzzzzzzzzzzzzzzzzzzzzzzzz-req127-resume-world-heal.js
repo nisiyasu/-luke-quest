@@ -126,7 +126,7 @@
     if(first)healCount++;
     marker(first,reason);
 
-    // iOS standalone foreground can deliver pageshow/visibility/focus while the game's
+    // iOS standalone foreground can deliver pageshow/visibility/focus/resume while the game's
     // render wrapper is still rebuilding .gameShell/.world. Two RAFs cover ordinary paint
     // settling; bounded delayed retries cover the distinct late-DOM race without polling
     // forever or touching canonical gameplay/save state.
@@ -171,8 +171,15 @@
     heal('window-focus');
   },{passive:true});
 
+  // Page Lifecycle can emit `freeze` while the installed PWA is backgrounded and later
+  // `resume` without a useful pageshow/visibility/focus edge. Treat resume as another
+  // presentation-only recovery boundary so a suspended compositor cannot bypass healing.
+  addEventListener('resume',()=>{
+    heal('page-lifecycle-resume');
+  },{passive:true});
+
   window.LQ_REQ127_RESUME_WORLD_HEAL={
-    version:'1.3.0',
+    version:'1.4.0',
     requirement:'REQ-127',
     presentationOnly:true,
     gameplayStateMutation:false,
@@ -180,6 +187,7 @@
     knownTransientOccluderCleanup:true,
     frozenArrivalCleanup:true,
     focusRecovery:true,
+    pageLifecycleResumeRecovery:true,
     lateDomRetryRecovery:true,
     retryDelaysMs:[...RETRY_DELAYS],
     lifecycleReflow:true,
