@@ -1,0 +1,50 @@
+name: Queue Reconcile REQ-137
+
+on:
+  push:
+    paths:
+      - '.github/workflows/queue-reconcile-req137.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch authoritative queue narrowly
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('WORK_QUEUE.md')
+          text=p.read_text()
+          row="| 119 | REQ-137 | P1 | VERIFY | Battle Victory Reward Summary | `requirements/REQ-137_BATTLE_VICTORY_REWARD_SUMMARY.md` | Canonical win() remains sole reward authority; post-victory dialogue now surfaces defeated enemy + exact EXP/G once. Dedicated run 34210082335 SUCCESS and exact-head Pages 34210082290 SUCCESS on `aa8c189c...`. IOS_PHYSICAL_VERIFICATION=PENDING. |"
+          if '| REQ-137 |' not in text:
+              marker='## STATUS DEFINITIONS'
+              if text.count(marker)!=1:
+                  raise SystemExit('queue status marker mismatch')
+              text=text.replace(marker,row+'\n\n'+marker,1)
+          elif row not in text:
+              raise SystemExit('REQ-137 already exists in unexpected state; fail closed')
+          if text.count('| REQ-137 |')!=1:
+              raise SystemExit('REQ-137 queue cardinality violation')
+          if text.count('| IN_PROGRESS |')!=0:
+              raise SystemExit(f'WIP invariant unexpected before next activation: {text.count("| IN_PROGRESS |")}')
+          p.write_text(text)
+          PY
+          git diff --check
+          git diff -- WORK_QUEUE.md
+      - name: Commit reconciled queue
+        run: |
+          if git diff --quiet -- WORK_QUEUE.md; then
+            echo 'Queue already reconciled.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add WORK_QUEUE.md
+          git commit -m 'chore: register REQ-137 verify in queue'
+          git push origin HEAD:main
