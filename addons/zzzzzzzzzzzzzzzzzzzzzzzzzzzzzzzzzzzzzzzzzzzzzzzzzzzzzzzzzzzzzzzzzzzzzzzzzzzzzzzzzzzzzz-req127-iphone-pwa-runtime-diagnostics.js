@@ -3,8 +3,11 @@
   if(window.LQ_REQ127_RUNTIME_DIAGNOSTICS)return;
 
   const MAX_EVENTS=80;
+  const MAX_STACK=8;
+  const STRUCTURAL_IDS=new Set(['app']);
+  const STRUCTURAL_CLASSES=new Set(['gameShell','world']);
   const state={
-    version:'1.0.0',
+    version:'1.1.0',
     requirement:'REQ-127',
     presentationOnly:true,
     startedAt:new Date().toISOString(),
@@ -28,18 +31,80 @@
   const safeStyle=el=>{
     if(!el)return null;
     const s=getComputedStyle(el);
-    return {display:s.display,visibility:s.visibility,opacity:s.opacity,position:s.position,zIndex:s.zIndex,backgroundColor:s.backgroundColor,transform:s.transform,filter:s.filter,backdropFilter:s.backdropFilter||s.webkitBackdropFilter||'none',pointerEvents:s.pointerEvents};
+    return {
+      display:s.display,visibility:s.visibility,opacity:s.opacity,position:s.position,zIndex:s.zIndex,
+      backgroundColor:s.backgroundColor,transform:s.transform,filter:s.filter,
+      backdropFilter:s.backdropFilter||s.webkitBackdropFilter||'none',pointerEvents:s.pointerEvents,
+      isolation:s.isolation,mixBlendMode:s.mixBlendMode,willChange:s.willChange,contain:s.contain,
+      animationName:s.animationName,animationPlayState:s.animationPlayState
+    };
   };
   const describe=el=>{
     if(!el)return null;
     return {tag:el.tagName,id:el.id||'',className:typeof el.className==='string'?el.className:'',rect:safeRect(el),style:safeStyle(el)};
   };
-  const centerStack=()=>{
+  const parseRgba=value=>{
+    const m=String(value||'').match(/rgba?\(\s*([\d.]+)[, ]+\s*([\d.]+)[, ]+\s*([\d.]+)(?:\s*[,/]\s*([\d.]+))?/i);
+    return m?{r:+m[1],g:+m[2],b:+m[3],a:m[4]===undefined?1:+m[4]}:null;
+  };
+  const structural=el=>{
+    if(!el)return true;
+    if(el===document.documentElement||el===document.body)return true;
+    if(STRUCTURAL_IDS.has(el.id))return true;
+    return [...STRUCTURAL_CLASSES].some(c=>el.classList?.contains(c));
+  };
+  const viewportCoverage=rect=>{
+    if(!rect||innerWidth<=0||innerHeight<=0)return 0;
+    const left=Math.max(0,rect.left),top=Math.max(0,rect.top),right=Math.min(innerWidth,rect.right),bottom=Math.min(innerHeight,rect.bottom);
+    const area=Math.max(0,right-left)*Math.max(0,bottom-top);
+    return +(area/(innerWidth*innerHeight)).toFixed(3);
+  };
+  const suspiciousOccluder=el=>{
+    if(!el||structural(el))return null;
+    const style=safeStyle(el),rect=safeRect(el);
+    if(!style||!rect||style.display==='none'||style.visibility==='hidden'||Number(style.opacity)<=0.01)return null;
+    const coverage=viewportCoverage(rect);
+    const rgba=parseRgba(style.backgroundColor);
+    const nearBlack=!!rgba&&rgba.r<=40&&rgba.g<=40&&rgba.b<=40&&rgba.a>=0.72;
+    const knownDark=el.id==='lq-map-transition-fade'||el.classList?.contains('lqMapFade')||el.id==='lqReq127SyntheticDarkOccluder';
+    const fullSpan=rect.width>=innerWidth*.92&&rect.height>=innerHeight*.92;
+    if((coverage>=.78||fullSpan)&&(nearBlack||knownDark)){
+      return {...describe(el),coverage,nearBlack,knownDark};
+    }
+    return null;
+  };
+  const probePoint=(name,x,y)=>{
     try{
-      const x=Math.max(0,Math.min(innerWidth-1,innerWidth/2));
-      const y=Math.max(0,Math.min(innerHeight-1,innerHeight/2));
-      return document.elementsFromPoint(x,y).slice(0,10).map(el=>({tag:el.tagName,id:el.id||'',className:typeof el.className==='string'?el.className:'',pointerEvents:getComputedStyle(el).pointerEvents,opacity:getComputedStyle(el).opacity,backgroundColor:getComputedStyle(el).backgroundColor,zIndex:getComputedStyle(el).zIndex}));
-    }catch(_){return [];}
+      const px=Math.max(0,Math.min(innerWidth-1,x));
+      const py=Math.max(0,Math.min(innerHeight-1,y));
+      const stack=document.elementsFromPoint(px,py).slice(0,MAX_STACK);
+      return {
+        name,x:+px.toFixed(1),y:+py.toFixed(1),
+        stack:stack.map(describe),
+        occluders:stack.map(suspiciousOccluder).filter(Boolean)
+      };
+    }catch(error){return {name,x,y,stack:[],occluders:[],error:String(error)};}
+  };
+  const viewportProbe=()=>{
+    const w=Math.max(1,innerWidth),h=Math.max(1,innerHeight);
+    const points=[
+      probePoint('center',w*.5,h*.5),
+      probePoint('top',w*.5,h*.12),
+      probePoint('bottom',w*.5,h*.88),
+      probePoint('left',w*.12,h*.5),
+      probePoint('right',w*.88,h*.5)
+    ];
+    const byKey=new Map();
+    for(const point of points){
+      for(const candidate of point.occluders){
+        const key=`${candidate.tag}|${candidate.id}|${candidate.className}`;
+        const entry=byKey.get(key)||{...candidate,probeHits:0,points:[]};
+        entry.probeHits++;
+        entry.points.push(point.name);
+        byKey.set(key,entry);
+      }
+    }
+    return {points,occluderCandidates:[...byKey.values()].sort((a,b)=>b.probeHits-a.probeHits)};
   };
   const marker=()=>{
     let el=document.getElementById('lqReq127DiagnosticsMarker');
@@ -54,12 +119,16 @@
   const writeMarker=()=>{
     const el=marker();
     el.dataset.req='127';
+    el.dataset.version=state.version;
     el.dataset.screen=state.latest?.screen||'unknown';
     el.dataset.map=state.latest?.map||'unknown';
     el.dataset.shell=String(!!state.latest?.shell);
     el.dataset.world=String(!!state.latest?.world);
     el.dataset.player=String(!!state.latest?.player);
     el.dataset.hidden=String(document.hidden);
+    const candidates=state.latest?.viewportProbe?.occluderCandidates||[];
+    el.dataset.occluderCount=String(candidates.length);
+    el.dataset.topOccluder=candidates[0]?`${candidates[0].tag}#${candidates[0].id}.${candidates[0].className}`:'';
     el.textContent=JSON.stringify({latest:state.latest,errors:state.errors.slice(-8),serviceWorker:state.serviceWorker});
   };
   const snapshot=label=>{
@@ -67,23 +136,26 @@
     const world=shell?.querySelector('.world')||document.querySelector('.world');
     const player=world?.querySelector('.player')||document.querySelector('.player');
     const tile=world?.querySelector('.tile')||document.querySelector('.tile');
+    const probe=viewportProbe();
     const snap={
       at:new Date().toISOString(),label,
-      visibility:document.visibilityState,hidden:document.hidden,
+      visibility:document.visibilityState,hidden:document.hidden,hasFocus:document.hasFocus?.()??null,
       viewport:{innerWidth,innerHeight,visualWidth:window.visualViewport?.width||null,visualHeight:window.visualViewport?.height||null,scale:window.visualViewport?.scale||null},
       screen:typeof s!=='undefined'&&s?s.screen:null,
       map:typeof s!=='undefined'&&s?s.map:null,
       app:describe(document.getElementById('app')),
       shell:describe(shell),world:describe(world),player:describe(player),tile:describe(tile),
-      centerStack:centerStack()
+      viewportProbe:probe,
+      centerStack:probe.points.find(p=>p.name==='center')?.stack||[]
     };
     state.latest=snap;
-    state.events.push({at:snap.at,type:'snapshot',label});
+    state.events.push({at:snap.at,type:'snapshot',label,occluderCount:probe.occluderCandidates.length});
     trim();
     writeMarker();
     return snap;
   };
   state.snapshot=snapshot;
+  state.viewportProbe=viewportProbe;
 
   window.addEventListener('error',ev=>{
     state.errors.push({at:new Date().toISOString(),type:'error',message:String(ev.message||''),source:String(ev.filename||''),line:ev.lineno||0,column:ev.colno||0});trim();writeMarker();
@@ -97,6 +169,9 @@
   addEventListener('pageshow',e=>{record('pageshow',{persisted:!!e.persisted});requestAnimationFrame(()=>requestAnimationFrame(()=>snapshot('pageshow-double-raf')));});
   addEventListener('pagehide',e=>record('pagehide',{persisted:!!e.persisted}));
   document.addEventListener('visibilitychange',()=>{record('visibilitychange',{visibility:document.visibilityState});if(!document.hidden)requestAnimationFrame(()=>requestAnimationFrame(()=>snapshot('visibility-foreground-double-raf')));});
+  addEventListener('focus',()=>{record('focus');requestAnimationFrame(()=>requestAnimationFrame(()=>snapshot('focus-double-raf')));});
+  addEventListener('freeze',()=>record('freeze'));
+  addEventListener('resume',()=>{record('resume');requestAnimationFrame(()=>requestAnimationFrame(()=>snapshot('resume-double-raf')));});
   addEventListener('resize',()=>snapshot('resize'));
   addEventListener('orientationchange',()=>setTimeout(()=>snapshot('orientationchange'),80));
   window.visualViewport?.addEventListener('resize',()=>snapshot('visualViewport-resize'));
