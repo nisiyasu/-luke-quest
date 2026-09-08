@@ -1,0 +1,51 @@
+name: REQ-134 Battle Touch UI
+
+on:
+  push:
+    paths:
+      - 'requirements/REQ-134_IPHONE_BATTLE_TOUCH_UI.md'
+      - 'addons/req134-iphone-battle-touch-ui.js'
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req134-battle-touch-smoke.js'
+      - '.github/workflows/req134-battle-touch-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  assembled-battle-touch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check addons/req134-iphone-battle-touch-ui.js
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req134-battle-touch-smoke.js
+      - name: Assemble Pages-equivalent runtime
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          if compgen -G 'addons/*.js' > /dev/null; then
+            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          fi
+      - name: 390x844 assembled battle acceptance
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8134 >/tmp/lq-req134-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=6000 --dump-dom 'http://127.0.0.1:8134/?lqReq134Smoke=1' >/tmp/lq-req134-dom.html 2>/tmp/lq-req134-chrome.log || true
+          grep -o '<i id="lqReq134BattleTouchSmokeMarker"[^>]*>' /tmp/lq-req134-dom.html || true
+          grep -q 'id="lqReq134BattleTouchSmokeMarker"[^>]*data-pass="true"' /tmp/lq-req134-dom.html
+          echo 'REQ-134 assembled battle touch acceptance PASS'
