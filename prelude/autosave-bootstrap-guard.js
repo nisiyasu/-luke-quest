@@ -3,23 +3,16 @@
 
   const SAVE_KEY = 'lukeQuestV2';
   const QUARANTINE_KEY = 'lukeQuestAutosaveQuarantineV1';
+  const RECOVERY_STAGE_KEY = 'lqReq141PreLeonRecovery';
   const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
-  /* REQ-140 owner recovery path.
-     A physical iPhone can render black after importing the legacy save even
-     when its map coordinates are changed. Do not derive this recovery from
-     that payload. Build a clean canonical-shaped save before index.html
-     reads localStorage, while preserving the old bytes under a backup key.
-
-     Owner requested the map counted as 3 when Leon's windStairRidge is 1:
-       1 windStairRidge
-       2 cloudbreakSaddle
-       3 skylineTraverse
-     Use the canonical REQ-107 south entry spawn for skylineTraverse:
-       (10,18), facing up.
-     Owner physical play evidence establishes LV11 as appropriate here.
-  */
-  const installCleanPreLeonRecovery = () => {
+  /* REQ-141 schema-safe owner recovery bootstrap.
+     Do not hand-build a partial canonical save before the game DEFAULT and
+     later migrations/add-ons have initialized. Instead, back up the current
+     save, clear only the canonical key, mark a one-shot session recovery, and
+     reload into the normal startup path. A late add-on applies the LV11
+     checkpoint after the runtime has produced its current schema. */
+  const stagePreLeonRecovery = () => {
     let requested = false;
     try {
       requested = new URLSearchParams(location.search).get('leon-recovery') === '1';
@@ -31,90 +24,27 @@
 
     if (previous !== null) {
       try {
-        localStorage.setItem(`lukeQuestV2_req140_before_leon_recovery_${Date.now()}`, previous);
+        localStorage.setItem(`lukeQuestV2_req141_before_pre_leon_recovery_${Date.now()}`, previous);
       } catch (error) {
-        console.warn('[LUKE QUEST] pre-Leon backup write failed; recovery aborted', error);
+        console.warn('[LUKE QUEST] REQ-141 pre-Leon backup write failed; recovery aborted', error);
         return true;
       }
     }
 
-    const clean = {
-      screen: 'world',
-      lv: 11,
-      hp: 132,
-      mh: 132,
-      atk: 34,
-      xp: 413,
-      nx: 1135,
-      gold: 1797,
-      potions: 6,
-      map: 'skylineTraverse',
-      x: 10,
-      y: 18,
-      dir: 'up',
-      step: 0,
-      wins: 90,
-      enemy: null,
-      ehp: 0,
-      log: ['北尾根・雲裂きの稜線へ入った。レオンを追って、さらに北へ進む。'],
-      dialog: null,
-      flags: {
-        leonSeen: true,
-        mistEntered: true,
-        glennTraceSeen: true,
-        observationEntered: true,
-        glennSeen: true,
-        evacEntered: true,
-        leonInjurySeen: true,
-        escapeProofSeen: true,
-        withdrawProofSeen: true,
-        guidanceIntroSeen: true,
-        req118OpeningComplete: true,
-        req118OpeningPhase: 'legacy_bypass',
-        chapter1ClimaxStarted: false,
-        chapter1HeroRevealedToLeon: false,
-        chapter1LeonConfrontationResolved: false,
-        chapter1SisterWounded: false,
-        chapter1SisterInjuryNonfatal: false,
-        chapter1Complete: false
-      },
-      weapon: '旅人の短剣',
-      armor: '旅人服',
-      settings: { sound: true, music: true, sfx: true },
-      saveSchema: 3,
-      playSeconds: 0,
-      mmp: 30,
-      mp: 30,
-      seenEnemies: [],
-      enemyDefeats: {},
-      dialogHistory: [],
-      discoveredMaps: [
-        'town','field','forest','deepForest','mistTrail','observation',
-        'evacRoute','northCliffRoad','northRidgeApproach','windShelf',
-        'skylineTraverse'
-      ]
-    };
-
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(clean));
-      const verify = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
-      if (!verify || verify.map !== 'skylineTraverse' || verify.lv !== 11 || verify.x !== 10 || verify.y !== 18) {
-        throw new Error('post-write verification mismatch');
-      }
-      try {
-        const url = new URL(location.href);
-        url.searchParams.delete('leon-recovery');
-        url.searchParams.set('recovered', 'skyline-lv11');
-        history.replaceState(null, '', url.pathname + '?' + url.searchParams.toString() + url.hash);
-      } catch (_) {}
-      console.info('[LUKE QUEST] clean skyline LV11 recovery installed');
+      sessionStorage.setItem(RECOVERY_STAGE_KEY, JSON.stringify({version:1,requestedAt:Date.now()}));
+      localStorage.removeItem(SAVE_KEY);
+      const url = new URL(location.href);
+      url.searchParams.delete('leon-recovery');
+      url.searchParams.set('recovery-stage', 'req141');
+      location.replace(url.pathname + '?' + url.searchParams.toString() + url.hash);
     } catch (error) {
-      console.warn('[LUKE QUEST] clean skyline recovery write failed', error);
+      console.warn('[LUKE QUEST] REQ-141 recovery staging failed', error);
     }
     return true;
   };
 
-  if (installCleanPreLeonRecovery()) return;
+  if (stagePreLeonRecovery()) return;
 
   const isPlainObject = value => {
     if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
