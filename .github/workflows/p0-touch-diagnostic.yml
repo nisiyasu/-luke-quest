@@ -19,6 +19,9 @@ on:
       - 'requirements/REQ-140_IPHONE_COMPOSITOR_BLACK_SCREEN_RECOVERY.md'
       - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req142-adventure-memo-controls.js'
       - 'requirements/REQ-142_ADVENTURE_MEMO_MODERN_CONTROLS_HINT.md'
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzz-req143-leon-gold-standard.js'
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-cleanup.js'
+      - 'requirements/REQ-143_GAME_QUALITY_SYSTEM_AND_LEON_GOLD_STANDARD.md'
   workflow_dispatch:
 
 permissions:
