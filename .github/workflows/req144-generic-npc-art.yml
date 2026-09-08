@@ -80,3 +80,5 @@ jobs:
           fi
           curl -fsS http://127.0.0.1:8144/assets/characters/npc/field-generic-sprites.svg | grep -q 'id="elder-down"'
           echo 'REQ-144 generic NPC original-art acceptance PASS'
+
+# REQ-144 dedicated gate retrigger checkpoint
