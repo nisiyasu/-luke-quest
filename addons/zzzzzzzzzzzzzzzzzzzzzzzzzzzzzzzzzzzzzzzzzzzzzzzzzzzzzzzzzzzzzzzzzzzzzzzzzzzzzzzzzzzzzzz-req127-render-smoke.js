@@ -146,5 +146,10 @@
     }catch(error){fail(error);}
   };
 
-  setTimeout(()=>{void run();},0);
+  // This smoke file sorts before the late REQ-127 resume-heal addon. Running from a
+  // zero-delay parser timer can race the later script load, so wait for the completed
+  // document where the public addon order is fully installed. This stays fail-closed:
+  // run() still fails if the heal contract is absent after load.
+  if(document.readyState==='complete')void run();
+  else addEventListener('load',()=>{void run();},{once:true});
 })();
