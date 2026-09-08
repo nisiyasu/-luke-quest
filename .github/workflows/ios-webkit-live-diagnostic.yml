@@ -41,6 +41,7 @@ jobs:
             ...devices['iPhone 15 Pro'],
             locale: 'ja-JP',
           });
+          let failed = false;
 
           async function probe(name, url) {
             const page = await context.newPage();
@@ -50,30 +51,49 @@ jobs:
             page.on('pageerror', e => pageErrors.push(String(e?.stack || e)));
             const response = await page.goto(url + `?lqLiveWebKit=${Date.now()}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
             await page.waitForTimeout(7000);
-            const info = await page.evaluate(() => ({
-              title: document.title,
-              bodyText: (document.body?.innerText || '').slice(0, 3000),
-              bodyHTMLLength: document.body?.innerHTML?.length || 0,
-              appHTMLLength: document.querySelector('#app')?.innerHTML?.length || 0,
-              bodyBg: getComputedStyle(document.body).backgroundColor,
-              viewport: [innerWidth, innerHeight],
-            }));
+            const info = await page.evaluate(() => {
+              const app = document.querySelector('#app');
+              const rect = app?.getBoundingClientRect();
+              return {
+                title: document.title,
+                bodyText: (document.body?.innerText || '').slice(0, 3000),
+                bodyHTMLLength: document.body?.innerHTML?.length || 0,
+                appHTMLLength: app?.innerHTML?.length || 0,
+                appRect: rect ? [rect.x, rect.y, rect.width, rect.height] : null,
+                bodyBg: getComputedStyle(document.body).backgroundColor,
+                viewport: [innerWidth, innerHeight],
+              };
+            });
             await page.screenshot({ path: `/tmp/${name}.png`, fullPage: true });
-            fs.writeFileSync(`/tmp/${name}.json`, JSON.stringify({
+            const result = {
               url: page.url(),
               status: response?.status() ?? null,
               info,
               consoleLines,
               pageErrors,
-            }, null, 2));
+            };
+            fs.writeFileSync(`/tmp/${name}.json`, JSON.stringify(result, null, 2));
             console.log(`===== ${name} =====`);
-            console.log(fs.readFileSync(`/tmp/${name}.json`, 'utf8'));
+            console.log(JSON.stringify(result, null, 2));
+
+            const badStatus = result.status !== 200;
+            const missingApp = info.appHTMLLength < 100;
+            const zeroApp = !info.appRect || info.appRect[2] < 10 || info.appRect[3] < 10;
+            const fatalError = pageErrors.length > 0;
+            const missingLuke = !info.bodyText.includes('LUKE QUEST');
+            if (badStatus || missingApp || zeroApp || fatalError || missingLuke) {
+              failed = true;
+              console.error(`${name} FAIL: status=${result.status} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} hasLuke=${!missingLuke}`);
+            } else {
+              console.log(`${name} PASS: live WebKit rendered a non-empty LUKE QUEST surface`);
+            }
             await page.close();
           }
 
           await probe('production-webkit', process.env.PROD_URL);
           await probe('gold-webkit', process.env.GOLD_URL);
           await browser.close();
+          if (failed) process.exit(1);
           JS
           node probe.mjs
 
