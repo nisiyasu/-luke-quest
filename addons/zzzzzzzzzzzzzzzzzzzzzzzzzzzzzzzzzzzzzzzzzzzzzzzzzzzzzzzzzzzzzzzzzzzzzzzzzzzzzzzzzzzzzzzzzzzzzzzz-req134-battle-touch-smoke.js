@@ -14,6 +14,7 @@ function fail(reason,extra={}){
 }
 function canonicalHandler(button){return (button?.getAttribute('onclick')||'').replace(/\s+/g,'');}
 function nextMutationTurn(){return new Promise(resolve=>queueMicrotask(resolve));}
+function resolveBattleLog(){return document.querySelector('#app .lqBattleScrollableLog');}
 function describeLogCandidates(app){
  const needle='REQ-134 battle touch acceptance';
  const candidates=[...app.querySelectorAll('*')].filter(el=>{
@@ -46,10 +47,10 @@ async function run(){
 
   const app=document.getElementById('app');
   const card=document.querySelector('.lqBattleCommandCard');
-  // The assembled runtime may keep the battle log as a sibling of the command
-  // surface. Acceptance therefore checks the canonical battle log in #app,
-  // rather than assuming a legacy .card nesting relationship.
-  const log=document.querySelector('#app .log');
+  // REQ-134 owns presentation only. The product must explicitly decorate the
+  // canonical assembled battle log, whether it originated as .log or the
+  // later .battleLogV10 replacement, before this gate accepts it.
+  const log=resolveBattleLog();
   const logCandidates=app?describeLogCandidates(app):'';
   const buttons=[...(card?.querySelectorAll('button')||[])];
   const enabled=buttons.filter(b=>!b.disabled&&b.getAttribute('aria-disabled')!=='true');
@@ -61,9 +62,6 @@ async function run(){
   const handlers=buttons.map(canonicalHandler);
   const texts=buttons.map(b=>(b.textContent||'').trim().replace(/\s+/g,' '));
   const hasBase=['attack()','guard()','potion()','runAway()'].every(handler=>handlers.includes(handler));
-  // Skill presentation is assembled from later add-ons. Do not pin this gate
-  // to one historical display name; prove a non-base battle skill command is
-  // present while preserving the four canonical base handlers.
   const hasSkill=buttons.some(b=>b.classList.contains('lqSkillBtn')||/蒼閃|集中斬り/.test(b.textContent||''));
   const styled=enabled.length>=4&&enabled.every(b=>b.classList.contains('lqBattleCommandButton'));
   const logStyle=log?getComputedStyle(log):null;
@@ -94,12 +92,13 @@ async function run(){
   battle();
   await nextMutationTurn();
   const rerenderCard=document.querySelector('.lqBattleCommandCard');
-  const rerenderProtected=!!rerenderCard&&[...rerenderCard.querySelectorAll('button')].every(b=>b.classList.contains('lqBattleCommandButton'));
+  const rerenderLog=resolveBattleLog();
+  const rerenderProtected=!!rerenderCard&&!!rerenderLog&&[...rerenderCard.querySelectorAll('button')].every(b=>b.classList.contains('lqBattleCommandButton'));
 
   const pass=!!window.LQ_REQ134_BATTLE_TOUCH_UI&&
    window.LQ_REQ134_BATTLE_TOUCH_UI.presentationOnly===true&&
    minHeight>=48&&noHorizontalOverflow&&cardFits&&hasBase&&hasSkill&&styled&&logBounded&&singleDispatch&&worldExcluded&&rerenderProtected;
-  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,logOverflow:logStyle?.overflowY||'',logHeight:log?.clientHeight||0,singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length,texts:texts.join('|'),handlers:handlers.join('|'),logCandidates});
+  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,logOverflow:logStyle?.overflowY||'',logHeight:log?.clientHeight||0,logClass:String(log?.className||''),singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length,texts:texts.join('|'),handlers:handlers.join('|'),logCandidates});
   if(!pass)console.error('REQ-134 acceptance details',document.getElementById('lqReq134BattleTouchSmokeMarker')?.dataset);
  }catch(error){
   fail(error?.message||String(error));
