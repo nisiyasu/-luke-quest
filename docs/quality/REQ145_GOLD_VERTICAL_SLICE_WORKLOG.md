@@ -59,3 +59,28 @@ FRESH_BASELINE: `main@0366d47550a4fc035736e754d492b11bfbef2825`
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 2 — objective hierarchy refinement
+
+### Critic finding
+
+- Full-width objective ribbon still reads closer to a diagnostic status strip than authored game direction.
+- Hiding HUD resource cells was tested and rejected because it distorted the existing EXP/MP layout and made the candidate worse.
+- Terrain repainting remains rejected; current main's layered town texture stays authoritative.
+
+### Candidate repair
+
+- Keep the existing HUD structure and all underlying progression information unchanged.
+- Convert only the world objective presentation to a compact content-width pill with gold accent, ellipsis safety, and the same canonical text.
+- Keep dialogue focus treatment from Iteration 1.
+- No input, save, story, battle, collision, or progression authority is added or changed.
+
+### Evidence
+
+- JS syntax PASS locally.
+- Candidate assembler and deterministic town/dialogue/battle harness PASS locally.
+- Existing 390x844 A/B captures show the compact objective occupies materially less world area while preserving instruction visibility.
+- Full branch workflow remains the promotion gate after checkpoint push.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING
