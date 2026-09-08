@@ -10,7 +10,7 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | ORDER | ID | PRIORITY | STATUS | TITLE | REQUIREMENT | NOTE |
 |---:|---|---|---|---|---|---|
-| -2 | REQ-127 | P0 | IN_PROGRESS | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md` | Owner 2026-09-08 physical report says persistent dark/black iPhone PWA is still unresolved. Reopened P0. Lifecycle full-screen fade cleanup candidate implemented; Pages/render/cache-busted validation required; IOS_PHYSICAL_VERIFICATION=PENDING. |
+| -2 | REQ-127 | P0 | VERIFY | iPhone Black Screen Autonomous Detection & Recovery | `requirements/REQ-127_IPHONE_PWA_PERSISTENT_BLACK_SCREEN_RECOVERY.md` | v1.4 machine/public recovery complete on source `70ac181...`: P0 Touch 34190819658 SUCCESS; Pages 34190819654 SUCCESS; Render Liveness 34190819853 SUCCESS; cache-busted exact-source deploy 34190886118 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. Reopen only on fresh Owner failure evidence. |
 | -1 | REQ-121 | P0 | VERIFY | Cloudbreak → Wind Stair Transition Deadlock Fix | `requirements/REQ-121_CLOUDBREAK_WIND_STAIR_TRANSITION_DEADLOCK_FIX.md` | Machine implementation complete. One canonical Action now enters existing `windStairRidge`; safe walkable entry + south return + flag preservation acceptance PASS. Historical REQ-108 boundary smoke made forward-compatible; standard Pages run 34073496787 SUCCESS including REQ-081/082 and 390x844 gates. IOS_PHYSICAL_VERIFICATION=PENDING. |
 | 0 | REQ-102 | P0 | VERIFY | Owner iPhone Forest Input / HUD Toggle / Dialogue Portrait Fix | `requirements/REQ-102_OWNER_IPHONE_FOREST_INPUT_HUD_TOGGLE_DIALOGUE_PORTRAIT_FIX.md` | 魔物の森entry spawnを北へ進めるlaneへ修復、top HUD再stack + HUD ON/OFF、Owner upload画像をLuke会話face cropへroute。REQ-102 runtime guard + 390x844 touch/fullscreen + assembled browser PASS、Pages run 34039338259 SUCCESS。IOS_PHYSICAL_VERIFICATION=PENDING。 |
 | 0 | REQ-092 | P0 | VERIFY | iPhone Field UI Occlusion / Camera Framing Fix | `requirements/REQ-092_IPHONE_FIELD_UI_OCCLUSION_CAMERA_FRAMING.md` | 最新Owner実機報告4点を統合。上部UI重なり、playerのHUD裏隠れ、Dynamic Touch透明化、portrait camera 0.88 zoom-outを実装。Pages run 34031527694 SUCCESS。Owner実機最終確認はPENDING。旧誤登録REQ-085はID衝突をfresh inventoryで検知しREQ-092へ復旧。 |
@@ -133,6 +133,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 
 | 115 | REQ-133 | P1 | VERIFY | Chapter 1 Complete Upper Pursuit Guidance Closure | `requirements/REQ-133_CHAPTER_01_COMPLETE_UPPER_PURSUIT_GUIDANCE_CLOSURE.md` | windShelf / skylineTraverse / cloudbreakSaddle terminal guidance closure machine-complete. Pages 34106890062 SUCCESS; Render Liveness 34106890050 SUCCESS; cache-busted public deploy 34106990439 SUCCESS. IOS_PHYSICAL_VERIFICATION=PENDING. |
+| 116 | REQ-134 | P1 | IN_PROGRESS | iPhone Battle Touch UI Hardening | `requirements/REQ-134_IPHONE_BATTLE_TOUCH_UI.md` | Directive-authorized player-visible work selected because READY=0 and remaining BACKLOG is Owner-art-only. Harden assembled 390x844 battle command surface without changing battle semantics/canon. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
