@@ -1,7 +1,7 @@
 # REQ-138 — Battle Level-Up Summary
 
 PRIORITY: P1
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 SOURCE: Directive-authorized player-visible continuation after REQ-137. Fresh canonical `win()` audit shows level-up state (`s.lv`, `s.nx`, recalculated stats, full HP/MP) is applied inside the XP loop but no level-up result is surfaced in the post-victory dialogue.
 
 ## Purpose
@@ -34,6 +34,13 @@ When a victory causes one or more level-ups, tell the player immediately in the 
 - REQ-137 / REQ-136 / REQ-135 / REQ-134 regression smokes remain PASS.
 - Standard Pages build/deploy SUCCESS with implementation included.
 - IOS_PHYSICAL_VERIFICATION: PENDING until Owner verifies actual iPhone presentation.
+
+## Verification checkpoint
+- Implementation/public checkpoint: `5d8fce09794709815fec5c11e62db4401d970778`.
+- Dedicated acceptance: `REQ-138 Battle Level-Up Summary` run `34210780072` — SUCCESS.
+- Exact-head Pages: `Deploy LUKE QUEST to GitHub Pages` run `34210779801` — SUCCESS.
+- Acceptance verified canonical level mutation, XP carry, gold/win exactly once, exactly one visible level-up summary, REQ-137 reward-summary coexistence, rerender idempotence, no false summary on a no-level second victory, and no world Action/Movement ownership from REQ-138.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
 
 ## Non-goals
 - No progression rebalance.
