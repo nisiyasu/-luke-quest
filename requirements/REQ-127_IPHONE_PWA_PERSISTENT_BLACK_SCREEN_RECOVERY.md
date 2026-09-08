@@ -1,11 +1,15 @@
 # REQ-127 — iPhone PWA Persistent Black Screen Recovery
 
 PRIORITY: P0
-STATUS: IN_PROGRESS
-OWNER_EVIDENCE: 2026-09-08 Owner reconfirmed that the iPhone screen-dark/black symptom is still not fixed. This supersedes the prior machine-only VERIFY state.
+STATUS: VERIFY
+OWNER_EVIDENCE: 2026-09-08 Owner reconfirmed that the iPhone screen-dark/black symptom was still not fixed on the previously tested physical build. Current v1.4 machine/public recovery is complete; physical iPhone confirmation of this exact build remains required.
+IOS_PHYSICAL_VERIFICATION: PENDING
+MACHINE_PUBLIC_VERIFICATION: PASS
+VERIFIED_SOURCE_SHA: 70ac18179dce76faafba820f14fc36a3619bfcac
+PUBLIC_URL: https://nisiyasu.github.io/-luke-quest/
 
 ## Problem
-The public LUKE QUEST iPhone Home Screen PWA can present a persistent black screen even when the DOM/game state appears alive. Existing automated checks validate DOM geometry and runtime markers but do not prove that pixels are actually painted on the physical iPhone PWA lifecycle path.
+The public LUKE QUEST iPhone Home Screen PWA can present a persistent black screen even when the DOM/game state appears alive. Existing automated checks validate DOM geometry and runtime markers but do not by themselves prove that pixels are actually painted on the physical iPhone PWA lifecycle path.
 
 ## Fresh incident facts
 - Owner reports the game was working on-device until roughly 04:00 JST on the original incident day.
@@ -22,6 +26,7 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 - 2026-09-08 diagnostics v1.1 expands black-screen evidence from a center-only hit test to five viewport probes (center/top/bottom/left/right), records compositor-relevant computed styles, and names full-screen near-black DOM occluder candidates without deleting unknown UI. A synthetic full-screen black occluder must be detected at all five points before the diagnostic contract passes.
 - The first diagnostics-v1.1 Render Liveness run failed even though its retained screenshot showed a normally painted world and the delayed-DOM heal had actually succeeded. The failure was traced to an over-specific regression assertion that required the recovery reason to be `window-focus-retry-*`; under CI timing the same valid late-DOM recovery completed at `window-focus-raf1-recovered`. The assertion was repaired to accept any proven post-focus delayed recovery while preserving all visibility/state invariants.
 - 2026-09-08 v1.4 audit identified a further lifecycle edge: an installed PWA can emit Page Lifecycle `freeze` / `resume` without a useful `pageshow`, `visibilitychange`, or `focus` edge. The canonical presentation-only resume heal now listens to `resume`, and the map-transition fade synchronously clears itself on the same boundary.
+- 2026-09-08 exact-HEAD validation at `70ac18179dce76faafba820f14fc36a3619bfcac` proved v1.4 through standard Pages, Chromium + Playwright WebKit Render Liveness, Page Lifecycle `resume` recovery, immutable SHA-versioned runtime URLs, clean-world pixel analysis, and a cache-busted public deployment. This satisfies all machine/public completion conditions. It does not replace physical iPhone verification.
 
 ## Requirements
 1. Preserve current known-good gameplay logic while diagnosing.
@@ -81,14 +86,19 @@ The public LUKE QUEST iPhone Home Screen PWA can present a persistent black scre
 - `5ab41327` lineage: repaired the late-DOM smoke contract so a successful delayed recovery may complete through RAF or bounded retry while preserving the same visibility/state requirements.
 - `c555a98fb9946baebb834e4ee26a918bbf02f463`: resume-heal v1.4 adds Page Lifecycle `resume` as a presentation-only recovery boundary while retaining bounded retries and zero gameplay/save mutation.
 - `becdd24d6011d5817048673b0ca4f72f745aab27`: map-transition fade v1.2 synchronously removes the transient full-screen dark layer on Page Lifecycle `resume` as well as the existing lifecycle boundaries.
-- `2d1b66f20965a19a8f472b2f3ced6533d9e0aa6e`: regression poisons the presentation and proves that dispatching Page Lifecycle `resume` alone invokes the v1.4 heal, restores shell/world/player geometry, clears dark/arrival presentation, and leaves logical state unchanged. This Actions-authored self-clean commit did not itself recursively trigger the normal push workflows, so final Pages/Render/public validation is required on the next normal connector-authored HEAD before v1.4 can be called machine/public green.
+- `2d1b66f20965a19a8f472b2f3ced6533d9e0aa6e`: regression poisons the presentation and proves that dispatching Page Lifecycle `resume` alone invokes the v1.4 heal, restores shell/world/player geometry, clears dark/arrival presentation, and leaves logical state unchanged.
+- `70ac18179dce76faafba820f14fc36a3619bfcac`: exact normal-connector descendant used to validate the v1.4 recovery path and public build.
+- P0 Touch Diagnostic run `34190819658`: SUCCESS on `70ac181...`; confirms the recovery lineage did not regress tap/drag/lifecycle input safety.
+- Standard Pages run `34190819654`: SUCCESS on `70ac181...`, including real upload and GitHub Pages deployment.
+- Render Liveness run `34190819853`: SUCCESS on `70ac181...`; Chromium + Playwright WebKit clean-world rendering and Page Lifecycle `resume` recovery checks passed.
+- Cache-busted public recovery run `34190886118`: SUCCESS on exact source `70ac181...`; all 364 runtime scripts were SHA-versioned, clean 390x844 render PASS, public deployment SUCCESS. Chromium pixel evidence: near-black ratio `0.264823`, bright ratio `0.627974`, mean luminance `87.866`, colorful ratio `0.549189`, quantized color bins `611`.
 
 ## Completion conditions
-- Automated rendered-pixel diagnostic exists and has run on the public-build assembly path. PASS on the last fully validated v1.3 candidate; v1.4 exact-HEAD validation is pending.
-- Result is recorded as PASS/FAIL with measured evidence. v1.4 exact-HEAD evidence pending.
-- If automated render FAILS, repair until PASS before normal feature work resumes.
-- If automated render PASSES while Owner iPhone remains black, continue narrowing the incident to physical iPhone/PWA lifecycle behavior; do not falsify physical verification.
-- A cache-busted recovery artifact must deploy successfully after the current repair before returning to VERIFY. v1.4 pending.
-- Pages deployment must remain successful after the current repair. v1.4 pending.
-- WORK_QUEUE.md and CURRENT.md must reflect this reopened P0 incident.
+- Automated rendered-pixel diagnostic exists and has run on the public-build assembly path: PASS on v1.4 exact source `70ac18179dce76faafba820f14fc36a3619bfcac`.
+- Result is recorded with measured evidence: PASS; latest clean cache-busted Chromium metrics are recorded above, and the WebKit gate is also SUCCESS.
+- If automated render FAILS, repair until PASS before normal feature work resumes: currently PASS.
+- If automated render PASSES while Owner iPhone remains black, continue narrowing the incident from fresh Owner evidence; do not falsify physical verification.
+- A cache-busted recovery artifact must deploy successfully after the current repair before returning to VERIFY: PASS, run `34190886118`.
+- Pages deployment must remain successful after the current repair: PASS, run `34190819654`.
+- WORK_QUEUE.md and CURRENT.md must reflect this VERIFY checkpoint.
 - IOS_PHYSICAL_VERIFICATION remains PENDING until Owner confirms the actual device no longer goes black.
