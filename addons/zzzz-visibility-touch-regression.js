@@ -43,6 +43,10 @@ function run(){
   const ownHidden=Object.getOwnPropertyDescriptor(document,'hidden');
   const ownVisibility=Object.getOwnPropertyDescriptor(document,'visibilityState');
   try{
+    // A previous synthetic probe must not donate pointer ownership into this one.
+    // blur is an actual production stop boundary and resets the floating controller's
+    // closure-owned pointerId in addition to the game's movement timer.
+    window.dispatchEvent(new Event('blur'));
     stopMoving();
     action=function(){actionCalls++;return originalAction.apply(this,arguments);};
     s.screen='world';s.map='town';s.x=9;s.y=12;s.dir='right';s.dialog=null;
