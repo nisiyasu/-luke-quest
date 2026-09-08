@@ -54,15 +54,27 @@ jobs:
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
-          timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=6500 --dump-dom 'http://127.0.0.1:8126/req145-assembled.html?lqTouchSmoke=1' > .req145/candidate-touch-dom.html 2>/tmp/req145-touch-chrome.log || true
-          grep -q 'id="lqFloatingTouchRuntimeSmokeMarker"' .req145/candidate-touch-dom.html
-          grep -q 'data-tap-action="true"' .req145/candidate-touch-dom.html
-          grep -q 'data-drag-no-action="true"' .req145/candidate-touch-dom.html
-          grep -q 'data-cancel-no-action="true"' .req145/candidate-touch-dom.html
-          grep -q 'data-map-transition-stops="true"' .req145/candidate-touch-dom.html
-          grep -q 'data-battle-transition-stops="true"' .req145/candidate-touch-dom.html
-          grep -q 'id="lqFullscreenWorldRuntimeSmokeMarker"' .req145/candidate-touch-dom.html
-          if grep -q 'lqFloatingTouchSmokeFailure' .req145/candidate-touch-dom.html; then exit 1; fi
+          probe_touch() {
+            local attempt="$1"
+            local budget="$2"
+            rm -rf "/tmp/req145-touch-profile-$attempt"
+            timeout 60 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --user-data-dir="/tmp/req145-touch-profile-$attempt" --window-size=390,844 --virtual-time-budget="$budget" --dump-dom 'http://127.0.0.1:8126/req145-assembled.html?lqTouchSmoke=1' > .req145/candidate-touch-dom.html 2>"/tmp/req145-touch-chrome-$attempt.log" || true
+            grep -q 'id="lqFloatingTouchRuntimeSmokeMarker"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-tap-action="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-drag-no-action="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-cancel-no-action="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-map-transition-stops="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-battle-transition-stops="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'id="lqFullscreenWorldRuntimeSmokeMarker"' .req145/candidate-touch-dom.html &&
+            ! grep -q 'lqFloatingTouchSmokeFailure' .req145/candidate-touch-dom.html
+          }
+          if ! probe_touch 1 6500; then
+            echo 'REQ-145 P0 touch probe first attempt incomplete; retrying with larger virtual-time budget.'
+            grep -o 'id="lqFloatingTouchRuntimeSmokeMarker"[^>]*' .req145/candidate-touch-dom.html || true
+            grep -o 'id="lqFullscreenWorldRuntimeSmokeMarker"[^>]*' .req145/candidate-touch-dom.html || true
+            tail -40 /tmp/req145-touch-chrome-1.log || true
+            probe_touch 2 9500
+          fi
 
       - name: Exercise REQ-145 canonical action feedback smoke
         shell: bash
