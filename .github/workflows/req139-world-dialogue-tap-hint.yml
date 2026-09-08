@@ -1,0 +1,60 @@
+name: REQ-139 World Dialogue Tap Hint
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req139-world-dialogue-tap-hint.yml'
+      - 'addons/zzzzzzzzzzzzzz-req139-world-dialogue-tap-hint.js'
+      - 'addons/zzzzzzzzzzzzzzz-req139-world-dialogue-tap-hint-smoke.js'
+      - 'addons/floating-touch-controller.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject new input handlers in REQ-139 implementation
+        run: |
+          ! grep -Eq 'addEventListener|onpointer|ontouch|onclick' addons/zzzzzzzzzzzzzz-req139-world-dialogue-tap-hint.js
+          grep -q "HINT_TEXT='タップ / Aで閉じる'" addons/zzzzzzzzzzzzzz-req139-world-dialogue-tap-hint.js
+          grep -q 'canonicalActionChanged:false' addons/zzzzzzzzzzzzzz-req139-world-dialogue-tap-hint.js
+
+      - name: Assemble public injection order
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          if compgen -G 'addons/*.js' > /dev/null; then
+            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          fi
+
+      - name: Run 390x844 assembled browser probe
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8139 >/tmp/lq-req139-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=4200 --dump-dom 'http://127.0.0.1:8139/?lqReq139Smoke=1' >/tmp/lq-req139-dom.html 2>/tmp/lq-req139-chrome.log || true
+          grep -o '<i id="lqReq139WorldDialogueTapHintSmokeMarker"[^>]*>' /tmp/lq-req139-dom.html || true
+
+      - name: Gate public dialogue hint and canonical close
+        run: |
+          grep -q 'id="lqReq139WorldDialogueTapHintSmokeMarker"[^>]*data-pass="true"' /tmp/lq-req139-dom.html
+          grep -q 'data-hint-visible="true"' /tmp/lq-req139-dom.html
+          grep -q 'data-presentation-only="true"' /tmp/lq-req139-dom.html
+          grep -q 'data-canonical-close="true"' /tmp/lq-req139-dom.html
