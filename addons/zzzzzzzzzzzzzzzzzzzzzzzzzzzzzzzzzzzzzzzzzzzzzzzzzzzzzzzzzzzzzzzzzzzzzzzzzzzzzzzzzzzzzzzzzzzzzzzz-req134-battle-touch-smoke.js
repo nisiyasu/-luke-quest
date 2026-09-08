@@ -14,6 +14,20 @@ function fail(reason,extra={}){
 }
 function canonicalHandler(button){return (button?.getAttribute('onclick')||'').replace(/\s+/g,'');}
 function nextMutationTurn(){return new Promise(resolve=>queueMicrotask(resolve));}
+function describeLogCandidates(app){
+ const needle='REQ-134 battle touch acceptance';
+ const candidates=[...app.querySelectorAll('*')].filter(el=>{
+  if(el.matches('script,style,button'))return false;
+  const cls=String(el.className||'');
+  const text=(el.textContent||'').trim();
+  return /log|history|message|feed/i.test(cls)||text.includes(needle);
+ });
+ return candidates.slice(0,12).map(el=>{
+  const style=getComputedStyle(el);
+  const text=(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,120);
+  return `${el.tagName.toLowerCase()}.${String(el.className||'').replace(/\s+/g,'.')}[h=${el.clientHeight};oy=${style.overflowY};d=${style.display}]${text}`;
+ }).join('||').slice(0,1800);
+}
 async function run(){
  const snapshot=structuredClone(s);
  const originalAttack=attack;
@@ -30,11 +44,13 @@ async function run(){
   battle();
   await nextMutationTurn();
 
+  const app=document.getElementById('app');
   const card=document.querySelector('.lqBattleCommandCard');
   // The assembled runtime may keep the battle log as a sibling of the command
   // surface. Acceptance therefore checks the canonical battle log in #app,
   // rather than assuming a legacy .card nesting relationship.
   const log=document.querySelector('#app .log');
+  const logCandidates=app?describeLogCandidates(app):'';
   const buttons=[...(card?.querySelectorAll('button')||[])];
   const enabled=buttons.filter(b=>!b.disabled&&b.getAttribute('aria-disabled')!=='true');
   const vvWidth=window.visualViewport?.width||window.innerWidth;
@@ -63,7 +79,8 @@ async function run(){
     texts:texts.join('|').slice(0,500),
     handlers:handlers.join('|').slice(0,500),
     cardText:(card?.textContent||'').trim().replace(/\s+/g,' ').slice(0,700),
-    allAppButtons:[...document.querySelectorAll('#app button')].map(b=>(b.textContent||'').trim().replace(/\s+/g,' ')).join('|').slice(0,800)
+    allAppButtons:[...document.querySelectorAll('#app button')].map(b=>(b.textContent||'').trim().replace(/\s+/g,' ')).join('|').slice(0,800),
+    logCandidates
    });
    return;
   }
@@ -82,7 +99,7 @@ async function run(){
   const pass=!!window.LQ_REQ134_BATTLE_TOUCH_UI&&
    window.LQ_REQ134_BATTLE_TOUCH_UI.presentationOnly===true&&
    minHeight>=48&&noHorizontalOverflow&&cardFits&&hasBase&&hasSkill&&styled&&logBounded&&singleDispatch&&worldExcluded&&rerenderProtected;
-  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,logOverflow:logStyle?.overflowY||'',logHeight:log?.clientHeight||0,singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length,texts:texts.join('|'),handlers:handlers.join('|')});
+  marker({pass,minHeight:minHeight.toFixed(1),noHorizontalOverflow,cardFits,hasBase,hasSkill,styled,logBounded,logOverflow:logStyle?.overflowY||'',logHeight:log?.clientHeight||0,singleDispatch,worldExcluded,rerenderProtected,buttonCount:buttons.length,texts:texts.join('|'),handlers:handlers.join('|'),logCandidates});
   if(!pass)console.error('REQ-134 acceptance details',document.getElementById('lqReq134BattleTouchSmokeMarker')?.dataset);
  }catch(error){
   fail(error?.message||String(error));
