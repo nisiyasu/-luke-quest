@@ -33,11 +33,6 @@
     return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&r.height>0;
   };
 
-  // Headless Chrome's --dump-dom can snapshot while requestAnimationFrame callbacks are
-  // still queued even though the recovered world has already painted. That made the
-  // exact same artifact alternate GREEN/RED. Keep frame settling semantics, but give each
-  // frame a bounded timer fallback so the diagnostic marker itself cannot starve behind
-  // virtual-time scheduling. Recovery assertions below remain fail-closed.
   const waitFrame=()=>new Promise(resolve=>{
     let done=false;
     const finish=()=>{
@@ -52,6 +47,7 @@
   const waitFrames=async(count=1)=>{
     for(let i=0;i<count;i++)await waitFrame();
   };
+  const waitMs=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
   const poisonPresentation=(shell,world)=>{
     shell.classList.add('lqMapArrive');
@@ -71,7 +67,6 @@
       if(typeof s==='undefined'||!s)throw new Error('canonical state unavailable');
       if(typeof render!=='function')throw new Error('canonical render unavailable');
 
-      // Test-only ephemeral world state. Do not save or mutate persistent storage.
       s.screen='world';
       s.map='town';
       s.x=8;
@@ -87,23 +82,16 @@
       let world=shell?.querySelector('.world')||document.querySelector('.world');
       let player=world?.querySelector('.player')||document.querySelector('.player');
       let tiles=world?.querySelectorAll('.tile')||[];
-      // The entrance animation is deliberately allowed to be at opacity:0 here. That is
-      // exactly the lifecycle presentation state REQ-127 must recover from. Require real
-      // layout + world content before poisoning/recovering it, not completed animation time.
       if(!laidOut(shell)||!laidOut(world)||!laidOut(player)||!tiles.length){
         throw new Error('initial world layout unavailable');
       }
 
       const heal=window.LQ_REQ127_RESUME_WORLD_HEAL;
       if(!heal||typeof heal.heal!=='function')throw new Error('REQ-127 resume world heal unavailable');
-      if(heal.presentationOnly!==true||heal.gameplayStateMutation!==false||heal.saveSchemaChange!==false||heal.frozenArrivalCleanup!==true||heal.focusRecovery!==true){
+      if(heal.presentationOnly!==true||heal.gameplayStateMutation!==false||heal.saveSchemaChange!==false||heal.frozenArrivalCleanup!==true||heal.focusRecovery!==true||heal.lateDomRetryRecovery!==true){
         throw new Error('REQ-127 resume heal safety/recovery contract invalid');
       }
 
-      // Reproduce the evidence captured by CI: an arrival animation can remain at its
-      // filled 0% frame (opacity 0 + brightness .55), while a transition overlay and stale
-      // backing plane obscure the world. Recovery must neutralize all of those without
-      // mutating canonical gameplay state.
       poisonPresentation(shell,world);
 
       const before={screen:s.screen,map:s.map,x:s.x,y:s.y,dir:s.dir};
@@ -125,8 +113,6 @@
       const fadeCleared=!document.getElementById('lq-map-transition-fade');
       const arrivalCleared=!shell?.classList.contains('lqMapArrive');
       const fullscreenReasserted=document.documentElement.classList.contains('lqWorldFullscreen')&&document.body.classList.contains('lqWorldFullscreen');
-      // offsetWidth/Height verify the logical CSS box; getBoundingClientRect includes the
-      // camera transform and is therefore not the right equality check for map size.
       const sizeReasserted=Math.abs((world?.offsetWidth||0)-expectedWidth)<1&&Math.abs((world?.offsetHeight||0)-expectedHeight)<1;
       const shellReasserted=visible(shell);
       const worldReasserted=visible(world)&&visible(player)&&tiles.length>0&&sizeReasserted;
@@ -141,10 +127,6 @@
         throw new Error('REQ-127 resume heal marker did not confirm shell/world recovery');
       }
 
-      // Second pass: prove the newly covered iPhone/PWA lifecycle boundary itself. Poison
-      // the same presentation again, then recover ONLY through the real window focus event.
-      // This catches a regression where the callable heal() remains healthy but the focus
-      // listener is lost or no longer wired to the canonical recovery path.
       poisonPresentation(shell,world);
       const countBeforeFocus=heal.healCount;
       window.dispatchEvent(new Event('focus'));
@@ -170,6 +152,37 @@
       if(!focusMarkerConfirmed)throw new Error(`REQ-127 focus recovery marker did not confirm recovery: reason=${focusMarkerReason}`);
       if(!focusLogicalStateUnchanged)throw new Error('REQ-127 focus recovery mutated logical gameplay state');
 
+      // Third pass: model the lifecycle race not covered by v1.2. Foreground focus can fire
+      // while the render wrapper has temporarily detached .world. The old heal got only two
+      // RAF attempts; if DOM reconstruction finished later, there was no further recovery
+      // boundary and the stale dark presentation could survive. Detach the existing world,
+      // fire focus, reattach after 180ms, then require bounded retry recovery.
+      poisonPresentation(shell,world);
+      const detachedWorld=world;
+      detachedWorld.remove();
+      const countBeforeLateDom=heal.healCount;
+      window.dispatchEvent(new Event('focus'));
+      setTimeout(()=>{
+        const currentShell=document.querySelector('.gameShell');
+        if(currentShell&&!detachedWorld.isConnected)currentShell.appendChild(detachedWorld);
+      },180);
+      await waitMs(520);
+      await waitFrames(2);
+
+      shell=document.querySelector('.gameShell');
+      world=shell?.querySelector('.world')||document.querySelector('.world');
+      player=world?.querySelector('.player')||document.querySelector('.player');
+      tiles=world?.querySelectorAll('.tile')||[];
+      healMarker=document.getElementById('lqReq127ResumeWorldHealMarker');
+      const lateDomSizeReasserted=Math.abs((world?.offsetWidth||0)-expectedWidth)<1&&Math.abs((world?.offsetHeight||0)-expectedHeight)<1;
+      const lateDomRecovered=heal.healCount>countBeforeLateDom&&visible(shell)&&visible(world)&&visible(player)&&tiles.length>0&&lateDomSizeReasserted&&!document.getElementById('lq-map-transition-fade')&&!shell?.classList.contains('lqMapArrive');
+      const lateDomMarkerReason=String(healMarker?.dataset.reason||'');
+      const lateDomMarkerConfirmed=!!healMarker&&healMarker.dataset.status==='PASS'&&lateDomMarkerReason.startsWith('window-focus-retry-');
+      const lateDomLogicalStateUnchanged=before.screen===s.screen&&before.map===s.map&&before.x===s.x&&before.y===s.y&&before.dir===s.dir;
+      if(!lateDomRecovered)throw new Error(`REQ-127 delayed DOM recovery failed: count ${countBeforeLateDom}->${heal.healCount}, marker=${lateDomMarkerReason}`);
+      if(!lateDomMarkerConfirmed)throw new Error(`REQ-127 delayed DOM retry marker missing: ${lateDomMarkerReason}`);
+      if(!lateDomLogicalStateUnchanged)throw new Error('REQ-127 delayed DOM recovery mutated logical gameplay state');
+
       const el=marker();
       el.dataset.status='PASS';
       el.dataset.screen=String(s.screen||'');
@@ -190,15 +203,12 @@
       el.dataset.fullscreenReasserted=String(fullscreenReasserted);
       el.dataset.logicalStateUnchanged=String(logicalStateUnchanged);
       el.dataset.focusRecovery=String(focusTriggered&&focusWorldReasserted&&focusMarkerConfirmed&&focusLogicalStateUnchanged);
+      el.dataset.lateDomRetryRecovery=String(lateDomRecovered&&lateDomMarkerConfirmed&&lateDomLogicalStateUnchanged);
       el.dataset.healVersion=String(heal.version||'unknown');
       window.LQ_REQ127_RUNTIME_DIAGNOSTICS?.snapshot?.('req127-render-smoke-ready');
     }catch(error){fail(error);}
   };
 
-  // This smoke file sorts before the late REQ-127 resume-heal addon. Running from a
-  // zero-delay parser timer can race the later script load, so wait for the completed
-  // document where the public addon order is fully installed. This stays fail-closed:
-  // run() still fails if the heal contract is absent after load.
   if(document.readyState==='complete')void run();
   else addEventListener('load',()=>{void run();},{once:true});
 })();
