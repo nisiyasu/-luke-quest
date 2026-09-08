@@ -142,6 +142,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 120 | REQ-138 | P1 | VERIFY | Battle Level-Up Summary | `requirements/REQ-138_BATTLE_LEVEL_UP_SUMMARY.md` | Canonical win() progression stays authoritative; post-victory dialogue now surfaces actual LV before→after exactly once while preserving REQ-137 reward summary. Dedicated run 34210780072 SUCCESS and exact-head Pages 34210779801 SUCCESS on `5d8fce09...`. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 121 | REQ-139 | P1 | VERIFY | World Dialogue Tap Hint | `requirements/REQ-139_WORLD_DIALOGUE_TAP_HINT.md` | World dialogue close guidance now reflects existing REQ-021 touch behavior as `タップ / Aで閉じる` without new input handlers or canonical Action changes. Dedicated acceptance SUCCESS; P0 Touch 34215919409 SUCCESS and exact-head Pages 34215919367 SUCCESS on `7e071793...`. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
