@@ -1,0 +1,41 @@
+name: REQ-141 Queue Sync Once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/req141-queue-sync-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Insert REQ-141 queue row and self-remove
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('WORK_QUEUE.md')
+          text=p.read_text()
+          row="| 123 | REQ-141 | P0 | VERIFY | Pre-Leon Recovery Schema-Safe Boot | `requirements/REQ-141_PRE_LEON_RECOVERY_SCHEMA_SAFE_BOOT.md` | Previous prelude hand-built recovery save replaced by two-stage runtime-schema-safe recovery. Starts at cloudbreakSaddle (10,2), LV11, one canonical transition before Wind Stair. Dedicated run 34226073276 SUCCESS; exact-head Pages 34226073258 SUCCESS on 473bd3df. IOS_PHYSICAL_VERIFICATION=PENDING. |\n"
+          if 'REQ-141 | P0 |' not in text:
+              marker='\n## STATUS DEFINITIONS\n'
+              if marker not in text:
+                  raise SystemExit('STATUS DEFINITIONS marker missing')
+              text=text.replace(marker,'\n'+row+marker,1)
+              p.write_text(text)
+          Path('.github/workflows/req141-queue-sync-once.yml').unlink()
+      - name: Commit queue sync
+        run: |
+          git config user.name "LUKE QUEST automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add WORK_QUEUE.md .github/workflows/req141-queue-sync-once.yml
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "REQ-141: sync VERIFY queue state"
+            git push
+          fi
