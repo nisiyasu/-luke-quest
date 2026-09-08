@@ -64,10 +64,16 @@ body.${ROOT_CLASS}.lq145Battle .enemyPlate{border-color:rgba(240,201,91,.34)!imp
 body.${ROOT_CLASS}.lq145Battle .enemyNameV10{color:#fff2c7!important;letter-spacing:.035em;text-shadow:0 2px 4px #000}
 body.${ROOT_CLASS}.lq145Battle .enemyBarV10{height:11px!important;background:#07101b!important;border-color:rgba(255,255,255,.10)!important}
 body.${ROOT_CLASS}.lq145Battle .battleLogV10{background:rgba(2,9,17,.76)!important;border-color:rgba(142,216,228,.14)!important;line-height:1.65!important}
+body.${ROOT_CLASS}.lq145Battle .lq145HitCue{position:absolute;z-index:12;left:50%;top:43%;min-width:118px;padding:5px 10px;transform:translate(-50%,-50%);border:1px solid rgba(255,226,145,.48);border-radius:9px;background:rgba(5,16,29,.88);color:#fff1ad;font-size:30px;font-weight:1000;line-height:1;text-align:center;letter-spacing:.03em;text-shadow:0 2px 0 #000,0 0 10px rgba(255,215,105,.36);box-shadow:0 8px 20px rgba(0,0,0,.32);pointer-events:none;animation:lq145HitCue .48s cubic-bezier(.16,.78,.28,1) both}
+body.${ROOT_CLASS}.lq145Battle .enemySpriteStage.lq145ImpactNow{animation:lq145StageImpact .34s cubic-bezier(.2,.72,.3,1) both!important}
+body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg.lq145ImpactNow{animation:lq145EnemyImpact .30s cubic-bezier(.2,.72,.3,1) both!important}
+@keyframes lq145HitCue{0%{opacity:0;transform:translate(-50%,-26%) scale(.72)}26%{opacity:1;transform:translate(-50%,-56%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-82%) scale(.98)}}
+@keyframes lq145StageImpact{0%{box-shadow:0 0 0 0 rgba(255,225,145,0)}35%{box-shadow:0 0 0 5px rgba(255,225,145,.22)}100%{box-shadow:0 0 0 13px rgba(255,225,145,0)}}
+@keyframes lq145EnemyImpact{0%{transform:translateX(0) scale(1)}28%{transform:translateX(5px) scale(.97)}58%{transform:translateX(-3px) scale(1.015)}100%{transform:translateX(0) scale(1)}}
 body.${ROOT_CLASS}.lq145Battle .commandBtn{border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.24)!important}
 body.${ROOT_CLASS}.lq145Battle .commandBtn:active{transform:translateY(1px) scale(.995)}
 @keyframes lq145EnemyIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@media(prefers-reduced-motion:reduce){body.${ROOT_CLASS}.lq145Battle .enemy{animation:none!important}}
+@media(prefers-reduced-motion:reduce){body.${ROOT_CLASS}.lq145Battle .enemy{animation:none!important}body.${ROOT_CLASS}.lq145Battle .lq145HitCue{animation:none!important;opacity:1!important}body.${ROOT_CLASS}.lq145Battle .enemySpriteStage.lq145ImpactNow,body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg.lq145ImpactNow{animation:none!important}}
 `;
 }
 
@@ -96,6 +102,42 @@ function actionPulse(){
   worldEl.appendChild(pulse);
   setTimeout(()=>pulse.remove(),320);
 }
+
+let lq145LastEnemyKey=null;
+let lq145LastEnemyHp=null;
+let lq145ImpactPresentations=0;
+let lq145ImpactCleanup=0;
+
+function showBattleImpact(damage){
+  if(typeof s==='undefined'||!s||s.screen!=='battle'||!(damage>0))return;
+  const scene=document.querySelector('.battleScene');
+  if(!scene)return;
+  scene.querySelectorAll('.lq145HitCue').forEach(n=>n.remove());
+  const stage=scene.querySelector('.enemySpriteStage');
+  const art=scene.querySelector('.lqOriginalEnemySvg');
+  stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');
+  void stage?.offsetWidth;
+  stage?.classList.add('lq145ImpactNow');art?.classList.add('lq145ImpactNow');
+  const cue=document.createElement('div');cue.className='lq145HitCue';cue.textContent=`${damage} DAMAGE`;
+  cue.setAttribute('aria-hidden','true');scene.appendChild(cue);
+  lq145ImpactPresentations++;
+  clearTimeout(lq145ImpactCleanup);
+  lq145ImpactCleanup=setTimeout(()=>{cue.remove();stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');},560);
+}
+
+function observeBattleImpact(){
+  if(typeof s==='undefined'||!s||s.screen!=='battle'||!s.enemy){lq145LastEnemyKey=null;lq145LastEnemyHp=null;return;}
+  const key=String(s.enemy.n||'enemy');
+  const hp=Number(s.ehp);
+  if(!Number.isFinite(hp)){lq145LastEnemyKey=key;lq145LastEnemyHp=null;return;}
+  if(lq145LastEnemyKey!==key||lq145LastEnemyHp===null){lq145LastEnemyKey=key;lq145LastEnemyHp=hp;return;}
+  const previous=lq145LastEnemyHp;lq145LastEnemyHp=hp;
+  if(hp<previous)showBattleImpact(previous-hp);
+}
+
+const lq145ImpactObserver=new MutationObserver(observeBattleImpact);
+lq145ImpactObserver.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
+observeBattleImpact();
 
 function contractSnapshot(){
   return {
@@ -158,6 +200,6 @@ function smoke(){
 
 syncClasses();
 window.LQ_REQ145_GOLD_SLICE=contractSnapshot();
-window.LQ_REQ145_GOLD_SLICE_TEST={syncClasses,contractSnapshot,actionPulse,smoke};
+window.LQ_REQ145_GOLD_SLICE_TEST={syncClasses,contractSnapshot,actionPulse,smoke,showBattleImpact,observeBattleImpact,impactPresentations:()=>lq145ImpactPresentations};
 setTimeout(()=>{if(new URLSearchParams(location.search).has('lqReq145Smoke'))smoke();},0);
 })();
