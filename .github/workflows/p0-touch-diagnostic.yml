@@ -39,8 +39,14 @@ jobs:
           if compgen -G 'addons/*.js' > /dev/null; then
             for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           fi
-      - name: Run 390x844 touch diagnostic
+          cp index.html /tmp/lq-touch-index-full.html
+      - name: Run serialized core P0 touch diagnostic
         run: |
+          # The extended visualViewport probe and the visibility/long-press/multitouch
+          # chain all mutate one global game state and one pointer owner. They must not
+          # execute concurrently or the harness can cancel production-correct gestures.
+          cp /tmp/lq-touch-index-full.html index.html
+          sed -i '/zzzzzzzzzz-req001-visual-viewport-offset-smoke.js/d' index.html
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
           python3 -m http.server 8124 >/tmp/lq-touch-http.log 2>&1 &
@@ -65,10 +71,26 @@ jobs:
           grep -q 'data-dialogue-start-no-action="true"' /tmp/lq-touch-dom.html
           grep -q 'data-map-transition-stops="true"' /tmp/lq-touch-dom.html
           grep -q 'data-battle-transition-stops="true"' /tmp/lq-touch-dom.html
-          grep -q 'data-pass="true"' /tmp/lq-touch-dom.html
           grep -q 'data-no-action="true"' /tmp/lq-touch-dom.html
           grep -q 'data-no-move="true"' /tmp/lq-touch-dom.html
           grep -q 'data-secondary-ignored="true"' /tmp/lq-touch-dom.html
           grep -q 'data-primary-owns="true"' /tmp/lq-touch-dom.html
           grep -q 'data-cleaned="true"' /tmp/lq-touch-dom.html
-          echo 'P0 touch diagnostic PASS'
+          grep -q 'id="lqP0TouchSequenceGuardMarker"[^>]*data-pass="true"' /tmp/lq-touch-dom.html
+          echo 'serialized core P0 touch diagnostic PASS'
+      - name: Run isolated extended P0 touch diagnostic
+        run: |
+          cp /tmp/lq-touch-index-full.html index.html
+          sed -i '/zzzz-visibility-touch-regression.js/d;/zzzzzz-req021-long-press-smoke.js/d;/zzzzzzz-req001-multitouch-smoke.js/d;/zzzzzzzz-p0-touch-sequence-guard.js/d' index.html
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8125 >/tmp/lq-touch-ext-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=4200 --dump-dom 'http://127.0.0.1:8125/?lqTouchSmoke=1' >/tmp/lq-touch-ext-dom.html 2>/tmp/lq-touch-ext-chrome.log || true
+          grep -o '<i id="lqReq001VisualViewportOffsetSmokeMarker"[^>]*>' /tmp/lq-touch-ext-dom.html || true
+          grep -o '<i id="lqFloatingTouchSmokeFailure"[^>]*>' /tmp/lq-touch-ext-dom.html || true
+          if grep -q 'lqFloatingTouchSmokeFailure' /tmp/lq-touch-ext-dom.html; then exit 1; fi
+          grep -q 'id="lqReq001VisualViewportOffsetSmokeMarker"[^>]*data-pass="true"' /tmp/lq-touch-ext-dom.html
+          echo 'isolated extended P0 touch diagnostic PASS'
