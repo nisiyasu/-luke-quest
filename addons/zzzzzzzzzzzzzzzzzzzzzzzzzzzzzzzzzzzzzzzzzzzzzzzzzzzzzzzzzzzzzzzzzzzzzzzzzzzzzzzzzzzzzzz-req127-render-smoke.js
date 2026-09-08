@@ -15,6 +15,7 @@
   };
 
   const fail=error=>{
+    document.getElementById('lqReq127SyntheticDarkOccluder')?.remove();
     const el=marker();
     el.dataset.status='FAIL';
     el.dataset.error=String(error&&error.stack||error||'unknown');
@@ -152,11 +153,6 @@
       if(!focusMarkerConfirmed)throw new Error(`REQ-127 focus recovery marker did not confirm recovery: reason=${focusMarkerReason}`);
       if(!focusLogicalStateUnchanged)throw new Error('REQ-127 focus recovery mutated logical gameplay state');
 
-      // Third pass: model the lifecycle race not covered by v1.2. Foreground focus can fire
-      // while the render wrapper has temporarily detached .world. The old heal got only two
-      // RAF attempts; if DOM reconstruction finished later, there was no further recovery
-      // boundary and the stale dark presentation could survive. Detach the existing world,
-      // fire focus, reattach after 180ms, then require bounded retry recovery.
       poisonPresentation(shell,world);
       const detachedWorld=world;
       detachedWorld.remove();
@@ -183,6 +179,35 @@
       if(!lateDomMarkerConfirmed)throw new Error(`REQ-127 delayed DOM retry marker missing: ${lateDomMarkerReason}`);
       if(!lateDomLogicalStateUnchanged)throw new Error('REQ-127 delayed DOM recovery mutated logical gameplay state');
 
+      // Diagnostic contract: detect a genuinely full-screen near-black occluder without
+      // automatically deleting unknown UI. This turns future physical/CI black-screen
+      // evidence into a named DOM/compositor suspect instead of another blind workaround.
+      const diagnostics=window.LQ_REQ127_RUNTIME_DIAGNOSTICS;
+      if(!diagnostics||typeof diagnostics.snapshot!=='function'||typeof diagnostics.viewportProbe!=='function'||String(diagnostics.version)!=='1.1.0'){
+        throw new Error('REQ-127 runtime diagnostics v1.1 unavailable');
+      }
+      const synthetic=document.createElement('div');
+      synthetic.id='lqReq127SyntheticDarkOccluder';
+      synthetic.style.cssText='position:fixed;inset:0;background:rgb(0,0,0);opacity:.98;z-index:2147483000;pointer-events:none';
+      document.body.appendChild(synthetic);
+      await waitFrames(1);
+      const darkSnap=diagnostics.snapshot('req127-synthetic-dark-occluder');
+      const candidates=darkSnap?.viewportProbe?.occluderCandidates||[];
+      const detected=candidates.find(c=>c.id==='lqReq127SyntheticDarkOccluder');
+      const multiPoint=!!detected&&detected.probeHits>=5&&['center','top','bottom','left','right'].every(name=>detected.points?.includes(name));
+      const diagMarker=document.getElementById('lqReq127DiagnosticsMarker');
+      if(!multiPoint)throw new Error(`REQ-127 diagnostics failed full-screen dark occluder detection: ${JSON.stringify(candidates)}`);
+      if(diagMarker?.dataset.occluderCount==='0')throw new Error('REQ-127 diagnostics marker did not expose occluder candidate');
+      synthetic.remove();
+      await waitFrames(1);
+      const cleanSnap=diagnostics.snapshot('req127-synthetic-dark-occluder-cleared');
+      if((cleanSnap?.viewportProbe?.occluderCandidates||[]).some(c=>c.id==='lqReq127SyntheticDarkOccluder')){
+        throw new Error('REQ-127 diagnostics retained removed synthetic occluder');
+      }
+      if(!visible(shell)||!visible(world)||!visible(player))throw new Error('REQ-127 diagnostic probe disturbed world presentation');
+      const diagnosticStateUnchanged=before.screen===s.screen&&before.map===s.map&&before.x===s.x&&before.y===s.y&&before.dir===s.dir;
+      if(!diagnosticStateUnchanged)throw new Error('REQ-127 diagnostic probe mutated logical gameplay state');
+
       const el=marker();
       el.dataset.status='PASS';
       el.dataset.screen=String(s.screen||'');
@@ -204,8 +229,10 @@
       el.dataset.logicalStateUnchanged=String(logicalStateUnchanged);
       el.dataset.focusRecovery=String(focusTriggered&&focusWorldReasserted&&focusMarkerConfirmed&&focusLogicalStateUnchanged);
       el.dataset.lateDomRetryRecovery=String(lateDomRecovered&&lateDomMarkerConfirmed&&lateDomLogicalStateUnchanged);
+      el.dataset.occluderDiagnostics=String(multiPoint&&diagnosticStateUnchanged);
+      el.dataset.diagnosticsVersion=String(diagnostics.version||'unknown');
       el.dataset.healVersion=String(heal.version||'unknown');
-      window.LQ_REQ127_RUNTIME_DIAGNOSTICS?.snapshot?.('req127-render-smoke-ready');
+      diagnostics.snapshot('req127-render-smoke-ready');
     }catch(error){fail(error);}
   };
 
