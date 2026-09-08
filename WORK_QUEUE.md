@@ -140,6 +140,8 @@ This file is the authoritative inventory of Owner-requested implementation work,
 
 | 119 | REQ-137 | P1 | VERIFY | Battle Victory Reward Summary | `requirements/REQ-137_BATTLE_VICTORY_REWARD_SUMMARY.md` | Canonical win() remains sole reward authority; post-victory dialogue now surfaces defeated enemy + exact EXP/G once. Dedicated run 34210082335 SUCCESS and exact-head Pages 34210082290 SUCCESS on `aa8c189c...`. IOS_PHYSICAL_VERIFICATION=PENDING. |
 
+| 120 | REQ-138 | P1 | VERIFY | Battle Level-Up Summary | `requirements/REQ-138_BATTLE_LEVEL_UP_SUMMARY.md` | Canonical win() progression stays authoritative; post-victory dialogue now surfaces actual LV before→after exactly once while preserving REQ-137 reward summary. Dedicated run 34210780072 SUCCESS and exact-head Pages 34210779801 SUCCESS on `5d8fce09...`. IOS_PHYSICAL_VERIFICATION=PENDING. |
+
 ## STATUS DEFINITIONS
 
 ### BACKLOG
