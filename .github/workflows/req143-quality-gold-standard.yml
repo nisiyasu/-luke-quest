@@ -28,6 +28,7 @@ jobs:
           test -s assets/req143/leon-sister-stage.svg
           node --check addons/zzzzzzzzzzzzzzzzzzzzzzzz-req143-leon-gold-standard.js
           node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-cleanup.js
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-polish.js
           node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzz-req143-original-stage-art.js
           node tools/lq-addon-contract.mjs
 
@@ -76,13 +77,12 @@ jobs:
               const leon=scene.querySelector('.lq143Actor[data-role="leon"] .lq143Figure');
               if(!leon)throw new Error('Leon staged actor missing');
               if(!getComputedStyle(leon).backgroundImage.includes('leon-stage.svg'))throw new Error('original Leon SVG not integrated');
-              const beat=scene.querySelector('.lq143Beat');
-              const qualityMark=scene.querySelector('.lq143QualityMark');
-              if(!beat||!qualityMark)throw new Error('internal beat metadata missing for diagnostics');
-              if(getComputedStyle(beat).display!=='none'||getComputedStyle(qualityMark).display!=='none')throw new Error('developer quality labels visible to player');
-              if(beat.getAttribute('aria-hidden')!=='true'||qualityMark.getAttribute('aria-hidden')!=='true')throw new Error('developer labels not hidden from accessibility tree');
+              if(scene.querySelector('.lq143Beat,.lq143QualityMark'))throw new Error('developer quality metadata remains in production DOM');
               if(scene.dataset.lq143ProductionClean!=='true')throw new Error('production cleanup marker missing');
+              if(scene.dataset.req143Production!=='true')throw new Error('production polish marker missing');
               if(scene.dataset.lq143OriginalStageArt!=='true')throw new Error('original stage art marker missing');
+              if(typeof window.LQ_REQ143_TEST?.beatLabel!=='function')throw new Error('Gold Standard diagnostic API missing');
+              if(window.LQ_REQ143_TEST.beatLabel(s.lqReq128Climax)!=='勇者選定の事実')throw new Error('Gold Standard beat contract missing');
               s.lqReq128Climax={phase:'confront',step:0,turn:2};render();
               scene=document.querySelector('.lq128Scene');
               if(!scene?.classList.contains('lq143Phase-confront')||!scene.classList.contains('lq143Turn-2'))throw new Error('confront staging missing');
@@ -96,6 +96,7 @@ jobs:
               if(window.LQ_REQ143_QUALITY_STATUS?.canonicalReq128LogicPreserved!==true)throw new Error('REQ-128 canonical preservation status missing');
               if(window.LQ_REQ143_QUALITY_STATUS?.heavyFilterUsed!==false)throw new Error('heavy filter safety status failed');
               if(window.LQ_REQ143_PRODUCTION_CLEANUP_STATUS?.developerLabelsHidden!==true)throw new Error('production cleanup status missing');
+              if(window.LQ_REQ143_PRODUCTION_POLISH?.developerLabelsRemoved!==true)throw new Error('production polish status missing');
               if(window.LQ_REQ143_ORIGINAL_STAGE_ART_STATUS?.originalRepositoryArt!==true)throw new Error('original stage art status missing');
               marker.dataset.status='PASS';marker.dataset.reunion='true';marker.dataset.confront='true';marker.dataset.sister='true';marker.dataset.noEmoji='true';marker.dataset.presentationOnly='true';marker.dataset.productionClean='true';marker.dataset.originalStageArt='true';marker.dataset.ownerExperience='PENDING';
             }catch(e){marker.dataset.status='FAIL';marker.dataset.error=e?.message||String(e);console.error(e)}
