@@ -8,31 +8,35 @@ function marker(data){
  return el;
 }
 function settle(ms=80){return new Promise(r=>setTimeout(r,ms));}
+function occurrences(text,needle){return String(text||'').split(needle).length-1;}
 async function run(){
  const snapshot=structuredClone(s);
  const originalAction=action,originalMove=move;
  let actionCalls=0,moveCalls=0;
  try{
-  const startXp=Number(s.xp||0),startG=Number(s.g||0);
+  s.xp=0;s.gold=0;s.wins=0;s.nx=9999;
+  const startXp=s.xp,startGold=s.gold;
   const enemy={n:'REQ-137 TEST',e:'◈',hp:1,a:[1,1],xp:17,g:9};
   s.screen='battle';s.enemy=enemy;s.ehp=0;s.log=[];
   action=function(){actionCalls++;};move=function(){moveCalls++;};
-  winBase();
+  win();
   await settle(160);
   const expected='REQ-137 TESTを倒した！ EXP17 / 9G';
-  const rewardCount=Array.isArray(dialogue)?dialogue.filter(x=>x===expected).length:0;
-  const victoryKept=Array.isArray(dialogue)&&dialogue.includes('戦闘勝利！');
-  const rewardVisible=document.getElementById('app')?.textContent?.includes('戦闘勝利！')===true;
+  const dialogText=s.dialog?.text||'';
+  const rewardCount=occurrences(dialogText,expected);
+  const canonicalDialogueKept=dialogText.includes('勝てました……。毎回これやるんですか？');
+  const rewardVisible=document.getElementById('app')?.textContent?.includes(expected)===true;
   const xpOnce=Number(s.xp)===startXp+17;
-  const gOnce=Number(s.g)===startG+9;
-  const world= s.screen==='world';
+  const goldOnce=Number(s.gold)===startGold+9;
+  const winOnce=Number(s.wins)===1;
+  const world=s.screen==='world';
   render();await settle(80);
-  const stillOne=Array.isArray(dialogue)&&dialogue.filter(x=>x===expected).length===1;
+  const stillOne=occurrences(s.dialog?.text||'',expected)===1;
   const api=window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY;
   const worldExcluded=actionCalls===0&&moveCalls===0;
-  const pass=!!api&&api.canonicalWinBasePreserved===true&&api.rewardMutation===false&&api.pointerHandlerAdded===false&&api.clickHandlerAdded===false&&xpOnce&&gOnce&&world&&victoryKept&&rewardCount===1&&rewardVisible&&stillOne&&worldExcluded;
-  marker({pass,xpOnce,gOnce,world,victoryKept,rewardCount,rewardVisible,stillOne,worldExcluded,dialogueLength:Array.isArray(dialogue)?dialogue.length:-1});
-  if(!pass)console.error('REQ-137 acceptance details',document.getElementById('lqReq137VictoryRewardSmokeMarker')?.dataset,Array.isArray(dialogue)?dialogue:null);
+  const pass=!!api&&api.canonicalWinPreserved===true&&api.rewardMutation===false&&api.pointerHandlerAdded===false&&api.clickHandlerAdded===false&&xpOnce&&goldOnce&&winOnce&&world&&canonicalDialogueKept&&rewardCount===1&&rewardVisible&&stillOne&&worldExcluded;
+  marker({pass,xpOnce,goldOnce,winOnce,world,canonicalDialogueKept,rewardCount,rewardVisible,stillOne,worldExcluded});
+  if(!pass)console.error('REQ-137 acceptance details',document.getElementById('lqReq137VictoryRewardSmokeMarker')?.dataset,s.dialog);
  }catch(error){console.error('REQ-137 smoke FAIL',error);marker({pass:false,reason:error?.message||String(error)});}
  finally{action=originalAction;move=originalMove;Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}
 }
