@@ -3,6 +3,7 @@
   if(window.LQ_REQ127_RESUME_WORLD_HEAL)return;
 
   const WORLD_CLASS='lqWorldFullscreen';
+  const ARRIVAL_CLASS='lqMapArrive';
   let healCount=0;
   let lastReason='startup';
   let raf1=0,raf2=0;
@@ -15,6 +16,27 @@
     document.getElementById('lq-map-transition-fade')?.remove();
   }
 
+  function clearFrozenArrivalPresentation(shell){
+    if(!shell)return false;
+    const hadArrival=shell.classList.contains(ARRIVAL_CLASS);
+    if(hadArrival)shell.classList.remove(ARRIVAL_CLASS);
+
+    // lqMapArrive uses animation-fill-mode: both with opacity:0 / brightness(.55)
+    // at 0%. iOS standalone WebKit can suspend while that first frame is active and
+    // later resume with the filled animation presentation still frozen. The class is
+    // decorative only, so lifecycle recovery may safely drop it without touching state.
+    const cs=getComputedStyle(shell);
+    const visuallyStuck=Number(cs.opacity)<=0.01||cs.visibility==='hidden'||cs.display==='none';
+    if(visuallyStuck){
+      shell.style.opacity='1';
+      shell.style.filter='none';
+      shell.style.transform='none';
+      shell.style.visibility='visible';
+      shell.style.display='block';
+    }
+    return hadArrival||visuallyStuck;
+  }
+
   function reassertWorldPresentation(){
     if(!worldStateActive())return false;
     const shell=document.querySelector('.gameShell');
@@ -24,6 +46,7 @@
     document.documentElement.classList.add(WORLD_CLASS);
     document.body.classList.add(WORLD_CLASS);
     removeKnownTransientOccluders();
+    clearFrozenArrivalPresentation(shell);
 
     // Re-assert only the compositor/layout invariants already owned by REQ-022/034.
     // No gameplay coordinates, flags, save state, input authority, or map semantics change.
@@ -50,6 +73,7 @@
   }
 
   function marker(ok,reason){
+    const shell=document.querySelector('.gameShell');
     let el=document.getElementById('lqReq127ResumeWorldHealMarker');
     if(!el){
       el=document.createElement('i');
@@ -57,12 +81,15 @@
       el.hidden=true;
       document.documentElement.appendChild(el);
     }
+    const shellStyle=shell?getComputedStyle(shell):null;
     el.dataset.req='127';
     el.dataset.status=ok?'PASS':'SKIP';
     el.dataset.reason=reason;
     el.dataset.count=String(healCount);
     el.dataset.world=String(!!document.querySelector('.gameShell .world'));
     el.dataset.fadeCleared=String(!document.getElementById('lq-map-transition-fade'));
+    el.dataset.arrivalCleared=String(!shell?.classList.contains(ARRIVAL_CLASS));
+    el.dataset.shellVisible=String(!!shell&&shellStyle?.display!=='none'&&shellStyle?.visibility!=='hidden'&&Number(shellStyle?.opacity||0)>0.01);
     return el;
   }
 
@@ -95,12 +122,13 @@
   },{passive:true});
 
   window.LQ_REQ127_RESUME_WORLD_HEAL={
-    version:'1.0.0',
+    version:'1.1.0',
     requirement:'REQ-127',
     presentationOnly:true,
     gameplayStateMutation:false,
     saveSchemaChange:false,
     knownTransientOccluderCleanup:true,
+    frozenArrivalCleanup:true,
     lifecycleReflow:true,
     doubleRafRepaint:true,
     iosPhysicalVerification:'PENDING',
