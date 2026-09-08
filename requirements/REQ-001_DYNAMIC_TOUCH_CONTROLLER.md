@@ -658,3 +658,7 @@ Ownerが操作感を確認し重大問題がなければDONE候補。
 - dead zoneなしで微小タッチを即移動にしない
 - 実機未確認なのにiPhone完全PASSと報告しない
 - v0.30で既に実装されている機能をCURRENTが古いという理由だけでゼロから重複実装しない
+
+## FRESH RE-AUDIT 2026-09-09
+
+Owner BOOT v3 P0-3により過去VERIFYを鵜呑みにせず再監査。Exact-head P0 Touch `34271984923` がtap/drag arbitration、pointercancel、long press、map/battle transition stop、multitouch ownership/cleanup、visualViewport safetyを390x844 browserでPASS。Pages `34271984980` と Render Liveness `34271984938` もSUCCESS。Public floating-touch authorityはfresh repositoryと改行正規化後SHA-256一致。`IOS_PHYSICAL_VERIFICATION = PENDING`。

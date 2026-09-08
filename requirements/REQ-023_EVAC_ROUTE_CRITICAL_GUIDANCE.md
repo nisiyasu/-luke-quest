@@ -80,3 +80,7 @@ Owner実プレイで「北の退避路で、ここから先に進めない。ど
 - automated browser/static regression PASS
 - Pages deploy SUCCESS
 - Owner実機確認前は主観UX確認をVERIFYとして残してよい
+
+## FRESH RE-AUDIT 2026-09-09
+
+Owner BOOT v3の実プレイ導線問題をfresh code/publicで再監査。Latest runtime lineage `eefa011d...` 上の専用 REQ-023 browser gate `34263696013` はSUCCESS。未取得時の具体的objective、必須撤収命令marker、任意手掛かりで未進行、canonical actionで`withdrawProofSeen=true`、取得直後の北端objective/marker、clue marker消失を全て検証する。Current exact-head Pages `34271984980` / Render Liveness `34271984938` もSUCCESSし、public guidance addonはfresh repositoryと改行正規化後SHA-256一致。`IOS_PHYSICAL_VERIFICATION = PENDING`。

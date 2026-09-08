@@ -191,3 +191,7 @@ PWA / ホーム画面起動時は `display: standalone` 等を活用し、より
 - Safari chromeを消せない制約とgame UIの無駄な余白を混同しない
 - Dynamic Touch完成前にfallback操作を全削除して操作不能にしない
 - overlayをmap tap surfaceより上に敷き詰めて入力不能にしない
+
+## FRESH RE-AUDIT 2026-09-09
+
+Owner BOOT v3 P0-2によりfresh main/publicを再監査。P0 Touch `34271984923` SUCCESS、Pages `34271984980` SUCCESS（assembled browser smoke + floating touch + iPhone world visual livenessを含む）、Render Liveness `34271984938` SUCCESS。Public fullscreen runtime fileはfresh repositoryと改行正規化後SHA-256一致。`IOS_PHYSICAL_VERIFICATION = PENDING`。
