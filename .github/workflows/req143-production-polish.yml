@@ -1,0 +1,94 @@
+name: REQ-143 Production Polish Gate
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "req143-production-polish"
+  cancel-in-progress: true
+
+jobs:
+  production-polish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Static production contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s assets/req143/leon-stage.svg
+          test -s assets/req143/leon-sister-stage.svg
+          test -s assets/req143/eleanor-stage.svg
+          test -s addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-polish.js
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-polish.js
+          node tools/lq-addon-contract.mjs
+          f=addons/zzzzzzzzzzzzzzzzzzzzzzzzzz-req143-production-polish.js
+          grep -q 'developerLabelsRemoved:true' "$f"
+          grep -q 'cssOnlyNonLukeFiguresRemoved:true' "$f"
+          if grep -Eq 'backdrop-filter[[:space:]]*:' "$f"; then echo 'backdrop-filter forbidden'; exit 1; fi
+          if grep -Eq '(^|[;{])[[:space:]]*filter[[:space:]]*:' "$f"; then echo 'CSS filter forbidden'; exit 1; fi
+          if grep -Eq 'will-change[[:space:]]*:' "$f"; then echo 'will-change forbidden'; exit 1; fi
+
+      - name: Assemble browser probe
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html');h=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if h.count(marker)!=1: raise SystemExit('base marker mismatch')
+          p.write_text(h.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          cp index.html req143-production.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('req143-production.html');h=p.read_text()
+          probe=r'''<script>
+          setTimeout(()=>{
+            const m=document.createElement('i');m.id='lqReq143ProductionMarker';m.hidden=true;
+            const snap=structuredClone(s);const raw=localStorage.getItem('lukeQuestV2');
+            try{
+              Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,structuredClone(DEFAULT));
+              s.flags={...(s.flags||{}),chapter1Complete:false,chapter1ClimaxStarted:true};
+              s.screen='req128Chapter1Climax';s.lqReq128Climax={phase:'aftermath',step:1,turn:3};render();
+              const scene=document.querySelector('.lq128Scene[data-req143-production="true"]');
+              if(!scene)throw new Error('production scene marker missing');
+              if(scene.querySelector('.lq143Beat,.lq143QualityMark'))throw new Error('developer label remains in DOM');
+              if(scene.querySelector('.lq143Actor small'))throw new Error('prototype actor note remains');
+              for(const role of ['leon','sister']){
+                const fig=scene.querySelector(`.lq143Actor[data-role="${role}"] .lq143Figure[data-req143-art]`);
+                if(!fig)throw new Error(`${role} original stage art missing`);
+              }
+              if(window.LQ_REQ143_PRODUCTION_POLISH?.presentationOnly!==true)throw new Error('presentation-only contract missing');
+              if(window.LQ_REQ143_PRODUCTION_POLISH?.ownerExperiencePass!=='PENDING')throw new Error('owner experience must remain pending');
+              if(!document.getElementById('lq128Next'))throw new Error('canonical REQ-128 progression control missing');
+              m.dataset.status='PASS';m.dataset.originalArt='true';m.dataset.noDeveloperLabels='true';m.dataset.ownerExperience='PENDING';
+            }catch(e){m.dataset.status='FAIL';m.dataset.error=e?.message||String(e);console.error(e)}
+            finally{Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snap);if(raw===null)localStorage.removeItem('lukeQuestV2');else localStorage.setItem('lukeQuestV2',raw);render();document.body.appendChild(m)}
+          },7000);
+          </script>'''
+          p.write_text(h.replace('</body>',probe+'</body>',1))
+          PY
+
+      - name: 390x844 public-order smoke
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"; test -n "$BROWSER"
+          python3 -m http.server 8164 >/tmp/req143-production-http.log 2>&1 & pid=$!; trap 'kill "$pid" 2>/dev/null || true' EXIT; sleep 1
+          set +e
+          timeout 45 "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=13000 --dump-dom 'http://127.0.0.1:8164/req143-production.html' >/tmp/req143-production-dom.html 2>/tmp/req143-production-browser.log
+          code=$?; set -e
+          test -s /tmp/req143-production-dom.html
+          for needle in 'id="lqReq143ProductionMarker"' 'data-status="PASS"' 'data-original-art="true"' 'data-no-developer-labels="true"' 'data-owner-experience="PENDING"'; do grep -q "$needle" /tmp/req143-production-dom.html || { cat /tmp/req143-production-browser.log; exit 1; }; done
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req143-production-browser.log; then cat /tmp/req143-production-browser.log; exit 1; fi
+          echo "REQ-143 production polish PASS (browser status $code)"
