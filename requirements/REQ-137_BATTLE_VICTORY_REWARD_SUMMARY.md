@@ -1,7 +1,7 @@
 # REQ-137 — Battle Victory Reward Summary
 
 PRIORITY: P1
-STATUS: IN_PROGRESS
+STATUS: VERIFY
 SOURCE: Directive-authorized player-visible continuation after REQ-136 public verification. Fresh base-code audit found canonical `win()` appends the defeat/EXP/G line to `s.log` and then immediately leaves battle for world dialogue, so the newly appended reward line is not rendered to the player.
 
 ## Purpose
@@ -34,8 +34,14 @@ A player must be able to see what they earned when a battle ends. Preserve the c
 - Standard Pages build/deploy SUCCESS with implementation included.
 - IOS_PHYSICAL_VERIFICATION: PENDING until Owner verifies actual iPhone presentation.
 
+## Verification checkpoint
+- Acceptance gate: `REQ-137 Battle Victory Reward` run `34210082335` — SUCCESS on `aa8c189ce3b469990f88acb4f096c35ec30d2c18`.
+- Pages: `Deploy LUKE QUEST to GitHub Pages` run `34210082290` — SUCCESS on the same HEAD.
+- The preceding red gate was isolated to an over-specific test assertion that hard-coded one canonical victory sentence. The repaired smoke now verifies the actual contract: exactly one reward summary is appended while non-empty canonical victory dialogue remains intact.
+- IOS_PHYSICAL_VERIFICATION: PENDING.
+
 ## Recovery note
-The first implementation incorrectly targeted stale/nonexistent identifiers `winBase`, `s.g`, and a dialogue array. Fresh `index.html` inspection corrected the contract to canonical `win()`, `s.gold`, and object-form `s.dialog`. The failed gate remains useful evidence and must not be treated as product completion.
+The first implementation incorrectly targeted stale/nonexistent identifiers `winBase`, `s.g`, and a dialogue array. Fresh `index.html` inspection corrected the contract to canonical `win()`, `s.gold`, and object-form `s.dialog`. A later failed gate was caused by a smoke test hard-coding one victory sentence rather than validating the requirement's preservation contract; checkpoint `aa8c189ce3b469990f88acb4f096c35ec30d2c18` repaired that gate without changing reward mutation behavior.
 
 ## Non-goals
 - No reward rebalance.
