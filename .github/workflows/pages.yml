@@ -3,6 +3,10 @@ name: Deploy LUKE QUEST to GitHub Pages
 on:
   push:
     branches: ["main"]
+  workflow_run:
+    workflows: ["REQ-145 Gold Vertical Slice Challenger"]
+    types: [completed]
+    branches: ["experiment/gold-vertical-slice"]
   workflow_dispatch:
 
 permissions:
@@ -16,13 +20,21 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout production main
         uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Checkout Gold challenger
+        uses: actions/checkout@v4
+        with:
+          ref: experiment/gold-vertical-slice
+          path: .gold-source
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -315,6 +327,32 @@ jobs:
             exit 1
           fi
           echo "REQ-082 north cliff encounter authority + grace + battle smoke PASS (chrome status $encounter_status)"
+      - name: Assemble Gold challenger preview
+        shell: bash
+        run: |
+          rm -rf preview/gold
+          mkdir -p preview/gold
+          rsync -a --exclude='.git' --exclude='preview' .gold-source/ preview/gold/
+          cd preview/gold
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text()
+          marker='<div id="app"></div><script>'
+          guard='<div id="app"></div><script src="prelude/autosave-bootstrap-guard.js"></script><script>'
+          if html.count(marker)!=1: raise SystemExit(f'gold preview bootstrap marker count={html.count(marker)}')
+          p.write_text(html.replace(marker,guard,1))
+          PY
+          mapfile -t patches < <(printf '%s\n' ux-v*.js | sort -V)
+          for f in "${patches[@]}"; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          if compgen -G 'addons/*.js' > /dev/null; then
+            for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
+          fi
+          node --check sw.js
+          grep -q 'req145-gold-slice-foundation.js' index.html
+          test -f manifest.webmanifest
+          rm -rf "$GITHUB_WORKSPACE/.gold-source"
+          echo "Gold preview assembled at /preview/gold/"
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
