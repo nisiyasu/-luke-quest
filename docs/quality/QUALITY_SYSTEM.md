@@ -1,6 +1,6 @@
 # LUKE QUEST QUALITY SYSTEM v1.0
 
-STATUS: ACTIVE / REQ-143 IN_PROGRESS
+STATUS: ACTIVE / REQ-143 VERIFY / OWNER_EXPERIENCE_PASS=PENDING
 ROLE: Canonical player-experience quality authority for material player-visible work.
 
 ## 1. Core Rule
