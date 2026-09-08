@@ -5,6 +5,114 @@
   const QUARANTINE_KEY = 'lukeQuestAutosaveQuarantineV1';
   const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
+  /* REQ-140 owner recovery path.
+     A physical iPhone can render black after importing the legacy save even
+     when its map coordinates are changed.  Do not derive this recovery from
+     that payload.  Build a clean canonical-shaped save before index.html
+     reads localStorage, while preserving the old bytes under a backup key.
+
+     Target is intentionally one interaction before REQ-128:
+       windStairRidge / (10,2) / facing up -> north-boundary Action -> Leon.
+     LV8 follows the core growth curve (HP 105 / ATK 28) and is appropriate
+     for the immediately preceding EVAC_ENEMIES (HP 72-84 / ATK 10-17).
+  */
+  const installCleanPreLeonRecovery = () => {
+    let requested = false;
+    try {
+      requested = new URLSearchParams(location.search).get('leon-recovery') === '1';
+    } catch (_) {}
+    if (!requested) return false;
+
+    let previous = null;
+    try { previous = localStorage.getItem(SAVE_KEY); } catch (_) {}
+
+    if (previous !== null) {
+      try {
+        localStorage.setItem(`lukeQuestV2_req140_before_leon_recovery_${Date.now()}`, previous);
+      } catch (error) {
+        console.warn('[LUKE QUEST] pre-Leon backup write failed; recovery aborted', error);
+        return true;
+      }
+    }
+
+    const clean = {
+      screen: 'world',
+      lv: 8,
+      hp: 105,
+      mh: 105,
+      atk: 28,
+      xp: 120,
+      nx: 337,
+      gold: 900,
+      potions: 6,
+      map: 'windStairRidge',
+      x: 10,
+      y: 2,
+      dir: 'up',
+      step: 0,
+      wins: 30,
+      enemy: null,
+      ehp: 0,
+      log: ['長い追跡の末、風鳴りの石段の最北端へ着いた。レオンはこの先にいる。'],
+      dialog: null,
+      flags: {
+        leonSeen: true,
+        mistEntered: true,
+        glennTraceSeen: true,
+        observationEntered: true,
+        glennSeen: true,
+        evacEntered: true,
+        leonInjurySeen: true,
+        escapeProofSeen: true,
+        withdrawProofSeen: true,
+        guidanceIntroSeen: true,
+        req118OpeningComplete: true,
+        req118OpeningPhase: 'legacy_bypass',
+        chapter1ClimaxStarted: false,
+        chapter1HeroRevealedToLeon: false,
+        chapter1LeonConfrontationResolved: false,
+        chapter1SisterWounded: false,
+        chapter1SisterInjuryNonfatal: false,
+        chapter1Complete: false
+      },
+      weapon: '旅人の短剣',
+      armor: '旅人服',
+      settings: { sound: true, music: true, sfx: true },
+      saveSchema: 3,
+      playSeconds: 0,
+      mmp: 24,
+      mp: 24,
+      seenEnemies: [],
+      enemyDefeats: {},
+      dialogHistory: [],
+      discoveredMaps: [
+        'town','field','forest','deepForest','mistTrail','observation',
+        'evacRoute','northCliffRoad','northRidgeApproach','windShelf',
+        'skylineTraverse','cloudbreakSaddle','windStairRidge'
+      ]
+    };
+
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(clean));
+      const verify = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+      if (!verify || verify.map !== 'windStairRidge' || verify.lv !== 8 || verify.x !== 10 || verify.y !== 2) {
+        throw new Error('post-write verification mismatch');
+      }
+      try {
+        const url = new URL(location.href);
+        url.searchParams.delete('leon-recovery');
+        url.searchParams.set('recovered', 'pre-leon-lv8');
+        history.replaceState(null, '', url.pathname + '?' + url.searchParams.toString() + url.hash);
+      } catch (_) {}
+      console.info('[LUKE QUEST] clean pre-Leon LV8 recovery installed');
+    } catch (error) {
+      console.warn('[LUKE QUEST] clean pre-Leon recovery write failed', error);
+    }
+    return true;
+  };
+
+  if (installCleanPreLeonRecovery()) return;
+
   const isPlainObject = value => {
     if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
     const proto = Object.getPrototypeOf(value);
