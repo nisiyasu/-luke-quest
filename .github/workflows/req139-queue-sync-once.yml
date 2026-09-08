@@ -1,0 +1,46 @@
+name: REQ-139 Queue Sync Once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/req139-queue-sync-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Insert REQ-139 exactly once and self-remove
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          q=Path('WORK_QUEUE.md')
+          s=q.read_text()
+          if '| 121 | REQ-139 |' not in s:
+              anchor='| 120 | REQ-138 | P1 | VERIFY | Battle Level-Up Summary |'
+              lines=s.splitlines()
+              idx=next((i for i,l in enumerate(lines) if l.startswith(anchor)),None)
+              if idx is None:
+                  raise SystemExit('REQ-138 anchor not found; fail closed')
+              row='| 121 | REQ-139 | P1 | VERIFY | World Dialogue Tap Hint | `requirements/REQ-139_WORLD_DIALOGUE_TAP_HINT.md` | World dialogue close guidance now reflects existing REQ-021 touch behavior as `タップ / Aで閉じる` without new input handlers or canonical Action changes. Dedicated acceptance SUCCESS; P0 Touch 34215919409 SUCCESS and exact-head Pages 34215919367 SUCCESS on `7e071793...`. IOS_PHYSICAL_VERIFICATION=PENDING. |'
+              lines.insert(idx+1,'')
+              lines.insert(idx+2,row)
+              q.write_text('\n'.join(lines)+'\n')
+          Path('.github/workflows/req139-queue-sync-once.yml').unlink()
+          PY
+
+          git config user.name 'luke-quest-autonomous'
+          git config user.email 'actions@users.noreply.github.com'
+          git add WORK_QUEUE.md .github/workflows/req139-queue-sync-once.yml
+          if git diff --cached --quiet; then
+            echo 'No reconciliation changes required.'
+            exit 0
+          fi
+          git commit -m 'REQ-139: reconcile WORK_QUEUE and remove one-shot sync'
+          git push origin HEAD:main
