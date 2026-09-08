@@ -38,6 +38,8 @@ jobs:
             for f in addons/*.js; do sed -i "s#</body>#<script src=\"$f\"></script></body>#" index.html; done
           fi
       - name: 390x844 assembled battle acceptance
+        id: acceptance
+        continue-on-error: true
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
@@ -46,6 +48,21 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           sleep 1
           timeout 35 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --window-size=390,844 --virtual-time-budget=6000 --dump-dom 'http://127.0.0.1:8134/?lqReq134Smoke=1' >/tmp/lq-req134-dom.html 2>/tmp/lq-req134-chrome.log || true
-          grep -o '<i id="lqReq134BattleTouchSmokeMarker"[^>]*>' /tmp/lq-req134-dom.html || true
+          grep -o '<i id="lqReq134BattleTouchSmokeMarker"[^>]*>' /tmp/lq-req134-dom.html | tee /tmp/lq-req134-marker.txt || true
           grep -q 'id="lqReq134BattleTouchSmokeMarker"[^>]*data-pass="true"' /tmp/lq-req134-dom.html
           echo 'REQ-134 assembled battle touch acceptance PASS'
+      - name: Upload REQ-134 diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: req134-diagnostics
+          path: |
+            /tmp/lq-req134-marker.txt
+            /tmp/lq-req134-dom.html
+            /tmp/lq-req134-chrome.log
+            /tmp/lq-req134-http.log
+          if-no-files-found: warn
+          retention-days: 1
+      - name: Enforce REQ-134 acceptance
+        if: steps.acceptance.outcome != 'success'
+        run: exit 1
