@@ -4,7 +4,11 @@
 /* P0 touch-sequence completion guard.
    Inert in normal play. In the existing Pages ?lqTouchSmoke=1 path, this turns
    a skipped/timed-out REQ-021 or REQ-001 subtest into the common failure marker,
-   preventing a false-green deploy merely because a test never ran. */
+   preventing a false-green deploy merely because a test never ran.
+
+   The P0 probes are intentionally serialized because they share global game
+   state and one pointer controller. The guard therefore waits long enough for
+   primary -> visibility -> long-press -> multitouch to complete in order. */
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqTouchSmoke'))return;
 
 function fail(reason){
@@ -32,5 +36,5 @@ setTimeout(()=>{
   marker.dataset.longPress=String(longPressOk);
   marker.dataset.multitouch=String(multitouchOk);
   marker.dataset.pass=String(visibilityOk&&longPressOk&&multitouchOk);
-},2550);
+},4200);
 })();
