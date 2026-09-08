@@ -67,6 +67,7 @@ body.${ROOT_CLASS}.lq145Battle .battleLogV10{background:rgba(2,9,17,.76)!importa
 body.${ROOT_CLASS}.lq145Battle .lq145HitCue{position:absolute;z-index:12;left:50%;top:43%;min-width:58px;padding:4px 9px;transform:translate(-50%,-50%);border:1px solid rgba(255,226,145,.58);border-radius:999px;background:rgba(5,16,29,.86);color:#fff1ad;font-size:32px;font-weight:1000;line-height:1;text-align:center;letter-spacing:.02em;text-shadow:0 2px 0 #000,0 0 12px rgba(255,215,105,.42);box-shadow:0 8px 20px rgba(0,0,0,.30);pointer-events:none;animation:lq145HitCue .68s cubic-bezier(.16,.78,.28,1) both}
 body.${ROOT_CLASS}.lq145Battle .enemySpriteStage.lq145ImpactNow{animation:lq145StageImpact .34s cubic-bezier(.2,.72,.3,1) both!important}
 body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg.lq145ImpactNow{animation:lq145EnemyImpact .30s cubic-bezier(.2,.72,.3,1) both!important}
+body.${ROOT_CLASS}.lq145Battle.lq145PlayerHurtNow .status .stat:nth-child(2){background:rgba(132,26,28,.72)!important;box-shadow:0 0 0 1px rgba(255,126,112,.58),0 0 14px rgba(255,82,74,.24)!important}
 @keyframes lq145HitCue{0%{opacity:0;transform:translate(-50%,-18%) scale(.70)}18%{opacity:1;transform:translate(-50%,-52%) scale(1.10)}70%{opacity:1;transform:translate(-50%,-72%) scale(1)}100%{opacity:0;transform:translate(-50%,-92%) scale(.96)}}
 @keyframes lq145StageImpact{0%{box-shadow:0 0 0 0 rgba(255,225,145,0)}35%{box-shadow:0 0 0 5px rgba(255,225,145,.22)}100%{box-shadow:0 0 0 13px rgba(255,225,145,0)}}
 @keyframes lq145EnemyImpact{0%{transform:translateX(0) scale(1)}28%{transform:translateX(5px) scale(.97)}58%{transform:translateX(-3px) scale(1.015)}100%{transform:translateX(0) scale(1)}}
@@ -107,6 +108,9 @@ let lq145LastEnemyKey=null;
 let lq145LastEnemyHp=null;
 let lq145ImpactPresentations=0;
 let lq145ImpactCleanup=0;
+let lq145LastPlayerHp=null;
+let lq145PlayerHurtPresentations=0;
+let lq145PlayerHurtCleanup=0;
 
 function showBattleImpact(damage){
   if(typeof s==='undefined'||!s||s.screen!=='battle'||!(damage>0))return;
@@ -125,14 +129,21 @@ function showBattleImpact(damage){
   lq145ImpactCleanup=setTimeout(()=>{cue.remove();stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');},760);
 }
 
+function showPlayerHurt(){
+  document.body.classList.remove('lq145PlayerHurtNow');void document.body.offsetWidth;document.body.classList.add('lq145PlayerHurtNow');
+  lq145PlayerHurtPresentations++;clearTimeout(lq145PlayerHurtCleanup);lq145PlayerHurtCleanup=setTimeout(()=>document.body.classList.remove('lq145PlayerHurtNow'),460);
+}
+
 function observeBattleImpact(){
-  if(typeof s==='undefined'||!s||s.screen!=='battle'||!s.enemy){lq145LastEnemyKey=null;lq145LastEnemyHp=null;return;}
+  if(typeof s==='undefined'||!s||s.screen!=='battle'||!s.enemy){lq145LastEnemyKey=null;lq145LastEnemyHp=null;lq145LastPlayerHp=null;document.body.classList.remove('lq145PlayerHurtNow');return;}
   const key=String(s.enemy.n||'enemy');
   const hp=Number(s.ehp);
   if(!Number.isFinite(hp)){lq145LastEnemyKey=key;lq145LastEnemyHp=null;return;}
-  if(lq145LastEnemyKey!==key||lq145LastEnemyHp===null){lq145LastEnemyKey=key;lq145LastEnemyHp=hp;return;}
+  if(lq145LastEnemyKey!==key||lq145LastEnemyHp===null){lq145LastEnemyKey=key;lq145LastEnemyHp=hp;const playerHp=Number(s.hp);lq145LastPlayerHp=Number.isFinite(playerHp)?playerHp:null;return;}
   const previous=lq145LastEnemyHp;lq145LastEnemyHp=hp;
   if(hp<previous)showBattleImpact(previous-hp);
+  const playerHp=Number(s.hp);
+  if(Number.isFinite(playerHp)){if(lq145LastPlayerHp!==null&&playerHp<lq145LastPlayerHp)showPlayerHurt();lq145LastPlayerHp=playerHp;}
 }
 
 const lq145ImpactObserver=new MutationObserver(observeBattleImpact);
@@ -200,6 +211,6 @@ function smoke(){
 
 syncClasses();
 window.LQ_REQ145_GOLD_SLICE=contractSnapshot();
-window.LQ_REQ145_GOLD_SLICE_TEST={syncClasses,contractSnapshot,actionPulse,smoke,showBattleImpact,observeBattleImpact,impactPresentations:()=>lq145ImpactPresentations};
+window.LQ_REQ145_GOLD_SLICE_TEST={syncClasses,contractSnapshot,actionPulse,smoke,showBattleImpact,showPlayerHurt,observeBattleImpact,impactPresentations:()=>lq145ImpactPresentations,playerHurtPresentations:()=>lq145PlayerHurtPresentations};
 setTimeout(()=>{if(new URLSearchParams(location.search).has('lqReq145Smoke'))smoke();},0);
 })();

@@ -201,3 +201,23 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 OWNER_EXPERIENCE_PASS: PENDING
 IOS_PHYSICAL_VERIFICATION: PENDING
+
+## Iteration 9 — player-damage response without scene obscuration
+
+### Critic finding
+- Canonical attack already had enemy-hit feedback, but the retaliation half of the same exchange changed Luke HP with weak immediate visual emphasis.
+- A first full-scene red veil was tested at 390x844 and rejected because it darkened the enemy focal area and reduced battle readability.
+
+### Repair
+- Observe canonical battle HP mutation only; do not wrap or replace `enemyTurn()`.
+- When Luke HP decreases, briefly emphasize the existing HP stat cell in red.
+- Keep enemy art, commands, log, reward/progression and input authorities untouched.
+- Add deterministic runtime gates requiring exactly one player-hurt presentation during the canonical attack/retaliation probe.
+
+### Evidence
+- 390x844 local capture shows HP 60→54 with a focused red HP-cell cue while enemy silhouette and command panel remain unobscured.
+- Canonical attack marker PASS, enemy impact count=1, player-hurt count=1.
+- P0 touch/fullscreen local assembled smoke remains green: tap, drag exclusion, cancel, map/battle stop and fullscreen runtime markers all PASS.
+
+OWNER_EXPERIENCE_PASS: PENDING
+IOS_PHYSICAL_VERIFICATION: PENDING
