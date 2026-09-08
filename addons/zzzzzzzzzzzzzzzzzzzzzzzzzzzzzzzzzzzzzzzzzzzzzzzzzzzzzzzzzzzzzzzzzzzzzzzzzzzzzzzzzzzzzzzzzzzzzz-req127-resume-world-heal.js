@@ -121,14 +121,23 @@
     if(!document.hidden)heal('visibility-foreground');
   },{passive:true});
 
+  // iPhone standalone WebKit may restore window focus on an app foreground transition
+  // without giving application code a useful BFCache pageshow or visibility edge. Focus
+  // is therefore an additional presentation-only recovery boundary. It is intentionally
+  // harmless in ordinary browser use: heal() exits without mutation outside world state.
+  addEventListener('focus',()=>{
+    heal('window-focus');
+  },{passive:true});
+
   window.LQ_REQ127_RESUME_WORLD_HEAL={
-    version:'1.1.0',
+    version:'1.2.0',
     requirement:'REQ-127',
     presentationOnly:true,
     gameplayStateMutation:false,
     saveSchemaChange:false,
     knownTransientOccluderCleanup:true,
     frozenArrivalCleanup:true,
+    focusRecovery:true,
     lifecycleReflow:true,
     doubleRafRepaint:true,
     iosPhysicalVerification:'PENDING',
