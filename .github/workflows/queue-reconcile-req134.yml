@@ -1,5 +1,6 @@
 name: Queue Reconcile REQ-134
 
+# One-shot reconciliation helper. Normal future pushes do not match this path.
 on:
   push:
     paths:
