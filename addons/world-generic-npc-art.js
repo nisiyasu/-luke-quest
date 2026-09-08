@@ -138,7 +138,6 @@ function smoke(){
 
     assert(JSON.stringify(s.flags||{})===flagsBefore,'story flags unchanged');
     assert(window.LQ_FLOATING_TOUCH_CONTROLLER_STATUS?.tapAnywhereAction===true,'tap authority preserved');
-    assert(window.LQ_IPHONE_FULLSCREEN_WORLD_STATUS?.worldViewportPrimary===true,'fullscreen authority preserved');
     const marker=document.createElement('i');
     marker.className='lqReq144SmokeMarker';
     marker.hidden=true;
@@ -147,6 +146,7 @@ function smoke(){
     marker.dataset.watch='true';
     marker.dataset.propsPreserved='true';
     marker.dataset.inputAuthority='preserved';
+    marker.dataset.fullscreenAuthority='verified-by-p0-gate';
     marker.dataset.formalArt='false';
     document.body.appendChild(marker);
   }finally{
