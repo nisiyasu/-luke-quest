@@ -46,7 +46,7 @@ jobs:
           # chain all mutate one global game state and one pointer owner. They must not
           # execute concurrently or the harness can cancel production-correct gestures.
           cp /tmp/lq-touch-index-full.html index.html
-          sed -i '/zzzzzzzzzz-req001-visual-viewport-offset-smoke.js/d' index.html
+          sed -i 's#<script src="addons/zzzzzzzzzz-req001-visual-viewport-offset-smoke.js"></script>##g' index.html
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
           python3 -m http.server 8124 >/tmp/lq-touch-http.log 2>&1 &
@@ -81,7 +81,7 @@ jobs:
       - name: Run isolated extended P0 touch diagnostic
         run: |
           cp /tmp/lq-touch-index-full.html index.html
-          sed -i '/zzzz-visibility-touch-regression.js/d;/zzzzzz-req021-long-press-smoke.js/d;/zzzzzzz-req001-multitouch-smoke.js/d;/zzzzzzzz-p0-touch-sequence-guard.js/d' index.html
+          sed -i 's#<script src="addons/zzzz-visibility-touch-regression.js"></script>##g;s#<script src="addons/zzzzzz-req021-long-press-smoke.js"></script>##g;s#<script src="addons/zzzzzzz-req001-multitouch-smoke.js"></script>##g;s#<script src="addons/zzzzzzzz-p0-touch-sequence-guard.js"></script>##g' index.html
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
           python3 -m http.server 8125 >/tmp/lq-touch-ext-http.log 2>&1 &
