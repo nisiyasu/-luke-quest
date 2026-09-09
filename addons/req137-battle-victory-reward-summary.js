@@ -18,6 +18,7 @@
     if(!frame||!s.dialog)return render();
     const root=document.getElementById('app');
     if(!root)return;
+    const victoryState=s.dialog;
     root.innerHTML=`<div id="lqVictoryBattleFrame" style="position:relative;min-height:100dvh">${frame}</div>`;
     const host=document.getElementById('lqVictoryBattleFrame');
     const box=document.createElement('div');
@@ -30,7 +31,15 @@
     box.style.bottom='max(8px, env(safe-area-inset-bottom))';
     box.style.cursor='pointer';
     box.innerHTML=`<div class="speaker">${s.dialog.name}</div><div class="dialog">${s.dialog.text}</div><div class="sub" style="text-align:right">タップ / Aで閉じる</div>`;
-    box.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();action();},{once:true});
+    box.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      action();
+      if(s.dialog===victoryState){
+        s.dialog=null;
+        render();
+      }
+    },{once:true});
     host.appendChild(box);
   }
 
@@ -51,13 +60,14 @@
   };
 
   window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY={
-    version:'1.2.1',
+    version:'1.3.0',
     requirement:'REQ-137/REQ-147',
     canonicalWinPreserved:true,
     canonicalDialogPreserved:true,
     lukeCommentPreserved:true,
     separateVictoryOverlay:false,
     battleFrameHeldUntilDismiss:true,
+    singleDismissVictoryCleanup:true,
     rewardMutation:false,
     battleBalanceMutation:false,
     saveSchemaChange:false,

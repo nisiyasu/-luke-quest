@@ -29,11 +29,19 @@ function markBattleCommandRows(){
  if(typeof s==='undefined'||s?.screen!=='battle')return;
  document.querySelectorAll('#app .card .row').forEach(row=>{
   const directButtons=[...row.children].filter(el=>el.matches('button,.btn'));
-  if(directButtons.length>=2)row.classList.add('lqReq147BattleCommandGrid');
+  if(directButtons.length===2)row.classList.add('lqReq147BattleCommandGrid');
  });
+}
+const canonicalBattle=typeof battle==='function'?battle:null;
+if(canonicalBattle){
+ battle=function(...args){
+  const result=canonicalBattle.apply(this,args);
+  markBattleCommandRows();
+  return result;
+ };
 }
 const observer=new MutationObserver(markBattleCommandRows);
 observer.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
 markBattleCommandRows();
-window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE={version:'1.1.0',columns:2,multiRow:true,scope:'battle-command-rows'};
+window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE={version:'1.2.0',columns:2,multiRow:true,scope:'battle-command-rows',canonicalBattlePreserved:!!canonicalBattle};
 })();
