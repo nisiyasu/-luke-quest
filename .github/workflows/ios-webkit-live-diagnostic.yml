@@ -102,13 +102,14 @@ jobs:
             const missingApp = info.appHTMLLength < 100;
             const zeroApp = !info.appRect || info.appRect[2] < 10 || info.appRect[3] < 10;
             const fatalError = pageErrors.length > 0;
-            const missingLuke = !info.bodyText.includes('LUKE QUEST');
+            const wrongTitle = info.title !== 'LUKE QUEST';
+            const missingTitleSurface = !persistedSave && !info.bodyText.includes('LUKE QUEST');
             const missingPersistedWorld = !!persistedSave && !info.worldPresent;
             const wrongMap = !!expectedMap && info.persistedMap !== expectedMap;
             const missingFullscreen = !!persistedSave && !info.fullscreenPresent;
-            if (badStatus || missingApp || zeroApp || fatalError || missingLuke || missingPersistedWorld || wrongMap || missingFullscreen) {
+            if (badStatus || missingApp || zeroApp || fatalError || wrongTitle || missingTitleSurface || missingPersistedWorld || wrongMap || missingFullscreen) {
               failed = true;
-              console.error(`${name} FAIL: status=${result.status} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} hasLuke=${!missingLuke} world=${info.worldPresent} persistedMap=${info.persistedMap} fullscreen=${info.fullscreenPresent}`);
+              console.error(`${name} FAIL: status=${result.status} title=${info.title} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} titleSurface=${!missingTitleSurface} world=${info.worldPresent} persistedMap=${info.persistedMap} fullscreen=${info.fullscreenPresent}`);
             } else {
               console.log(`${name} PASS: live WebKit rendered the expected LUKE QUEST surface`);
             }
