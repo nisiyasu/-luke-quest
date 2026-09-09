@@ -21,6 +21,7 @@ jobs:
       - name: Align persisted-map assertion with canonical migration
         shell: bash
         run: |
+          echo 'Repairing stale legacy-map assertion against canonical migrated map.'
           python3 - <<'PY'
           from pathlib import Path
           p = Path('.github/workflows/pages.yml')
