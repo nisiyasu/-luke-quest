@@ -22,12 +22,12 @@ body.lqReq145GoldSlice .questGuide.${FOCUS_CLASS}{
   animation:lq145PostBattleFocus .72s cubic-bezier(.18,.72,.28,1) both;
 }
 @keyframes lq145PostBattleFocus{
-  0%{transform:translateY(3px);filter:brightness(1);}
-  28%{transform:translateY(0);filter:brightness(1.18);}
-  100%{transform:translateY(0);filter:brightness(1);}
+  0%{transform:translateY(3px);border-color:rgba(240,201,91,.42);}
+  28%{transform:translateY(0);border-color:rgba(255,225,126,.88);}
+  100%{transform:translateY(0);border-color:rgba(240,201,91,.72);}
 }
 @media(prefers-reduced-motion:reduce){
-  body.lqReq145GoldSlice .questGuide.${FOCUS_CLASS}{animation:none!important;filter:none!important;}
+  body.lqReq145GoldSlice .questGuide.${FOCUS_CLASS}{animation:none!important;}
 }
 `;
   document.head.appendChild(style);
