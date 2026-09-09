@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/ios-webkit-live-diagnostic.yml'
+  workflow_run:
+    workflows: ["Deploy LUKE QUEST to GitHub Pages"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,6 +20,7 @@ env:
 
 jobs:
   ios-webkit-live:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -28,7 +33,7 @@ jobs:
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps webkit
 
-      - name: Probe production and Gold with WebKit
+      - name: Probe live iPhone WebKit surfaces
         shell: bash
         run: |
           cd /tmp/lq-webkit
@@ -37,13 +42,22 @@ jobs:
           import fs from 'node:fs';
 
           const browser = await webkit.launch({ headless: true });
-          const context = await browser.newContext({
-            ...devices['iPhone 15 Pro'],
-            locale: 'ja-JP',
-          });
           let failed = false;
 
-          async function probe(name, url) {
+          function makeContext() {
+            return browser.newContext({
+              ...devices['iPhone 15 Pro'],
+              locale: 'ja-JP',
+            });
+          }
+
+          async function probe(name, url, { persistedSave = null, expectedMap = null } = {}) {
+            const context = await makeContext();
+            if (persistedSave) {
+              await context.addInitScript(save => {
+                localStorage.setItem('lukeQuestV2', JSON.stringify(save));
+              }, persistedSave);
+            }
             const page = await context.newPage();
             const consoleLines = [];
             const pageErrors = [];
@@ -54,6 +68,7 @@ jobs:
             const info = await page.evaluate(() => {
               const app = document.querySelector('#app');
               const rect = app?.getBoundingClientRect();
+              const world = document.querySelector('.world');
               return {
                 title: document.title,
                 bodyText: (document.body?.innerText || '').slice(0, 3000),
@@ -62,6 +77,9 @@ jobs:
                 appRect: rect ? [rect.x, rect.y, rect.width, rect.height] : null,
                 bodyBg: getComputedStyle(document.body).backgroundColor,
                 viewport: [innerWidth, innerHeight],
+                worldPresent: !!world,
+                worldMap: world?.getAttribute('data-map') || document.body?.getAttribute('data-map') || null,
+                fullscreenPresent: !!document.querySelector('.lqWorldFullscreen'),
               };
             });
             await page.screenshot({ path: `/tmp/${name}.png`, fullPage: true });
@@ -81,16 +99,28 @@ jobs:
             const zeroApp = !info.appRect || info.appRect[2] < 10 || info.appRect[3] < 10;
             const fatalError = pageErrors.length > 0;
             const missingLuke = !info.bodyText.includes('LUKE QUEST');
-            if (badStatus || missingApp || zeroApp || fatalError || missingLuke) {
+            const missingPersistedWorld = !!persistedSave && !info.worldPresent;
+            const wrongMap = !!expectedMap && info.worldMap !== expectedMap;
+            const missingFullscreen = !!persistedSave && !info.fullscreenPresent;
+            if (badStatus || missingApp || zeroApp || fatalError || missingLuke || missingPersistedWorld || wrongMap || missingFullscreen) {
               failed = true;
-              console.error(`${name} FAIL: status=${result.status} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} hasLuke=${!missingLuke}`);
+              console.error(`${name} FAIL: status=${result.status} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} hasLuke=${!missingLuke} world=${info.worldPresent} map=${info.worldMap} fullscreen=${info.fullscreenPresent}`);
             } else {
-              console.log(`${name} PASS: live WebKit rendered a non-empty LUKE QUEST surface`);
+              console.log(`${name} PASS: live WebKit rendered the expected LUKE QUEST surface`);
             }
             await page.close();
+            await context.close();
           }
 
           await probe('production-webkit', process.env.PROD_URL);
+          await probe('production-persisted-addon-map-webkit', process.env.PROD_URL, {
+            expectedMap: 'northCliffRoad',
+            persistedSave: {
+              screen: 'world', map: 'northCliffRoad', x: 10, y: 20, dir: 'up',
+              lv: 6, hp: 70, mh: 70, atk: 18, xp: 3, nx: 50, gold: 80,
+              potions: 2, wins: 9, flags: {},
+            },
+          });
           await probe('gold-webkit', process.env.GOLD_URL);
           await browser.close();
           if (failed) process.exit(1);
@@ -105,6 +135,8 @@ jobs:
           path: |
             /tmp/production-webkit.png
             /tmp/production-webkit.json
+            /tmp/production-persisted-addon-map-webkit.png
+            /tmp/production-persisted-addon-map-webkit.json
             /tmp/gold-webkit.png
             /tmp/gold-webkit.json
           if-no-files-found: warn
