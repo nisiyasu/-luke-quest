@@ -1,4 +1,4 @@
-(function(){
+(() => {
   'use strict';
   if(window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY)return;
   if(typeof win!=='function')return;
@@ -51,7 +51,7 @@
   };
 
   window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY={
-    version:'1.2.0',
+    version:'1.2.1',
     requirement:'REQ-137/REQ-147',
     canonicalWinPreserved:true,
     canonicalDialogPreserved:true,

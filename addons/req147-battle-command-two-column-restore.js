@@ -1,4 +1,4 @@
-(function(){
+(() => {
 'use strict';
 if(window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE)return;
 const style=document.createElement('style');
@@ -30,5 +30,5 @@ function markBattleCard(){
 const observer=new MutationObserver(markBattleCard);
 observer.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
 markBattleCard();
-window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE={version:'1.0.0',columns:2,multiRow:true,scope:'battle-only'};
+window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE={version:'1.0.1',columns:2,multiRow:true,scope:'battle-only'};
 })();
