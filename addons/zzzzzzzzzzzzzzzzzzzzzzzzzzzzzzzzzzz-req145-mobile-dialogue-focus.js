@@ -55,17 +55,34 @@ function installStyle(){
 }
 
 function smoke(){
-  const shell=document.querySelector('.gameShell');
-  if(!shell)return;
   const body=document.body;
   const classes=['lqReq145GoldSlice','lqWorldFullscreen','lqWorldDialogueOpen'];
   const previous=classes.map(name=>body.classList.contains(name));
   classes.forEach(name=>body.classList.add(name));
 
+  let shell=document.querySelector('.gameShell');
+  let syntheticShell=false;
+  if(!shell){
+    shell=document.createElement('div');
+    shell.className='gameShell';
+    shell.style.cssText='position:relative;width:100%;height:100dvh;min-height:100dvh;overflow:hidden;';
+    body.appendChild(shell);
+    syntheticShell=true;
+  }
+
   const probe=document.createElement('div');
   probe.className='dialogBox';
   probe.style.position='absolute';
-  probe.innerHTML='<div class="speaker">PROBE</div><div class="dialog">Gold mobile dialogue focus probe. '.repeat(18)+'</div><div class="sub">tap</div>';
+  const speaker=document.createElement('div');
+  speaker.className='speaker';
+  speaker.textContent='PROBE';
+  const dialog=document.createElement('div');
+  dialog.className='dialog';
+  dialog.textContent='Gold mobile dialogue focus probe. '.repeat(18);
+  const sub=document.createElement('div');
+  sub.className='sub';
+  sub.textContent='tap';
+  probe.append(speaker,dialog,sub);
   shell.appendChild(probe);
 
   requestAnimationFrame(()=>{
@@ -84,8 +101,10 @@ function smoke(){
     marker.dataset.saveAuthority='false';
     marker.dataset.storyAuthority='false';
     marker.dataset.battleAuthority='false';
+    marker.dataset.syntheticShell=String(syntheticShell);
     document.body.appendChild(marker);
     probe.remove();
+    if(syntheticShell)shell.remove();
     classes.forEach((name,index)=>body.classList.toggle(name,previous[index]));
   });
 }
