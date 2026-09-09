@@ -3,6 +3,7 @@
 if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqReq147Smoke'))return;
 function marker(data){let el=document.getElementById('lqReq147SmokeMarker');if(!el){el=document.createElement('i');el.id='lqReq147SmokeMarker';el.hidden=true;document.documentElement.appendChild(el);}Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));return el;}
 function fail(reason){console.error('REQ-147 smoke FAIL',reason);marker({pass:false,reason});}
+function settle(ms=80){return new Promise(r=>setTimeout(r,ms));}
 async function run(){
  const snapshot=structuredClone(s);
  try{
@@ -12,22 +13,25 @@ async function run(){
   s.log=['REQ-147 victory acceptance'];
   s.hp=Math.max(1,s.hp||42);
   battle();
-  await new Promise(r=>requestAnimationFrame(()=>r()));
-  const before=document.querySelector('#app')?.textContent||'';
+  await settle();
+  const commandRow=[...document.querySelectorAll('#app .card .row')].find(row=>row.closest('.card')?.querySelector('.enemy'));
+  const columns=commandRow?getComputedStyle(commandRow).gridTemplateColumns.trim().split(/\s+/).filter(Boolean):[];
+  const twoColumnCommands=!!commandRow&&columns.length===2&&commandRow.children.length>=2;
   win();
-  await new Promise(r=>requestAnimationFrame(()=>r()));
-  const overlay=document.getElementById('lqReq147VictoryOverlay');
-  const banner=overlay?.querySelector('.lqReq147VictoryBanner');
-  const battleSnapshot=overlay?.querySelector('.lqReq147BattleSnapshot');
-  const dialogBeforeDismiss=!!s.dialog;
-  const overlayBattleContext=!!overlay&&!!battleSnapshot&&before.length>0&&(battleSnapshot.textContent||'').length>0;
-  banner?.click();
-  await new Promise(r=>requestAnimationFrame(()=>r()));
-  const oneDismissClean=!document.getElementById('lqReq147VictoryOverlay')&&!s.dialog;
-  const pass=window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY?.victoryPresentationBeforePostBattleAcknowledgement===true&&overlayBattleContext&&dialogBeforeDismiss&&oneDismissClean;
-  marker({pass,overlayBattleContext,dialogBeforeDismiss,oneDismissClean,screenAfterDismiss:s.screen||''});
+  await settle(120);
+  const victoryDialog=document.querySelector('#lqVictoryBattleFrame .dialogBox[aria-label="戦闘勝利"]');
+  const battleFrame=document.getElementById('lqVictoryBattleFrame');
+  const noSeparateOverlay=!document.getElementById('lqReq147VictoryOverlay');
+  const battleContext=!!battleFrame&&battleFrame.textContent.includes('REQ-147 TEST');
+  const lukeComment=!!victoryDialog&&(victoryDialog.textContent||'').includes('ルーク');
+  const dialogBeforeDismiss=!!s.dialog&&!!victoryDialog;
+  victoryDialog?.click();
+  await settle(100);
+  const oneDismissClean=!document.querySelector('.dialogBox[aria-label="戦闘勝利"]')&&!document.getElementById('lqVictoryBattleFrame')&&!s.dialog;
+  const pass=twoColumnCommands&&noSeparateOverlay&&battleContext&&lukeComment&&dialogBeforeDismiss&&oneDismissClean&&s.screen==='world';
+  marker({pass,twoColumnCommands,noSeparateOverlay,battleContext,lukeComment,dialogBeforeDismiss,oneDismissClean,screenAfterDismiss:s.screen||''});
  }catch(error){fail(error?.message||String(error));}
- finally{Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);document.getElementById('lqReq147VictoryOverlay')?.remove();render();}
+ finally{document.getElementById('lqVictoryBattleFrame')?.remove();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}
 }
 if(document.readyState==='complete')setTimeout(run,900);else addEventListener('load',()=>setTimeout(run,900),{once:true});
 })();

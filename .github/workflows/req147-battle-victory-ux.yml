@@ -6,6 +6,8 @@ on:
       - 'requirements/REQ-147_BATTLE_UX_RESTORE_IN_BATTLE_VICTORY.md'
       - 'addons/req134-iphone-battle-touch-ui.js'
       - 'addons/req137-battle-victory-reward-summary.js'
+      - 'addons/req138-battle-level-up-summary.js'
+      - 'addons/req147-battle-command-two-column-restore.js'
       - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req147-battle-victory-smoke.js'
       - '.github/workflows/req147-battle-victory-ux.yml'
   workflow_dispatch:
@@ -22,6 +24,8 @@ jobs:
         run: |
           node --check addons/req134-iphone-battle-touch-ui.js
           node --check addons/req137-battle-victory-reward-summary.js
+          node --check addons/req138-battle-level-up-summary.js
+          node --check addons/req147-battle-command-two-column-restore.js
           node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req147-battle-victory-smoke.js
       - name: Assemble Pages-equivalent runtime
         run: |
