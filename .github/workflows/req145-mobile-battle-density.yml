@@ -1,0 +1,49 @@
+name: REQ-145 Mobile Battle Density
+
+on:
+  push:
+    branches: ["experiment/gold-vertical-slice"]
+    paths:
+      - 'addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req145-mobile-battle-density.js'
+      - '.github/workflows/req145-mobile-battle-density.yml'
+      - 'tools/lq-req145-assemble-local.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-battle-density:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate presentation source
+        run: node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req145-mobile-battle-density.js
+      - name: Assemble challenger
+        run: python3 tools/lq-req145-assemble-local.py --out req145-assembled.html
+      - name: Exercise compact mobile battle geometry
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          python3 -m http.server 8129 >/tmp/req145-battle-density-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=1800 --dump-dom 'http://127.0.0.1:8129/req145-assembled.html?lqReq145BattleDensitySmoke=1' > /tmp/req145-battle-density-dom.html 2>/tmp/req145-battle-density-chrome.log || true
+          test -s /tmp/req145-battle-density-dom.html
+          grep -q 'id="lqReq145MobileBattleDensitySmokeMarker"' /tmp/req145-battle-density-dom.html
+          grep -q 'data-stage-present="true"' /tmp/req145-battle-density-dom.html
+          grep -q 'data-svg-present="true"' /tmp/req145-battle-density-dom.html
+          grep -q 'data-compact-stage="true"' /tmp/req145-battle-density-dom.html
+          grep -q 'data-enemy-still-focal="true"' /tmp/req145-battle-density-dom.html
+          grep -q 'data-input-authority="false"' /tmp/req145-battle-density-dom.html
+          grep -q 'data-save-authority="false"' /tmp/req145-battle-density-dom.html
+          grep -q 'data-battle-authority="false"' /tmp/req145-battle-density-dom.html
+          if grep -q 'lqReq145MobileBattleDensitySmokeFailure' /tmp/req145-battle-density-dom.html || grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/req145-battle-density-chrome.log; then
+            cat /tmp/req145-battle-density-chrome.log
+            exit 1
+          fi
+          grep -o 'id="lqReq145MobileBattleDensitySmokeMarker"[^>]*' /tmp/req145-battle-density-dom.html
+          echo 'REQ-145 compact mobile battle geometry PASS'
