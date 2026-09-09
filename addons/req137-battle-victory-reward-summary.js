@@ -1,39 +1,77 @@
 (() => {
-'use strict';
-if(window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY)return;
-if(typeof win!=='function')return;
+  'use strict';
+  if(window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY)return;
+  if(typeof win!=='function')return;
 
-const canonicalWin=win;
+  const canonicalWin=win;
 
-function rewardLine(enemy){
- return `${enemy.n}を倒した！ EXP${enemy.xp} / ${enemy.g}G`;
-}
+  function rewardLine(enemy){
+    return `${enemy.n}を倒した！ EXP${enemy.xp} / ${enemy.g}G`;
+  }
 
-win=function(){
- const defeated=(typeof s!=='undefined'&&s&&s.enemy)
-  ? {n:s.enemy.n,xp:s.enemy.xp,g:s.enemy.g}
-  : null;
- const result=canonicalWin.apply(this,arguments);
- if(!defeated||typeof s==='undefined'||!s||!s.dialog||typeof s.dialog.text!=='string')return result;
- const line=rewardLine(defeated);
- if(!s.dialog.text.includes(line)){
-  s.dialog={...s.dialog,text:`${s.dialog.text}\n${line}`};
-  if(typeof render==='function')render();
- }
- return result;
-};
+  function captureBattleFrame(){
+    const root=document.getElementById('app');
+    return root ? root.innerHTML : '';
+  }
 
-window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY={
- version:'1.0.1',
- requirement:'REQ-137',
- canonicalWinPreserved:true,
- rewardMutation:false,
- battleBalanceMutation:false,
- saveSchemaChange:false,
- storyMutation:false,
- pointerHandlerAdded:false,
- clickHandlerAdded:false,
- rewardLine,
- iosPhysicalVerification:'PENDING'
-};
+  function showCanonicalDialogOnBattleFrame(frame){
+    if(!frame||!s.dialog)return render();
+    const root=document.getElementById('app');
+    if(!root)return;
+    const victoryState=s.dialog;
+    root.innerHTML=`<div id="lqVictoryBattleFrame" style="position:relative;min-height:100dvh">${frame}</div>`;
+    const host=document.getElementById('lqVictoryBattleFrame');
+    const box=document.createElement('div');
+    box.className='dialogBox';
+    box.setAttribute('role','dialog');
+    box.setAttribute('aria-label','戦闘勝利');
+    box.style.position='fixed';
+    box.style.left='max(8px, env(safe-area-inset-left))';
+    box.style.right='max(8px, env(safe-area-inset-right))';
+    box.style.bottom='max(8px, env(safe-area-inset-bottom))';
+    box.style.cursor='pointer';
+    box.innerHTML=`<div class="speaker">${s.dialog.name}</div><div class="dialog">${s.dialog.text}</div><div class="sub" style="text-align:right">タップ / Aで閉じる</div>`;
+    box.addEventListener('click',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      action();
+      if(s.dialog===victoryState){
+        s.dialog=null;
+        render();
+      }
+    },{once:true});
+    host.appendChild(box);
+  }
+
+  win=function(){
+    const defeated=(s&&s.enemy)?{n:s.enemy.n,xp:s.enemy.xp,g:s.enemy.g}:null;
+    const frame=captureBattleFrame();
+    const beforeWins=Number(s.wins)||0;
+    const result=canonicalWin.apply(this,arguments);
+    if(!defeated||(Number(s.wins)||0)<=beforeWins)return result;
+
+    const line=rewardLine(defeated);
+    if(s.dialog&&typeof s.dialog.text==='string'&&!s.dialog.text.includes(line)){
+      s.dialog={...s.dialog,text:`${s.dialog.text}\n${line}`};
+    }
+    if(typeof save==='function')save();
+    showCanonicalDialogOnBattleFrame(frame);
+    return result;
+  };
+
+  window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY={
+    version:'1.3.0',
+    requirement:'REQ-137/REQ-147',
+    canonicalWinPreserved:true,
+    canonicalDialogPreserved:true,
+    lukeCommentPreserved:true,
+    separateVictoryOverlay:false,
+    battleFrameHeldUntilDismiss:true,
+    singleDismissVictoryCleanup:true,
+    rewardMutation:false,
+    battleBalanceMutation:false,
+    saveSchemaChange:false,
+    storyMutation:false,
+    iosPhysicalVerification:'PENDING'
+  };
 })();
