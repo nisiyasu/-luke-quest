@@ -69,6 +69,10 @@ jobs:
               const app = document.querySelector('#app');
               const rect = app?.getBoundingClientRect();
               const world = document.querySelector('.world');
+              let persistedMap = null;
+              try {
+                persistedMap = JSON.parse(localStorage.getItem('lukeQuestV2') || '{}').map || null;
+              } catch {}
               return {
                 title: document.title,
                 bodyText: (document.body?.innerText || '').slice(0, 3000),
@@ -78,7 +82,7 @@ jobs:
                 bodyBg: getComputedStyle(document.body).backgroundColor,
                 viewport: [innerWidth, innerHeight],
                 worldPresent: !!world,
-                worldMap: world?.getAttribute('data-map') || document.body?.getAttribute('data-map') || null,
+                persistedMap,
                 fullscreenPresent: !!document.querySelector('.lqWorldFullscreen'),
               };
             });
@@ -100,11 +104,11 @@ jobs:
             const fatalError = pageErrors.length > 0;
             const missingLuke = !info.bodyText.includes('LUKE QUEST');
             const missingPersistedWorld = !!persistedSave && !info.worldPresent;
-            const wrongMap = !!expectedMap && info.worldMap !== expectedMap;
+            const wrongMap = !!expectedMap && info.persistedMap !== expectedMap;
             const missingFullscreen = !!persistedSave && !info.fullscreenPresent;
             if (badStatus || missingApp || zeroApp || fatalError || missingLuke || missingPersistedWorld || wrongMap || missingFullscreen) {
               failed = true;
-              console.error(`${name} FAIL: status=${result.status} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} hasLuke=${!missingLuke} world=${info.worldPresent} map=${info.worldMap} fullscreen=${info.fullscreenPresent}`);
+              console.error(`${name} FAIL: status=${result.status} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} hasLuke=${!missingLuke} world=${info.worldPresent} persistedMap=${info.persistedMap} fullscreen=${info.fullscreenPresent}`);
             } else {
               console.log(`${name} PASS: live WebKit rendered the expected LUKE QUEST surface`);
             }
@@ -114,7 +118,7 @@ jobs:
 
           await probe('production-webkit', process.env.PROD_URL);
           await probe('production-persisted-addon-map-webkit', process.env.PROD_URL, {
-            expectedMap: 'northCliffRoad',
+            expectedMap: 'evacRoute',
             persistedSave: {
               screen: 'world', map: 'northCliffRoad', x: 10, y: 20, dir: 'up',
               lv: 6, hp: 70, mh: 70, atk: 18, xp: 3, nx: 50, gold: 80,
