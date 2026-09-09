@@ -14,20 +14,23 @@ style.id='lq-req134-battle-touch-style';
 style.textContent=`
 body.${ROOT_CLASS}{min-height:100vh;min-height:100dvh;padding-bottom:max(env(safe-area-inset-bottom),8px)}
 body.${ROOT_CLASS} #app{min-height:100vh;min-height:100dvh;padding-bottom:max(calc(env(safe-area-inset-bottom) + 10px),16px)}
-body.${ROOT_CLASS} .${CARD_CLASS}{display:flex;flex-direction:column;gap:6px;margin-bottom:max(env(safe-area-inset-bottom),10px)}
-body.${ROOT_CLASS} .${CARD_CLASS} .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;width:100%;margin:0}
+body.${ROOT_CLASS} .${CARD_CLASS}{display:flex;flex-direction:column;gap:6px;margin-bottom:max(env(safe-area-inset-bottom),10px);max-height:none!important;overflow:visible!important}
+body.${ROOT_CLASS} .${CARD_CLASS} .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;width:100%;margin:0;flex:0 0 auto}
 body.${ROOT_CLASS} #app .${BUTTON_CLASS}{min-width:0;min-height:${MIN_TARGET}px;margin:0;padding:11px 8px;line-height:1.2;touch-action:manipulation;white-space:normal;overflow-wrap:anywhere}
 body.${ROOT_CLASS} #app .${LOG_CLASS}{max-height:min(22dvh,170px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable;line-height:1.45;margin-top:2px}
 @media(max-width:430px){
  body.${ROOT_CLASS} #app{width:100%;max-width:none;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
- body.${ROOT_CLASS} .card{margin-bottom:7px;padding:11px;border-radius:13px}
+ body.${ROOT_CLASS} .card{margin-bottom:5px;padding:9px;border-radius:13px}
  body.${ROOT_CLASS} .enemyName{font-size:20px}
- body.${ROOT_CLASS} .bar{margin:5px 0}
- body.${ROOT_CLASS} .${CARD_CLASS}{padding-bottom:max(11px,env(safe-area-inset-bottom))}
+ body.${ROOT_CLASS} .bar{margin:4px 0}
+ body.${ROOT_CLASS} .${CARD_CLASS}{gap:5px;padding-top:8px;padding-bottom:max(9px,env(safe-area-inset-bottom))}
+ body.${ROOT_CLASS} .${CARD_CLASS} .row{gap:6px}
+ body.${ROOT_CLASS} #app .${BUTTON_CLASS}{padding:8px 7px}
+ body.${ROOT_CLASS} #app .${LOG_CLASS}{max-height:min(13dvh,104px)}
 }
 @media(max-height:700px){
- body.${ROOT_CLASS} #app .${LOG_CLASS}{max-height:112px}
- body.${ROOT_CLASS} #app .${BUTTON_CLASS}{min-height:${MIN_TARGET}px;padding:9px 7px}
+ body.${ROOT_CLASS} #app .${LOG_CLASS}{max-height:82px}
+ body.${ROOT_CLASS} #app .${BUTTON_CLASS}{min-height:${MIN_TARGET}px;padding:7px 7px}
 }
 @media(prefers-reduced-motion:reduce){body.${ROOT_CLASS} #app .${BUTTON_CLASS}{transition:none!important}}
 `;
@@ -121,14 +124,16 @@ observer.observe(document.getElementById('app'),{childList:true,subtree:true});
 
 decorateBattle();
 window.LQ_REQ134_BATTLE_TOUCH_UI={
- version:'1.0.2',
- requirement:'REQ-134',
+ version:'1.0.3',
+ requirement:'REQ-134/REQ-147',
  presentationOnly:true,
  battleSemanticsMutation:false,
  saveSchemaChange:false,
  minTargetPx:MIN_TARGET,
  safeAreaBottom:true,
  boundedScrollableLog:true,
+ commandSurfaceNeverScrollable:true,
+ portraitBattleLogBudgetDvh:13,
  lateAddonDecoration:true,
  assembledDomResilient:true,
  assembledBattleLogSelector:'.log,.battleLogV10',
