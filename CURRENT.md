@@ -1,13 +1,16 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: `2026-09-09 05:03 JST`
+- UPDATED_AT: `2026-09-09 08:25 JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - LATEST_IMPLEMENTATION_COMMIT_SHA: `eefa011d19e5bfb155f8d8b49cef460c66b71eaa`
 - LATEST_VERIFIED_RUNTIME_HEAD_SHA: `a3f1aed1fd209bed2ccaba766cb64bc8889cfed2`
 - LATEST_METADATA_COMMIT_SHA: `a3f1aed1fd209bed2ccaba766cb64bc8889cfed2`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
-- CURRENT_BUILD_STATUS: `Owner BOOT v3 P0 machine/public re-audit complete. Exact-head a3f1aed: P0 Touch 34271984923 SUCCESS; Pages 34271984980 SUCCESS including assembled browser + floating touch + iPhone world visual-liveness; Render Liveness 34271984938 SUCCESS; cache-busted recovery 34272081255 SUCCESS; REQ-121 regression 34271984960 SUCCESS. REQ-021/022/001 and REQ-023 remain VERIFY only because IOS_PHYSICAL_VERIFICATION=PENDING. REQ-145 challenger lane resumed.`
+- GOLD_PREVIEW_URL: https://nisiyasu.github.io/-luke-quest/preview/gold/
+- GOLD_PREVIEW_SOURCE_BRANCH: `experiment/gold-vertical-slice`
+- GOLD_PREVIEW_SOURCE_SHA: `8fdd09a8ecc107b180d90f3e0f48bb381a13dbd3`
+- CURRENT_BUILD_STATUS: `Gold challenger preview is now isolated under /preview/gold/ while root Pages remains explicit main production. Pages run 34290329918 SUCCESS and public preview contains REQ-145 candidate assembly. Owner BOOT v3 P0 machine/public re-audit complete. Exact-head a3f1aed: P0 Touch 34271984923 SUCCESS; Pages 34271984980 SUCCESS including assembled browser + floating touch + iPhone world visual-liveness; Render Liveness 34271984938 SUCCESS; cache-busted recovery 34272081255 SUCCESS; REQ-121 regression 34271984960 SUCCESS. REQ-021/022/001 and REQ-023 remain VERIFY only because IOS_PHYSICAL_VERIFICATION=PENDING. REQ-145 challenger lane resumed.`
 - ACTIVE_REQUIREMENT_ID: `REQ-145`
 - ACTIVE_REQUIREMENT_PATH: `requirements/REQ-145_GOLD_VERTICAL_SLICE_CONTINUOUS_QUALITY_LANE.md`
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
@@ -48,6 +51,8 @@
 - STATUS: `IN_PROGRESS / P0 RE-AUDIT COMPLETE`
 - PRIORITY: `P0 / OWNER_DIRECT`
 - DEVELOPMENT_BRANCH: `experiment/gold-vertical-slice`
+- PUBLIC_PREVIEW: `https://nisiyasu.github.io/-luke-quest/preview/gold/`
+- PREVIEW_STATUS: `PUBLIC / Pages 34290329918 SUCCESS / candidate source 8fdd09a8`
 - QUALITY_LEVEL: `Q5`
 - LOOP: `TARGET EXPERIENCE -> BUILD -> PLAY -> CRITIQUE -> REPAIR -> A/B QUALITY GATE -> REPEAT`
 - PRESERVE: `Chapter 1 canon; canonical action/touch/save/battle authorities; current main as production baseline`

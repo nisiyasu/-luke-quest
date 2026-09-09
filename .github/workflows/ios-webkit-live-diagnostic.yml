@@ -1,0 +1,148 @@
+name: LUKE QUEST iOS WebKit Live Diagnostic
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ios-webkit-live-diagnostic.yml'
+  workflow_run:
+    workflows: ["Deploy LUKE QUEST to GitHub Pages"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROD_URL: https://nisiyasu.github.io/-luke-quest/
+  GOLD_URL: https://nisiyasu.github.io/-luke-quest/preview/gold/
+
+jobs:
+  ios-webkit-live:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install Playwright WebKit
+        shell: bash
+        run: |
+          mkdir -p /tmp/lq-webkit
+          cd /tmp/lq-webkit
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps webkit
+
+      - name: Probe live iPhone WebKit surfaces
+        shell: bash
+        run: |
+          cd /tmp/lq-webkit
+          cat > probe.mjs <<'JS'
+          import { webkit, devices } from 'playwright';
+          import fs from 'node:fs';
+
+          const browser = await webkit.launch({ headless: true });
+          let failed = false;
+
+          function makeContext() {
+            return browser.newContext({
+              ...devices['iPhone 15 Pro'],
+              locale: 'ja-JP',
+            });
+          }
+
+          async function probe(name, url, { persistedSave = null, expectedMap = null } = {}) {
+            const context = await makeContext();
+            if (persistedSave) {
+              await context.addInitScript(save => {
+                localStorage.setItem('lukeQuestV2', JSON.stringify(save));
+              }, persistedSave);
+            }
+            const page = await context.newPage();
+            const consoleLines = [];
+            const pageErrors = [];
+            page.on('console', m => consoleLines.push(`[${m.type()}] ${m.text()}`));
+            page.on('pageerror', e => pageErrors.push(String(e?.stack || e)));
+            const response = await page.goto(url + `?lqLiveWebKit=${Date.now()}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+            await page.waitForTimeout(7000);
+            const info = await page.evaluate(() => {
+              const app = document.querySelector('#app');
+              const rect = app?.getBoundingClientRect();
+              const world = document.querySelector('.world');
+              let persistedMap = null;
+              try {
+                persistedMap = JSON.parse(localStorage.getItem('lukeQuestV2') || '{}').map || null;
+              } catch {}
+              return {
+                title: document.title,
+                bodyText: (document.body?.innerText || '').slice(0, 3000),
+                bodyHTMLLength: document.body?.innerHTML?.length || 0,
+                appHTMLLength: app?.innerHTML?.length || 0,
+                appRect: rect ? [rect.x, rect.y, rect.width, rect.height] : null,
+                bodyBg: getComputedStyle(document.body).backgroundColor,
+                viewport: [innerWidth, innerHeight],
+                worldPresent: !!world,
+                persistedMap,
+                fullscreenPresent: !!document.querySelector('.lqWorldFullscreen'),
+              };
+            });
+            await page.screenshot({ path: `/tmp/${name}.png`, fullPage: true });
+            const result = {
+              url: page.url(),
+              status: response?.status() ?? null,
+              info,
+              consoleLines,
+              pageErrors,
+            };
+            fs.writeFileSync(`/tmp/${name}.json`, JSON.stringify(result, null, 2));
+            console.log(`===== ${name} =====`);
+            console.log(JSON.stringify(result, null, 2));
+
+            const badStatus = result.status !== 200;
+            const missingApp = info.appHTMLLength < 100;
+            const zeroApp = !info.appRect || info.appRect[2] < 10 || info.appRect[3] < 10;
+            const fatalError = pageErrors.length > 0;
+            const wrongTitle = info.title !== 'LUKE QUEST';
+            const missingTitleSurface = !persistedSave && !info.bodyText.includes('LUKE QUEST');
+            const missingPersistedWorld = !!persistedSave && !info.worldPresent;
+            const wrongMap = !!expectedMap && info.persistedMap !== expectedMap;
+            const missingFullscreen = !!persistedSave && !info.fullscreenPresent;
+            if (badStatus || missingApp || zeroApp || fatalError || wrongTitle || missingTitleSurface || missingPersistedWorld || wrongMap || missingFullscreen) {
+              failed = true;
+              console.error(`${name} FAIL: status=${result.status} title=${info.title} appHTML=${info.appHTMLLength} appRect=${JSON.stringify(info.appRect)} pageErrors=${pageErrors.length} titleSurface=${!missingTitleSurface} world=${info.worldPresent} persistedMap=${info.persistedMap} fullscreen=${info.fullscreenPresent}`);
+            } else {
+              console.log(`${name} PASS: live WebKit rendered the expected LUKE QUEST surface`);
+            }
+            await page.close();
+            await context.close();
+          }
+
+          await probe('production-webkit', process.env.PROD_URL);
+          await probe('production-persisted-addon-map-webkit', process.env.PROD_URL, {
+            expectedMap: 'evacRoute',
+            persistedSave: {
+              screen: 'world', map: 'northCliffRoad', x: 10, y: 20, dir: 'up',
+              lv: 6, hp: 70, mh: 70, atk: 18, xp: 3, nx: 50, gold: 80,
+              potions: 2, wins: 9, flags: {},
+            },
+          });
+          await probe('gold-webkit', process.env.GOLD_URL);
+          await browser.close();
+          if (failed) process.exit(1);
+          JS
+          node probe.mjs
+
+      - name: Upload WebKit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-webkit-live-evidence
+          path: |
+            /tmp/production-webkit.png
+            /tmp/production-webkit.json
+            /tmp/production-persisted-addon-map-webkit.png
+            /tmp/production-persisted-addon-map-webkit.json
+            /tmp/gold-webkit.png
+            /tmp/gold-webkit.json
+          if-no-files-found: warn
+          retention-days: 14

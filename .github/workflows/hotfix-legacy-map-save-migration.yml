@@ -1,0 +1,60 @@
+name: Hotfix legacy saved map compatibility
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/hotfix-legacy-map-save-migration.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch legacy saved map migration
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          old = "let s=Object.assign({},DEFAULT,JSON.parse(localStorage.getItem('lukeQuestV2')||'{}'));s.flags=Object.assign({},DEFAULT.flags,s.flags||{});const app=document.querySelector('#app');let moveTimer=null,encounterGrace=0;"
+          new = "let s=Object.assign({},DEFAULT,JSON.parse(localStorage.getItem('lukeQuestV2')||'{}'));s.flags=Object.assign({},DEFAULT.flags,s.flags||{});const LEGACY_MAP_MIGRATIONS={northCliffRoad:'evacRoute'};if(LEGACY_MAP_MIGRATIONS[s.map])s.map=LEGACY_MAP_MIGRATIONS[s.map];const app=document.querySelector('#app');let moveTimer=null,encounterGrace=0;"
+          if new in text:
+              print('migration already present')
+          elif old in text:
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+              print('patched legacy map migration')
+          else:
+              raise SystemExit('expected initialization anchor not found; fail closed')
+          PY
+      - name: Verify migration and base syntax
+        shell: bash
+        run: |
+          grep -F "northCliffRoad:'evacRoute'" index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('index.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*?)</script>', text, flags=re.S)
+          if not m: raise SystemExit('base script missing')
+          Path('/tmp/lq-base.js').write_text(m.group(1),encoding='utf-8')
+          PY
+          node --check /tmp/lq-base.js
+      - name: Commit compatibility repair
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No index change required.'
+            exit 0
+          fi
+          git config user.name 'LUKE QUEST Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'fix: migrate legacy north cliff saves to evacuation route'
+          git push origin HEAD:main
