@@ -19,34 +19,36 @@ async function run(){
   const enemy={n:'REQ-137 TEST',e:'◈',hp:1,a:[1,1],xp:17,g:9};
   s.screen='battle';s.enemy=enemy;s.ehp=0;s.log=[];
   render();await settle(80);
-  action=function(){actionCalls++;};move=function(){moveCalls++;};
+  action=function(){actionCalls++;return originalAction.apply(this,arguments);};
+  move=function(){moveCalls++;return originalMove.apply(this,arguments);};
   win();
-  await settle(160);
+  await settle(120);
   const expected='REQ-137 TESTを倒した！ EXP17 / 9G';
   const dialogText=s.dialog?.text||'';
   const rewardCount=occurrences(dialogText,expected);
-  const canonicalDialogueText=dialogText.replace(expected,'').trim();
-  const canonicalDialogueKeptBeforeDismiss=rewardCount===1&&canonicalDialogueText.length>0;
-  const overlay=document.getElementById('lqReq147VictoryOverlay');
-  const battleSnapshotVisible=!!overlay?.querySelector('.lqReq147BattleSnapshot');
-  const rewardVisible=overlay?.textContent?.includes('VICTORY')===true;
+  const lukeCommentKept=dialogText.includes('ルーク');
+  const canonicalDialogueKept=rewardCount===1&&dialogText.replace(expected,'').trim().length>0;
+  const battleFrame=document.getElementById('lqVictoryBattleFrame');
+  const canonicalDialog=!!battleFrame?.querySelector('.dialogBox');
+  const noSeparateOverlay=!document.getElementById('lqReq147VictoryOverlay');
+  const battleStillVisible=!!battleFrame&&battleFrame.textContent.includes('REQ-137 TEST');
   const xpOnce=Number(s.xp)===startXp+17;
   const goldOnce=Number(s.gold)===startGold+9;
   const winOnce=Number(s.wins)===1;
-  const world=s.screen==='world';
+  const worldState=s.screen==='world';
   const api=window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY;
-  const worldExcludedBeforeDismiss=actionCalls===0&&moveCalls===0;
-  api?.dismissVictory?.();
-  await settle(80);
-  const overlayGone=!document.getElementById('lqReq147VictoryOverlay');
+  const beforeDismissNoAction=actionCalls===0&&moveCalls===0;
+  battleFrame?.querySelector('.dialogBox')?.click();
+  await settle(100);
   const dialogueConsumed=s.dialog==null;
-  const noSecondAction=actionCalls===0;
+  const oneDismissAction=actionCalls===1;
   const stillWorld=s.screen==='world';
-  const pass=!!api&&api.canonicalWinPreserved===true&&api.rewardMutation===false&&api.postBattleDialogueConsumedAtomically===true&&xpOnce&&goldOnce&&winOnce&&world&&canonicalDialogueKeptBeforeDismiss&&rewardCount===1&&rewardVisible&&battleSnapshotVisible&&worldExcludedBeforeDismiss&&overlayGone&&dialogueConsumed&&noSecondAction&&stillWorld;
-  marker({pass,xpOnce,goldOnce,winOnce,world,canonicalDialogueKeptBeforeDismiss,rewardCount,rewardVisible,battleSnapshotVisible,worldExcludedBeforeDismiss,overlayGone,dialogueConsumed,noSecondAction,stillWorld});
+  const battleFrameGone=!document.getElementById('lqVictoryBattleFrame');
+  const pass=!!api&&api.canonicalWinPreserved===true&&api.canonicalDialogPreserved===true&&api.separateVictoryOverlay===false&&api.battleFrameHeldUntilDismiss===true&&api.rewardMutation===false&&xpOnce&&goldOnce&&winOnce&&worldState&&canonicalDialogueKept&&lukeCommentKept&&rewardCount===1&&canonicalDialog&&noSeparateOverlay&&battleStillVisible&&beforeDismissNoAction&&dialogueConsumed&&oneDismissAction&&stillWorld&&battleFrameGone;
+  marker({pass,xpOnce,goldOnce,winOnce,worldState,canonicalDialogueKept,lukeCommentKept,rewardCount,canonicalDialog,noSeparateOverlay,battleStillVisible,beforeDismissNoAction,dialogueConsumed,oneDismissAction,stillWorld,battleFrameGone});
   if(!pass)console.error('REQ-137/147 acceptance details',document.getElementById('lqReq137VictoryRewardSmokeMarker')?.dataset,s.dialog);
  }catch(error){console.error('REQ-137 smoke FAIL',error);marker({pass:false,reason:error?.message||String(error)});}
- finally{action=originalAction;move=originalMove;document.getElementById('lqReq147VictoryOverlay')?.remove();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}
+ finally{action=originalAction;move=originalMove;document.getElementById('lqVictoryBattleFrame')?.remove();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}
 }
 if(document.readyState==='complete')setTimeout(run,900);else addEventListener('load',()=>setTimeout(run,900),{once:true});
 })();
