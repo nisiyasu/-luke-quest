@@ -36,11 +36,13 @@ function dismissVictory(){
  const overlay=document.getElementById(VICTORY_OVERLAY_ID);
  if(overlay)overlay.remove();
  try{
-  // Canonical world Action already owns dialogue dismissal. Reuse it once so
-  // the same Owner gesture consumes Luke's post-battle comment instead of
-  // presenting a second acknowledgement step.
-  if(typeof s!=='undefined'&&s&&s.dialog&&typeof action==='function')action();
-  else if(typeof render==='function')render();
+  // canonical win() has already completed all reward/progression mutations and
+  // created the post-battle dialogue. The Owner wants that acknowledgement
+  // consumed by this same result-dismiss gesture, so clear only that dialogue
+  // atomically instead of routing through later action() wrappers that may add
+  // their own post-action behavior.
+  if(typeof s!=='undefined'&&s&&s.dialog)s.dialog=null;
+  if(typeof render==='function')render();
  } finally {
   dismissing=false;
  }
@@ -102,14 +104,14 @@ win=function(){
 };
 
 window.LQ_REQ137_BATTLE_VICTORY_REWARD_SUMMARY={
- version:'1.1.0',
+ version:'1.1.1',
  requirement:'REQ-137/REQ-147',
  canonicalWinPreserved:true,
  rewardMutation:false,
  battleBalanceMutation:false,
  saveSchemaChange:false,
  storyMutation:false,
- worldActionReusedForDismiss:true,
+ postBattleDialogueConsumedAtomically:true,
  victoryPresentationBeforePostBattleAcknowledgement:true,
  duplicateBattleAuthority:false,
  rewardLine,
