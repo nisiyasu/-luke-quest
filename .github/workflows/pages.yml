@@ -239,7 +239,7 @@ jobs:
             exit 1
           fi
           assert_dom 'class="world' /tmp/lq-persisted-addon-map-dom.html persisted-world-render
-          assert_dom 'data-map="northCliffRoad"' /tmp/lq-persisted-addon-map-dom.html persisted-map-restored
+          assert_dom 'data-map="evacRoute"' /tmp/lq-persisted-addon-map-dom.html persisted-map-migrated
           assert_dom 'lqWorldFullscreen' /tmp/lq-persisted-addon-map-dom.html persisted-fullscreen-presented
           if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-persisted-addon-map-chrome.log; then
             echo 'Persisted addon-map reload runtime error detected'
