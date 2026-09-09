@@ -2,10 +2,10 @@
 
 - ID: `REQ-147`
 - PRIORITY: `P0 / OWNER_DIRECT`
-- STATUS: `IN_PROGRESS`
+- STATUS: `VERIFY`
 - CREATED_AT: `2026-09-09 JST`
 - TYPE: `BATTLE_UX / IPHONE / VICTORY_FLOW`
-- EXECUTION_NOW: `YES`
+- EXECUTION_NOW: `NO — MACHINE/PUBLIC COMPLETE; OWNER IPHONE VERIFY PENDING`
 
 ## 1. OWNER DIRECT REQUEST
 
@@ -67,10 +67,14 @@ Before claiming implementation complete:
 Implementation began from fresh main after REQ-146 machine/public completion.
 
 - `7c69f90ad1e96541caa3172a84889fa8b7dc3590` — REQ-134 presentation layer tightened for portrait battle density. The command surface itself is forced non-scrollable/visible, touch targets remain 48px minimum, and the battle log gets a smaller portrait height budget so late-added skill rows such as `集中斬り` stay discoverable without scrolling the command region.
-- `89206c31d782d524e776487f3581d25069de81a6` — REQ-137 presentation wrapper now captures the visible battle presentation before canonical `win()` resolves, then places a modal `VICTORY` layer over that frozen battle context. Canonical `win()` remains the reward/progression authority. The result-dismiss button reuses canonical `action()` once to consume the already-generated post-battle dialogue in the same Owner gesture.
+- `89206c31d782d524e776487f3581d25069de81a6` — REQ-137 presentation wrapper captured the visible battle presentation before canonical `win()` resolves. This first shape introduced a separate victory overlay and was subsequently superseded by the canonical-dialog restoration below.
+- `fc8f70f...` through `dca76c00139ba6776028a7b39fb431153c8ebeab` — repaired the Owner-reported regressions: removed the separate REQ-147 victory overlay, restored the existing `.dialogBox` result presentation over the captured battle frame, preserved Luke's generated post-battle comment, made one dismiss clean the result/comment and return to world, and bound the two-column multi-row command layout synchronously to canonical `battle()` plus rerender observation.
+- `a88a25b251196031724b0c6cbeddd99ab70ebf6c` — P0 touch diagnostics expanded to all `addons/**` runtime changes so battle/runtime patches cannot bypass the core tap/drag safety regression gate.
 
-No physical-iPhone PASS is claimed. CI/public acceptance is still required before VERIFY.
+Automated acceptance at the exact `a88a25b...` runtime lineage is green: dedicated REQ-147 390x844 browser smoke verifies at least two two-button command rows with computed two-column grids, no separate victory overlay, battle context retained behind the canonical victory dialog, Luke comment present, and one-dismiss cleanup to world. Pages deployment and P0 touch diagnostics also succeeded for the same HEAD lineage.
+
+`IOS_PHYSICAL_VERIFICATION = PENDING`. No real-iPhone PASS is claimed by automation.
 
 ## 7. QUEUE ORDER
 
-REQ-147 is the active Owner-direct P0 after REQ-146. REQ-145 Gold challenger remains preempted until this requirement reaches a safe verified checkpoint.
+REQ-147 machine/public acceptance is complete and the requirement is now `VERIFY`, pending Owner physical iPhone confirmation. VERIFY does not consume WIP and must not block the next READY requirement.
