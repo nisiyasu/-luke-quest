@@ -119,6 +119,12 @@ jobs:
           if(html.split(guard).length-1!==1) throw new Error('REQ-063 guard must be injected exactly once');
           console.log('REQ-063 assembled injection order PASS');
           NODE
+      - name: Build persisted late-addon-map reload regression fixture
+        shell: bash
+        run: |
+          python3 -m py_compile tools/lq-persisted-addon-map-reload-fixture.py
+          python3 tools/lq-persisted-addon-map-reload-fixture.py --html index.html --out req127-persisted-addon-map.html
+          test -s req127-persisted-addon-map.html
       - name: Browser smoke test assembled game
         shell: bash
         run: |
@@ -218,6 +224,29 @@ jobs:
             exit 1
           fi
           echo "LUKE QUEST headless title + world + movement + interaction + optional/interior transitions + battle + save + Demon Army outpost smoke PASS (chrome status $world_status)"
+
+          # REQ-127 v1.5: valid persisted state may reference a map registered by a
+          # late addon. It must render after a real reload rather than black-screening
+          # because the base render ran before the addon map registry existed.
+          rm -rf /tmp/lq-persisted-addon-map-profile
+          set +e
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --user-data-dir=/tmp/lq-persisted-addon-map-profile --window-size=390,844 --virtual-time-budget=6500 --dump-dom http://127.0.0.1:8123/req127-persisted-addon-map.html >/tmp/lq-persisted-addon-map-dom.html 2>/tmp/lq-persisted-addon-map-chrome.log
+          persisted_status=$?
+          set -e
+          if [ ! -s /tmp/lq-persisted-addon-map-dom.html ]; then
+            echo "Persisted addon-map reload produced no DOM (status $persisted_status)"
+            cat /tmp/lq-persisted-addon-map-chrome.log
+            exit 1
+          fi
+          assert_dom 'class="world' /tmp/lq-persisted-addon-map-dom.html persisted-world-render
+          assert_dom 'data-map="northCliffRoad"' /tmp/lq-persisted-addon-map-dom.html persisted-map-restored
+          assert_dom 'lqWorldFullscreen' /tmp/lq-persisted-addon-map-dom.html persisted-fullscreen-presented
+          if grep -E 'Uncaught (ReferenceError|TypeError|SyntaxError)|ReferenceError:|SyntaxError:' /tmp/lq-persisted-addon-map-chrome.log; then
+            echo 'Persisted addon-map reload runtime error detected'
+            cat /tmp/lq-persisted-addon-map-chrome.log
+            exit 1
+          fi
+          echo "REQ-127 persisted late-addon-map reload PASS (chrome status $persisted_status)"
       - name: Browser smoke floating touch + iPhone world visual liveness
         shell: bash
         run: |
