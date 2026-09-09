@@ -1,37 +1,37 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: `2026-09-09 12:30 JST`
+- UPDATED_AT: `2026-09-09 15:00 JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
 - LATEST_IMPLEMENTATION_COMMIT_SHA: `0d0b226f48349642af5faa6a9929d7606fd11f28`
 - LATEST_VERIFIED_RUNTIME_HEAD_SHA: `0d0b226f48349642af5faa6a9929d7606fd11f28`
-- LATEST_METADATA_COMMIT_SHA: `691740dc5bc4b44305adb1ea0d3ba24242f0fe74`
+- LATEST_METADATA_COMMIT_SHA: `77324c0 (fresh main before this queue-registration checkpoint)`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - GOLD_PREVIEW_URL: https://nisiyasu.github.io/-luke-quest/preview/gold/
 - GOLD_PREVIEW_SOURCE_BRANCH: `experiment/gold-vertical-slice`
 - GOLD_PREVIEW_SOURCE_SHA: `3cdfe35532f9a18db180914d78870fa6609d9c5b`
-- CURRENT_BUILD_STATUS: `Fresh main safety/runtime baseline 0d0b226 remains production. Gold challenger now includes presentation-only mobile dialogue focus on source 3cdfe355: dedicated REQ-145 Mobile Dialogue Focus run 34307127956 SUCCESS after fail-closed smoke repair; full REQ-145 challenger/P0/A-B run 34307127954 SUCCESS; Pages run 34307219686 SUCCESS with root production from main and /preview/gold/ assembled from Gold source 3cdfe355; post-deploy iPhone WebKit live diagnostic 34307307151 SUCCESS. REQ-021/022/001/023 remain VERIFY only because IOS_PHYSICAL_VERIFICATION=PENDING.`
-- ACTIVE_REQUIREMENT_ID: `REQ-145`
-- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-145_GOLD_VERTICAL_SLICE_CONTINUOUS_QUALITY_LANE.md`
+- CURRENT_BUILD_STATUS: `Fresh main safety/runtime baseline 0d0b226 remains production and Gold source 3cdfe355 remains preserved. This checkpoint is queue/reference registration only: no runtime implementation is changed. New Owner P0 order is REQ-146 field-camera pullback, then REQ-147 battle UX restoration, then resume REQ-145.`
+- ACTIVE_REQUIREMENT_ID: `NONE — queue-only checkpoint; REQ-146 is next READY by Owner priority`
+- ACTIVE_REQUIREMENT_PATH: `NONE — next: requirements/REQ-146_FIELD_CAMERA_PULLBACK_REFERENCE_QUALITY.md`
 - WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
 - MANDATORY_BOOT_FILES: `docs/quality/QUALITY_SYSTEM.md; docs/quality/QUALITY_RESEARCH_BASIS.md; docs/quality/LEON_GOLD_STANDARD_SCENE_DESIGN.md`
 - RECENT_CHECKPOINTS: `3cdfe355 hardened mobile dialogue focus smoke; 1db3aaec dedicated mobile dialogue focus gate; e75e625e mobile dialogue focus implementation; 138677e5 mobile battle density gate; b4b9d1e3 compositor-light post-battle objective focus; 05191956 deterministic post-battle focus smoke repair; f3ca51cd dedicated post-battle focus gate; 164d0773 post-battle objective refocus implementation; e5af0e84 Gold challenger conflict-resolved onto fresh main safety baseline 0d0b226; 0d0b226 persisted WebKit world probe state-aware; 79db1541 Leon Gold Standard status aligned to VERIFY candidate; 7048defa QUALITY_SYSTEM status aligned to VERIFY; 6af1192e REQ-143 runtime regression watch; ede53279 REQ-143 P0 watch expansion; 01ac0463 production cleanup; 473bd3df REQ-141 verified implementation; 8e7638be REQ-142 dedicated gate; 68ff67fc REQ-142 final VERIFY autosave; 3ecf3b70 REQ-143 requirement; a173c2d6 quality research basis; b19d449c canonical QUALITY_SYSTEM v1.0; d22a00a8 Leon Gold Standard scene design.`
 - TESTS_AND_VERIFICATION: `Gold mobile dialogue focus source 3cdfe355: dedicated gate 34307127956 SUCCESS after the first fail-closed run correctly exposed a smoke-fixture flaw and the fixture was repaired without canonical state authority; full REQ-145 challenger run 34307127954 SUCCESS including source syntax, candidate assembly, P0 touch/fullscreen runtime, canonical action feedback smoke, deterministic exact-main-vs-candidate capture and non-black A/B evidence. Pages 34307219686 SUCCESS including assembled main browser smoke, iPhone-sized floating-touch/world visual liveness, REQ-081 north cliff, REQ-082 encounters, Gold preview assembly and deployment. Post-deploy iPhone WebKit live diagnostic 34307307151 SUCCESS. Owner physical iPhone remains unverified.`
-- KNOWN_ISSUES: `Owner physical iPhone must still verify current production/Gold experience. REQ-021/022/001, REQ-023, REQ-140/141/142 retain IOS_PHYSICAL_VERIFICATION=PENDING. REQ-143 is VERIFY but OWNER_EXPERIENCE_PASS remains PENDING. REQ-145 remains draft challenger; its player-visible gains are not approved for promotion by Owner. Chapter 2 remains intentionally undesigned.`
-- BLOCKERS: `No machine/public hard blocker. REQ-021/022/001/023 physical iPhone/subjective checks remain PENDING. REQ-144 dedicated generic-NPC art workflow is historically red and remains READY for later repair; it does not block P0 REQ-145 branch work.`
-- NEXT_ACTION: `Continue REQ-145 on experiment/gold-vertical-slice from Gold source 3cdfe355 over fresh main baseline 0d0b226. Critique current-vs-Gold mobile world/dialogue/battle evidence, keep only another material player-visible win, and preserve P0 input/save/story/battle authorities.`
-- NEXT_ACTION_COMPLETION_CONDITION: `REQ-145 accumulates another material player-visible Gold Slice win over exact current main with dedicated/runtime evidence, Pages/public inclusion and P0 regression green, while OWNER_EXPERIENCE_PASS and IOS_PHYSICAL_VERIFICATION remain PENDING until Owner physical review.`
+- KNOWN_ISSUES: `Owner reports field framing should be one clear step more pulled back and battle UX currently hides 集中斬り behind scroll, presents VICTORY after returning to world, and requires a separate Luke-comment dismiss. These are now canonical READY P0 work as REQ-146 then REQ-147. Existing physical iPhone verification remains PENDING where previously recorded.`
+- BLOCKERS: `No hard blocker for REQ-146 or REQ-147. REQ-145 Gold source 3cdfe355 is preserved while preempted. Existing physical iPhone/subjective checks remain PENDING and do not block safe queue execution.`
+- NEXT_ACTION: `Select REQ-146 from WORK_QUEUE and implement the Owner-requested one-step field-camera pullback using the three canonical reference assets. After REQ-146 public evidence is complete, execute REQ-147 battle UX restoration, then resume REQ-145 Gold challenger work.`
+- NEXT_ACTION_COMPLETION_CONDITION: `REQ-146 public candidate visibly shows more useful surrounding world at the same coordinates while preserving touch/action/fullscreen/save/story/battle authorities; Pages/public evidence is green and IOS_PHYSICAL_VERIFICATION remains PENDING. Then advance to REQ-147.`
 - DO_NOT_REPEAT: `Do not claim physical iPhone PASS from CI. Do not add duplicate input/save/battle authority. Do not hand-build partial canonical saves in prelude. Do not use expensive filters as fake quality. Do not mark current REQ-128/REQ-143/REQ-145 as Gold Standard PASS before Owner experience approval. Do not rebuild Gold from the stale pre-0d0b226 baseline. Do not treat a smoke-fixture failure as product completion; fail closed, repair the fixture, then rerun public evidence.`
 
 ## SELF-AUDIT GUARD
 
 - SELF_AUDIT_GUARD: `LOADED / APPLIED`
-- BOOT_REALITY_AUDIT: `PASS — fresh repository metadata/default branch/main HEAD 691740dc, full directive/guard/manager/queue/CURRENT/active REQ-145/quality sources and recent Gold commits/workflows were loaded. Main runtime remains protected at 0d0b226 while Gold source advanced independently to 3cdfe355.`
-- OWNER_PRIORITY_AUDIT: `PASS — Owner BOOT v3 REQ-021/022/001 and REQ-023 machine/public re-audits remain VERIFY with physical checks pending; no false physical PASS was inferred. REQ-145 is the queue IN_PROGRESS lane and continued after fresh recovery.`
-- CONTINUE_GATE_LAST_RESULT: `CONTINUE — REQ-145 mobile dialogue-focus candidate is public/machine green and safe challenger work remains. Draft PR stays open; no promotion to main was performed.`
+- BOOT_REALITY_AUDIT: `PASS — fresh local origin/main was fast-forwarded to 77324c0 before this Owner queue-registration checkpoint. Main runtime remains protected at 0d0b226; Gold source 3cdfe355 remains preserved and untouched.`
+- OWNER_PRIORITY_AUDIT: `PASS — latest Owner direct priority preempts REQ-145 without discarding its checkpoint. REQ-146 is top READY, REQ-147 is second READY, REQ-145 returns to READY. No runtime work is falsely claimed in this registration checkpoint.`
+- CONTINUE_GATE_LAST_RESULT: `QUEUE_READY — no IN_PROGRESS item remains after deliberate Owner preemption. Next autonomous selection must take REQ-146, then REQ-147, before REQ-145.`
 - EXECUTION_DEGRADATION_STATUS: `DETECTED_REPAIRED — first dedicated mobile-dialogue-focus smoke run failed because its fixture depended on an existing gameShell and malformed repeated markup. Product authority was not bypassed; the smoke was repaired to synthesize only a presentation host when needed, then dedicated/full/Page/WebKit gates all passed.`
-- PREEMPTED_REQUIREMENT: `REQ-144 remains READY / OWNER_PREEMPTED by REQ-145 P0.`
-- SELF_REPAIR_ACTIONS: `Kept main runtime unchanged; added Gold-only compact portrait dialogue presentation; added dedicated fail-closed gate; repaired smoke determinism without canonical state mutation; verified dedicated gate, full challenger A/B/P0 gate, Pages, and post-deploy iPhone WebKit.`
+- PREEMPTED_REQUIREMENT: `REQ-145 and REQ-144 are READY. REQ-145 Gold checkpoint 3cdfe355 is preserved but Owner-preempted by REQ-146 then REQ-147.`
+- SELF_REPAIR_ACTIONS: `Freshened main, preserved Gold source, stored the three Owner field-scale reference assets locally in the repository, registered REQ-146 and REQ-147, and repaired queue/CURRENT priority so the next boot cannot silently resume stale REQ-145 first.`
 
 ## REQ-143 GAME QUALITY SYSTEM / LEON GOLD STANDARD
 
@@ -48,7 +48,7 @@
 
 ## REQ-145 GOLD VERTICAL SLICE CONTINUOUS QUALITY LANE
 
-- STATUS: `IN_PROGRESS / FRESH_MAIN_BASELINE_RECOVERED / PLAYER_VISIBLE_ITERATION_ACTIVE`
+- STATUS: `READY / OWNER_PREEMPTED / CHECKPOINT_PRESERVED`
 - PRIORITY: `P0 / OWNER_DIRECT`
 - DEVELOPMENT_BRANCH: `experiment/gold-vertical-slice`
 - PUBLIC_PREVIEW: `https://nisiyasu.github.io/-luke-quest/preview/gold/`
