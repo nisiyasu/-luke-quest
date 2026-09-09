@@ -14,9 +14,9 @@ async function run(){
   s.hp=Math.max(1,s.hp||42);
   battle();
   await settle();
-  const commandRow=[...document.querySelectorAll('#app .card .row')].find(row=>row.closest('.card')?.querySelector('.enemy'));
-  const columns=commandRow?getComputedStyle(commandRow).gridTemplateColumns.trim().split(/\s+/).filter(Boolean):[];
-  const twoColumnCommands=!!commandRow&&columns.length===2&&commandRow.children.length>=2;
+  const commandRows=[...document.querySelectorAll('#app .lqReq147BattleCommandGrid')];
+  const rowColumns=commandRows.map(row=>getComputedStyle(row).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length);
+  const twoColumnCommands=commandRows.length>=2&&commandRows.every((row,i)=>rowColumns[i]===2&&[...row.children].filter(el=>el.matches('button,.btn')).length===2);
   win();
   await settle(120);
   const victoryDialog=document.querySelector('#lqVictoryBattleFrame .dialogBox[aria-label="戦闘勝利"]');
@@ -24,12 +24,16 @@ async function run(){
   const noSeparateOverlay=!document.getElementById('lqReq147VictoryOverlay');
   const battleContext=!!battleFrame&&battleFrame.textContent.includes('REQ-147 TEST');
   const lukeComment=!!victoryDialog&&(victoryDialog.textContent||'').includes('ルーク');
-  const dialogBeforeDismiss=!!s.dialog&&!!victoryDialog;
+  const victoryState=s.dialog;
+  const dialogBeforeDismiss=!!victoryState&&!!victoryDialog;
   victoryDialog?.click();
   await settle(100);
-  const oneDismissClean=!document.querySelector('.dialogBox[aria-label="戦闘勝利"]')&&!document.getElementById('lqVictoryBattleFrame')&&!s.dialog;
-  const pass=twoColumnCommands&&noSeparateOverlay&&battleContext&&lukeComment&&dialogBeforeDismiss&&oneDismissClean&&s.screen==='world';
-  marker({pass,twoColumnCommands,noSeparateOverlay,battleContext,lukeComment,dialogBeforeDismiss,oneDismissClean,screenAfterDismiss:s.screen||''});
+  const victoryGone=!document.querySelector('.dialogBox[aria-label="戦闘勝利"]');
+  const battleFrameGone=!document.getElementById('lqVictoryBattleFrame');
+  const victoryStateGone=s.dialog!==victoryState;
+  const oneDismissClean=victoryGone&&battleFrameGone&&victoryStateGone&&s.screen==='world';
+  const pass=twoColumnCommands&&noSeparateOverlay&&battleContext&&lukeComment&&dialogBeforeDismiss&&oneDismissClean;
+  marker({pass,twoColumnCommands,commandRows:commandRows.length,rowColumns:rowColumns.join(','),noSeparateOverlay,battleContext,lukeComment,dialogBeforeDismiss,victoryGone,battleFrameGone,victoryStateGone,oneDismissClean,screenAfterDismiss:s.screen||''});
  }catch(error){fail(error?.message||String(error));}
  finally{document.getElementById('lqVictoryBattleFrame')?.remove();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}
 }
