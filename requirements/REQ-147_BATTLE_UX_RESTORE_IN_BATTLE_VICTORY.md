@@ -2,10 +2,10 @@
 
 - ID: `REQ-147`
 - PRIORITY: `P0 / OWNER_DIRECT`
-- STATUS: `READY`
+- STATUS: `IN_PROGRESS`
 - CREATED_AT: `2026-09-09 JST`
 - TYPE: `BATTLE_UX / IPHONE / VICTORY_FLOW`
-- EXECUTION_NOW: `NO — queue immediately after REQ-146`
+- EXECUTION_NOW: `YES`
 
 ## 1. OWNER DIRECT REQUEST
 
@@ -32,7 +32,7 @@ Victory presentation must be ordered as:
 
 `battle remains visible -> VICTORY/result overlay -> dismiss -> battle cleanup -> world`
 
-Do not transition to `world` before the victory/result presentation is dismissed.
+Do not transition to `world` before the victory/result presentation is dismissed from the player's visual experience.
 
 Preserve canonical `win()` as the sole reward/progression authority. Do not create a second reward path or duplicate EXP, gold, drop or level-up mutation.
 
@@ -62,8 +62,15 @@ Before claiming implementation complete:
 7. Browser regression, Pages workflow and public build inclusion pass.
 8. `IOS_PHYSICAL_VERIFICATION` remains `PENDING` until Owner verifies on a real iPhone.
 
-## 6. QUEUE ORDER
+## 6. CURRENT IMPLEMENTATION CHECKPOINT
 
-REQ-147 is the second new Owner-direct P0. Execute it immediately after REQ-146 and before resuming the pre-existing REQ-145 Gold challenger lane.
+Implementation began from fresh main after REQ-146 machine/public completion.
 
-This registration checkpoint does **not** implement the battle changes. It records the Owner request in canonical repository-managed work so it cannot be lost between autonomous sessions.
+- `7c69f90ad1e96541caa3172a84889fa8b7dc3590` — REQ-134 presentation layer tightened for portrait battle density. The command surface itself is forced non-scrollable/visible, touch targets remain 48px minimum, and the battle log gets a smaller portrait height budget so late-added skill rows such as `集中斬り` stay discoverable without scrolling the command region.
+- `89206c31d782d524e776487f3581d25069de81a6` — REQ-137 presentation wrapper now captures the visible battle presentation before canonical `win()` resolves, then places a modal `VICTORY` layer over that frozen battle context. Canonical `win()` remains the reward/progression authority. The result-dismiss button reuses canonical `action()` once to consume the already-generated post-battle dialogue in the same Owner gesture.
+
+No physical-iPhone PASS is claimed. CI/public acceptance is still required before VERIFY.
+
+## 7. QUEUE ORDER
+
+REQ-147 is the active Owner-direct P0 after REQ-146. REQ-145 Gold challenger remains preempted until this requirement reaches a safe verified checkpoint.
