@@ -68,16 +68,20 @@ body.${ROOT_CLASS}.lq145Battle .enemyNameV10{color:#fff2c7!important;letter-spac
 body.${ROOT_CLASS}.lq145Battle .enemyBarV10{height:11px!important;background:#07101b!important;border-color:rgba(255,255,255,.10)!important}
 body.${ROOT_CLASS}.lq145Battle .battleLogV10{background:rgba(2,9,17,.76)!important;border-color:rgba(142,216,228,.14)!important;line-height:1.65!important}
 body.${ROOT_CLASS}.lq145Battle .lq145HitCue{position:absolute;z-index:12;left:50%;top:43%;min-width:58px;padding:4px 9px;transform:translate(-50%,-50%);border:1px solid rgba(255,226,145,.58);border-radius:999px;background:rgba(5,16,29,.86);color:#fff1ad;font-size:32px;font-weight:1000;line-height:1;text-align:center;letter-spacing:.02em;text-shadow:0 2px 0 #000,0 0 12px rgba(255,215,105,.42);box-shadow:0 8px 20px rgba(0,0,0,.30);pointer-events:none;animation:lq145HitCue .68s cubic-bezier(.16,.78,.28,1) both}
+body.${ROOT_CLASS}.lq145Battle .lq145SlashCue{position:absolute;z-index:11;left:50%;top:48%;width:118px;height:5px;border-radius:999px;background:linear-gradient(90deg,transparent,rgba(255,248,210,.98) 25%,rgba(142,216,228,.95) 52%,rgba(255,216,116,.92) 72%,transparent);box-shadow:0 0 14px rgba(180,228,240,.48);pointer-events:none;transform-origin:50% 50%;animation:lq145SlashCue .30s cubic-bezier(.18,.78,.24,1) both}
+body.${ROOT_CLASS}.lq145Battle .lq145PlayerHurtCue{position:absolute;z-index:20;inset:0;border:2px solid rgba(255,112,92,.62);border-radius:inherit;box-shadow:inset 0 0 28px rgba(150,20,24,.30);pointer-events:none;animation:lq145PlayerHurtCue .42s ease-out both}
 body.${ROOT_CLASS}.lq145Battle .enemySpriteStage.lq145ImpactNow{animation:lq145StageImpact .34s cubic-bezier(.2,.72,.3,1) both!important}
 body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg.lq145ImpactNow{animation:lq145EnemyImpact .30s cubic-bezier(.2,.72,.3,1) both!important}
 body.${ROOT_CLASS}.lq145Battle.lq145PlayerHurtNow .status .stat:nth-child(2){background:rgba(132,26,28,.72)!important;box-shadow:0 0 0 1px rgba(255,126,112,.58),0 0 14px rgba(255,82,74,.24)!important}
 @keyframes lq145HitCue{0%{opacity:0;transform:translate(-50%,-18%) scale(.70)}18%{opacity:1;transform:translate(-50%,-52%) scale(1.10)}70%{opacity:1;transform:translate(-50%,-72%) scale(1)}100%{opacity:0;transform:translate(-50%,-92%) scale(.96)}}
+@keyframes lq145SlashCue{0%{opacity:0;transform:translate(-50%,-50%) rotate(-32deg) scaleX(.22)}28%{opacity:1;transform:translate(-50%,-50%) rotate(-32deg) scaleX(1.08)}100%{opacity:0;transform:translate(-50%,-50%) rotate(-32deg) scaleX(1.26)}}
+@keyframes lq145PlayerHurtCue{0%{opacity:0}22%{opacity:1}100%{opacity:0}}
 @keyframes lq145StageImpact{0%{box-shadow:0 0 0 0 rgba(255,225,145,0)}35%{box-shadow:0 0 0 5px rgba(255,225,145,.22)}100%{box-shadow:0 0 0 13px rgba(255,225,145,0)}}
 @keyframes lq145EnemyImpact{0%{transform:translateX(0) scale(1)}28%{transform:translateX(5px) scale(.97)}58%{transform:translateX(-3px) scale(1.015)}100%{transform:translateX(0) scale(1)}}
 body.${ROOT_CLASS}.lq145Battle .commandBtn{border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.24)!important}
 body.${ROOT_CLASS}.lq145Battle .commandBtn:active{transform:translateY(1px) scale(.995)}
 @keyframes lq145EnemyIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@media(prefers-reduced-motion:reduce){body.${ROOT_CLASS}.lq145Battle .enemy{animation:none!important}body.${ROOT_CLASS}.lq145Battle .lq145HitCue{animation:none!important;opacity:1!important}body.${ROOT_CLASS}.lq145Battle .enemySpriteStage.lq145ImpactNow,body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg.lq145ImpactNow{animation:none!important}}
+@media(prefers-reduced-motion:reduce){body.${ROOT_CLASS}.lq145Battle .enemy{animation:none!important}body.${ROOT_CLASS}.lq145Battle .lq145HitCue{animation:none!important;opacity:1!important}body.${ROOT_CLASS}.lq145Battle .lq145SlashCue,body.${ROOT_CLASS}.lq145Battle .lq145PlayerHurtCue{animation:none!important;opacity:.55!important}body.${ROOT_CLASS}.lq145Battle .enemySpriteStage.lq145ImpactNow,body.${ROOT_CLASS}.lq145Battle .lqOriginalEnemySvg.lq145ImpactNow{animation:none!important}}
 `;
 }
 
@@ -119,22 +123,25 @@ function showBattleImpact(damage){
   if(typeof s==='undefined'||!s||s.screen!=='battle'||!(damage>0))return;
   const scene=document.querySelector('.battleScene');
   if(!scene)return;
-  scene.querySelectorAll('.lq145HitCue').forEach(n=>n.remove());
+  scene.querySelectorAll('.lq145HitCue,.lq145SlashCue').forEach(n=>n.remove());
   const stage=scene.querySelector('.enemySpriteStage');
   const art=scene.querySelector('.lqOriginalEnemySvg');
   stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');
   void stage?.offsetWidth;
   stage?.classList.add('lq145ImpactNow');art?.classList.add('lq145ImpactNow');
+  const slash=document.createElement('i');slash.className='lq145SlashCue';slash.setAttribute('aria-hidden','true');scene.appendChild(slash);
   const cue=document.createElement('div');cue.className='lq145HitCue';cue.textContent=`${damage}`;
   cue.setAttribute('aria-hidden','true');scene.appendChild(cue);
   lq145ImpactPresentations++;
   clearTimeout(lq145ImpactCleanup);
-  lq145ImpactCleanup=setTimeout(()=>{cue.remove();stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');},760);
+  lq145ImpactCleanup=setTimeout(()=>{cue.remove();slash.remove();stage?.classList.remove('lq145ImpactNow');art?.classList.remove('lq145ImpactNow');},760);
 }
 
 function showPlayerHurt(){
   document.body.classList.remove('lq145PlayerHurtNow');void document.body.offsetWidth;document.body.classList.add('lq145PlayerHurtNow');
-  lq145PlayerHurtPresentations++;clearTimeout(lq145PlayerHurtCleanup);lq145PlayerHurtCleanup=setTimeout(()=>document.body.classList.remove('lq145PlayerHurtNow'),460);
+  const scene=document.querySelector('.battleScene');scene?.querySelectorAll('.lq145PlayerHurtCue').forEach(n=>n.remove());
+  const cue=document.createElement('i');cue.className='lq145PlayerHurtCue';cue.setAttribute('aria-hidden','true');scene?.appendChild(cue);
+  lq145PlayerHurtPresentations++;clearTimeout(lq145PlayerHurtCleanup);lq145PlayerHurtCleanup=setTimeout(()=>{document.body.classList.remove('lq145PlayerHurtNow');cue.remove();},460);
 }
 
 function observeBattleImpact(){
