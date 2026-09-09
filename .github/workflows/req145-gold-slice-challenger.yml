@@ -113,6 +113,8 @@ jobs:
           grep -q 'data-req145-impact-count="1"' .req145/candidate-battle-hit-dom.html
           grep -q 'data-req145-player-hurt-presented="true"' .req145/candidate-battle-hit-dom.html
           grep -q 'data-req145-player-hurt-count="1"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-slash-cue="true"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-hurt-cue="true"' .req145/candidate-battle-hit-dom.html
 
       - name: Capture current main versus candidate
         shell: bash
