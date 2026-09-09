@@ -67,7 +67,10 @@ function smoke(){
   const previousLast=lastScreen;
   const before=focusPresentations;
   try{
-    s.screen='battle';s.dialog=null;render();observeScreen();
+    /* Force the exact transition edge once. MutationObserver may coalesce DOM
+       mutations, so the smoke calls the same observer callback deterministically
+       after the canonical world render rather than racing two renders. */
+    lastScreen='battle';
     s.screen='world';s.map='field';s.x=10;s.y=15;s.dir='up';s.dialog=null;render();observeScreen();
     setTimeout(()=>{
       const guide=document.querySelector('.questGuide');
