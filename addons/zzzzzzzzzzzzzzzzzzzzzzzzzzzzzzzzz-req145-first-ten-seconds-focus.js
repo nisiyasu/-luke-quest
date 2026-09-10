@@ -37,6 +37,18 @@ body.lqReq145GoldSlice.lq145Map-town .tile.floor{
   background:linear-gradient(135deg,#e1d4b1 0 47%,#ad9c77 48% 52%,#d1c39f 53%)!important;
   box-shadow:inset 0 1px rgba(255,248,219,.18),inset 0 -1px rgba(81,65,43,.12);
 }
+body.lqReq145GoldSlice.lq145Map-town .tile.roof{
+  background:linear-gradient(155deg,#b35449 0 47%,#933d37 48% 54%,#a84940 55%)!important;
+  box-shadow:inset 0 2px rgba(255,219,194,.10),inset 0 -2px rgba(75,24,24,.16);
+}
+body.lqReq145GoldSlice.lq145Map-town .tile.wall{
+  background:linear-gradient(180deg,#8b806f,#756958)!important;
+  box-shadow:inset 0 1px rgba(255,244,214,.08),inset 0 -2px rgba(38,30,23,.14);
+}
+body.lqReq145GoldSlice.lq145Map-town .tile.gate{
+  background:linear-gradient(180deg,#a98e61,#836d49)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,229,166,.12),inset 0 -3px rgba(54,37,20,.14);
+}
 body.lqReq145GoldSlice.lq145Map-field .tile.grass{
   background:
     linear-gradient(25deg,rgba(255,255,255,.03) 0 18%,transparent 19% 67%,rgba(19,52,22,.055) 68% 100%),
@@ -64,7 +76,7 @@ body.lqReq145GoldSlice[data-lq145-screen="world"] .gameShell::before{
 `;
 document.head.appendChild(style);
 window.LQ_REQ145_FIRST_TEN_SECONDS_FOCUS={
-  version:'1.2.0',
+  version:'1.2.1',
   requirement:'REQ-145',
   presentationOnly:true,
   cssOnly:true,
@@ -77,6 +89,7 @@ window.LQ_REQ145_FIRST_TEN_SECONDS_FOCUS={
   inputAuthority:false,
   saveAuthority:false,
   storyAuthority:false,
-  battleAuthority:false
+  battleAuthority:false,
+  townLandmarkDepth:true
 };
 })();
