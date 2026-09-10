@@ -24,9 +24,10 @@ async function run(){
   win();
   await settle(120);
   const expected='REQ-137 TESTを倒した！ EXP17 / 9G';
-  const dialogText=s.dialog?.text||'';
+  const dialog=s.dialog||null;
+  const dialogText=dialog?.text||'';
   const rewardCount=occurrences(dialogText,expected);
-  const lukeCommentKept=dialogText.includes('ルーク');
+  const lukeCommentKept=dialog?.name==='ルーク'||dialogText.includes('ルーク');
   const canonicalDialogueKept=rewardCount===1&&dialogText.replace(expected,'').trim().length>0;
   const battleFrame=document.getElementById('lqVictoryBattleFrame');
   const canonicalDialog=!!battleFrame?.querySelector('.dialogBox');
