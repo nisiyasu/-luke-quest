@@ -27,14 +27,6 @@ body.lqReq145GoldSlice[data-lq145-screen="world"] .hud .chip{
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
 }
-body.lqReq145GoldSlice[data-lq145-screen="world"] .hud .chip:first-child{
-  background:rgba(8,17,28,.92)!important;
-  border-color:rgba(246,211,91,.32)!important;
-  text-shadow:0 1px 2px rgba(0,0,0,.75);
-}
-body.lqReq145GoldSlice[data-lq145-screen="world"] .hud .chip:last-child:not(:first-child){
-  opacity:.90;
-}
 body.lqReq145GoldSlice.lq145Map-town .tile.grass{
   background:
     linear-gradient(135deg,rgba(255,255,255,.035) 0 24%,transparent 25% 49%,rgba(0,0,0,.035) 50% 74%,transparent 75%),
@@ -44,18 +36,6 @@ body.lqReq145GoldSlice.lq145Map-town .tile.grass{
 body.lqReq145GoldSlice.lq145Map-town .tile.floor{
   background:linear-gradient(135deg,#e1d4b1 0 47%,#ad9c77 48% 52%,#d1c39f 53%)!important;
   box-shadow:inset 0 1px rgba(255,248,219,.18),inset 0 -1px rgba(81,65,43,.12);
-}
-body.lqReq145GoldSlice.lq145Map-town .tile.roof{
-  background:linear-gradient(155deg,#b85a4d 0 48%,#913b35 49% 54%,#a94a40 55%)!important;
-  box-shadow:inset 0 2px rgba(255,211,184,.12),inset 0 -3px rgba(75,24,24,.18);
-}
-body.lqReq145GoldSlice.lq145Map-town .tile.wall{
-  background:linear-gradient(180deg,#8e816e,#746857)!important;
-  box-shadow:inset 0 2px rgba(255,244,214,.10),inset 0 -2px rgba(38,30,23,.16);
-}
-body.lqReq145GoldSlice.lq145Map-town .tile.gate{
-  background:linear-gradient(180deg,#ab9060,#836c48)!important;
-  box-shadow:inset 0 0 0 1px rgba(255,229,166,.14),inset 0 -4px rgba(54,37,20,.16);
 }
 body.lqReq145GoldSlice.lq145Map-field .tile.grass{
   background:
@@ -69,10 +49,6 @@ body.lqReq145GoldSlice.lq145Map-field .tile.tree{
 body.lqReq145GoldSlice.lq145Map-field .tile.water{
   background:linear-gradient(160deg,#4c88b9,#356f9f 55%,#2b608e)!important;
   box-shadow:inset 0 3px rgba(205,236,255,.16),inset 0 -5px rgba(4,37,70,.20);
-}
-body.lqReq145GoldSlice.lq145Map-field .tile.rock{
-  background:linear-gradient(145deg,#70716d,#545652 60%,#666762)!important;
-  box-shadow:inset 2px 2px rgba(255,255,255,.06),inset -3px -3px rgba(24,27,25,.14);
 }
 body.lqReq145GoldSlice[data-lq145-screen="world"] .gameShell::before{
   background:linear-gradient(180deg,rgba(0,0,0,.15),transparent 17%,transparent 74%,rgba(0,0,0,.34)),radial-gradient(circle at 50% 45%,transparent 43%,rgba(0,0,0,.24) 100%)!important;
@@ -88,7 +64,7 @@ body.lqReq145GoldSlice[data-lq145-screen="world"] .gameShell::before{
 `;
 document.head.appendChild(style);
 window.LQ_REQ145_FIRST_TEN_SECONDS_FOCUS={
-  version:'1.3.0',
+  version:'1.2.0',
   requirement:'REQ-145',
   presentationOnly:true,
   cssOnly:true,
@@ -101,8 +77,6 @@ window.LQ_REQ145_FIRST_TEN_SECONDS_FOCUS={
   inputAuthority:false,
   saveAuthority:false,
   storyAuthority:false,
-  battleAuthority:false,
-  landmarkHierarchy:true,
-  hudPriorityHierarchy:true
+  battleAuthority:false
 };
 })();
