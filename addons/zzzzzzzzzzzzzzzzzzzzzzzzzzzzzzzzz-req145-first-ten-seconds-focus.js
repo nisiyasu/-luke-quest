@@ -58,6 +58,10 @@ body.lqReq145GoldSlice.lq145Map-field .tile.grass{
 body.lqReq145GoldSlice.lq145Map-field .tile.tree{
   filter:saturate(1.10) brightness(.95);
 }
+body.lqReq145GoldSlice.lq145Map-field .tile.rock{
+  background:linear-gradient(145deg,#8c908b 0 34%,#70756f 35% 68%,#5d625d 69%)!important;
+  box-shadow:inset 1px 1px rgba(231,235,226,.12),inset -2px -2px rgba(31,35,31,.18);
+}
 body.lqReq145GoldSlice.lq145Map-field .tile.water{
   background:linear-gradient(160deg,#4c88b9,#356f9f 55%,#2b608e)!important;
   box-shadow:inset 0 3px rgba(205,236,255,.16),inset 0 -5px rgba(4,37,70,.20);
@@ -76,7 +80,7 @@ body.lqReq145GoldSlice[data-lq145-screen="world"] .gameShell::before{
 `;
 document.head.appendChild(style);
 window.LQ_REQ145_FIRST_TEN_SECONDS_FOCUS={
-  version:'1.2.1',
+  version:'1.2.2',
   requirement:'REQ-145',
   presentationOnly:true,
   cssOnly:true,
@@ -90,6 +94,7 @@ window.LQ_REQ145_FIRST_TEN_SECONDS_FOCUS={
   saveAuthority:false,
   storyAuthority:false,
   battleAuthority:false,
-  townLandmarkDepth:true
+  townLandmarkDepth:true,
+  fieldRockDepth:true
 };
 })();
