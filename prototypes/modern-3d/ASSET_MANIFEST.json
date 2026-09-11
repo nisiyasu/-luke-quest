@@ -1,0 +1,80 @@
+{
+  "document_id": "LQ-MODERN-3D-M04-ASSET-MANIFEST-20260911",
+  "units": "meters",
+  "coordinate_system": "+X east, +Z south, +Y up",
+  "license_policy": "Original procedural assets are project-owned. External assets require source/license/credit records before use.",
+  "assets": [
+    {
+      "id": "bridge_principal_v1",
+      "type": "model_procedural",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code",
+      "license": "project-owned original",
+      "path": "assets.js#createProductionBridge",
+      "dimensions_m": [3.6, 1.45, 7.0],
+      "origin": "deck center at world local origin",
+      "forward": "-Z north",
+      "texture": "runtime CanvasTexture wood grain, 256x256",
+      "features": ["individual boards", "deck thickness", "side beams", "posts", "rails", "cross braces", "metal bolt heads", "wood grain variation"],
+      "version": "1.0.0"
+    },
+    {
+      "id": "conifer_family_v1",
+      "type": "model_procedural",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code",
+      "license": "project-owned original",
+      "path": "assets.js#createConifer",
+      "dimensions_m": "height 4.6-6.2 by scale variant",
+      "origin": "trunk base",
+      "forward": "radially symmetric silhouette with seeded variation",
+      "texture": "runtime CanvasTexture bark 128x256; foliage material variation",
+      "features": ["tapered trunk", "branch whorls", "multi-cluster foliage", "seeded silhouette variation", "ground skirt"],
+      "version": "1.0.0"
+    },
+    {
+      "id": "rock_cluster_v1",
+      "type": "model_procedural",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code",
+      "license": "project-owned original",
+      "path": "assets.js#createRockCluster",
+      "dimensions_m": "0.7-2.2 per cluster",
+      "origin": "cluster footprint center",
+      "forward": "none",
+      "texture": "material color/roughness variation; geometry vertex deformation",
+      "features": ["irregular silhouettes", "multi-stone clusters", "moss accent", "grounded rotation/scale variation"],
+      "version": "1.0.0"
+    },
+    {
+      "id": "terrain_grass_cliff_v1",
+      "type": "material_and_geometry",
+      "status": "PLACEHOLDER_TO_REPLACE",
+      "source": "M03 procedural bootstrap",
+      "license": "project-owned original",
+      "path": "index.html",
+      "version": "0.3.0",
+      "gap": "M04 must add authored surface breakup, cliff strata and join treatment before close"
+    },
+    {
+      "id": "water_river_v1",
+      "type": "material",
+      "status": "PLACEHOLDER_TO_REPLACE",
+      "source": "M03 procedural bootstrap",
+      "license": "project-owned original",
+      "path": "index.html",
+      "version": "0.3.0",
+      "gap": "M04 asset base may prepare water inputs; final water quality is M07"
+    },
+    {
+      "id": "luke_player_v1",
+      "type": "character",
+      "status": "PLACEHOLDER_TO_REPLACE",
+      "source": "M03 capsule/head bootstrap",
+      "license": "project-owned original",
+      "path": "index.html",
+      "version": "0.3.0",
+      "gap": "M04 requires animation-ready anatomy/rig or equivalent production animation method"
+    }
+  ]
+}
