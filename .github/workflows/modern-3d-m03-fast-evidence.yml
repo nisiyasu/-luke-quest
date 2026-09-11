@@ -1,0 +1,83 @@
+name: Modern 3D M03 Fast Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/modern-3d-m03-fast-evidence.yml"
+      - "prototypes/modern-3d/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: modern-3d-m03-fast-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start prototype server
+        shell: bash
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-fast-http.log 2>&1 &
+          sleep 1
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Verify traversal state with bounded virtual time
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          mkdir -p .modern3d-fast
+          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --virtual-time-budget=600 --dump-dom \
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-fast/dom.html 2>.modern3d-fast/chrome-stderr.log
+          grep -q 'data-lq-modern3d="m05-ready"' .modern3d-fast/dom.html
+          grep -q 'data-m02-ci="pass"' .modern3d-fast/dom.html
+          grep -q 'data-m03-ci="pass"' .modern3d-fast/dom.html
+          grep -q 'data-m05-scene="ready"' .modern3d-fast/dom.html
+          grep -oE 'data-m03-route="[^"]*"' .modern3d-fast/dom.html > .modern3d-fast/route.txt
+      - name: Capture M03 canonical frames
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=350 \
+            --screenshot=.modern3d-fast/m03-390x844.png \
+            'http://127.0.0.1:8140/index.html'
+          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=350 \
+            --screenshot=.modern3d-fast/m03-864x1536.png \
+            'http://127.0.0.1:8140/index.html'
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          for path, expected in [('.modern3d-fast/m03-390x844.png',(390,844)),('.modern3d-fast/m03-864x1536.png',(864,1536))]:
+              p=Path(path).read_bytes()
+              assert len(p)>15000 and p[:8]==b'\x89PNG\r\n\x1a\n'
+              w,h=struct.unpack('>II',p[16:24])
+              assert (w,h)==expected,(path,w,h)
+              print(path,w,h,len(p))
+          PY
+      - name: Upload bounded M03 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: modern-3d-m03-fast-${{ github.sha }}
+          path: |
+            .modern3d-fast/dom.html
+            .modern3d-fast/route.txt
+            .modern3d-fast/chrome-stderr.log
+            .modern3d-fast/m03-390x844.png
+            .modern3d-fast/m03-864x1536.png
+            /tmp/modern3d-fast-http.log
+            assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+            prototypes/modern-3d/index.html
+            prototypes/modern-3d/natural-assets.js
+          if-no-files-found: warn
+          retention-days: 14
