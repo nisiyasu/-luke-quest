@@ -14,7 +14,39 @@ const woodTex=makeWoodTexture();woodTex.repeat.set(2.2,.45);const barkTex=makeBa
 const woodMat=new THREE.MeshStandardMaterial({map:woodTex,color:0xb97a3f,roughness:.78,metalness:0}),woodDark=new THREE.MeshStandardMaterial({map:woodTex,color:0x70401f,roughness:.88,metalness:0}),ironMat=new THREE.MeshStandardMaterial({color:0x3b4143,roughness:.45,metalness:.68}),barkMat=new THREE.MeshStandardMaterial({map:barkTex,color:0x745038,roughness:1,metalness:0});
 const foliageMats=[0x184d34,0x21613e,0x2b7046].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.93,metalness:0})),rockMats=[0x777a73,0x686d68,0x85877e].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.94,metalness:0})),mossMat=new THREE.MeshStandardMaterial({color:0x566a37,roughness:1,metalness:0});
 
-export function createProductionBridge(){const g=new THREE.Group();g.name='bridge_principal_v1';const boardCount=18,depth=6.8,step=depth/boardCount;for(let i=0;i<boardCount;i++){const z=-depth/2+step*(i+.5),j=Math.sin(i*2.71)*.035;const b=beam(g,3.45,.18,step*.91,woodMat,j,.34,z);b.rotation.y=Math.sin(i*1.91)*.012;b.position.y+=Math.sin(i*1.37)*.018}for(const x of[-1.55,1.55]){beam(g,.22,.32,7,woodDark,x,.16,0);for(const z of[-3,-1.5,0,1.5,3]){beam(g,.2,1.22,.2,woodDark,x,.76,z);const bolt=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.07,10),ironMat);bolt.rotation.z=Math.PI/2;bolt.position.set(x+(x<0?-.12:.12),.72,z);g.add(bolt)}beam(g,.18,.16,6.6,woodMat,x,1.28,0);for(let z=-2.65;z<2.8;z+=1.35){const brace=beam(g,.13,.13,1.7,woodDark,x,.88,z+.55);brace.rotation.x=Math.PI/4}}for(const z of[-3.15,3.15])for(const x of[-1.42,1.42])beam(g,.34,1.15,.34,woodDark,x,-.08,z);g.userData={assetId:'bridge_principal_v1',version:'1.0.0'};return shadow(g)}
+export function createProductionBridge(){
+  const g=new THREE.Group();g.name='bridge_principal_v1';
+  const boardCount=22,depth=6.8,step=depth/boardCount;
+  const deckMats=[
+    woodMat,
+    new THREE.MeshStandardMaterial({map:woodTex,color:0xa96a34,roughness:.84,metalness:0}),
+    new THREE.MeshStandardMaterial({map:woodTex,color:0xc58a4b,roughness:.8,metalness:0})
+  ];
+  for(let i=0;i<boardCount;i++){
+    const z=-depth/2+step*(i+.5),j=Math.sin(i*2.71)*.025;
+    const b=beam(g,3.48,.19,step*.92,deckMats[i%deckMats.length],j,.34,z);
+    b.rotation.y=Math.sin(i*1.91)*.009;b.position.y+=Math.sin(i*1.37)*.014;
+    if(i%5===1){const seam=beam(g,3.16,.015,.018,woodDark,0,.445,z+step*.31);seam.castShadow=false}
+  }
+  for(const x of[-1.58,1.58]){
+    beam(g,.26,.34,7,woodDark,x,.16,0);
+    for(const z of[-3.05,-1.5,0,1.5,3.05]){
+      beam(g,.28,1.42,.28,woodDark,x,.78,z);
+      const cap=new THREE.Mesh(new THREE.CylinderGeometry(.23,.29,.18,10),woodMat);cap.position.set(x,1.52,z);g.add(cap);
+      const bolt=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.075,10),ironMat);bolt.rotation.z=Math.PI/2;bolt.position.set(x+(x<0?-.155:.155),.83,z);g.add(bolt);
+    }
+    beam(g,.22,.18,6.65,woodMat,x,1.34,0);
+    beam(g,.12,.12,6.45,woodDark,x,.93,0);
+    for(let z=-2.65;z<2.8;z+=1.35){const brace=beam(g,.13,.13,1.7,woodDark,x,.86,z+.55);brace.rotation.x=Math.PI/4}
+  }
+  for(const z of[-3.25,3.25])for(const x of[-1.58,1.58]){
+    const footing=new THREE.Mesh(new THREE.CylinderGeometry(.35,.43,1.28,10),woodDark);footing.position.set(x,-.10,z);g.add(footing);
+    const collar=new THREE.Mesh(new THREE.TorusGeometry(.39,.045,6,16),ironMat);collar.rotation.x=Math.PI/2;collar.position.set(x,.28,z);g.add(collar);
+  }
+  for(const z of[-3.38,3.38]){const sill=beam(g,3.7,.18,.38,woodDark,0,.08,z);sill.rotation.y=.01*Math.sign(z)}
+  g.userData={assetId:'bridge_principal_v1',version:'1.1.0',stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'denser warm timber bridge with capped posts, collars, dual rails and deck wear'};
+  return shadow(g)
+}
 
 export function createConifer({seed=1,scale=1}={}){const r=seeded(seed),g=new THREE.Group();g.name=`conifer_family_v1_${seed}`;const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.19*scale,.36*scale,4.2*scale,9),barkMat);trunk.position.y=2.1*scale;g.add(trunk);for(let level=0;level<7;level++){const y=(1.15+level*.52)*scale,rad=(1.48-level*.13)*scale,count=5+(level%3);for(let i=0;i<count;i++){const a=i/count*Math.PI*2+r()*.32,len=rad*(.75+r()*.38),branch=new THREE.Mesh(new THREE.CylinderGeometry(.035*scale,.07*scale,len,6),barkMat);branch.position.set(Math.cos(a)*len*.36,y,Math.sin(a)*len*.36);branch.rotation.z=Math.PI/2.2;branch.rotation.y=-a;g.add(branch);const fol=new THREE.Mesh(new THREE.DodecahedronGeometry((.38+r()*.18)*scale,0),foliageMats[(level+i)%3]);fol.scale.set(.72+r()*.28,1.35+r()*.48,.72+r()*.3);fol.position.set(Math.cos(a)*len*.78,y+(r()-.4)*.18*scale,Math.sin(a)*len*.78);fol.rotation.y=a+r();g.add(fol)}}for(let i=0;i<5;i++){const top=new THREE.Mesh(new THREE.DodecahedronGeometry((.42-i*.045)*scale,0),foliageMats[i%3]);top.scale.set(.75,1.45,.75);top.position.y=(4.15+i*.3)*scale;top.rotation.y=r()*Math.PI;g.add(top)}const skirt=new THREE.Mesh(new THREE.CylinderGeometry(.58*scale,.76*scale,.09*scale,11),mossMat);skirt.position.y=.045*scale;g.add(skirt);g.rotation.y=r()*Math.PI*2;g.userData={assetId:'conifer_family_v1',version:'1.0.0',seed};return shadow(g)}
 
@@ -29,4 +61,4 @@ export function createLukeCharacter({scale=1}={}){const g=new THREE.Group();g.na
 
 export function createSign(){const g=new THREE.Group();beam(g,.17,1.45,.17,woodDark,0,.72,0);const board=beam(g,1.35,.55,.12,woodMat,0,1.28,0);const cap=beam(g,1.48,.08,.14,woodDark,0,1.58,0);g.userData={assetId:'sign_v1',version:'1.0.0'};return shadow(g)}
 
-export function assetMetadata(){return{bridge:'bridge_principal_v1@1.0.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.0.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.0.0',sign:'sign_v1@1.0.0'}}
+export function assetMetadata(){return{bridge:'bridge_principal_v1@1.1.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.0.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.0.0',sign:'sign_v1@1.0.0'}}
