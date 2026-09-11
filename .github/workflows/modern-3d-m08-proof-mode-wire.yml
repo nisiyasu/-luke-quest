@@ -1,0 +1,45 @@
+name: Modern 3D M08 Proof Mode Wire
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - '.github/workflows/modern-3d-m08-proof-mode-wire.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire-m08-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Add bounded synchronous M08 proof mode
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);requestAnimationFrame(tick);if(new URLSearchParams(location.search).get('m08walk')==='1'){document.documentElement.dataset.m08WalkStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout(()=>{dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState();document.documentElement.dataset.m08WalkEnd=document.documentElement.dataset.m08Player;document.documentElement.dataset.m08WalkDone='1'},1600)}"
+          new="addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);const query=new URLSearchParams(location.search),m08Proof=query.get('m08proof')==='1';if(m08Proof){document.documentElement.dataset.m08ProofStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));for(let i=0;i<96;i++)stepMovement(1/60);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));player.userData.animate(.9,1);syncState();document.documentElement.dataset.m08ProofEnd=document.documentElement.dataset.m08Player;document.documentElement.dataset.m08ProofDone='1';const proofTarget=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.7);camera.position.copy(proofTarget.clone().add(offset));camera.lookAt(proofTarget.x,proofTarget.y+.45,proofTarget.z);renderer.render(scene,camera)}else{requestAnimationFrame(tick);if(query.get('m08walk')==='1'){document.documentElement.dataset.m08WalkStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout(()=>{dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState();document.documentElement.dataset.m08WalkEnd=document.documentElement.dataset.m08Player;document.documentElement.dataset.m08WalkDone='1'},1600)}}"
+          count=s.count(old)
+          if count!=1: raise SystemExit(f'expected one startup block, found {count}')
+          p.write_text(s.replace(old,new))
+      - name: Verify bounded proof mode
+        run: |
+          git diff --check
+          grep -F "m08Proof=query.get('m08proof')==='1'" prototypes/modern-3d/index.html
+          grep -F 'for(let i=0;i<96;i++)stepMovement(1/60)' prototypes/modern-3d/index.html
+          grep -F "dataset.m08ProofDone='1'" prototypes/modern-3d/index.html
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit M08 proof mode
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && exit 1
+          git commit -m 'test(modern-3d): add bounded M08 movement proof mode'
+          git push origin HEAD:prototype/modern-3d
