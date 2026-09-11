@@ -14,7 +14,8 @@ function ensureStyle(){
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
-    .gameShell[data-lq-req149-field-bleed="true"]{
+    body.lqReq145GoldSlice .gameShell[data-lq-req149-field-bleed="true"],
+    body.lqWorldFullscreen .gameShell[data-lq-req149-field-bleed="true"]{
       background:
         radial-gradient(ellipse at 17% 9%,rgba(151,169,89,.15) 0 17%,transparent 44%),
         radial-gradient(ellipse at 82% 88%,rgba(68,111,57,.20) 0 18%,transparent 46%),
@@ -33,7 +34,7 @@ function apply(){
   const active=typeof s!=='undefined'&&s&&s.screen==='world'&&s.map==='field';
   if(active){
     shell.dataset.lqReq149FieldBleed='true';
-    document.body.dataset.req149FieldBleed='v04g-grass';
+    document.body.dataset.req149FieldBleed='v04g-grass-cascade';
   }else{
     delete shell.dataset.lqReq149FieldBleed;
     delete document.body.dataset.req149FieldBleed;
@@ -48,5 +49,5 @@ window.addEventListener('resize',apply,{passive:true});
 window.addEventListener('orientationchange',apply,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',apply,{passive:true});
 apply();
-window.LQ_REQ149_V04G_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-G2',presentationOnly:true,req146ScalePreserved:true,gameplayCoordinatesUnchanged:true,grassStageBleed:true};
+window.LQ_REQ149_V04G_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-G3',presentationOnly:true,req146ScalePreserved:true,gameplayCoordinatesUnchanged:true,grassStageBleed:true,cascadeVerifiedSelector:true};
 })();
