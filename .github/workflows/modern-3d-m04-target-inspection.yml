@@ -7,6 +7,7 @@ on:
     paths:
       - 'prototypes/modern-3d/m04-target-assets.js'
       - 'prototypes/modern-3d/m04-target-inspection.html'
+      - 'prototypes/modern-3d/m04-bank-inspection.html'
       - '.github/workflows/modern-3d-m04-target-inspection.yml'
   workflow_dispatch:
 
@@ -24,7 +25,8 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m04-target-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/m04-target-inspection.html >/dev/null
-      - name: Capture same-lighting asset comparison
+          curl -fsS http://127.0.0.1:8140/m04-bank-inspection.html >/dev/null
+      - name: Capture same-lighting asset comparisons
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           mkdir -p .m04-target
@@ -39,6 +41,18 @@ jobs:
             --screenshot=.m04-target/m04-target-1200x900.png \
             'http://127.0.0.1:8140/m04-target-inspection.html'
           test -s .m04-target/m04-target-1200x900.png
+          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=1200,900 --virtual-time-budget=2200 \
+            --dump-dom 'http://127.0.0.1:8140/m04-bank-inspection.html' > .m04-target/bank-dom.html 2>.m04-target/bank-stderr.log
+          grep -q 'data-m04-bank-inspection="ready"' .m04-target/bank-dom.html
+          grep -q 'data-candidate-asset="bank_target_v3@3.0.0"' .m04-target/bank-dom.html
+          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=1200,900 --virtual-time-budget=2200 \
+            --screenshot=.m04-target/m04-bank-1200x900.png \
+            'http://127.0.0.1:8140/m04-bank-inspection.html'
+          test -s .m04-target/m04-bank-1200x900.png
       - name: Upload M04 inspection evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,9 +62,13 @@ jobs:
             .m04-target/dom.html
             .m04-target/chrome-stderr.log
             .m04-target/m04-target-1200x900.png
+            .m04-target/bank-dom.html
+            .m04-target/bank-stderr.log
+            .m04-target/m04-bank-1200x900.png
             /tmp/m04-target-http.log
             prototypes/modern-3d/m04-target-assets.js
             prototypes/modern-3d/m04-target-inspection.html
+            prototypes/modern-3d/m04-bank-inspection.html
             assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
             assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
           retention-days: 14
