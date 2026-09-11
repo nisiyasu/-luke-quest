@@ -10,7 +10,7 @@
     "bank": "bank_target_v4@4.2.0",
     "water": "water_target_v3@3.4.0",
     "bridge": "bridge_principal_v1@1.1.0",
-    "character": "luke_player_v1@1.0.0",
+    "character": "luke_player_v1@1.1.0",
     "inspection_surfaces": ["m04-target-inspection.html", "m04-bank-inspection.html", "m04-water-inspection.html"]
   },
   "assets": [
@@ -100,9 +100,10 @@
       "origin": "feet/character root",
       "forward": "-Z",
       "texture": "material-separated skin/clothing/boots/hair/belt",
-      "features": ["head/body separation", "blue hair locks", "arms", "legs", "feet", "hierarchical limb pivots", "walk-cycle animator"],
+      "features": ["humanoid torso/pelvis separation", "layered blue hair and fringe", "white coat with navy chest panel and tails", "gold crest and buckle", "hands", "boots", "shoulder forms", "hierarchical limb pivots", "walk-cycle animator"],
       "animation_method": "procedural hierarchical pivot rig via userData.animate(t,speed)",
-      "version": "1.0.0"
+      "version": "1.1.0",
+      "note": "M04 target-facing character refinement preserves the movement root and animation contract while improving JRPG silhouette/readability."
     },
     {
       "id": "sign_v1",
