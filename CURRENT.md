@@ -1,5 +1,67 @@
 # LUKE QUEST CURRENT
 
+## FRESH RECOVERY SNAPSHOT — 2026-09-11
+
+- UPDATED_AT: `2026-09-11 10:30 JST`
+- REPOSITORY: `nisiyasu/-luke-quest`
+- ACTUAL_DEFAULT_BRANCH: `main`
+- MAIN_HEAD_AT_RECOVERY: `fbe77de5068891d65528d0603abdbd06bf65f0ae`
+- ACTIVE_BRANCH: `experiment/gold-vertical-slice`
+- GOLD_BRANCH_HEAD_AT_RECOVERY: `15be043a1ee00b457fab653baa7a96ed524660a0`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `7e1b6a2cd36ee2d63cde4a5ee12a1364a0e10d97`
+- LATEST_VERIFIED_RUNTIME_HEAD_SHA: `7e1b6a2cd36ee2d63cde4a5ee12a1364a0e10d97`
+- PAGES_URL: https://nisiyasu.github.io/-luke-quest/
+- GOLD_PREVIEW_URL: https://nisiyasu.github.io/-luke-quest/preview/gold/
+- GOLD_PREVIEW_SOURCE_BRANCH: `experiment/gold-vertical-slice`
+- CURRENT_BUILD_STATUS: `GREEN for the latest player-visible Gold checkpoint 7e1b6a2: P0 Touch SUCCESS first attempt; REQ-145 Gold Challenger SUCCESS; REQ-023 first attempt hit the 30s browser wall-clock timeout but the exact same HEAD rerun succeeded. Current Gold CI-only descendant 15be043 adds timeout-only retry protection and its REQ-023 + Gold Challenger runs are SUCCESS. Main Pages deployment at fbe77de is SUCCESS; post-deploy cache-busted recovery and iOS WebKit live diagnostics are SUCCESS.`
+- ACTIVE_REQUIREMENT_ID: `REQ-145`
+- ACTIVE_REQUIREMENT_PATH: `requirements/REQ-145_GOLD_VERTICAL_SLICE_CONTINUOUS_QUALITY_LANE.md`
+- ACTIVE_REQUIREMENT_STATUS: `P0 / IN_PROGRESS`
+- WORK_MANAGEMENT_MODE: `QUEUE_CONTROLLED / HEAD_FIRST_RECOVERY / WIP_LIMIT_1 / OWNER_DIRECT_P0_PREEMPTION`
+- RECENT_CHECKPOINTS: `7e1b6a2 perf(req145): replace market support filter with box shadow; 15be043 ci(req023): retry one wall-clock browser timeout on Gold; fbe77de ci(req023): retry one wall-clock browser timeout on main.`
+- TESTS_AND_VERIFICATION: `7e1b6a2 P0 Touch Diagnostic SUCCESS first attempt; 7e1b6a2 Gold Challenger SUCCESS; 7e1b6a2 REQ-023 exact-HEAD rerun SUCCESS after one wall-clock timeout. 15be043 hardened REQ-023 SUCCESS first attempt and Gold Challenger SUCCESS. Main fbe77de Pages run 34550640044 SUCCESS; cache-busted Pages recovery 34550713912 SUCCESS; iOS WebKit live diagnostic 34550713833 SUCCESS.`
+- KNOWN_ISSUES: `GitHub-hosted Chrome browser smoke occasionally reaches the 30s wall-clock timeout without product-failure markers. P0 already discriminates this class; REQ-023 now retries exactly once only on exit 124 and still fails closed on all other nonzero exits or missing gameplay markers. WORK_QUEUE metadata contains stale status entries for REQ-145/146/147 and requires a safe full-file synchronization; fresh HEAD/requirement reality takes precedence until that metadata repair is completed.`
+- BLOCKERS: `No hard implementation blocker. REQ-001 / REQ-021 / REQ-022 and other iPhone-sensitive items remain IOS_PHYSICAL_VERIFICATION=PENDING. REQ-145 remains IN_PROGRESS and is not promoted to production or declared Owner-experience PASS.`
+- NEXT_ACTION: `Continue REQ-145 on the Gold branch with one isolated player-visible or performance-safe quality increment. Preserve canonical Action/touch/save/story/battle/collision authorities. Gate the exact candidate through P0 Touch, REQ-023 and Gold Challenger, then verify public Gold preview freshness before promotion.`
+- NEXT_ACTION_COMPLETION_CONDITION: `One isolated Gold change passes exact-head P0 Touch + REQ-023 + Gold Challenger, public preview contains the candidate, existing gameplay remains intact, and physical iPhone status is reported PENDING rather than falsely promoted.`
+- DO_NOT_REPEAT: `Do not re-add the expensive market-support CSS filter removed at 7e1b6a2. Do not treat a lone 30s browser timeout as deterministic product regression without an exact-head retry. Do not weaken marker assertions. Do not add duplicate touch/action authority. Do not claim physical iPhone PASS from CI.`
+
+### INPUT / FULLSCREEN PROTECTION — CURRENT
+
+- TOUCH_CONTROLLER_STATUS: `REQ-001 VERIFY / machine and public protection green / physical iPhone PENDING`
+- TOUCH_CONTROLLER_BEHAVIOR: `pointerId ownership; dead zone; short tap arbitration; live drag direction switching; central stopMoving cleanup; pointercancel/blur/pagehide/visibility/map/battle/dialogue safety; visualViewport clamp.`
+- TOUCH_CONTROLLER_KNOWN_ISSUES: `No deterministic machine regression in the fresh Gold checkpoint. Physical iPhone verification remains pending.`
+- TOUCH_CONTROLLER_IOS_VERIFICATION: `PENDING`
+- TAP_ANYWHERE_ACTION_STATUS: `REQ-021 VERIFY / canonical action() smoke and tap-vs-drag protections green on fresh Gold evidence / physical iPhone PENDING`
+- IPHONE_FULLSCREEN_UI_STATUS: `REQ-022 VERIFY / latest main Pages + iOS WebKit live diagnostic green / physical iPhone PENDING`
+
+### REQ-023 NORTH EVACUATION GUIDANCE — CURRENT
+
+- STATUS: `VERIFY`
+- MACHINE_PUBLIC_STATUS: `Latest exact Gold runtime 7e1b6a2 passes after one transient 30s Chrome timeout; same-head rerun succeeded. Timeout-only single retry protection is now committed to both main and Gold, and the hardened Gold gate passes.`
+- CURRENT_BEHAVIOR: `Required clue/objective marker, canonical Action progression, north-objective update, north marker and clue removal remain strict assertions.`
+- IOS_PHYSICAL_VERIFICATION: `PENDING`
+
+### REQ-145 GOLD VERTICAL SLICE CONTINUOUS QUALITY LANE — CURRENT
+
+- STATUS: `IN_PROGRESS`
+- PRIORITY: `P0 / OWNER_DIRECT`
+- DEVELOPMENT_BRANCH: `experiment/gold-vertical-slice`
+- PUBLIC_PREVIEW: `https://nisiyasu.github.io/-luke-quest/preview/gold/`
+- LATEST_PLAYER_VISIBLE_CHECKPOINT: `7e1b6a2cd36ee2d63cde4a5ee12a1364a0e10d97`
+- LATEST_PLAYER_VISIBLE_CHANGE: `Aldia market support depth is retained while replacing the support drop-shadow filter with a cheaper box-shadow, reducing compositor cost without changing input, collision, save, story or battle authority.`
+- LATEST_BRANCH_HEAD: `15be043a1ee00b457fab653baa7a96ed524660a0 — CI-only descendant adding timeout-only REQ-023 retry protection.`
+- MACHINE_GATES: `P0 Touch SUCCESS / REQ-023 SUCCESS on exact-head rerun and hardened descendant / Gold Challenger SUCCESS.`
+- QUALITY_LEVEL: `Q5`
+- OWNER_EXPERIENCE_PASS: `PENDING`
+- IOS_PHYSICAL_VERIFICATION: `PENDING`
+
+---
+
+## PRESERVED PREVIOUS SNAPSHOT — 2026-09-09
+
+The content below is retained verbatim as the immediately previous autosave for recovery/audit history. Where it conflicts with the FRESH RECOVERY SNAPSHOT above, fresh HEAD and the new snapshot govern.
+
 - UPDATED_AT: `2026-09-09 15:00 JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `main`
