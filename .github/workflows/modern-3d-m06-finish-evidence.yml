@@ -1,0 +1,57 @@
+name: Modern 3D M06 Finish Evidence
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - 'prototypes/modern-3d/assets.js'
+      - 'prototypes/modern-3d/m04-bank-target-v4.js'
+      - 'prototypes/modern-3d/m04-conifer-target-v31.js'
+      - 'prototypes/modern-3d/m04-target-assets.js'
+      - 'prototypes/modern-3d/natural-assets.js'
+      - 'prototypes/modern-3d/m06-finish-inspection.html'
+      - '.github/workflows/modern-3d-m06-finish-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start prototype server
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m06-finish-http.log 2>&1 &
+          sleep 1
+          curl -fsS http://127.0.0.1:8140/m06-finish-inspection.html >/dev/null
+      - name: Verify and capture M06 finish panels
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          mkdir -p .m06-finish
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1500,900 --virtual-time-budget=2600 --dump-dom 'http://127.0.0.1:8140/m06-finish-inspection.html' > .m06-finish/dom.html 2>.m06-finish/chrome-stderr.log
+          grep -q 'data-m06-finish-inspection="ready"' .m06-finish/dom.html
+          grep -q 'data-bridge-asset="bridge_principal_v1@1.2.0"' .m06-finish/dom.html
+          grep -q 'data-bank-asset="bank_target_v4@4.3.0"' .m06-finish/dom.html
+          grep -q 'data-conifer-asset="conifer_target_v31@3.2.1"' .m06-finish/dom.html
+          grep -q 'data-evidence-panels="bridge-contact,shore-contact,tree-variation-understory"' .m06-finish/dom.html
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1500,900 --virtual-time-budget=2600 --screenshot=.m06-finish/m06-finish-1500x900.png 'http://127.0.0.1:8140/m06-finish-inspection.html'
+          test -s .m06-finish/m06-finish-1500x900.png
+      - name: Upload M06 finish evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: modern-3d-m06-finish-${{ github.sha }}
+          path: |
+            .m06-finish/dom.html
+            .m06-finish/chrome-stderr.log
+            .m06-finish/m06-finish-1500x900.png
+            /tmp/m06-finish-http.log
+            prototypes/modern-3d/m06-finish-inspection.html
+            prototypes/modern-3d/assets.js
+            prototypes/modern-3d/m04-bank-target-v4.js
+            prototypes/modern-3d/m04-conifer-target-v31.js
+          retention-days: 14
