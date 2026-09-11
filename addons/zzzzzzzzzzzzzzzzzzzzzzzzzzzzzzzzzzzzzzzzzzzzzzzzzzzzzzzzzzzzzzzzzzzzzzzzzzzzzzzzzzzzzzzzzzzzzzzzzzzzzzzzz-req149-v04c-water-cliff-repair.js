@@ -42,22 +42,49 @@ function banks(ctx,m){
     const X=x*TS,Y=y*TS;
     [['n',0,-1],['e',1,0],['s',0,1],['w',-1,0]].forEach(([side,dx,dy])=>{
       if(isWater(ch(m,x+dx,y+dy)))return;
-      /* dark vertical face + thin bright grass lip: visible terrain thickness */
-      ctx.fillStyle='rgba(34,45,29,.92)';ctx.strokeStyle='rgba(128,169,86,.95)';ctx.lineWidth=2;
-      if(side==='n'){ctx.fillRect(X,Y,TS,8);ctx.beginPath();ctx.moveTo(X,Y+1);ctx.lineTo(X+TS,Y+1);ctx.stroke();ctx.fillStyle='rgba(15,35,29,.45)';ctx.fillRect(X,Y+8,TS,4)}
-      if(side==='s'){ctx.fillRect(X,Y+TS-9,TS,9);ctx.beginPath();ctx.moveTo(X,Y+TS-9);ctx.lineTo(X+TS,Y+TS-9);ctx.stroke()}
-      if(side==='w'){ctx.fillRect(X,Y,9,TS);ctx.beginPath();ctx.moveTo(X+1,Y);ctx.lineTo(X+1,Y+TS);ctx.stroke();ctx.fillStyle='rgba(11,31,28,.35)';ctx.fillRect(X+9,Y,4,TS)}
-      if(side==='e'){ctx.fillRect(X+TS-9,Y,9,TS);ctx.beginPath();ctx.moveTo(X+TS-9,Y);ctx.lineTo(X+TS-9,Y+TS);ctx.stroke()}
+      /* layered bank instead of a near-black rectangular frame: moss lip -> earth face -> water shadow */
+      const wob=Math.round((h(x,y,520+dx*7+dy*11)-.5)*2);
+      const face='rgba(47,61,40,.78)', earth='rgba(79,75,49,.55)', lip='rgba(143,177,91,.92)', shadow='rgba(9,31,31,.28)';
+      ctx.lineWidth=2;ctx.strokeStyle=lip;
+      if(side==='n'){
+        ctx.fillStyle=face;ctx.fillRect(X,Y,TS,5+wob);ctx.fillStyle=earth;ctx.fillRect(X,Y+4+wob,TS,3);ctx.fillStyle=shadow;ctx.fillRect(X,Y+7+wob,TS,2);
+        ctx.beginPath();ctx.moveTo(X,Y+1);ctx.quadraticCurveTo(X+TS*.48,Y+2+wob,X+TS,Y+1);ctx.stroke();
+      }
+      if(side==='s'){
+        ctx.fillStyle=shadow;ctx.fillRect(X,Y+TS-8-wob,TS,2);ctx.fillStyle=earth;ctx.fillRect(X,Y+TS-6-wob,TS,3);ctx.fillStyle=face;ctx.fillRect(X,Y+TS-3-wob,TS,3+wob);
+        ctx.beginPath();ctx.moveTo(X,Y+TS-8-wob);ctx.quadraticCurveTo(X+TS*.55,Y+TS-7,X+TS,Y+TS-8+wob);ctx.stroke();
+      }
+      if(side==='w'){
+        ctx.fillStyle=face;ctx.fillRect(X,Y,5+wob,TS);ctx.fillStyle=earth;ctx.fillRect(X+4+wob,Y,3,TS);ctx.fillStyle=shadow;ctx.fillRect(X+7+wob,Y,2,TS);
+        ctx.beginPath();ctx.moveTo(X+1,Y);ctx.quadraticCurveTo(X+2+wob,Y+TS*.52,X+1,Y+TS);ctx.stroke();
+      }
+      if(side==='e'){
+        ctx.fillStyle=shadow;ctx.fillRect(X+TS-8-wob,Y,2,TS);ctx.fillStyle=earth;ctx.fillRect(X+TS-6-wob,Y,3,TS);ctx.fillStyle=face;ctx.fillRect(X+TS-3-wob,Y,3+wob,TS);
+        ctx.beginPath();ctx.moveTo(X+TS-8-wob,Y);ctx.quadraticCurveTo(X+TS-7,Y+TS*.47,X+TS-8+wob,Y+TS);ctx.stroke();
+      }
     });
   }
 }
 function boundaryCliffs(ctx,m){
   for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
     const c=ch(m,x,y);if(c!=='#'&&c!=='H')continue;const X=x*TS,Y=y*TS;
-    const g=ctx.createLinearGradient(X,Y,X,Y+TS);g.addColorStop(0,'#405444');g.addColorStop(.12,'#344638');g.addColorStop(.55,'#243229');g.addColorStop(1,'#131d19');ctx.fillStyle=g;ctx.fillRect(X,Y,TS,TS);
-    ctx.fillStyle='rgba(142,159,108,.38)';ctx.fillRect(X,Y,TS,3);
-    ctx.strokeStyle='rgba(126,132,106,.22)';ctx.lineWidth=1;
-    for(let i=0;i<4;i++){const px=X+5+h(x,y,540+i)*38;ctx.beginPath();ctx.moveTo(px,Y+8);ctx.lineTo(px-2,Y+20+h(x,y,550+i)*12);ctx.lineTo(px+1,Y+39);ctx.stroke()}
+    /* warmer readable cliff mass; preserve blocked geometry but stop presenting it as a black tile card */
+    const g=ctx.createLinearGradient(X,Y,X,Y+TS);g.addColorStop(0,'#596448');g.addColorStop(.13,'#4b5b40');g.addColorStop(.48,'#3b4736');g.addColorStop(.76,'#303a30');g.addColorStop(1,'#26312b');ctx.fillStyle=g;ctx.fillRect(X,Y,TS,TS);
+    ctx.fillStyle='rgba(137,166,88,.76)';ctx.fillRect(X,Y,TS,3);
+    ctx.fillStyle='rgba(82,104,59,.58)';ctx.fillRect(X,Y+3,TS,3);
+    ctx.strokeStyle='rgba(176,162,119,.24)';ctx.lineWidth=1;
+    for(let i=0;i<4;i++){
+      const px=X+5+h(x,y,540+i)*38,drop=18+h(x,y,550+i)*18;
+      ctx.beginPath();ctx.moveTo(px,Y+9);ctx.lineTo(px-2,Y+drop*.58);ctx.lineTo(px+1,Y+drop);ctx.stroke();
+    }
+    ctx.strokeStyle='rgba(23,35,28,.28)';
+    for(let i=0;i<2;i++){
+      const yy=Y+19+i*14+Math.round((h(x,y,565+i)-.5)*4);
+      ctx.beginPath();ctx.moveTo(X+5,yy);ctx.quadraticCurveTo(X+TS*.5,yy+3,X+TS-5,yy-1);ctx.stroke();
+    }
+    if(h(x,y,580)>.62){
+      ctx.strokeStyle='rgba(132,157,87,.5)';ctx.beginPath();ctx.moveTo(X+9+h(x,y,581)*25,Y+4);ctx.lineTo(X+8+h(x,y,581)*25,Y+10);ctx.stroke();
+    }
   }
 }
 function waterDetails(ctx,m){
