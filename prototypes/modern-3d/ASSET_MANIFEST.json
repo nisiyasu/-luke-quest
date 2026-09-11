@@ -119,7 +119,7 @@
     {
       "id": "conifer_natural_v2",
       "type": "model_procedural_layered_foliage",
-      "status": "BASELINE_SUPERSEDED_FOR_TARGET_SET",
+      "status": "PRODUCTION_CANDIDATE",
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createNaturalConifer",
@@ -129,7 +129,7 @@
       "texture": "material-separated bark plus three rough foliage tones; no external texture dependency",
       "features": ["nine branch levels", "radial branch variation", "layered frond cards", "multi-tone foliage", "top crown taper", "seeded silhouette variation", "ground needle accents"],
       "version": "2.1.0",
-      "superseded_by": "conifer_target_v31"
+      "active_target_successor": "conifer_target_v31"
     },
     {
       "id": "understory_cluster_v2",
@@ -163,7 +163,7 @@
     {
       "id": "layered_bank_v2",
       "type": "terrain_and_shore_geometry",
-      "status": "BASELINE_SUPERSEDED_FOR_TARGET_SET",
+      "status": "PRODUCTION_CANDIDATE",
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createLayeredBank",
@@ -173,12 +173,12 @@
       "texture": "procedural grass CanvasTexture plus rough soil/moss/rock materials",
       "features": ["subdivided uneven top surface", "macro and micro grass breakup", "multi-layer deformed shoreline rocks", "soil transition band", "moss/rock color variation", "integrated understory clusters"],
       "version": "2.1.0",
-      "superseded_by": "bank_target_v4"
+      "active_target_successor": "bank_target_v4"
     },
     {
       "id": "water_rich_v2",
       "type": "shader_surface_with_shore_detail",
-      "status": "BASELINE_SUPERSEDED_FOR_TARGET_SET",
+      "status": "PRODUCTION_CANDIDATE",
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createRichWater",
@@ -189,7 +189,7 @@
       "features": ["multi-frequency animated wave displacement", "deep/mid/light color breakup", "animated sparkle bands", "shore brightening", "irregular foam strips", "embedded deformed rocks"],
       "animation_method": "userData.update(t) drives uTime shader uniform",
       "version": "2.1.0",
-      "superseded_by": "water_target_v3"
+      "active_target_successor": "water_target_v3"
     },
     {
       "id": "fern_patch_target_v1",
