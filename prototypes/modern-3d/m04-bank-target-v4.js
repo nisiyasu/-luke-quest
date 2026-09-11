@@ -8,6 +8,7 @@ const grass=new THREE.MeshStandardMaterial({color:0x668947,roughness:.99,side:TH
 const soil=new THREE.MeshStandardMaterial({color:0x514332,roughness:1});
 const moss=new THREE.MeshStandardMaterial({color:0x587941,roughness:1});
 const mossLight=new THREE.MeshStandardMaterial({color:0x719552,roughness:1});
+const rootMat=new THREE.MeshStandardMaterial({color:0x4b3427,roughness:1});
 const rockMats=[0x625f56,0x756f61,0x857d6d,0x68665e,0x777365,0x595c57].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.97,metalness:0}));
 const fernMats=[0x315d2e,0x6f984b].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.98,side:THREE.DoubleSide}));
 
@@ -54,7 +55,7 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
   // Continuous irregular top surface. The front edge itself meanders, eliminating the prior block/slab silhouette.
   g.add(makeOrganicTop(r,seed,width,depth,facing));
 
-  // v4.2: smoother, smaller overlapping rock terraces. Higher subdivision keeps the large silhouette organic without the prior giant low-poly crystal read.
+  // M06 finish: smaller overlapping terraces keep the cliff face organic while maintaining readable elevation.
   const bands=[
     {z:depth*.5-.28,y:-.34,scale:.90},
     {z:depth*.5-.53,y:-.76,scale:.72},
@@ -125,6 +126,34 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
     pebble.rotation.y=r()*Math.PI;g.add(pebble);
   }
 
-  g.userData={assetId:'bank_target_v4',version:'4.2.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest-bank silhouette with smoother overlapping rock terraces, soil pockets, moss, pebble breakup and clustered fern lip'};
+  // M06 shoreline/contact finish. A broken toe of wet-looking stones closes the visible gap between bank wall and water plane.
+  const toeCount=Math.max(12,Math.ceil(width/.72));
+  for(let i=0;i<toeCount;i++){
+    if((i+seed)%7===2) continue;
+    const t=(i+.35)/toeCount;
+    const edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42+Math.sin(t*Math.PI*7+seed*.07)*.14;
+    const rad=.13+r()*.18;
+    const toe=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(rad,1),r,.20),rockMats[(i+seed+3)%rockMats.length]);
+    toe.scale.set(1.45,.46,.92);
+    toe.position.set(-width*.5+t*width+(r()-.5)*.25,-1.48+r()*.16,facing*(depth*.5-1.03+edgeWave)+(r()-.5)*.18);
+    toe.rotation.y=r()*Math.PI;g.add(toe);
+    if(i%3===0){
+      const shelf=new THREE.Mesh(new THREE.CircleGeometry(rad*(1.15+r()*.35),10),i%2?moss:mossLight);
+      shelf.rotation.x=-Math.PI/2;shelf.position.set(toe.position.x,toe.position.y+rad*.25,toe.position.z-facing*.03);shelf.scale.set(1.25,.72,1);g.add(shelf);
+    }
+  }
+
+  // Sparse exposed roots break the repeated rock-only cliff language and visually bind grass cap to cliff face.
+  const rootCount=Math.max(5,Math.floor(width/2.1));
+  for(let i=0;i<rootCount;i++){
+    const t=(i+.55)/rootCount;
+    const edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42;
+    const len=.65+r()*.75;
+    const root=new THREE.Mesh(new THREE.CylinderGeometry(.028+r()*.025,.055+r()*.035,len,6),rootMat);
+    root.position.set(-width*.46+t*width*.92,-.34-len*.34,facing*(depth*.5-.42+edgeWave));
+    root.rotation.z=(r()-.5)*.28;root.rotation.x=facing*(.10+r()*.18);g.add(root);
+  }
+
+  g.userData={assetId:'bank_target_v4',version:'4.3.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest bank with layered cliff terraces, soil and fern lip, shoreline toe rubble, moss shelves and exposed roots to remove water/cliff seams'};
   return shadows(g);
 }
