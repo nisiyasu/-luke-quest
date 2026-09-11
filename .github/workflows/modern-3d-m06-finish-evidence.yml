@@ -11,6 +11,7 @@ on:
       - 'prototypes/modern-3d/m04-target-assets.js'
       - 'prototypes/modern-3d/natural-assets.js'
       - 'prototypes/modern-3d/m06-finish-inspection.html'
+      - '.github/workflows/modern-3d/m06-finish-evidence.yml'
       - '.github/workflows/modern-3d-m06-finish-evidence.yml'
   workflow_dispatch:
 
@@ -20,7 +21,7 @@ permissions:
 jobs:
   capture:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
       - name: Start prototype server
@@ -28,6 +29,7 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m06-finish-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/m06-finish-inspection.html >/dev/null
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
       - name: Verify and capture M06 finish panels
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
@@ -40,6 +42,23 @@ jobs:
           grep -q 'data-evidence-panels="bridge-contact,shore-contact,tree-variation-understory"' .m06-finish/dom.html
           timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1500,900 --virtual-time-budget=2600 --screenshot=.m06-finish/m06-finish-1500x900.png 'http://127.0.0.1:8140/m06-finish-inspection.html'
           test -s .m06-finish/m06-finish-1500x900.png
+      - name: Capture integrated representative and surrounding runtime positions
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --virtual-time-budget=800 --dump-dom 'http://127.0.0.1:8140/index.html?ci=1' > .m06-finish/runtime-route-dom.html 2>.m06-finish/runtime-route-stderr.log
+          grep -q 'data-m03-ci="pass"' .m06-finish/runtime-route-dom.html
+          grep -q 'data-m05-scene="ready"' .m06-finish/runtime-route-dom.html
+          grep -oE 'data-m03-route="[^"]*"' .m06-finish/runtime-route-dom.html > .m06-finish/runtime-route.txt
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=500 --screenshot=.m06-finish/runtime-representative-390x844.png 'http://127.0.0.1:8140/index.html'
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=900 --screenshot=.m06-finish/runtime-surrounding-r5-390x844.png 'http://127.0.0.1:8140/index.html?ci=1'
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          for p in ['.m06-finish/runtime-representative-390x844.png','.m06-finish/runtime-surrounding-r5-390x844.png']:
+              b=Path(p).read_bytes(); assert len(b)>15000 and b[:8]==b'\x89PNG\r\n\x1a\n'
+              assert struct.unpack('>II',b[16:24])==(390,844),(p,struct.unpack('>II',b[16:24]))
+              print(p,len(b))
+          PY
       - name: Upload M06 finish evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,9 +68,17 @@ jobs:
             .m06-finish/dom.html
             .m06-finish/chrome-stderr.log
             .m06-finish/m06-finish-1500x900.png
+            .m06-finish/runtime-route-dom.html
+            .m06-finish/runtime-route-stderr.log
+            .m06-finish/runtime-route.txt
+            .m06-finish/runtime-representative-390x844.png
+            .m06-finish/runtime-surrounding-r5-390x844.png
             /tmp/m06-finish-http.log
             prototypes/modern-3d/m06-finish-inspection.html
+            prototypes/modern-3d/index.html
             prototypes/modern-3d/assets.js
             prototypes/modern-3d/m04-bank-target-v4.js
             prototypes/modern-3d/m04-conifer-target-v31.js
+            assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
           retention-days: 14
