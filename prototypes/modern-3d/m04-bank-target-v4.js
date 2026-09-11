@@ -7,7 +7,8 @@ function shadows(root){root.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiv
 const grass=new THREE.MeshStandardMaterial({color:0x668947,roughness:.99,side:THREE.DoubleSide});
 const soil=new THREE.MeshStandardMaterial({color:0x514332,roughness:1});
 const moss=new THREE.MeshStandardMaterial({color:0x587941,roughness:1});
-const rockMats=[0x515b59,0x67706a,0x77776b,0x5e665f,0x6c7065].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.95}));
+const mossLight=new THREE.MeshStandardMaterial({color:0x719552,roughness:1});
+const rockMats=[0x625f56,0x756f61,0x857d6d,0x68665e,0x777365,0x595c57].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.97,metalness:0}));
 const fernMats=[0x315d2e,0x6f984b].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.98,side:THREE.DoubleSide}));
 
 function makeFernPatch(r,scale=.7,count=14){
@@ -25,7 +26,7 @@ function makeFernPatch(r,scale=.7,count=14){
 }
 
 function makeOrganicTop(r,seed,width,depth,facing){
-  const cols=18;
+  const cols=24;
   const vertices=[];
   const indices=[];
   for(let i=0;i<=cols;i++){
@@ -53,65 +54,77 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
   // Continuous irregular top surface. The front edge itself meanders, eliminating the prior block/slab silhouette.
   g.add(makeOrganicTop(r,seed,width,depth,facing));
 
-  // Broken cliff face: three staggered depth bands make an uneven natural terrace, not a straight retaining wall.
+  // v4.2: smoother, smaller overlapping rock terraces. Higher subdivision keeps the large silhouette organic without the prior giant low-poly crystal read.
   const bands=[
-    {z:depth*.5-.28,y:-.40,scale:.98},
-    {z:depth*.5-.55,y:-.90,scale:.78},
-    {z:depth*.5-.82,y:-1.30,scale:.58}
+    {z:depth*.5-.28,y:-.34,scale:.90},
+    {z:depth*.5-.53,y:-.76,scale:.72},
+    {z:depth*.5-.76,y:-1.13,scale:.54},
+    {z:depth*.5-.94,y:-1.42,scale:.38}
   ];
   bands.forEach((band,bi)=>{
-    const count=Math.max(8,Math.ceil(width/(bi===0?.78:1.02)));
+    const count=Math.max(10,Math.ceil(width/(bi===0?.62:.78)));
     for(let i=0;i<count;i++){
-      if(bi>0 && (i+bi)%4===1) continue;
+      if(bi>1 && (i+bi)%5===1) continue;
       const t=(i+.5)/count;
-      const x=-width*.5+t*width+(r()-.5)*.34;
+      const x=-width*.5+t*width+(r()-.5)*.30;
       const edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42+Math.sin(t*Math.PI*7+seed*.07)*.14;
-      const radius=(.46+r()*.34)*band.scale;
-      const geo=deform(new THREE.IcosahedronGeometry(radius,1),r,.30);
+      const radius=(.34+r()*.27)*band.scale;
+      const geo=deform(new THREE.IcosahedronGeometry(radius,2),r,.18);
       const rock=new THREE.Mesh(geo,rockMats[(i+bi+seed)%rockMats.length]);
-      rock.scale.set(1.08+r()*.46,.74+r()*.40,.84+r()*.42);
-      rock.position.set(x,band.y+(r()-.5)*.18,facing*(band.z+edgeWave)+(r()-.5)*.14);
-      rock.rotation.set((r()-.5)*.28,r()*Math.PI,(r()-.5)*.22);
+      rock.scale.set(1.12+r()*.38,.74+r()*.34,.86+r()*.34);
+      rock.position.set(x,band.y+(r()-.5)*.14,facing*(band.z+edgeWave)+(r()-.5)*.12);
+      rock.rotation.set((r()-.5)*.24,r()*Math.PI,(r()-.5)*.18);
       g.add(rock);
       if(bi===0 && i%2===0){
-        const cap=new THREE.Mesh(new THREE.SphereGeometry(radius*.66,8,5,0,Math.PI*2,0,Math.PI*.48),moss);
-        cap.scale.set(1.18,.24,.92);
-        cap.position.set(rock.position.x,rock.position.y+radius*.44,rock.position.z-facing*.06);
-        g.add(cap);
+        const cap=new THREE.Mesh(new THREE.SphereGeometry(radius*.72,12,7,0,Math.PI*2,0,Math.PI*.50),i%4===0?mossLight:moss);
+        cap.scale.set(1.16,.20,.94);
+        cap.position.set(rock.position.x,rock.position.y+radius*.43,rock.position.z-facing*.05);
+        cap.rotation.y=r()*Math.PI;g.add(cap);
       }
     }
   });
 
   // Soil pockets interrupt the rock rhythm and provide attachment zones for vegetation.
-  for(let i=0;i<6;i++){
-    const patch=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(.58+r()*.30,1),r,.26),soil);
-    patch.scale.set(1.35,.38,.70);
-    const t=(i+.5)/6;
+  for(let i=0;i<8;i++){
+    const patch=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(.44+r()*.22,2),r,.17),soil);
+    patch.scale.set(1.42,.30,.74);
+    const t=(i+.5)/8;
     const edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42;
-    patch.position.set(-width*.43+i*width*.172+(r()-.5)*.28,-.24-r()*.25,facing*(depth*.5-.32+edgeWave)+(r()-.5)*.26);
+    patch.position.set(-width*.45+i*width*.128+(r()-.5)*.24,-.20-r()*.22,facing*(depth*.5-.31+edgeWave)+(r()-.5)*.22);
     patch.rotation.y=r()*Math.PI;g.add(patch);
   }
 
   // Clustered lip plants follow the same irregular edge, leaving deliberate breathing gaps.
-  const clusters=Math.max(8,Math.ceil(width/1.18));
+  const clusters=Math.max(10,Math.ceil(width/.98));
   for(let i=0;i<clusters;i++){
-    if(i%5===3) continue;
+    if(i%6===4) continue;
     const t=i/Math.max(1,clusters-1);
     const edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42+Math.sin(t*Math.PI*7+seed*.07)*.14;
-    const fern=makeFernPatch(r,.50+r()*.30,12+(i%3)*3);
-    fern.position.set(-width*.45+t*width*.90+(r()-.5)*.28,.10+(r()-.5)*.07,facing*(depth*.5-.58+edgeWave));
+    const fern=makeFernPatch(r,.50+r()*.34,13+(i%3)*4);
+    fern.position.set(-width*.45+t*width*.90+(r()-.5)*.24,.10+(r()-.5)*.07,facing*(depth*.5-.55+edgeWave));
     fern.rotation.y=r()*Math.PI*2;g.add(fern);
   }
 
   // Embedded top stones visually connect cliff face and playable ground.
-  for(let i=0;i<9;i++){
-    const rad=.20+r()*.28;
-    const stone=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(rad,1),r,.27),rockMats[(i+seed)%rockMats.length]);
-    stone.scale.set(1.22,.58,1.02);
-    stone.position.set((r()-.5)*width*.82,.18+(r()-.5)*.04,(r()-.5)*depth*.52-facing*.70);
+  for(let i=0;i<13;i++){
+    const rad=.16+r()*.23;
+    const stone=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(rad,2),r,.16),rockMats[(i+seed)%rockMats.length]);
+    stone.scale.set(1.18,.56,1.04);
+    stone.position.set((r()-.5)*width*.84,.16+(r()-.5)*.04,(r()-.5)*depth*.54-facing*.64);
     stone.rotation.y=r()*Math.PI;g.add(stone);
   }
 
-  g.userData={assetId:'bank_target_v4',version:'4.1.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest-bank silhouette with staggered boulder terraces, soil pockets, moss and clustered fern lip'};
+  // Small moss/pebble breakup prevents a repeated boulder-wall rhythm at canonical portrait distance.
+  for(let i=0;i<18;i++){
+    const rad=.07+r()*.10;
+    const pebble=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(rad,1),r,.16),rockMats[(i+seed+2)%rockMats.length]);
+    const t=r();
+    const edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42;
+    pebble.scale.set(1.3,.55,1.0);
+    pebble.position.set(-width*.47+t*width*.94,.11+r()*.05,facing*(depth*.5-.50+edgeWave)+(r()-.5)*.32);
+    pebble.rotation.y=r()*Math.PI;g.add(pebble);
+  }
+
+  g.userData={assetId:'bank_target_v4',version:'4.2.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest-bank silhouette with smoother overlapping rock terraces, soil pockets, moss, pebble breakup and clustered fern lip'};
   return shadows(g);
 }
