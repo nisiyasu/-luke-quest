@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M04 Water Inspection</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101710;color:#fff;font-family:system-ui,sans-serif}canvas{display:block}#legend{position:fixed;left:14px;top:12px;background:#071019d9;border:1px solid #caa85f;border-radius:8px;padding:9px 12px;font-size:12px;z-index:3}#legend b{color:#f2d172}.col{display:inline-block;margin-right:22px}</style></head>
-<body><div id="legend"><span class="col"><b>LEFT</b> water_rich_v2</span><span class="col"><b>RIGHT</b> water_target_v3.1</span></div>
+<body><div id="legend"><span class="col"><b>LEFT</b> water_rich_v2</span><span class="col"><b>RIGHT</b> water_target_v3.2</span></div>
 <script type="module">
 import * as THREE from 'three';import {createRichWater} from './natural-assets.js';import {createTargetWaterV3} from './m04-water-target-v3.js';
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.06;document.body.prepend(renderer.domElement);
@@ -12,5 +12,5 @@ const current=createRichWater({width:12,depth:8});current.position.set(-7,0,0);s
 const divider=new THREE.Mesh(new THREE.BoxGeometry(.05,.04,15),new THREE.MeshBasicMaterial({color:0xcaa85f}));divider.position.y=.03;scene.add(divider);
 let start=performance.now();function tick(now){const t=(now-start)/1000;current.userData.update?.(t);candidate.userData.update?.(t);renderer.render(scene,camera);requestAnimationFrame(tick)}requestAnimationFrame(tick);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)},{passive:true});
-document.documentElement.dataset.m04WaterInspection='ready';document.documentElement.dataset.currentAsset='water_rich_v2@2.1.0';document.documentElement.dataset.candidateAsset='water_target_v3@3.1.0';
+document.documentElement.dataset.m04WaterInspection='ready';document.documentElement.dataset.currentAsset='water_rich_v2@2.1.0';document.documentElement.dataset.candidateAsset='water_target_v3@3.2.0';
 </script></body></html>
