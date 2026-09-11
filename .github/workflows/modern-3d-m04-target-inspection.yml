@@ -49,7 +49,7 @@ jobs:
           grep -q 'data-m04-bank-inspection="ready"' .m04-target/bank-dom.html
           grep -q 'data-current-asset="layered_bank_v2@2.1.0"' .m04-target/bank-dom.html
           grep -q 'data-previous-candidate="bank_target_v3@3.0.0"' .m04-target/bank-dom.html
-          grep -q 'data-candidate-asset="bank_target_v4@4.0.0"' .m04-target/bank-dom.html
+          grep -q 'data-candidate-asset="bank_target_v4@4.1.0"' .m04-target/bank-dom.html
           timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --window-size=1200,900 --virtual-time-budget=2200 \
