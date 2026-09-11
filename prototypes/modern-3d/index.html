@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>LUKE QUEST Modern 3D — M04 Target Assets v23</title>
+<title>LUKE QUEST Modern 3D — M04 Target Assets v24</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07130d;color:#fff;font-family:system-ui,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:10;background:linear-gradient(180deg,#071019e6,#0c1720c7);border:1px solid #d7b45f;border-radius:9px;box-shadow:0 3px 16px #0007}#status{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:11px}#status b,.objective b{color:#f0d177}.objective{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:10px;color:#f2ead4}.hp{margin-top:4px;width:72px;height:5px;border:1px solid #bfa65d;background:#18232a;border-radius:3px;overflow:hidden}.hp:after{content:"";display:block;width:82%;height:100%;background:#65c575}#loading{inset:0;display:grid;place-items:center;background:#07130d;z-index:40;position:fixed}#error{display:none;left:12px;right:12px;top:42%;padding:12px;color:#ffb9b9;border-color:#e06b6b}.dpad{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:118px;height:118px;z-index:20;opacity:.58}.move{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid #c5d0d2aa;background:#10242c73;color:#fff;font-size:17px}.up{left:37px;top:0}.down{left:37px;bottom:0}.left{left:0;top:37px}.right{right:0;top:37px}#hint{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:10;font-size:10px;padding:7px 9px;background:#071019b8;border:1px solid #d7b45f80;border-radius:8px}#ci-evidence{display:none}
@@ -18,8 +18,9 @@
 <script type="module">
 import * as THREE from 'three';
 import {createProductionBridge,createRockCluster,createLukeCharacter,createSign} from './assets.js';
-import {createNaturalConifer,createLayeredBank,createRichWater,createUnderstoryCluster,createMeadowField} from './natural-assets.js';
+import {createNaturalConifer,createRichWater,createUnderstoryCluster,createMeadowField} from './natural-assets.js';
 import {createTargetConifer,createTargetFernPatch} from './m04-target-assets.js';
+import {createTargetBankV4} from './m04-bank-target-v4.js';
 const stateEl=document.querySelector('#state'),loading=document.querySelector('#loading'),errorEl=document.querySelector('#error'),ciEvidence=document.querySelector('#ci-evidence');
 try{
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
@@ -30,7 +31,7 @@ scene.add(new THREE.HemisphereLight(0xe9f2e8,0x1a281e,1.12));
 const sun=new THREE.DirectionalLight(0xffd08a,3.6);sun.position.set(-14,34,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-26;sun.shadow.camera.right=26;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-.00022;sun.shadow.normalBias=.04;scene.add(sun);
 const floorMat=new THREE.MeshStandardMaterial({color:0x344931,roughness:1});
 const underlay=new THREE.Mesh(new THREE.PlaneGeometry(38,46),floorMat);underlay.rotation.x=-Math.PI/2;underlay.position.y=-.72;underlay.receiveShadow=true;scene.add(underlay);
-function bank(seed,width,depth,x,y,z,facing,ry=0){const b=createLayeredBank({seed,width,depth,facing});b.position.set(x,y,z);b.rotation.y=ry;scene.add(b);return b}
+function bank(seed,width,depth,x,y,z,facing,ry=0){const b=createTargetBankV4({seed,width,depth,facing});b.position.set(x,y,z);b.rotation.y=ry;scene.add(b);return b}
 bank(501,16,16,-8.8,1.0,-7.2,1,Math.PI/2);
 bank(509,14,13,-9.8,1.65,7.0,-1,Math.PI/2);
 bank(521,12,10,-4.8,2.2,-15.0,1,.08);
@@ -65,7 +66,7 @@ const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;sce
 const player=createLukeCharacter({scale:.92});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);
 const keys=new Set(),pointers=new Map();let last=performance.now(),blurRelease=false,resizes=0,blockedWater=0,blockedBounds=0,moving=false;
 const dirMap={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
-window.LQ_MODERN_3D_M05={ready:true,variant:'m04-target-assets-v23',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:6,compositionTrees:28,targetConifers:targetTreeIndices.size,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
+window.LQ_MODERN_3D_M05={ready:true,variant:'m04-target-assets-v24-bank-v41',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:6,compositionTrees:28,targetConifers:targetTreeIndices.size,targetBanks:6,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
 function releaseAll(){keys.clear();pointers.clear()}
 function onKey(e,on){const d=keyMap[e.code];if(!d)return;e.preventDefault();on?keys.add(d):keys.delete(d)}
 addEventListener('keydown',e=>onKey(e,true));addEventListener('keyup',e=>onKey(e,false));
@@ -81,7 +82,7 @@ const offset=new THREE.Vector3(2.8,30.0,19.2);
 function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-last)/1000,.05);last=now;stepMovement(dt);const sec=now/1000;waterMain.userData.update(sec);waterLower.userData.update(sec);waterUpperRight.userData.update(sec);player.userData.animate(sec,moving?1:.12);const target=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.7);camera.position.lerp(target.clone().add(offset),.06);camera.lookAt(target.x,target.y+.45,target.z);renderer.render(scene,camera)}
 function resize(){resizes++;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);window.LQ_MODERN_3D_M05.resizes=resizes}
 addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);requestAnimationFrame(tick);
-document.documentElement.dataset.lqModern3d='m05-ready';document.documentElement.dataset.threeRevision=THREE.REVISION;document.documentElement.dataset.m04Assets='target-v23-bounded';document.documentElement.dataset.m03Return='target-composition-v22';loading.remove();stateEl.textContent=`r${THREE.REVISION} · M04 target assets v23`;
+document.documentElement.dataset.lqModern3d='m05-ready';document.documentElement.dataset.threeRevision=THREE.REVISION;document.documentElement.dataset.m04Assets='target-v24-bank-v41';document.documentElement.dataset.m03Return='target-composition-v22';loading.remove();stateEl.textContent=`r${THREE.REVISION} · M04 target assets v24`;
 if(new URLSearchParams(location.search).get('ci')==='1'){
  const route=[];const snap=id=>route.push(`${id}:${player.position.x.toFixed(2)},${player.position.z.toFixed(2)}`);snap('R0');
  dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));for(let i=0;i<20;i++)stepMovement(.12);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));snap('R1');
@@ -93,7 +94,7 @@ if(new URLSearchParams(location.search).get('ci')==='1'){
  dispatchEvent(new Event('blur'));dispatchEvent(new Event('resize'));const released=blurRelease&&activeDirs().length===0&&resizes>=2;
  player.position.set(-1.35,1.04,-4.3);syncState();snap('R5');
  const noHole=walkable(player.position.x,player.position.z)&&walkable(-10,-12)&&walkable(-10,12),pass=crossedBridge&&blockedAtShore&&pointerMoved&&released&&noHole;
- document.documentElement.dataset.m02Ci='pass';document.documentElement.dataset.m03Ci=pass?'pass':'fail';document.documentElement.dataset.m05Scene=pass?'ready':'runtime-fail';document.documentElement.dataset.m05Variant='m04-target-assets-v23';
+ document.documentElement.dataset.m02Ci='pass';document.documentElement.dataset.m03Ci=pass?'pass':'fail';document.documentElement.dataset.m05Scene=pass?'ready':'runtime-fail';document.documentElement.dataset.m05Variant='m04-target-assets-v24-bank-v41';
  const routeText=route.join('|');document.documentElement.dataset.m03Route=routeText;window.LQ_MODERN_3D_M05.ci={crossedBridge,blockedAtShore,pointerMoved,released,noHole,route:routeText,pass};ciEvidence.textContent=JSON.stringify(window.LQ_MODERN_3D_M05.ci)
 }
 }catch(err){console.error(err);loading.remove();errorEl.style.display='block';errorEl.textContent='Modern 3D failed: '+String(err?.message||err);document.documentElement.dataset.lqModern3d='error'}
