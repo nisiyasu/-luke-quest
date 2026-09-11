@@ -29,17 +29,19 @@ jobs:
           test -s assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
           test -s assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
           test -s prototypes/modern-3d/natural-assets.js
+          test -s prototypes/modern-3d/asset-inspection.html
           python3 - <<'PY'
           import json
           d=json.load(open('prototypes/modern-3d/ASSET_MANIFEST.json',encoding='utf-8'))
           ids={x['id']:x for x in d['assets']}
-          required=['bridge_principal_v1','rock_cluster_v1','luke_player_v1','sign_v1','conifer_natural_v2','understory_cluster_v2','layered_bank_v2','water_rich_v2']
+          required=['bridge_principal_v1','rock_cluster_v1','luke_player_v1','sign_v1','conifer_natural_v2','understory_cluster_v2','meadow_field_v1','layered_bank_v2','water_rich_v2']
           for k in required: assert ids[k]['status']=='PRODUCTION_CANDIDATE',(k,ids[k]['status'])
           assert ids['conifer_family_v1']['superseded_by']=='conifer_natural_v2'
           assert ids['terrain_grass_cliff_v1']['superseded_by']=='layered_bank_v2'
           assert ids['water_river_v1']['superseded_by']=='water_rich_v2'
           print('M05_INPUT_AUTHORITY=PASS')
           print('M04_NATURAL_V2_MANIFEST=PASS')
+          print('M04_MEADOW_MANIFEST=PASS')
           PY
       - name: Start isolated server
         shell: bash
@@ -47,6 +49,20 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+          curl -fsS http://127.0.0.1:8140/asset-inspection.html >/dev/null
+      - name: Prove M04 natural asset inspection runtime
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          mkdir -p .modern3d
+          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --virtual-time-budget=3500 --dump-dom \
+            'http://127.0.0.1:8140/asset-inspection.html' > .modern3d/m04-inspection-dom.html 2>.modern3d/m04-inspection-stderr.log
+          grep -q 'data-m04-inspection="natural-v2-ready"' .modern3d/m04-inspection-dom.html
+          grep -q 'meadow_field_v1@1.0.0' .modern3d/m04-inspection-dom.html
+          ! grep -q 'data-m04-inspection="error"' .modern3d/m04-inspection-dom.html
       - name: Prove runtime traversal regressions and M05 integrated scene
         shell: bash
         run: |
@@ -102,6 +118,8 @@ jobs:
             echo '- M02 input regression: PASS'
             echo '- M03 traversal/collision regression: PASS'
             echo '- M04 natural-v2 production asset family manifest: PASS'
+            echo '- M04 natural-v2 shared-light inspection runtime: PASS'
+            echo '- M04 instanced meadow asset manifest/runtime: PASS'
             echo '- M04 production asset family integrated in actual game scene: PASS'
             echo '- canonical C1 390x844 running frame: CAPTURED'
             echo '- high-quality 864x1536 running frame: CAPTURED'
@@ -117,6 +135,8 @@ jobs:
         with:
           name: modern-3d-m05-${{ github.sha }}
           path: |
+            .modern3d/m04-inspection-dom.html
+            .modern3d/m04-inspection-stderr.log
             .modern3d/m05-dom.html
             .modern3d/m05-route.txt
             .modern3d/m05-c1-390x844.png
@@ -126,6 +146,7 @@ jobs:
             assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
             assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
             prototypes/modern-3d/index.html
+            prototypes/modern-3d/asset-inspection.html
             prototypes/modern-3d/assets.js
             prototypes/modern-3d/natural-assets.js
             prototypes/modern-3d/ASSET_MANIFEST.json
