@@ -66,6 +66,39 @@ function banks(ctx,m){
     });
   }
 }
+function organicShoreline(ctx,m){
+  /* Break perfect rectangular pools visually while retaining the exact logical water/collision grid. */
+  const moss='rgba(111,148,72,.96)',earth='rgba(88,83,54,.78)',shallow='rgba(86,174,183,.28)';
+  ctx.lineJoin='round';ctx.lineCap='round';
+  for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++)if(isWater(ch(m,x,y))){
+    const X=x*TS,Y=y*TS;
+    const sides=[['n',0,-1],['e',1,0],['s',0,1],['w',-1,0]];
+    for(const [side,dx,dy] of sides){
+      if(isWater(ch(m,x+dx,y+dy)))continue;
+      const seed=700+(dx+1)*19+(dy+1)*31;
+      const a=.18+h(x,y,seed)*.22,b=.58+h(x,y,seed+1)*.20;
+      const d1=3+h(x,y,seed+2)*5,d2=5+h(x,y,seed+3)*7,d3=2+h(x,y,seed+4)*5;
+      ctx.fillStyle=shallow;ctx.beginPath();
+      if(side==='n'){ctx.moveTo(X,Y+7);ctx.lineTo(X+TS,Y+7);ctx.lineTo(X+TS,Y+10+d3);ctx.quadraticCurveTo(X+TS*b,Y+5+d2,X+TS*a,Y+9+d1);ctx.lineTo(X,Y+10+d3)}
+      if(side==='s'){ctx.moveTo(X,Y+TS-7);ctx.lineTo(X+TS,Y+TS-7);ctx.lineTo(X+TS,Y+TS-10-d3);ctx.quadraticCurveTo(X+TS*b,Y+TS-5-d2,X+TS*a,Y+TS-9-d1);ctx.lineTo(X,Y+TS-10-d3)}
+      if(side==='w'){ctx.moveTo(X+7,Y);ctx.lineTo(X+7,Y+TS);ctx.lineTo(X+10+d3,Y+TS);ctx.quadraticCurveTo(X+5+d2,Y+TS*b,X+9+d1,Y+TS*a);ctx.lineTo(X+10+d3,Y)}
+      if(side==='e'){ctx.moveTo(X+TS-7,Y);ctx.lineTo(X+TS-7,Y+TS);ctx.lineTo(X+TS-10-d3,Y+TS);ctx.quadraticCurveTo(X+TS-5-d2,Y+TS*b,X+TS-9-d1,Y+TS*a);ctx.lineTo(X+TS-10-d3,Y)}
+      ctx.closePath();ctx.fill();
+      ctx.fillStyle=earth;ctx.beginPath();
+      if(side==='n'){ctx.moveTo(X,Y);ctx.lineTo(X+TS,Y);ctx.lineTo(X+TS,Y+4+d3*.45);ctx.quadraticCurveTo(X+TS*b,Y+2+d2*.55,X+TS*a,Y+4+d1*.55);ctx.lineTo(X,Y+4+d3*.45)}
+      if(side==='s'){ctx.moveTo(X,Y+TS);ctx.lineTo(X+TS,Y+TS);ctx.lineTo(X+TS,Y+TS-4-d3*.45);ctx.quadraticCurveTo(X+TS*b,Y+TS-2-d2*.55,X+TS*a,Y+TS-4-d1*.55);ctx.lineTo(X,Y+TS-4-d3*.45)}
+      if(side==='w'){ctx.moveTo(X,Y);ctx.lineTo(X,Y+TS);ctx.lineTo(X+4+d3*.45,Y+TS);ctx.quadraticCurveTo(X+2+d2*.55,Y+TS*b,X+4+d1*.55,Y+TS*a);ctx.lineTo(X+4+d3*.45,Y)}
+      if(side==='e'){ctx.moveTo(X+TS,Y);ctx.lineTo(X+TS,Y+TS);ctx.lineTo(X+TS-4-d3*.45,Y+TS);ctx.quadraticCurveTo(X+TS-2-d2*.55,Y+TS*b,X+TS-4-d1*.55,Y+TS*a);ctx.lineTo(X+TS-4-d3*.45,Y)}
+      ctx.closePath();ctx.fill();
+      ctx.strokeStyle=moss;ctx.lineWidth=1.8;ctx.beginPath();
+      if(side==='n'){ctx.moveTo(X,Y+2);ctx.quadraticCurveTo(X+TS*a,Y+4+d1*.55,X+TS*b,Y+2+d2*.55);ctx.lineTo(X+TS,Y+3+d3*.4)}
+      if(side==='s'){ctx.moveTo(X,Y+TS-2);ctx.quadraticCurveTo(X+TS*a,Y+TS-4-d1*.55,X+TS*b,Y+TS-2-d2*.55);ctx.lineTo(X+TS,Y+TS-3-d3*.4)}
+      if(side==='w'){ctx.moveTo(X+2,Y);ctx.quadraticCurveTo(X+4+d1*.55,Y+TS*a,X+2+d2*.55,Y+TS*b);ctx.lineTo(X+3+d3*.4,Y+TS)}
+      if(side==='e'){ctx.moveTo(X+TS-2,Y);ctx.quadraticCurveTo(X+TS-4-d1*.55,Y+TS*a,X+TS-2-d2*.55,Y+TS*b);ctx.lineTo(X+TS-3-d3*.4,Y+TS)}
+      ctx.stroke();
+    }
+  }
+}
 function boundaryCliffs(ctx,m){
   for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
     const c=ch(m,x,y);if(!isCliff(c))continue;const X=x*TS,Y=y*TS;
@@ -146,10 +179,10 @@ function waterDetails(ctx,m){
 }
 function refine(){
   if(s.screen!=='world'||s.map!=='field')return;const worldEl=app.querySelector('.lqReq149FieldCanvasWorld');const canvas=worldEl&&worldEl.querySelector('.lqReq149FieldCanvas');if(!canvas)return;
-  if(canvas.dataset.req149V04c==='2')return;const ctx=canvas.getContext('2d',{alpha:false}),m=MAPS.field;
-  repaintWater(ctx,m);banks(ctx,m);boundaryCliffs(ctx,m);unifyCliffRuns(ctx,m);waterDetails(ctx,m);canvas.dataset.req149V04c='2';
-  document.body.dataset.req149FieldRenderer='canvas-prototype-c2';
+  if(canvas.dataset.req149V04c==='3')return;const ctx=canvas.getContext('2d',{alpha:false}),m=MAPS.field;
+  repaintWater(ctx,m);banks(ctx,m);organicShoreline(ctx,m);boundaryCliffs(ctx,m);unifyCliffRuns(ctx,m);waterDetails(ctx,m);canvas.dataset.req149V04c='3';
+  document.body.dataset.req149FieldRenderer='canvas-prototype-c3';
 }
 const renderBase=render;render=function(){const r=renderBase();refine();return r};if(s.screen==='world')refine();
-window.LQ_REQ149_V04C_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-C2',presentationOnly:true,collisionChanged:false,broadRollout:false,continuousCliffRuns:true};
+window.LQ_REQ149_V04C_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-C3',presentationOnly:true,collisionChanged:false,broadRollout:false,continuousCliffRuns:true,organicShoreline:true};
 })();
