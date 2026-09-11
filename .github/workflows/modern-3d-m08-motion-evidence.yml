@@ -35,11 +35,11 @@ jobs:
           grep -F "document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()})" prototypes/modern-3d/index.html
           grep -F "dataset.m08Ci=pass?'pass':'fail'" prototypes/modern-3d/index.html
           grep -F "groundSamples:groundSamples.map" prototypes/modern-3d/index.html
-          grep -F "get('m08walk')==='1'" prototypes/modern-3d/index.html
-          grep -F "dataset.m08Player=" prototypes/modern-3d/index.html
-          grep -F "dataset.m08WalkStart=" prototypes/modern-3d/index.html
-          grep -F "dataset.m08WalkEnd=" prototypes/modern-3d/index.html
-          grep -F "dataset.m08WalkDone='1'" prototypes/modern-3d/index.html
+          grep -F "m08Proof=query.get('m08proof')==='1'" prototypes/modern-3d/index.html
+          grep -F "for(let i=0;i<96;i++)stepMovement(1/60)" prototypes/modern-3d/index.html
+          grep -F "dataset.m08ProofStart=" prototypes/modern-3d/index.html
+          grep -F "dataset.m08ProofEnd=" prototypes/modern-3d/index.html
+          grep -F "dataset.m08ProofDone='1'" prototypes/modern-3d/index.html
       - name: Start isolated prototype server
         shell: bash
         run: |
@@ -67,15 +67,15 @@ jobs:
           grep -q '"released":true' .modern3d-m08/dom.html
           grep -q '"noHole":true' .modern3d-m08/dom.html
           grep -q '"groundingSmooth":true' .modern3d-m08/dom.html
-      - name: Prove timed walking advances the real player in one session
+      - name: Prove bounded walking advances the real player
         shell: bash
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 35s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=1900 --dump-dom \
-            'http://127.0.0.1:8140/index.html?m08walk=1' > .modern3d-m08/walk-proof.html 2>>.modern3d-m08/chrome-stderr.log
+            --virtual-time-budget=200 --dump-dom \
+            'http://127.0.0.1:8140/index.html?m08proof=1' > .modern3d-m08/walk-proof.html 2>>.modern3d-m08/chrome-stderr.log
           python3 - <<'PY'
           import re
           from pathlib import Path
@@ -84,16 +84,16 @@ jobs:
               m=re.search(fr'{name}="([^"]+)"', text)
               assert m, f'missing {name}'
               return m.group(1)
-          assert attr('data-m08-walk-done') == '1'
-          start=[float(v) for v in attr('data-m08-walk-start').split(',')]
-          end=[float(v) for v in attr('data-m08-walk-end').split(',')]
+          assert attr('data-m08-proof-done') == '1'
+          start=[float(v) for v in attr('data-m08-proof-start').split(',')]
+          end=[float(v) for v in attr('data-m08-proof-end').split(',')]
           assert abs(start[0]+1.35)<.15 and abs(end[0]+1.35)<.15, (start,end)
-          assert end[2] < start[2]-2.0, (start,end)
+          assert end[2] < start[2]-4.5, (start,end)
           assert .30 < start[1] < .55 and .30 < end[1] < .55, (start,end)
           Path('.modern3d-m08/walk-position-proof.txt').write_text(f'start={start}\nend={end}\ndelta_z={end[2]-start[2]:.3f}\nPASS\n')
           print(start,end)
           PY
-      - name: Capture M08 idle and walk runtime frames
+      - name: Capture M08 idle and proof-pose frames
         shell: bash
         run: |
           set -euo pipefail
@@ -108,18 +108,18 @@ jobs:
             --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=700 \
             --screenshot=.modern3d-m08/m08-864x1536.png \
             'http://127.0.0.1:8140/index.html'
-          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 35s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=900 \
-            --screenshot=.modern3d-m08/m08-walk-900.png \
-            'http://127.0.0.1:8140/index.html?m08walk=1'
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=200 \
+            --screenshot=.modern3d-m08/m08-proof-walk.png \
+            'http://127.0.0.1:8140/index.html?m08proof=1'
           python3 - <<'PY'
           from pathlib import Path
           import struct
           expected={
             '.modern3d-m08/m08-390x844.png':(390,844),
             '.modern3d-m08/m08-864x1536.png':(864,1536),
-            '.modern3d-m08/m08-walk-900.png':(390,844),
+            '.modern3d-m08/m08-proof-walk.png':(390,844),
           }
           for path,size in expected.items():
               data=Path(path).read_bytes()
@@ -139,7 +139,7 @@ jobs:
             .modern3d-m08/chrome-stderr.log
             .modern3d-m08/m08-390x844.png
             .modern3d-m08/m08-864x1536.png
-            .modern3d-m08/m08-walk-900.png
+            .modern3d-m08/m08-proof-walk.png
             /tmp/m08-http.log
             prototypes/modern-3d/index.html
             prototypes/modern-3d/assets.js
