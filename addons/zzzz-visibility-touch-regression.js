@@ -35,6 +35,8 @@ function shellPoint(shell){
   return {x:r.left+Math.max(96,Math.min(r.width*.56,r.width-96)),y:r.top+Math.max(150,Math.min(r.height*.58,r.height-150))};
 }
 
+function livePad(){return document.getElementById('lq-floating-touch-controller');}
+
 function run(){
   const snapshot=structuredClone(s);
   const originalAction=action;
@@ -53,8 +55,8 @@ function run(){
     render();
 
     const shell=document.querySelector('.gameShell');
-    const pad=document.getElementById('lq-floating-touch-controller');
-    if(!shell||!pad)throw new Error('visibilitychange smoke shell/pad missing');
+    const initialPad=livePad();
+    if(!shell||!initialPad)throw new Error('visibilitychange smoke shell/pad missing');
     const p=shellPoint(shell);
     const startX=s.x,startY=s.y;
 
@@ -62,11 +64,16 @@ function run(){
     dispatchPointer('pointermove',window,780,p.x+72,p.y+2);
 
     // Give continuous movement one cadence to prove that the gesture really owns
-    // movement before visibilitychange revokes it. A synchronous coordinate check
-    // is timing-dependent and can false-fail even when direction ownership is valid.
+    // movement before visibilitychange revokes it. Movement can call render(), and
+    // render() is allowed to rebuild the controller DOM. Therefore every assertion
+    // below intentionally re-queries the live controller instead of inspecting the
+    // pre-move node reference. This preserves the strict assertion while making the
+    // probe exercise the same rerender-safe contract required in production.
     setTimeout(()=>{
       try{
-        const activeBefore=pad.classList.contains('visible')&&!!pad.querySelector('.lqFloatArrow.right.active');
+        const padBefore=livePad();
+        if(!padBefore)throw new Error('visibilitychange smoke live pad missing before hide');
+        const activeBefore=padBefore.classList.contains('visible')&&!!padBefore.querySelector('.lqFloatArrow.right.active');
         const movedBefore=s.x>startX||s.y!==startY;
 
         Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});
@@ -74,8 +81,10 @@ function run(){
         hiddenOverrideInstalled=true;
         document.dispatchEvent(new Event('visibilitychange'));
 
-        const hiddenAfter=!pad.classList.contains('visible');
-        const directionCleared=!pad.querySelector('.lqFloatArrow.active');
+        const padAfter=livePad();
+        if(!padAfter)throw new Error('visibilitychange smoke live pad missing after hide');
+        const hiddenAfter=!padAfter.classList.contains('visible');
+        const directionCleared=!padAfter.querySelector('.lqFloatArrow.active');
         const timerCleared=!window.__lqFloatFallbackTimer;
         const stoppedAtX=s.x,stoppedAtY=s.y;
 
@@ -109,6 +118,7 @@ function run(){
           }
         },180);
       }catch(err){
+        fail(err&&err.message);
         throw err;
       }
     },180);
