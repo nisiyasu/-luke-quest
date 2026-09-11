@@ -60,7 +60,7 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
         const d=len*(.22+p*(.56/Math.max(1,pads-1))),side=(p%2?1:-1),mat=(lv+i+p+family)%4;
         fanData[mat].push({
           x:Math.cos(a)*d+Math.cos(a+Math.PI/2)*side*(.07+r()*.035)*scale,
-          y:y-(.025+p*.017)*scale-d*drop,
+          y:y-(.025+p*.017)*scale-d*droop,
           z:Math.sin(a)*d+Math.sin(a+Math.PI/2)*side*(.07+r()*.035)*scale,
           rx:-.29-(1-n)*.11-r()*.10,
           ry:-a+Math.PI/2+(r()-.5)*.15,
@@ -110,6 +110,6 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
   }
 
   root.rotation.y=r()*Math.PI*2;
-  root.userData={assetId:'conifer_target_v31',version:'3.2.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',rendering:'instanced-overlapping-fans',variationFamily:family,intent:'seed-driven mature conifer families with varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail to suppress obvious repetition'};
+  root.userData={assetId:'conifer_target_v31',version:'3.2.1',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',rendering:'instanced-overlapping-fans',variationFamily:family,intent:'seed-driven mature conifer families with varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail to suppress obvious repetition'};
   return shadow(root);
 }
