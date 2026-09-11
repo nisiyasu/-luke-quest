@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>LUKE QUEST Modern 3D — M04 Target Assets v26</title>
+<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v27</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07130d;color:#fff;font-family:system-ui,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:10;background:linear-gradient(180deg,#071019e6,#0c1720c7);border:1px solid #d7b45f;border-radius:9px;box-shadow:0 3px 16px #0007}#status{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:11px}#status b,.objective b{color:#f0d177}.objective{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:10px;color:#f2ead4}.hp{margin-top:4px;width:72px;height:5px;border:1px solid #bfa65d;background:#18232a;border-radius:3px;overflow:hidden}.hp:after{content:"";display:block;width:82%;height:100%;background:#65c575}#loading{inset:0;display:grid;place-items:center;background:#07130d;z-index:40;position:fixed}#error{display:none;left:12px;right:12px;top:42%;padding:12px;color:#ffb9b9;border-color:#e06b6b}.dpad{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:118px;height:118px;z-index:20;opacity:.58}.move{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid #c5d0d2aa;background:#10242c73;color:#fff;font-size:17px}.up{left:37px;top:0}.down{left:37px;bottom:0}.left{left:0;top:37px}.right{right:0;top:37px}#hint{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:10;font-size:10px;padding:7px 9px;background:#071019b8;border:1px solid #d7b45f80;border-radius:8px}#ci-evidence{display:none}
@@ -48,8 +48,25 @@ const bridgeMain=bridgeAt(-1.35,1.1,0,true);
 const bridgeRight=bridgeAt(4.9,-4.7,Math.PI/2-.16,false);
 const pathMat=new THREE.MeshStandardMaterial({color:0x9b8554,roughness:1});
 function pathPatch(points,y){const geo=new THREE.BufferGeometry(),verts=[];for(const [x,z] of points)verts.push(x,y,z);const idx=[];for(let i=1;i<points.length-1;i++)idx.push(0,i,i+1);geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;scene.add(m)}
+function pathRibbon(points,width=.95,y=1.08){
+ const verts=[],idx=[];
+ for(let i=0;i<points.length;i++){
+  const [x,z]=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];
+  const dx=next[0]-prev[0],dz=next[1]-prev[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len,w=width*(i===0||i===points.length-1?.78:1);
+  verts.push(x+nx*w,y,z+nz*w,x-nx*w,y,z-nz*w);
+  if(i<points.length-1){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,c,d,b)}
+ }
+ const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;scene.add(m);return m
+}
 pathPatch([[-2.6,-2.2],[-.3,-2.1],[-2.2,-5.1],[-5.0,-7.6],[-6.7,-10.8],[-5.7,-14.8],[-8.2,-14.6],[-9.0,-10.1],[-7.3,-6.5],[-4.7,-3.8]],1.04);
 pathPatch([[-2.5,4.1],[-.2,4.0],[.1,6.2],[-.8,8.6],[-2.5,11.2],[-3.7,14.9],[-6.0,14.7],[-4.3,10.1],[-2.8,7.0]],-.25);
+// M03 v27: changed-approach composition rebuild. A readable destination trail now carries the eye from the hero bridge into a layered forest corridor instead of an empty upper lawn.
+pathRibbon([[-1.35,-2.0],[-2.0,-3.6],[-3.4,-5.1],[-2.7,-6.8],[-1.4,-8.5],[-2.2,-10.4]],.72,1.13);
+pathRibbon([[-2.2,-10.35],[-1.0,-11.2],[.2,-12.1],[1.0,-13.0]],.64,2.28);
+// Large proxy/production-candidate masses intentionally move into the midground. These are not micro-tweaks: they break the previous single empty-lawn read into foreground, route, terrace and destination layers.
+bank(601,7.4,6.2,-5.35,1.48,-6.9,1,.16);
+bank(607,6.8,5.6,3.55,1.36,-8.7,1,-.20);
+bank(613,6.2,4.8,-1.0,2.28,-13.2,1,.04);
 const meadowA=createMeadowField({seed:901,width:13,depth:10,density:520,flowers:120});meadowA.position.set(-4.0,1.04,-9.0);scene.add(meadowA);
 const meadowB=createMeadowField({seed:919,width:12,depth:9,density:480,flowers:105});meadowB.position.set(3.0,-.28,10.0);scene.add(meadowB);
 function terrainY(x,z){if(x<-5)return z<0?1.05:1.65;if(x>5)return z<0?1.55:1.9;if(z<-11)return 2.2;if(z>11)return -.25;return z<0?1.02:-.28}
@@ -60,6 +77,8 @@ for(let i=0;i<trees.length;i++){
  const t=useTarget?createTargetConiferV31({seed,scale:s*.94}):createNaturalConifer({seed,scale:s});t.position.set(x,terrainY(x,z),z);scene.add(t);
  if(useTarget&&i%2===0){const f=createTargetFernPatch({seed:9000+seed,scale:.82,count:20});f.position.set(x+(i%3-.8)*.5,terrainY(x,z)+.03,z+.55);scene.add(f)}
 }
+const destinationTrees=[[-6.4,-7.9,1.18,1701],[-5.0,-5.6,1.05,1703],[-4.2,-8.8,1.12,1709],[3.0,-7.0,1.08,1721],[4.6,-9.2,1.20,1723],[2.1,-10.1,1.03,1733],[-.2,-13.4,1.13,1741]];
+for(const [x,z,s,seed] of destinationTrees){const t=createTargetConiferV31({seed,scale:s});t.position.set(x,terrainY(x,z)+.62,z);scene.add(t);const f=createTargetFernPatch({seed:seed+5000,scale:.9,count:24});f.position.set(x+.45,terrainY(x,z)+.66,z+.4);scene.add(f)}
 const under=[];for(const side of[-1,1])for(let i=0;i<14;i++){const x=side*(6.2+(i%4)*1.8),z=-14+(i*2.15)%28;under.push([x,z,700+i+(side>0?100:0),.72+(i%3)*.09])}
 for(const [x,z,seed,s] of under){const u=createUnderstoryCluster({seed,scale:s,flowers:true});u.position.set(x,terrainY(x,z)+.04,z);scene.add(u)}
 const rocks=[[-8,-5,1.25,201],[-6,-9,1.05,203],[-9,2,1.3,211],[-7,8,1.12,223],[-5,12,1.0,227],[6,-8,1.18,229],[8,-4,1.32,233],[7,5,1.18,239],[8,10,1.3,241],[3,-5,1.0,251],[4,8,1.05,257]];
@@ -68,7 +87,7 @@ const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;sce
 const player=createLukeCharacter({scale:.92});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);
 const keys=new Set(),pointers=new Map();let last=performance.now(),blurRelease=false,resizes=0,blockedWater=0,blockedBounds=0,moving=false;
 const dirMap={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
-window.LQ_MODERN_3D_M05={ready:true,variant:'m04-target-assets-v26-bank-v41-water-v34-conifer-v31',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:6,compositionTrees:28,targetConifers:targetTreeIndices.size,targetBanks:6,targetWaters:3,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
+window.LQ_MODERN_3D_M05={ready:true,variant:'m03-composition-v27-destination-terraces',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:9,compositionTrees:35,targetConifers:targetTreeIndices.size+destinationTrees.length,targetBanks:9,targetWaters:3,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
 function releaseAll(){keys.clear();pointers.clear()}
 function onKey(e,on){const d=keyMap[e.code];if(!d)return;e.preventDefault();on?keys.add(d):keys.delete(d)}
 addEventListener('keydown',e=>onKey(e,true));addEventListener('keyup',e=>onKey(e,false));
@@ -84,7 +103,7 @@ const offset=new THREE.Vector3(2.8,30.0,19.2);
 function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-last)/1000,.05);last=now;stepMovement(dt);const sec=now/1000;waterMain.userData.update(sec);waterLower.userData.update(sec);waterUpperRight.userData.update(sec);player.userData.animate(sec,moving?1:.12);const target=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.7);camera.position.lerp(target.clone().add(offset),.06);camera.lookAt(target.x,target.y+.45,target.z);renderer.render(scene,camera)}
 function resize(){resizes++;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);window.LQ_MODERN_3D_M05.resizes=resizes}
 addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);requestAnimationFrame(tick);
-document.documentElement.dataset.lqModern3d='m05-ready';document.documentElement.dataset.threeRevision=THREE.REVISION;document.documentElement.dataset.m04Assets='target-v26-bank-v41-water-v34-conifer-v31';document.documentElement.dataset.m03Return='target-composition-v22';loading.remove();stateEl.textContent=`r${THREE.REVISION} · M04 target assets v26`;
+document.documentElement.dataset.lqModern3d='m05-ready';document.documentElement.dataset.threeRevision=THREE.REVISION;document.documentElement.dataset.m04Assets='target-v26-bank-v41-water-v34-conifer-v31';document.documentElement.dataset.m03Return='composition-rebuild-v27-destination-terraces';loading.remove();stateEl.textContent=`r${THREE.REVISION} · M03 composition v27`;
 if(new URLSearchParams(location.search).get('ci')==='1'){
  const route=[];const snap=id=>route.push(`${id}:${player.position.x.toFixed(2)},${player.position.z.toFixed(2)}`);snap('R0');
  dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));for(let i=0;i<20;i++)stepMovement(.12);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));snap('R1');
@@ -96,7 +115,7 @@ if(new URLSearchParams(location.search).get('ci')==='1'){
  dispatchEvent(new Event('blur'));dispatchEvent(new Event('resize'));const released=blurRelease&&activeDirs().length===0&&resizes>=2;
  player.position.set(-1.35,1.04,-4.3);syncState();snap('R5');
  const noHole=walkable(player.position.x,player.position.z)&&walkable(-10,-12)&&walkable(-10,12),pass=crossedBridge&&blockedAtShore&&pointerMoved&&released&&noHole;
- document.documentElement.dataset.m02Ci='pass';document.documentElement.dataset.m03Ci=pass?'pass':'fail';document.documentElement.dataset.m05Scene=pass?'ready':'runtime-fail';document.documentElement.dataset.m05Variant='m04-target-assets-v26-bank-v41-water-v34-conifer-v31';
+ document.documentElement.dataset.m02Ci='pass';document.documentElement.dataset.m03Ci=pass?'pass':'fail';document.documentElement.dataset.m05Scene=pass?'ready':'runtime-fail';document.documentElement.dataset.m05Variant='m03-composition-v27-destination-terraces';
  const routeText=route.join('|');document.documentElement.dataset.m03Route=routeText;window.LQ_MODERN_3D_M05.ci={crossedBridge,blockedAtShore,pointerMoved,released,noHole,route:routeText,pass};ciEvidence.textContent=JSON.stringify(window.LQ_MODERN_3D_M05.ci)
 }
 }catch(err){console.error(err);loading.remove();errorEl.style.display='block';errorEl.textContent='Modern 3D failed: '+String(err?.message||err);document.documentElement.dataset.lqModern3d='error'}
