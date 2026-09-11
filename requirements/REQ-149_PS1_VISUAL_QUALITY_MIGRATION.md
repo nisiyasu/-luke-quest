@@ -10,9 +10,11 @@ EXECUTION_ISSUES: #6 #7 #8 #9 #10 #11
 
 ## Owner intent
 
-LUKE QUESTの現状画面を `CURRENT_BAD.png` として保全し、`TARGET_PS1.png` を「良い例 / 到達品質」として、実際に歩けるゲームを初期PlayStation時代の商用2D JRPG相当の知覚品質へ段階的に引き上げる。
+LUKE QUESTの現状画面を `CURRENT_BAD.png` として保全し、`MINIMUM_QUALITY_LINE.png` を最低合格ライン、`TARGET_PS1_FINAL.png` を本命の到達品質として、実際に歩けるゲームの知覚品質を段階的に引き上げる。
 
 これは「少し綺麗なDOM/CSSゲーム」を作る要件ではない。Ownerが指摘した差は小物・影・樽・ベンチ等の局所装飾ではなく、地形・素材・レイヤー・奥行き・水・橋・樹木・人物・HUDを含む画面生成方式の品質差である。
+
+`MINIMUM_QUALITY_LINE.png` に届くことは最終完成ではない。そこを最低線として超えた上で、`TARGET_PS1_FINAL.png` との差を実質的に縮め続ける。
 
 ## Canonical visual references
 
@@ -20,14 +22,20 @@ Folder:
 `assets/reference/owner_2026-09-11_ps1_visual_target/`
 
 - `CURRENT_BAD.png` = current / bad example / before reference only
-- `TARGET_PS1.png` = good example / target quality benchmark
+- `MINIMUM_QUALITY_LINE.png` = minimum acceptable visual-quality floor
+- `TARGET_PS1_FINAL.png` = primary Owner-approved final visual target
 - `README.md` = interpretation contract
 
 Mandatory comparison:
 
-`CURRENT_BAD -> candidate build -> TARGET_PS1`
+`CURRENT_BAD -> candidate build -> MINIMUM_QUALITY_LINE -> TARGET_PS1_FINAL`
 
-`CURRENT_BAD` より少し良いだけではPASSしない。`TARGET_PS1` との差が実質的に縮まったことを、実ゲームの同一領域で確認する。
+判定は二段階とする。
+
+1. candidateが `MINIMUM_QUALITY_LINE` を少なくとも満たす / 超えるか。
+2. candidateが `TARGET_PS1_FINAL` との差を実質的に縮めているか。
+
+`CURRENT_BAD` より少し良いだけではPASSしない。最低ラインへ到達しただけでも最終完成にはしない。
 
 ## Scope
 
@@ -71,7 +79,7 @@ Mandatory comparison:
 
 第一候補は既存ゲームロジックを保持し、presentation / renderer側を段階的に置換する。
 
-DOM/CSSを維持すること自体は目的ではない。V00〜V04の証拠で、現行DOM/CSS方式が `TARGET_PS1` の地形・レイヤー・素材・性能を効率よく達成できないと判明した場合、Canvas等の描画方式への段階的移行を許可する。
+DOM/CSSを維持すること自体は目的ではない。V00〜V04の証拠で、現行DOM/CSS方式が `TARGET_PS1_FINAL` の地形・レイヤー・素材・性能を効率よく達成できないと判明した場合、Canvas / WebGL等の描画方式への段階的移行を許可する。
 
 ただし無証拠の全面rewriteは禁止。既存story/state/input/battle/saveを再利用し、rendererだけを安全checkpoint単位で交換する。
 
@@ -86,7 +94,7 @@ DOM/CSSを維持すること自体は目的ではない。V00〜V04の証拠で�
 PASS: 同条件を再現でき、開始状態へ戻せる。
 
 ### V01 — Target specification
-`TARGET_PS1.png` を grass / cliff / shore / water / bridge / conifer / foliage / rocks / signs / player / HUD / light / depth / scene density に分解し、見て判定できる条件へ変換する。
+`MINIMUM_QUALITY_LINE.png` と `TARGET_PS1_FINAL.png` を grass / cliff / shore / water / bridge / conifer / foliage / rocks / signs / player / HUD / light / depth / scene density に分解し、最低線と本命到達点を見て判定できる条件へ変換する。
 
 PASS: 「豪華」「PS1っぽい」だけではない具体的なvisual acceptanceがある。
 
@@ -103,7 +111,7 @@ PASS: scale / origin / transparency / view / light direction / pixel densityが�
 ### V04 — Small playable quality gate
 草・崖・水・橋・木・Lukeが同時に見える小区画を実ゲームへ実装し、歩行・同構図比較を行う。
 
-PASS: `TARGET_PS1` 方向へ質感・立体感・scale・scene coherenceが揃う。
+PASSには最低でも `MINIMUM_QUALITY_LINE` 相当を満たし、かつ `TARGET_PS1_FINAL` 方向へ質感・立体感・scale・scene coherenceが明確に揃っていることを要求する。
 
 **V04未合格の素材・方式を全域へ量産してはならない。**
 
@@ -128,11 +136,13 @@ V05〜V14の詳細acceptanceはIssue #8〜#11をcanonical execution decompositio
 - 木・樽・ベンチ等の小物を増やしただけ
 - shadow/filterを増やしただけ
 - `CURRENT_BAD` より少し綺麗になっただけ
+- `MINIMUM_QUALITY_LINE` を下回る
+- 最低ラインへ届いただけで本命targetとの差を無視する
 - generated imageを保存しただけ
 - background一枚絵としてTARGETを貼っただけ
 - CI greenだけ
 
-実際のplayable areaで `CURRENT_BAD -> candidate -> TARGET_PS1` を比較し、candidateが目標方向へ構造的に近づいている必要がある。
+実際のplayable areaで `CURRENT_BAD -> candidate -> MINIMUM_QUALITY_LINE -> TARGET_PS1_FINAL` を比較し、candidateが最低線を超え、本命target方向へ構造的に近づいている必要がある。
 
 ## Player-visible completion
 
@@ -161,6 +171,7 @@ V05〜V14の詳細acceptanceはIssue #8〜#11をcanonical execution decompositio
 - CI greenだけでOwner experience pass
 - WebKit automationだけでphysical iPhone pass
 - mainより少し改善だけでTARGET reached
+- `MINIMUM_QUALITY_LINE` 到達だけで `TARGET_PS1_FINAL` reached扱い
 - CURRENT更新だけで進捗完了
 - 本要件完了を理由に自動main merge
 
@@ -172,7 +183,8 @@ STATUS: NOT_STARTED | IN_PROGRESS | BLOCKED | VERIFY | DONE
 BASE_SHA:
 RESULT_SHA:
 CURRENT_BAD_IMAGE: assets/reference/owner_2026-09-11_ps1_visual_target/CURRENT_BAD.png
-TARGET_IMAGE: assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1.png
+MINIMUM_QUALITY_IMAGE: assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+TARGET_IMAGE: assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
 ACTIVE_STAGE:
 CHANGED_FILES:
 ASSET_VERSIONS:
@@ -192,4 +204,4 @@ IOS_PHYSICAL_VERIFICATION: PENDING
 
 ## Current execution start
 
-Begin with Issue #6 / FIELD-V00_V02. Do not stop at planning. After V00〜V02 evidence is persisted, continue directly into V03 unless a true blocker prevents safe work.
+Continue from fresh HEAD / CURRENT reality. Do not stop at planning. Preserve V04 as the quality gate until the minimum line is met and the final-target gap is materially closing; do not broaden V05〜V12 merely because functional CI is green.
