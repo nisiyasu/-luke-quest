@@ -4,6 +4,7 @@ if(typeof location==='undefined'||!new URLSearchParams(location.search).has('lqR
 function marker(data){let el=document.getElementById('lqReq147SmokeMarker');if(!el){el=document.createElement('i');el.id='lqReq147SmokeMarker';el.hidden=true;document.documentElement.appendChild(el);}Object.entries(data).forEach(([k,v])=>el.dataset[k]=String(v));return el;}
 function fail(reason){console.error('REQ-147 smoke FAIL',reason);marker({pass:false,reason});}
 function settle(ms=80){return new Promise(r=>setTimeout(r,ms));}
+function columnCount(el){return el?getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length:0;}
 async function run(){
  const snapshot=structuredClone(s);
  try{
@@ -15,8 +16,13 @@ async function run(){
   battle();
   await settle();
   const commandRows=[...document.querySelectorAll('#app .lqReq147BattleCommandGrid')];
-  const rowColumns=commandRows.map(row=>getComputedStyle(row).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length);
-  const twoColumnCommands=commandRows.length>=2&&commandRows.every((row,i)=>rowColumns[i]===2&&[...row.children].filter(el=>el.matches('button,.btn')).length===2);
+  const rowColumns=commandRows.map(columnCount);
+  const pairedRowsPass=commandRows.length>=2&&commandRows.every((row,i)=>rowColumns[i]===2&&[...row.children].filter(el=>el.matches('button,.btn')).length===2);
+  const commandStacks=[...document.querySelectorAll('#app .lqReq147BattleCommandStack')];
+  const stackColumns=commandStacks.map(columnCount);
+  const stackButtonCounts=commandStacks.map(stack=>[...stack.querySelectorAll(':scope>.lqReq147BattleCommandRow>button,:scope>.lqReq147BattleCommandRow>.btn')].length);
+  const flattenedStackPass=commandStacks.length>=1&&commandStacks.some((stack,i)=>stackColumns[i]===2&&stackButtonCounts[i]>=4);
+  const twoColumnCommands=pairedRowsPass||flattenedStackPass;
   win();
   await settle(120);
   const victoryDialog=document.querySelector('#lqVictoryBattleFrame .dialogBox[aria-label="戦闘勝利"]');
@@ -33,7 +39,7 @@ async function run(){
   const victoryStateGone=s.dialog!==victoryState;
   const oneDismissClean=victoryGone&&battleFrameGone&&victoryStateGone&&s.screen==='world';
   const pass=twoColumnCommands&&noSeparateOverlay&&battleContext&&lukeComment&&dialogBeforeDismiss&&oneDismissClean;
-  marker({pass,twoColumnCommands,commandRows:commandRows.length,rowColumns:rowColumns.join(','),noSeparateOverlay,battleContext,lukeComment,dialogBeforeDismiss,victoryGone,battleFrameGone,victoryStateGone,oneDismissClean,screenAfterDismiss:s.screen||''});
+  marker({pass,twoColumnCommands,pairedRowsPass,flattenedStackPass,commandRows:commandRows.length,rowColumns:rowColumns.join(','),commandStacks:commandStacks.length,stackColumns:stackColumns.join(','),stackButtonCounts:stackButtonCounts.join(','),noSeparateOverlay,battleContext,lukeComment,dialogBeforeDismiss,victoryGone,battleFrameGone,victoryStateGone,oneDismissClean,screenAfterDismiss:s.screen||''});
  }catch(error){fail(error?.message||String(error));}
  finally{document.getElementById('lqVictoryBattleFrame')?.remove();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}
 }
