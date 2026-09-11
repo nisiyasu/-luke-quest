@@ -31,6 +31,7 @@ jobs:
           test -s prototypes/modern-3d/natural-assets.js
           test -s prototypes/modern-3d/asset-inspection.html
           test -s prototypes/modern-3d/m04-target-assets.js
+          test -s prototypes/modern-3d/m04-conifer-target-v31.js
           test -s prototypes/modern-3d/m04-target-inspection.html
           test -s prototypes/modern-3d/m04-water-target-v3.js
           test -s prototypes/modern-3d/m04-water-inspection.html
@@ -74,7 +75,9 @@ jobs:
             --virtual-time-budget=1200 --dump-dom \
             'http://127.0.0.1:8140/m04-target-inspection.html' > .modern3d/m04-target-dom.html 2>.modern3d/m04-target-stderr.log
           grep -q 'data-m04-target-inspection="ready"' .modern3d/m04-target-dom.html
-          grep -q 'data-candidate-asset="conifer_target_v3@3.0.0"' .modern3d/m04-target-dom.html
+          grep -q 'data-current-asset="conifer_natural_v2@2.1.0"' .modern3d/m04-target-dom.html
+          grep -q 'data-previous-candidate="conifer_target_v3@3.0.0"' .modern3d/m04-target-dom.html
+          grep -q 'data-candidate-asset="conifer_target_v31@3.1.0"' .modern3d/m04-target-dom.html
           timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=1200 --dump-dom \
@@ -137,8 +140,8 @@ jobs:
             echo '- M03 traversal/collision regression: PASS'
             echo '- M04 baseline production asset family manifest: PASS'
             echo '- M04 baseline shared-light inspection runtime: PASS'
-            echo '- M04 target-candidate shared-light inspection runtime: PASS'
-            echo '- M04 target-water shared-light inspection runtime: PASS'
+            echo '- M04 target-conifer v3.1 three-way inspection runtime: PASS'
+            echo '- M04 target-water v3.4 shared-light inspection runtime: PASS'
             echo '- M04 target asset integration in actual game scene: PASS'
             echo '- canonical C1 390x844 running frame: CAPTURED'
             echo '- high-quality 864x1536 running frame: CAPTURED'
@@ -171,6 +174,7 @@ jobs:
             prototypes/modern-3d/index.html
             prototypes/modern-3d/asset-inspection.html
             prototypes/modern-3d/m04-target-inspection.html
+            prototypes/modern-3d/m04-conifer-target-v31.js
             prototypes/modern-3d/m04-water-inspection.html
             prototypes/modern-3d/m04-water-target-v3.js
             prototypes/modern-3d/assets.js
