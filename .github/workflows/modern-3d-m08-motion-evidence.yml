@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify M08 motion contract in source
+      - name: Verify M08 motion and camera contracts in source
         shell: bash
         run: |
           set -euo pipefail
@@ -27,6 +27,8 @@ jobs:
           ! grep -F "player.userData.animate(sec,moving?1:.12)" prototypes/modern-3d/index.html
           grep -F "THREE.MathUtils.clamp(movement,0,1)" prototypes/modern-3d/assets.js
           grep -F "function playerGroundY" prototypes/modern-3d/index.html
+          grep -F "const cameraBlend=1-Math.exp(-4.2*dt)" prototypes/modern-3d/index.html
+          ! grep -F "camera.position.lerp(target.clone().add(offset),.06)" prototypes/modern-3d/index.html
           grep -F "addEventListener('blur',()=>{releaseAll();blurRelease=true})" prototypes/modern-3d/index.html
           grep -F "document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()})" prototypes/modern-3d/index.html
       - name: Start isolated prototype server
