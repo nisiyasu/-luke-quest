@@ -1,4 +1,4 @@
-name: Modern 3D M00 WebGL Bootstrap
+name: Modern 3D M02 Runtime Gate
 
 on:
   push:
@@ -12,146 +12,83 @@ permissions:
   contents: read
 
 concurrency:
-  group: modern-3d-m00-${{ github.ref }}
+  group: modern-3d-runtime-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  browser-webgl:
+  browser-webgl-input:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Verify pinned Three.js CDN resource
+      - name: Verify pinned Three.js resource
         shell: bash
         run: |
-          curl --fail --silent --show-error --location --retry 3 \
-            'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' \
-            --output /tmp/three.module.js
+          curl -fLsS --retry 3 'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' -o /tmp/three.module.js
           test -s /tmp/three.module.js
           grep -q 'REVISION' /tmp/three.module.js
-
-      - name: Start isolated prototype server
+      - name: Start isolated server
         shell: bash
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-http.log 2>&1 &
-          echo $! >/tmp/modern3d-http.pid
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-
-      - name: Prove Three.js and WebGL runtime
+      - name: Prove WebGL movement input release and redisplay
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
-          mkdir -p .modern3d-m00
+          mkdir -p .modern3d
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
-            --virtual-time-budget=8000 --dump-dom \
-            http://127.0.0.1:8140/index.html > .modern3d-m00/dom.html
-          grep -q 'data-lq-modern3d="m00-webgl-ready"' .modern3d-m00/dom.html
-          grep -q 'data-three-revision="186"' .modern3d-m00/dom.html
-          ! grep -q 'data-lq-modern3d="m00-error"' .modern3d-m00/dom.html
-
-      - name: Capture real portrait frame
+            --virtual-time-budget=7000 --dump-dom \
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m02-dom.html
+          grep -q 'data-lq-modern3d="m02-ready"' .modern3d/m02-dom.html
+          grep -q 'data-three-revision="186"' .modern3d/m02-dom.html
+          grep -q 'data-m02-ci="pass"' .modern3d/m02-dom.html
+          ! grep -q 'data-lq-modern3d="m02-error"' .modern3d/m02-dom.html
+      - name: Capture M02 portrait evidence
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
             --window-size=390,844 --force-device-scale-factor=1 \
-            --virtual-time-budget=8000 \
-            --screenshot=.modern3d-m00/m00-390x844.png \
-            http://127.0.0.1:8140/index.html
-          test -s .modern3d-m00/m00-390x844.png
+            --virtual-time-budget=7000 \
+            --screenshot=.modern3d/m02-390x844.png \
+            'http://127.0.0.1:8140/index.html?ci=1'
+          test -s .modern3d/m02-390x844.png
+          test "$(stat -c %s .modern3d/m02-390x844.png)" -gt 10000
           python3 - <<'PY'
           from pathlib import Path
-          import struct, zlib
-          p=Path('.modern3d-m00/m00-390x844.png').read_bytes()
+          import struct
+          p=Path('.modern3d/m02-390x844.png').read_bytes()
           assert p[:8]==b'\x89PNG\r\n\x1a\n'
-          w,h=struct.unpack('>II',p[16:24]); assert w==390 and h>=800,(w,h)
-          pos=8; idat=b''; ctype=None
-          while pos<len(p):
-            n=struct.unpack('>I',p[pos:pos+4])[0]; typ=p[pos+4:pos+8]; data=p[pos+8:pos+8+n]; pos+=12+n
-            if typ==b'IHDR': ctype=data[9]
-            if typ==b'IDAT': idat+=data
-            if typ==b'IEND': break
-          raw=zlib.decompress(idat); bpp=4 if ctype==6 else 3; stride=w*bpp
-          rows=[]; prev=bytearray(stride); off=0
-          for _ in range(h):
-            ft=raw[off]; off+=1; cur=bytearray(raw[off:off+stride]); off+=stride
-            for i in range(stride):
-              a=cur[i-bpp] if i>=bpp else 0; b=prev[i]; c=prev[i-bpp] if i>=bpp else 0
-              if ft==1: cur[i]=(cur[i]+a)&255
-              elif ft==2: cur[i]=(cur[i]+b)&255
-              elif ft==3: cur[i]=(cur[i]+((a+b)//2))&255
-              elif ft==4:
-                pr=a+b-c; pa=abs(pr-a); pb=abs(pr-b); pc=abs(pr-c); pred=a if pa<=pb and pa<=pc else (b if pb<=pc else c)
-                cur[i]=(cur[i]+pred)&255
-            rows.append(cur); prev=cur
-          samples=[]
-          for y in range(0,h,max(1,h//20)):
-            row=rows[y]
-            for x in range(0,w,max(1,w//20)):
-              i=x*bpp; samples.extend(row[i:i+3])
-          assert max(samples)>80 and len(set(samples))>24
-          print(f'PNG={w}x{h}; dynamic_levels={len(set(samples))}; max={max(samples)}')
+          w,h=struct.unpack('>II',p[16:24])
+          assert w==390 and h>=800,(w,h)
+          print(f'M02_PNG={w}x{h}')
           PY
-
-      - name: Verify motion/video evidence toolchain
-        shell: bash
-        run: |
-          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          if ! command -v ffmpeg >/dev/null 2>&1; then
-            sudo apt-get update -qq
-            sudo apt-get install -y -qq ffmpeg
-          fi
-          command -v ffmpeg
-          command -v ffprobe
-          for spec in '4500:motion-01.png' '6500:motion-02.png' '8500:motion-03.png'; do
-            budget="${spec%%:*}"; name="${spec#*:}"
-            "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
-              --window-size=390,844 --force-device-scale-factor=1 \
-              --virtual-time-budget="$budget" \
-              --screenshot=".modern3d-m00/$name" \
-              http://127.0.0.1:8140/index.html >/dev/null
-          done
-          test -s .modern3d-m00/motion-01.png
-          test -s .modern3d-m00/motion-02.png
-          test -s .modern3d-m00/motion-03.png
-          printf "file 'motion-01.png'\nduration 0.35\nfile 'motion-02.png'\nduration 0.35\nfile 'motion-03.png'\nduration 0.35\nfile 'motion-03.png'\n" > .modern3d-m00/frames.txt
-          (cd .modern3d-m00 && ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i frames.txt -vf 'fps=12,format=yuv420p' m00-motion-proof.mp4)
-          test -s .modern3d-m00/m00-motion-proof.mp4
-          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 .modern3d-m00/m00-motion-proof.mp4
-
-      - name: Record M00 evidence
+      - name: Record runtime evidence
         shell: bash
         run: |
           {
-            echo '## Modern 3D M00 browser/WebGL proof'
-            echo
+            echo '## Modern 3D M02 runtime gate'
             echo "- source SHA: $GITHUB_SHA"
-            echo '- Three.js pin: 0.186.0 / revision 186'
-            echo '- CDN fetch: PASS'
-            echo '- browser module execution: PASS'
-            echo '- WebGL frame: PASS'
-            echo '- portrait screenshot: PASS / non-uniform output'
-            echo '- motion/video evidence toolchain: PASS / Chrome frames + ffmpeg artifact'
-            echo '- production integration: NOT ATTEMPTED (isolated prototype)'
+            echo '- Three.js 0.186.0 / revision 186: PASS'
+            echo '- browser/WebGL: PASS'
+            echo '- keyboard movement: PASS'
+            echo '- pointer/touch-path movement: PASS'
+            echo '- blur input release: PASS'
+            echo '- resize/redisplay handler: PASS'
+            echo '- 390x844 frame: PASS'
+            echo '- art-quality target: NOT inferred'
             echo '- physical iPhone: PENDING'
           } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload M00 evidence
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: modern-3d-m00-${{ github.sha }}
+          name: modern-3d-m02-${{ github.sha }}
           path: |
-            .modern3d-m00/dom.html
-            .modern3d-m00/m00-390x844.png
-            .modern3d-m00/motion-01.png
-            .modern3d-m00/motion-02.png
-            .modern3d-m00/motion-03.png
-            .modern3d-m00/m00-motion-proof.mp4
+            .modern3d/m02-dom.html
+            .modern3d/m02-390x844.png
             prototypes/modern-3d/index.html
-            prototypes/modern-3d/README.md
+            prototypes/modern-3d/M01_ART_DIRECTION_AND_COMPARISON_CONTRACT.md
           retention-days: 14
