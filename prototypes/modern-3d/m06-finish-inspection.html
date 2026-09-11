@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LUKE QUEST M06 Finish Inspection</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
+<style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101710;color:#fff;font-family:system-ui,sans-serif}canvas{display:block}#legend{position:fixed;left:14px;top:12px;right:14px;background:#071019dd;border:1px solid #caa85f;border-radius:8px;padding:9px 12px;font-size:12px;z-index:3}#legend b{color:#f2d172}.chip{display:inline-block;margin-right:16px}</style>
+</head>
+<body><div id="legend"><span class="chip"><b>M06</b> finish evidence</span><span class="chip">LEFT: bridge support/contact</span><span class="chip">CENTER: bank/shore contact</span><span class="chip">RIGHT: tree variation + understory</span></div>
+<script type="module">
+import * as THREE from 'three';
+import {createProductionBridge,createRockCluster} from './assets.js';
+import {createTargetBankV4} from './m04-bank-target-v4.js';
+import {createTargetConiferV31} from './m04-conifer-target-v31.js';
+import {createTargetFernPatch} from './m04-target-assets.js';
+import {createMeadowField,createUnderstoryCluster} from './natural-assets.js';
+
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.07;document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x91aaa0);scene.fog=new THREE.FogExp2(0xa2b5ab,.0055);
+const camera=new THREE.PerspectiveCamera(34,innerWidth/innerHeight,.1,130);camera.position.set(0,10.6,29);camera.lookAt(0,.6,0);
+scene.add(new THREE.HemisphereLight(0xeaf2e8,0x253025,1.15));const sun=new THREE.DirectionalLight(0xffcf8a,3.4);sun.position.set(-13,21,11);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-24;sun.shadow.camera.right=24;sun.shadow.camera.top=20;sun.shadow.camera.bottom=-12;scene.add(sun);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(46,18),new THREE.MeshStandardMaterial({color:0x3f5937,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-1.6;floor.receiveShadow=true;scene.add(floor);
+for(const x of[-7.6,7.6]){const d=new THREE.Mesh(new THREE.BoxGeometry(.05,.04,14),new THREE.MeshStandardMaterial({color:0xcaa85f,roughness:.85}));d.position.set(x,-1.54,0);scene.add(d)}
+
+// LEFT: bridge structure and its terrain-contact language.
+const bridge=createProductionBridge();bridge.position.set(-14.1,-.12,.3);bridge.rotation.y=-.08;scene.add(bridge);
+const leftBank=createTargetBankV4({seed:701,width:6.7,depth:4.4,facing:1});leftBank.position.set(-14.0,1.0,-4.0);scene.add(leftBank);
+const rightBank=createTargetBankV4({seed:709,width:6.7,depth:4.4,facing:-1});rightBank.position.set(-14.0,-.35,4.0);scene.add(rightBank);
+for(const [x,z,s,seed] of [[-17.0,-3.1,.75,801],[-11.5,-3.7,.67,803],[-16.5,4.0,.66,809]]){const r=createRockCluster({seed,scale:s});r.position.set(x,-.95,z);scene.add(r)}
+
+// CENTER: cliff-to-shore breakup under a neutral water proxy, intended to expose seams/floating geometry.
+const bank=createTargetBankV4({seed:811,width:10.2,depth:7.0,facing:1});bank.position.set(0,1.1,-1.0);scene.add(bank);
+const water=new THREE.Mesh(new THREE.PlaneGeometry(11.2,4.6),new THREE.MeshPhysicalMaterial({color:0x2f8aa1,roughness:.24,metalness:0,transmission:.05,transparent:true,opacity:.88}));water.rotation.x=-Math.PI/2;water.position.set(0,-.27,4.0);water.receiveShadow=true;scene.add(water);
+for(const [x,z,s,seed] of [[-3.6,2.3,.78,821],[-1.1,2.8,.60,823],[2.1,2.55,.72,827],[3.8,2.0,.63,829]]){const r=createRockCluster({seed,scale:s});r.position.set(x,-.55,z);scene.add(r)}
+const fern=createTargetFernPatch({seed:833,scale:1.0,count:42});fern.position.set(1.8,1.22,-2.4);scene.add(fern);
+
+// RIGHT: four silhouette families in one cluster plus layered low vegetation.
+const treeSeeds=[840,841,842,843];
+for(let i=0;i<treeSeeds.length;i++){const x=10.0+(i%2)*4.2,z=-2.8+Math.floor(i/2)*4.8;const t=createTargetConiferV31({seed:treeSeeds[i],scale:.78+(i%3)*.08});t.position.set(x,-1.52,z);scene.add(t);const u=createUnderstoryCluster({seed:900+i*17,scale:.9,flowers:i%2===0});u.position.set(x+.65,-1.5,z+.5);scene.add(u)}
+const meadow=createMeadowField({seed:971,width:8.2,depth:6.2,density:310,flowers:72});meadow.position.set(12.1,-1.5,1.0);scene.add(meadow);
+for(const [x,z,s,seed] of [[9.2,2.7,.62,991],[15.8,2.1,.74,997],[14.7,-3.1,.58,1009]]){const r=createRockCluster({seed,scale:s});r.position.set(x,-1.48,z);scene.add(r)}
+
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize,{passive:true});
+function tick(){requestAnimationFrame(tick);renderer.render(scene,camera)}tick();
+document.documentElement.dataset.m06FinishInspection='ready';
+document.documentElement.dataset.bridgeAsset='bridge_principal_v1@1.2.0';
+document.documentElement.dataset.bankAsset='bank_target_v4@4.3.0';
+document.documentElement.dataset.coniferAsset='conifer_target_v31@3.2.1';
+document.documentElement.dataset.evidencePanels='bridge-contact,shore-contact,tree-variation-understory';
+</script></body></html>
