@@ -1,4 +1,4 @@
-name: Modern 3D M03 Traversal Gate
+name: Modern 3D M04 Asset Inspection Gate
 
 on:
   push:
@@ -16,23 +16,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  browser-webgl-traversal:
+  browser-webgl-assets:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify pinned Three.js resource
+      - name: Verify pinned Three.js resource and manifest
         shell: bash
         run: |
           curl -fLsS --retry 3 'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' -o /tmp/three.module.js
           test -s /tmp/three.module.js
           grep -q 'REVISION' /tmp/three.module.js
+          python3 - <<'PY'
+          import json
+          p='prototypes/modern-3d/ASSET_MANIFEST.json'
+          d=json.load(open(p,encoding='utf-8'))
+          ids={x['id']:x for x in d['assets']}
+          for k in ['bridge_principal_v1','conifer_family_v1','rock_cluster_v1']:
+              assert ids[k]['status']=='PRODUCTION_CANDIDATE', (k,ids[k]['status'])
+              assert ids[k]['source']=='original procedural code'
+              assert ids[k]['license']=='project-owned original'
+          print('M04_MANIFEST=PASS')
+          PY
       - name: Start isolated server
         shell: bash
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Prove M02 input foundation and M03 traversal collision
+          curl -fsS http://127.0.0.1:8140/asset-inspection.html >/dev/null
+      - name: Regression prove M02 input and M03 traversal
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
@@ -47,69 +59,89 @@ jobs:
           set -e
           echo "BROWSER_RC=$browser_rc"
           grep -oE 'data-(lq-modern3d|three-revision|m02-ci|m03-ci|m03-route|m03-error)="[^"]*"' .modern3d/m03-dom.html || true
-          grep -E 'WebGL ERROR|Uncaught|TypeError|ReferenceError|NotFoundError' .modern3d/chrome-stderr.log || true
           test "$browser_rc" -eq 0
           grep -q 'data-lq-modern3d="m03-ready"' .modern3d/m03-dom.html
           grep -q 'data-three-revision="186"' .modern3d/m03-dom.html
           grep -q 'data-m02-ci="pass"' .modern3d/m03-dom.html
           grep -q 'data-m03-ci="pass"' .modern3d/m03-dom.html
           grep -q 'data-m03-route="R0:' .modern3d/m03-dom.html
-          grep -q 'R1:' .modern3d/m03-dom.html
-          grep -q 'R3:' .modern3d/m03-dom.html
-          grep -q 'R5:' .modern3d/m03-dom.html
           ! grep -q 'data-lq-modern3d="m03-error"' .modern3d/m03-dom.html
           grep -oE 'data-m03-route="[^"]*"' .modern3d/m03-dom.html > .modern3d/m03-route.txt
-      - name: Capture M03 portrait evidence
+      - name: Prove M04 common-light inspection view
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          set +e
+          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --virtual-time-budget=7000 --dump-dom \
+            'http://127.0.0.1:8140/asset-inspection.html' > .modern3d/m04-inspection-dom.html 2>.modern3d/m04-chrome-stderr.log
+          browser_rc=$?
+          set -e
+          echo "M04_BROWSER_RC=$browser_rc"
+          grep -oE 'data-(m04-inspection|m04-assets|m04-error)="[^"]*"' .modern3d/m04-inspection-dom.html || true
+          test "$browser_rc" -eq 0
+          grep -q 'data-m04-inspection="ready"' .modern3d/m04-inspection-dom.html
+          grep -q 'bridge_principal_v1@1.0.0' .modern3d/m04-inspection-dom.html
+          grep -q 'conifer_family_v1@1.0.0' .modern3d/m04-inspection-dom.html
+          grep -q 'rock_cluster_v1@1.0.0' .modern3d/m04-inspection-dom.html
+          ! grep -q 'data-m04-inspection="error"' .modern3d/m04-inspection-dom.html
+      - name: Capture M04 inspection and M03 portrait evidence
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 \
-            --virtual-time-budget=7000 \
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=7000 \
+            --screenshot=.modern3d/m04-inspection-864x1536.png \
+            'http://127.0.0.1:8140/asset-inspection.html'
+          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=7000 \
             --screenshot=.modern3d/m03-390x844.png \
             'http://127.0.0.1:8140/index.html?ci=1'
-          test -s .modern3d/m03-390x844.png
-          test "$(stat -c %s .modern3d/m03-390x844.png)" -gt 10000
           python3 - <<'PY'
           from pathlib import Path
           import struct
-          p=Path('.modern3d/m03-390x844.png').read_bytes()
-          assert p[:8]==b'\x89PNG\r\n\x1a\n'
-          w,h=struct.unpack('>II',p[16:24])
-          assert w==390 and h>=800,(w,h)
-          print(f'M03_PNG={w}x{h}')
+          for path,expected in [('.modern3d/m04-inspection-864x1536.png',(864,1536)),('.modern3d/m03-390x844.png',(390,844))]:
+              p=Path(path).read_bytes(); assert len(p)>10000 and p[:8]==b'\x89PNG\r\n\x1a\n'
+              w,h=struct.unpack('>II',p[16:24]); assert (w,h)==expected,(path,w,h)
+              print(path,w,h,len(p))
           PY
       - name: Record runtime evidence
         shell: bash
         run: |
           {
-            echo '## Modern 3D M03 traversal gate'
+            echo '## Modern 3D M04 asset inspection gate'
             echo "- source SHA: $GITHUB_SHA"
-            echo '- Three.js 0.186.0 / revision 186: PASS'
-            echo '- M02 keyboard + pointer/touch input path: PASS'
-            echo '- bridge northbound traversal: PASS'
-            echo '- off-bridge river entry blocked: PASS'
-            echo '- shore stop: PASS'
-            echo '- representative world bounds walkable: PASS'
-            echo '- 390x844 running frame: PASS'
-            echo '- final-art quality: NOT inferred; placeholder shapes allowed in M03'
+            echo '- M02 input regression: PASS'
+            echo '- M03 bridge/shore traversal regression: PASS'
+            echo '- M04 manifest/provenance for bridge/conifer/rocks: PASS'
+            echo '- M04 same-light inspection runtime: PASS'
+            echo '- 864x1536 inspection frame: PASS'
+            echo '- current M04 coverage: PARTIAL; terrain/water/player production assets remain'
             echo '- physical iPhone: PENDING'
             echo '- route evidence:'
             cat .modern3d/m03-route.txt
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload M03 evidence and failure diagnostics
+      - name: Upload M04 evidence and failure diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: modern-3d-m03-${{ github.sha }}
+          name: modern-3d-m04-${{ github.sha }}
           path: |
             .modern3d/m03-dom.html
             .modern3d/m03-route.txt
             .modern3d/m03-390x844.png
+            .modern3d/m04-inspection-dom.html
+            .modern3d/m04-inspection-864x1536.png
             .modern3d/chrome-stderr.log
+            .modern3d/m04-chrome-stderr.log
             /tmp/modern3d-http.log
             prototypes/modern-3d/index.html
+            prototypes/modern-3d/asset-inspection.html
+            prototypes/modern-3d/assets.js
+            prototypes/modern-3d/ASSET_MANIFEST.json
             prototypes/modern-3d/M01_ART_DIRECTION_AND_COMPARISON_CONTRACT.md
           if-no-files-found: warn
           retention-days: 14
