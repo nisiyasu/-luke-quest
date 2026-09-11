@@ -9,7 +9,7 @@
     "understory": "fern_patch_target_v1@1.0.0 + meadow_field_v1@1.0.0",
     "bank": "bank_target_v4@4.2.0",
     "water": "water_target_v3@3.4.0",
-    "bridge": "bridge_principal_v1@1.0.0",
+    "bridge": "bridge_principal_v1@1.1.0",
     "character": "luke_player_v1@1.0.0",
     "inspection_surfaces": ["m04-target-inspection.html", "m04-bank-inspection.html", "m04-water-inspection.html"]
   },
@@ -25,8 +25,9 @@
       "origin": "deck center at world local origin",
       "forward": "-Z north",
       "texture": "runtime CanvasTexture wood grain, 256x256",
-      "features": ["individual boards", "deck thickness", "side beams", "posts", "rails", "cross braces", "metal bolt heads", "wood grain variation"],
-      "version": "1.0.0"
+      "features": ["individual varied boards", "deck wear seams", "deck thickness", "side beams", "capped posts", "dual rails", "cross braces", "metal bolt heads", "iron footing collars", "wood grain variation"],
+      "version": "1.1.0",
+      "note": "M04 target-facing bridge refinement preserves the verified M03 footprint while increasing intrinsic silhouette/material detail."
     },
     {
       "id": "conifer_family_v1",
