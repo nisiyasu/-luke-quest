@@ -30,29 +30,6 @@ function frondGeometry(){
 
 const FROND=frondGeometry();
 
-function fernFrondGeometry(){
-  const vertices=[0,0,0, 0,.98,0];
-  const indices=[];
-  let base=2;
-  const tiers=[
-    [.16,.16,.14],
-    [.29,.22,.19],
-    [.43,.25,.22],
-    [.57,.23,.20],
-    [.70,.18,.16],
-    [.82,.12,.12]
-  ];
-  for(const [y,w,len] of tiers){
-    for(const side of[-1,1]){
-      vertices.push(0,y,0, side*w,y+len*.26,.004, side*(w*.72),y+len,.002);
-      indices.push(base,base+1,base+2);base+=3;
-    }
-  }
-  vertices.push(-.07,.84,0, 0,1.02,.004, .07,.84,0);indices.push(base,base+1,base+2);
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));g.setIndex(indices);g.computeVertexNormals();return g;
-}
-const FERN_FROND=fernFrondGeometry();
-
 export function createTargetConifer({seed=1,scale=1}={}){
   const r=rng(seed),g=new THREE.Group(),dummy=new THREE.Object3D();
   g.name=`conifer_target_v3_${seed}`;
@@ -132,21 +109,20 @@ export function createTargetConifer({seed=1,scale=1}={}){
 
 export function createTargetFernPatch({seed=1,scale=1,count=18}={}){
   const r=rng(seed),g=new THREE.Group(),dummy=new THREE.Object3D();
+  const blade=new THREE.PlaneGeometry(.18,1.0,1,4);
   const groups=[[],[]];
   for(let i=0;i<count;i++){
-    const a=r()*Math.PI*2,rad=Math.sqrt(r())*.72*scale,h=(.42+r()*.52)*scale;
-    groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,h,lean:.28+r()*.32,twist:(r()-.5)*.14});
+    const a=r()*Math.PI*2,rad=Math.sqrt(r())*.78*scale,h=(.55+r()*.65)*scale;
+    groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,h,lean:.22+r()*.36});
   }
   [fernDark,fernLight].forEach((mat,mi)=>{
-    const list=groups[mi],mesh=new THREE.InstancedMesh(FERN_FROND,mat,list.length);
+    const list=groups[mi],mesh=new THREE.InstancedMesh(blade,mat,list.length);
     list.forEach((v,i)=>{
-      dummy.position.set(v.x,.015,v.z);dummy.rotation.set(-v.lean,-v.a,v.twist);dummy.scale.set((.78+r()*.34)*scale,v.h,1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
+      dummy.position.set(v.x,v.h*.46,v.z);dummy.rotation.set(-v.lean,-v.a,0);dummy.scale.set(.72+r()*.45,v.h,1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
     });
     mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=false;mesh.receiveShadow=true;g.add(mesh);
   });
-  // Low moss disk prevents a patch from reading as isolated vertical cards on bare ground.
-  const mossBase=new THREE.Mesh(new THREE.CircleGeometry(.76*scale,18),targetMoss);mossBase.rotation.x=-Math.PI/2;mossBase.position.y=.008;mossBase.scale.set(1,.86,1);mossBase.receiveShadow=true;g.add(mossBase);
-  g.userData={assetId:'fern_patch_target_v1',version:'1.1.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',intent:'compound leaflet fern clusters with low moss contact layer, reduced vertical-card/spike silhouette'};
+  g.userData={assetId:'fern_patch_target_v1',version:'1.0.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural'};
   return g;
 }
 
@@ -199,7 +175,7 @@ export function createTargetBank({seed=1,width=12,depth=8,facing=1}={}){
 export function targetAssetMetadata(){
   return {
     conifer_target_v3:{version:'3.0.0',provenance:'repo-procedural',intent:'lush layered target-facing conifer silhouette'},
-    fern_patch_target_v1:{version:'1.1.0',provenance:'repo-procedural',intent:'compound leaflet fern cluster with moss contact layer'},
+    fern_patch_target_v1:{version:'1.0.0',provenance:'repo-procedural',intent:'dense near-ground vegetation micro-layer'},
     bank_target_v3:{version:'3.0.0',provenance:'repo-procedural',intent:'organic smooth cliff bank with moss and fern lip'}
   };
 }
