@@ -16,11 +16,11 @@ function ensureStyle(){
   style.textContent=`
     .gameShell[data-lq-req149-field-bleed="true"]{
       background:
-        radial-gradient(ellipse at 18% 8%,rgba(112,142,74,.18) 0 16%,transparent 43%),
-        radial-gradient(ellipse at 82% 88%,rgba(98,126,66,.16) 0 15%,transparent 42%),
-        radial-gradient(ellipse at 58% 52%,rgba(54,91,49,.20) 0 19%,transparent 52%),
-        linear-gradient(180deg,#263f2e 0%,#294c31 20%,#315633 50%,#29482f 78%,#22372b 100%) !important;
-      box-shadow:inset 0 0 56px rgba(8,19,15,.34);
+        radial-gradient(ellipse at 17% 9%,rgba(151,169,89,.15) 0 17%,transparent 44%),
+        radial-gradient(ellipse at 82% 88%,rgba(68,111,57,.20) 0 18%,transparent 46%),
+        radial-gradient(ellipse at 58% 52%,rgba(123,146,75,.11) 0 20%,transparent 52%),
+        linear-gradient(180deg,#355d37 0%,#3c673a 20%,#426f3d 50%,#385f37 80%,#315333 100%) !important;
+      box-shadow:inset 0 0 44px rgba(20,39,24,.22);
     }
   `;
   document.head.appendChild(style);
@@ -33,7 +33,7 @@ function apply(){
   const active=typeof s!=='undefined'&&s&&s.screen==='world'&&s.map==='field';
   if(active){
     shell.dataset.lqReq149FieldBleed='true';
-    document.body.dataset.req149FieldBleed='v04g';
+    document.body.dataset.req149FieldBleed='v04g-grass';
   }else{
     delete shell.dataset.lqReq149FieldBleed;
     delete document.body.dataset.req149FieldBleed;
@@ -48,5 +48,5 @@ window.addEventListener('resize',apply,{passive:true});
 window.addEventListener('orientationchange',apply,{passive:true});
 if(window.visualViewport)window.visualViewport.addEventListener('resize',apply,{passive:true});
 apply();
-window.LQ_REQ149_V04G_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-G',presentationOnly:true,req146ScalePreserved:true,gameplayCoordinatesUnchanged:true};
+window.LQ_REQ149_V04G_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-G2',presentationOnly:true,req146ScalePreserved:true,gameplayCoordinatesUnchanged:true,grassStageBleed:true};
 })();
