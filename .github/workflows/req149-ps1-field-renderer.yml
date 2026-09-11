@@ -12,6 +12,7 @@ on:
       - "docs/quality/FIELD_V00_V02_CURRENT_BAD_TO_TARGET_PS1.md"
       - "tools/lq-req145-assemble-local.py"
       - "tools/lq-req145-capture-harness.py"
+      - "tools/lq-cdp-mobile-capture.py"
       - ".github/workflows/req149-ps1-field-renderer.yml"
   workflow_dispatch:
 
@@ -37,10 +38,15 @@ jobs:
           REQ149_ADDON="$(find addons -maxdepth 1 -name '*-req149-field-renderer-prototype.js' -print -quit)"
           test -n "$REQ149_ADDON"
           node --check "$REQ149_ADDON"
-          python3 -m py_compile tools/lq-req145-assemble-local.py tools/lq-req145-capture-harness.py
+          python3 -m py_compile tools/lq-req145-assemble-local.py tools/lq-req145-capture-harness.py tools/lq-cdp-mobile-capture.py
           python3 -m json.tool assets/world/field-gold/manifest.json >/dev/null
           test -s requirements/REQ-149_PS1_VISUAL_QUALITY_MIGRATION.md
           test -s docs/quality/FIELD_V00_V02_CURRENT_BAD_TO_TARGET_PS1.md
+
+      - name: Install exact mobile capture dependency
+        shell: bash
+        run: |
+          python3 -m pip install --disable-pip-version-check --quiet websocket-client==1.8.0
 
       - name: Assemble exact Gold runtime
         shell: bash
@@ -58,23 +64,35 @@ jobs:
           sleep 1
           curl -fsS http://127.0.0.1:8139/req149-assembled.html >/dev/null
 
-      - name: Verify field renderer runtime marker
+      - name: Capture exact CSS 390x844 V04 evidence
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
-          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8139/.req149/candidate-field.html' > .req149/candidate-field-dom.html 2>/tmp/req149-dom.log || true
+          python3 tools/lq-cdp-mobile-capture.py \
+            --browser "$BROWSER" \
+            --url 'http://127.0.0.1:8139/.req149/candidate-field.html' \
+            --png "$GITHUB_WORKSPACE/.req149/candidate-field.png" \
+            --dom "$GITHUB_WORKSPACE/.req149/candidate-field-dom.html" \
+            --width 390 \
+            --height 844 \
+            --wait-ms 5500 | tee .req149/capture-metrics.json
           grep -Eq 'data-req149-field-renderer="canvas-prototype[^\"]*"' .req149/candidate-field-dom.html
           grep -q 'data-req149-collision-authority="preserved"' .req149/candidate-field-dom.html
           grep -q 'class="lqReq149FieldCanvas"' .req149/candidate-field-dom.html
           grep -q 'class="[^"]*lqReq149FieldCanvasWorld' .req149/candidate-field-dom.html
-
-      - name: Capture V04 prototype evidence
-        shell: bash
-        run: |
-          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
-          "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars --user-data-dir=/tmp/req149-capture --window-size=390,844 --virtual-time-budget=5500 --screenshot="$GITHUB_WORKSPACE/.req149/candidate-field.png" 'http://127.0.0.1:8139/.req149/candidate-field.html'
+          grep -q 'data-req149-inner-width="390"' .req149/candidate-field-dom.html
+          grep -q 'data-req149-inner-height="844"' .req149/candidate-field-dom.html
           python3 tools/lq-png-black-check.py .req149/candidate-field.png
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          p=Path('.req149/candidate-field.png').read_bytes()
+          assert p[:8] == b'\x89PNG\r\n\x1a\n'
+          w,h=struct.unpack('>II',p[16:24])
+          assert (w,h)==(390,844), (w,h)
+          print(f'PNG_DIMENSIONS={w}x{h}')
+          PY
 
       - name: Record evidence summary
         shell: bash
@@ -84,13 +102,15 @@ jobs:
             echo
             echo '```'
             cat .req149/source-sha.txt
+            cat .req149/capture-metrics.json
             echo '```'
             echo
             echo '- source syntax: PASS'
             echo '- manifest syntax: PASS'
             echo '- assembled field runtime marker: PASS'
             echo '- collision authority marker: preserved'
-            echo '- 390x844 screenshot: produced and non-black'
+            echo '- CSS viewport: exact 390x844 via CDP device metrics override'
+            echo '- PNG dimensions: exact 390x844 and non-black'
             echo '- visual TARGET_PS1 superiority: NOT inferred; requires artifact review'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -100,6 +120,7 @@ jobs:
           name: req149-v04-field-${{ github.sha }}
           path: |
             .req149/source-sha.txt
+            .req149/capture-metrics.json
             .req149/candidate-field.png
             .req149/candidate-field-dom.html
             assets/world/field-gold/manifest.json
