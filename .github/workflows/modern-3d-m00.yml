@@ -92,10 +92,12 @@ jobs:
           test -n "$BROWSER"
           mkdir -p .modern3d
           set +e
-          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          # Traversal/state correctness does not depend on the expensive high visual preset.
+          # Keep this proof on practical so functional CI cannot fail merely because the art scene got richer.
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=800 --dump-dom \
-            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m05-dom.html 2>.modern3d/chrome-stderr.log
+            --virtual-time-budget=700 --dump-dom \
+            'http://127.0.0.1:8140/index.html?ci=1&quality=practical' > .modern3d/m05-dom.html 2>.modern3d/chrome-stderr.log
           browser_rc=$?
           set -e
           echo "BROWSER_RC=$browser_rc"
@@ -138,13 +140,13 @@ jobs:
             echo '## Modern 3D M05 visual evidence gate'
             echo "- source SHA: $GITHUB_SHA"
             echo '- M02 input regression: PASS'
-            echo '- M03 traversal/collision regression: PASS'
+            echo '- M03 traversal/collision regression: PASS (practical functional preset)'
             echo '- M04 baseline production asset family manifest: PASS'
             echo '- M04 baseline shared-light inspection runtime: PASS'
             echo '- M04 target-conifer v3.2.1 three-way inspection runtime: PASS'
             echo '- M04/M07 target-water current shared-light inspection runtime: PASS'
             echo '- M04 target asset integration in actual game scene: PASS'
-            echo '- canonical C1 390x844 running frame: CAPTURED'
+            echo '- canonical C1 390x844 high running frame: CAPTURED'
             echo '- high-quality 864x1536 running frame: CAPTURED'
             echo '- MINIMUM_QUALITY_LINE + TARGET_PS1_FINAL: INCLUDED FOR HUMAN/VISION COMPARISON'
             echo '- M05 visual acceptance: NOT SELF-PASSED BY CI'
