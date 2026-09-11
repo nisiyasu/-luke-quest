@@ -145,10 +145,10 @@ export function createLukeCharacter({scale=1}={}){
   const legL=leg(-.15),legR=leg(.15);
 
   const shoulderGeo=new THREE.SphereGeometry(.13*scale,10,8);for(const x of[-.35,.35]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.05,.72,.82);s.position.set(x,.90*scale,0);hips.add(s)}
-  g.userData={assetId:'luke_player_v1',version:'1.1.0',stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',rig:'procedural hierarchical pivots',intent:'stylized blue-haired JRPG hero with readable coat silhouette, crest, layered hair, hands and boots',animate:(t,speed=1)=>{const swing=Math.sin(t*7*speed)*.48;armL.rotation.x=swing;armR.rotation.x=-swing;legL.rotation.x=-swing*.72;legR.rotation.x=swing*.72;hips.position.y=(.91+.024*Math.abs(Math.sin(t*7*speed)))*scale;hips.rotation.z=Math.sin(t*7*speed)*.012}};
+  g.userData={assetId:'luke_player_v1',version:'1.2.0',stage:'M08_CHARACTER_MOTION_CANDIDATE',source:'repo-procedural',rig:'procedural hierarchical pivots',intent:'stylized blue-haired JRPG hero with readable coat silhouette, crest, layered hair, hands and boots; M08 separates subtle idle breathing from locomotion swing to prevent full-amplitude slow-motion foot sliding',animate:(t,movement=1)=>{const move=THREE.MathUtils.clamp(movement,0,1),walkPhase=t*(6.8+move*1.4),idlePhase=t*2.15,swing=Math.sin(walkPhase)*.48*move,breath=Math.sin(idlePhase);armL.rotation.x=swing+breath*.018*(1-move);armR.rotation.x=-swing-breath*.018*(1-move);legL.rotation.x=-swing*.72;legR.rotation.x=swing*.72;hips.position.y=(.91+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;hips.rotation.z=Math.sin(walkPhase)*.012*move;hips.rotation.x=breath*.006*(1-move)}};
   return shadow(g)
 }
 
 export function createSign(){const g=new THREE.Group();beam(g,.17,1.45,.17,woodDark,0,.72,0);const board=beam(g,1.35,.55,.12,woodMat,0,1.28,0);const cap=beam(g,1.48,.08,.14,woodDark,0,1.58,0);g.userData={assetId:'sign_v1',version:'1.0.0'};return shadow(g)}
 
-export function assetMetadata(){return{bridge:'bridge_principal_v1@1.2.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.1.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.1.0',sign:'sign_v1@1.0.0'}}
+export function assetMetadata(){return{bridge:'bridge_principal_v1@1.2.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.1.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.2.0',sign:'sign_v1@1.0.0'}}
