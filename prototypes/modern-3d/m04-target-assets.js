@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 function rng(seed=1){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
 function markShadows(root){root.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});return root}
+function deform(g,r,a=.18){const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);p.setXYZ(i,x*(1+(r()-.5)*a),y*(1+(r()-.5)*a*.65),z*(1+(r()-.5)*a))}p.needsUpdate=true;g.computeVertexNormals();return g}
 
 const barkDark=new THREE.MeshStandardMaterial({color:0x3e2c20,roughness:.99});
 const barkWarm=new THREE.MeshStandardMaterial({color:0x60402a,roughness:.98});
@@ -10,6 +11,10 @@ const needleMid=new THREE.MeshStandardMaterial({color:0x286b3c,roughness:.94,sid
 const needleSun=new THREE.MeshStandardMaterial({color:0x60964f,roughness:.91,side:THREE.DoubleSide});
 const fernDark=new THREE.MeshStandardMaterial({color:0x315d2e,roughness:.98,side:THREE.DoubleSide});
 const fernLight=new THREE.MeshStandardMaterial({color:0x739b4b,roughness:.98,side:THREE.DoubleSide});
+const targetGrass=new THREE.MeshStandardMaterial({color:0x678d45,roughness:.99});
+const targetSoil=new THREE.MeshStandardMaterial({color:0x55442f,roughness:1});
+const targetMoss=new THREE.MeshStandardMaterial({color:0x56733e,roughness:1});
+const targetRock=[0x626968,0x74786f,0x4f5b59,0x777366,0x59615d].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.94}));
 
 function frondGeometry(){
   const g=new THREE.BufferGeometry();
@@ -121,9 +126,56 @@ export function createTargetFernPatch({seed=1,scale=1,count=18}={}){
   return g;
 }
 
+export function createTargetBank({seed=1,width=12,depth=8,facing=1}={}){
+  const r=rng(seed),g=new THREE.Group();
+  g.name=`bank_target_v3_${seed}`;
+
+  const topGeo=new THREE.PlaneGeometry(width,depth,24,18),p=topGeo.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i);
+    const z=Math.sin(x*.46+seed*.07)*.12+Math.cos(y*.62-seed*.03)*.09+Math.sin((x+y)*.31)*.055+(r()-.5)*.045;
+    p.setZ(i,z);
+  }
+  p.needsUpdate=true;topGeo.computeVertexNormals();
+  const top=new THREE.Mesh(topGeo,targetGrass);top.rotation.x=-Math.PI/2;top.receiveShadow=true;g.add(top);
+
+  const edgeZ=facing*(depth*.5-.18);
+  const back=new THREE.Mesh(new THREE.BoxGeometry(width*.98,1.7,.55),targetSoil);
+  back.position.set(0,-.72,edgeZ-facing*.12);g.add(back);
+
+  const columns=Math.max(8,Math.ceil(width/.82));
+  for(let i=0;i<columns;i++){
+    const x=-width*.5+(i+.5)*width/columns+(r()-.5)*.18;
+    const layers=2+(i%4===0?1:0);
+    for(let layer=0;layer<layers;layer++){
+      const rad=.47+r()*.32;
+      const geo=deform(new THREE.IcosahedronGeometry(rad,2),r,.20);
+      const rock=new THREE.Mesh(geo,targetRock[(i+layer+seed)%targetRock.length]);
+      rock.scale.set(1.05+r()*.32,.72+r()*.34,.78+r()*.38);
+      rock.position.set(x+(r()-.5)*.16,-.44-layer*.56,edgeZ+(r()-.5)*.20);
+      rock.rotation.set((r()-.5)*.24,r()*Math.PI,(r()-.5)*.18);g.add(rock);
+      if(layer===0&&i%2===0){
+        const mossCap=new THREE.Mesh(new THREE.SphereGeometry(rad*.62,9,6,0,Math.PI*2,0,Math.PI*.5),targetMoss);
+        mossCap.scale.set(1.15,.26,.85);mossCap.position.set(rock.position.x,rock.position.y+rad*.42,rock.position.z-facing*.08);g.add(mossCap);
+      }
+    }
+  }
+
+  const lipCount=Math.max(7,Math.ceil(width/1.15));
+  for(let i=0;i<lipCount;i++){
+    const fern=createTargetFernPatch({seed:seed*31+i*17,scale:.46+r()*.28,count:12});
+    fern.position.set(-width*.46+i*(width*.92/Math.max(1,lipCount-1))+(r()-.5)*.24,.03,edgeZ-facing*(.30+r()*.38));
+    fern.rotation.y=r()*Math.PI*2;g.add(fern);
+  }
+
+  g.userData={assetId:'bank_target_v3',version:'3.0.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'organic smooth cliff bank with moss and fern lip'};
+  return markShadows(g);
+}
+
 export function targetAssetMetadata(){
   return {
     conifer_target_v3:{version:'3.0.0',provenance:'repo-procedural',intent:'lush layered target-facing conifer silhouette'},
-    fern_patch_target_v1:{version:'1.0.0',provenance:'repo-procedural',intent:'dense near-ground vegetation micro-layer'}
+    fern_patch_target_v1:{version:'1.0.0',provenance:'repo-procedural',intent:'dense near-ground vegetation micro-layer'},
+    bank_target_v3:{version:'3.0.0',provenance:'repo-procedural',intent:'organic smooth cliff bank with moss and fern lip'}
   };
 }
