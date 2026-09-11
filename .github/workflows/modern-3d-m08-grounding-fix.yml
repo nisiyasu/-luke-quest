@@ -1,0 +1,46 @@
+name: Modern 3D M08 Grounding Fix
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - '.github/workflows/modern-3d-m08-grounding-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-m08-grounding:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Blend bridge-to-bank grounding
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="function playerGroundY(x,z){if(Math.abs(x+1.35)<1.55&&z>-2.45&&z<4.65)return .42;if(z<-2.45)return 1.04;if(z>4.65)return -.28;return .42}"
+          new="function playerGroundY(x,z){const onBridgeLane=Math.abs(x+1.35)<1.55;if(onBridgeLane&&z>-2.45&&z<4.65)return .42;if(onBridgeLane&&z<=-2.45&&z>-3.65){const t=THREE.MathUtils.smoothstep(-z,2.45,3.65);return THREE.MathUtils.lerp(.42,1.04,t)}if(onBridgeLane&&z>=4.65&&z<5.85){const t=THREE.MathUtils.smoothstep(z,4.65,5.85);return THREE.MathUtils.lerp(.42,-.28,t)}if(z<=-3.65)return 1.04;if(z>=5.85)return -.28;return z<0?1.04:-.28}"
+          count=s.count(old)
+          if count != 1:
+              raise SystemExit(f'expected exactly one old playerGroundY, found {count}')
+          p.write_text(s.replace(old,new))
+      - name: Verify grounding patch
+        run: |
+          git diff --check
+          grep -F 'THREE.MathUtils.smoothstep(-z,2.45,3.65)' prototypes/modern-3d/index.html
+          grep -F 'THREE.MathUtils.smoothstep(z,4.65,5.85)' prototypes/modern-3d/index.html
+          if grep -F 'function playerGroundY(x,z){if(Math.abs(x+1.35)<1.55' prototypes/modern-3d/index.html; then exit 1; fi
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit M08 grounding fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && exit 1
+          git commit -m 'fix(modern-3d): smooth Luke grounding at bridge banks'
+          git push origin HEAD:prototype/modern-3d
