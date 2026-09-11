@@ -38,10 +38,17 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
           mkdir -p .modern3d
+          set +e
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=7000 --dump-dom \
-            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m02-dom.html
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m02-dom.html 2>.modern3d/chrome-stderr.log
+          browser_rc=$?
+          set -e
+          echo "BROWSER_RC=$browser_rc"
+          grep -oE 'data-(lq-modern3d|three-revision|m02-ci|m02-error)="[^"]*"' .modern3d/m02-dom.html || true
+          grep -E 'WebGL ERROR|Uncaught|TypeError|ReferenceError|NotFoundError' .modern3d/chrome-stderr.log || true
+          test "$browser_rc" -eq 0
           grep -q 'data-lq-modern3d="m02-ready"' .modern3d/m02-dom.html
           grep -q 'data-three-revision="186"' .modern3d/m02-dom.html
           grep -q 'data-m02-ci="pass"' .modern3d/m02-dom.html
@@ -83,12 +90,17 @@ jobs:
             echo '- art-quality target: NOT inferred'
             echo '- physical iPhone: PENDING'
           } >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - name: Upload M02 evidence and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: modern-3d-m02-${{ github.sha }}
           path: |
             .modern3d/m02-dom.html
             .modern3d/m02-390x844.png
+            .modern3d/chrome-stderr.log
+            /tmp/modern3d-http.log
             prototypes/modern-3d/index.html
             prototypes/modern-3d/M01_ART_DIRECTION_AND_COMPARISON_CONTRACT.md
+          if-no-files-found: warn
           retention-days: 14
