@@ -49,32 +49,59 @@
     {
       "id": "terrain_grass_cliff_v1",
       "type": "material_and_geometry",
-      "status": "PLACEHOLDER_TO_REPLACE",
-      "source": "M03 procedural bootstrap",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code",
       "license": "project-owned original",
-      "path": "index.html",
-      "version": "0.3.0",
-      "gap": "M04 must add authored surface breakup, cliff strata and join treatment before close"
+      "path": "assets.js#createTerrainPatch",
+      "dimensions_m": "configurable inspection patch; world use is authored by placement",
+      "origin": "patch center / top surface Y=0",
+      "forward": "cliff face toward +Z when cliff=true",
+      "texture": "runtime CanvasTexture grass macro breakup 256x256 + cliff strata 256x256",
+      "features": ["subdivided uneven surface", "macro grass breakup", "cliff face", "strata texture", "moss ledges"],
+      "version": "1.0.0"
     },
     {
       "id": "water_river_v1",
-      "type": "material",
-      "status": "PLACEHOLDER_TO_REPLACE",
-      "source": "M03 procedural bootstrap",
+      "type": "shader_surface",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code",
       "license": "project-owned original",
-      "path": "index.html",
-      "version": "0.3.0",
-      "gap": "M04 asset base may prepare water inputs; final water quality is M07"
+      "path": "assets.js#createWaterSurface",
+      "dimensions_m": "configurable width/depth",
+      "origin": "surface center",
+      "forward": "none",
+      "texture": "procedural shader; deep/shallow color variation + animated ripple displacement",
+      "features": ["deep/shallow color variation", "animated geometry ripple", "transparent surface"],
+      "version": "1.0.0",
+      "note": "M04 establishes production base; final shoreline/reflection/light integration remains M07"
     },
     {
       "id": "luke_player_v1",
-      "type": "character",
-      "status": "PLACEHOLDER_TO_REPLACE",
-      "source": "M03 capsule/head bootstrap",
+      "type": "character_procedural_rig",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code",
       "license": "project-owned original",
-      "path": "index.html",
-      "version": "0.3.0",
-      "gap": "M04 requires animation-ready anatomy/rig or equivalent production animation method"
+      "path": "assets.js#createLukeCharacter",
+      "dimensions_m": "approximately 2.0 at scale=1",
+      "origin": "feet/character root",
+      "forward": "-Z",
+      "texture": "material-separated skin/clothing/boots/hair/belt",
+      "features": ["head/body separation", "blue hair locks", "arms", "legs", "feet", "hierarchical limb pivots", "walk-cycle animator"],
+      "animation_method": "procedural hierarchical pivot rig via userData.animate(t,speed)",
+      "version": "1.0.0"
+    },
+    {
+      "id": "sign_v1",
+      "type": "model_procedural",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code",
+      "license": "project-owned original",
+      "path": "assets.js#createSign",
+      "dimensions_m": [1.48, 1.62, 0.18],
+      "origin": "post base",
+      "forward": "+Z readable face",
+      "texture": "wood grain materials",
+      "version": "1.0.0"
     }
   ]
 }
