@@ -6,9 +6,9 @@ This folder is the canonical visual comparison set for the current LUKE QUEST fi
 
 The two images in this folder have different roles. They must never be treated as equivalent references.
 
-## Expected files
+## Canonical files
 
-### `CURRENT_BAD`
+### `CURRENT_BAD.png`
 
 Role: current-state / regression-comparison reference only.
 
@@ -22,7 +22,7 @@ Rules:
 - Use it to measure how far candidate builds have actually moved away from the current state.
 - It is valuable as a regression / before-image, not as an art-direction target.
 
-### `TARGET_PS1`
+### `TARGET_PS1.png`
 
 Role: Owner-approved target visual-quality reference.
 
@@ -47,7 +47,7 @@ Treat it as a visual-quality benchmark for:
 
 Evaluation should be performed as:
 
-`CURRENT_BAD -> candidate build -> TARGET_PS1`
+`CURRENT_BAD.png -> candidate build -> TARGET_PS1.png`
 
 The question is not "is the candidate prettier than CURRENT_BAD?"
 
@@ -67,19 +67,10 @@ Preserve reusable game logic where appropriate, including story/state, interacti
 
 Do not perform a reckless whole-game rewrite. Prefer staged migration behind safe checkpoints and A/B comparison.
 
-## Asset naming
-
-When the Owner uploads the two reference images, use clear filenames such as:
-
-- `CURRENT_BAD.png` (or `.jpg` / `.jpeg`)
-- `TARGET_PS1.png` (or `.jpg` / `.jpeg`)
-
-If uploaded filenames differ, update this README so the role of each image remains unambiguous.
-
 ## Non-negotiable interpretation
 
-`CURRENT_BAD` = evidence of the starting point.
+`CURRENT_BAD.png` = evidence of the starting point.
 
-`TARGET_PS1` = visual quality target.
+`TARGET_PS1.png` = visual quality target.
 
 **Never use CURRENT_BAD as the implementation target. Never downgrade TARGET_PS1 into a vague mood-board reference.**
