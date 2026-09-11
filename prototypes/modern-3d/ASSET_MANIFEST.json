@@ -3,6 +3,16 @@
   "units": "meters",
   "coordinate_system": "+X east, +Z south, +Y up",
   "license_policy": "Original procedural assets are project-owned. External assets require source/license/credit records before use.",
+  "active_target_set": {
+    "composition_baseline": "M03 v29 / ef4a5c50f404e5a08dde1d417420b69fca8c96ea",
+    "conifer": "conifer_target_v31@3.1.0",
+    "understory": "fern_patch_target_v1@1.0.0 + meadow_field_v1@1.0.0",
+    "bank": "bank_target_v4@4.2.0",
+    "water": "water_target_v3@3.4.0",
+    "bridge": "bridge_principal_v1@1.0.0",
+    "character": "luke_player_v1@1.0.0",
+    "inspection_surfaces": ["m04-target-inspection.html", "m04-bank-inspection.html", "m04-water-inspection.html"]
+  },
   "assets": [
     {
       "id": "bridge_principal_v1",
@@ -45,7 +55,8 @@
       "forward": "none",
       "texture": "material color/roughness variation; geometry vertex deformation",
       "features": ["irregular silhouettes", "multi-stone clusters", "moss accent", "grounded rotation/scale variation"],
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "note": "Standalone scene rocks remain a valid candidate; cliff-face rock fidelity is governed by bank_target_v4@4.2.0."
     },
     {
       "id": "terrain_grass_cliff_v1",
@@ -108,7 +119,7 @@
     {
       "id": "conifer_natural_v2",
       "type": "model_procedural_layered_foliage",
-      "status": "PRODUCTION_CANDIDATE",
+      "status": "BASELINE_SUPERSEDED_FOR_TARGET_SET",
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createNaturalConifer",
@@ -118,7 +129,7 @@
       "texture": "material-separated bark plus three rough foliage tones; no external texture dependency",
       "features": ["nine branch levels", "radial branch variation", "layered frond cards", "multi-tone foliage", "top crown taper", "seeded silhouette variation", "ground needle accents"],
       "version": "2.1.0",
-      "replaces_for_m05": "conifer_family_v1"
+      "superseded_by": "conifer_target_v31"
     },
     {
       "id": "understory_cluster_v2",
@@ -141,44 +152,103 @@
       "source": "original procedural code created after M05 natural-v3 comparison",
       "license": "project-owned original",
       "path": "natural-assets.js#createMeadowField",
-      "dimensions_m": "configurable rectangular footprint; M05 v4 uses two 27 x 7.2 fields",
+      "dimensions_m": "configurable rectangular footprint",
       "origin": "field footprint center at ground level",
       "forward": "none",
       "texture": "instance colors across four grass greens plus four flower colors",
       "features": ["InstancedMesh grass blades", "seeded scale and lean variation", "instance color variation", "instanced flower heads", "high-density surface detail with low draw-call growth"],
-      "performance_note": "M05 v4 uses 560 grass + 84 flower instances per bank in four total instanced draw groups rather than individual mesh draw calls",
+      "performance_note": "Instanced draw groups avoid individual-mesh draw-call growth.",
       "version": "1.0.0"
     },
     {
       "id": "layered_bank_v2",
       "type": "terrain_and_shore_geometry",
-      "status": "PRODUCTION_CANDIDATE",
+      "status": "BASELINE_SUPERSEDED_FOR_TARGET_SET",
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createLayeredBank",
-      "dimensions_m": "configurable width/depth; M05 authored banks use scene-specific placement",
+      "dimensions_m": "configurable width/depth",
       "origin": "top patch center",
       "forward": "facing parameter selects river-facing edge",
-      "texture": "procedural 256x256 grass CanvasTexture with macro color breakup, thousands of blade flecks and soil/light speckle plus rough soil/moss/rock materials",
-      "features": ["subdivided uneven top surface", "macro and micro grass color breakup", "multi-layer deformed shoreline rocks", "soil transition band", "moss/rock color variation", "denser integrated understory clusters", "non-straight naturalized edge"],
+      "texture": "procedural grass CanvasTexture plus rough soil/moss/rock materials",
+      "features": ["subdivided uneven top surface", "macro and micro grass breakup", "multi-layer deformed shoreline rocks", "soil transition band", "moss/rock color variation", "integrated understory clusters"],
       "version": "2.1.0",
-      "replaces_for_m05": "terrain_grass_cliff_v1"
+      "superseded_by": "bank_target_v4"
     },
     {
       "id": "water_rich_v2",
       "type": "shader_surface_with_shore_detail",
-      "status": "PRODUCTION_CANDIDATE",
+      "status": "BASELINE_SUPERSEDED_FOR_TARGET_SET",
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createRichWater",
-      "dimensions_m": "configurable width/depth; M05 v4 river uses approximately 30 x 6.6",
+      "dimensions_m": "configurable width/depth",
       "origin": "surface center",
       "forward": "none",
       "texture": "custom procedural shader; no external texture dependency",
-      "features": ["multi-frequency animated wave displacement", "deep/mid/light color breakup", "animated specular-like sparkle bands", "shore brightening", "two irregular foam strips", "embedded deformed rocks"],
+      "features": ["multi-frequency animated wave displacement", "deep/mid/light color breakup", "animated sparkle bands", "shore brightening", "irregular foam strips", "embedded deformed rocks"],
       "animation_method": "userData.update(t) drives uTime shader uniform",
       "version": "2.1.0",
-      "replaces_for_m05": "water_river_v1"
+      "superseded_by": "water_target_v3"
+    },
+    {
+      "id": "fern_patch_target_v1",
+      "type": "instanced_ground_vegetation",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original repo-procedural",
+      "license": "project-owned original",
+      "path": "m04-target-assets.js#createTargetFernPatch",
+      "dimensions_m": "configurable patch scale and count",
+      "origin": "patch footprint center",
+      "features": ["two-tone instanced fern blades", "seeded radial scatter", "lean/height variation"],
+      "version": "1.0.0"
+    },
+    {
+      "id": "conifer_target_v31",
+      "type": "model_procedural_instanced_layered_foliage",
+      "status": "PRODUCTION_CANDIDATE_ACTIVE_TARGET",
+      "source": "original repo-procedural",
+      "license": "project-owned original",
+      "path": "m04-conifer-target-v31.js#createTargetConiferV31",
+      "dimensions_m": "height approximately 5.6-6.4 before scale variants",
+      "origin": "trunk base",
+      "forward": "radial seeded silhouette",
+      "texture": "four foliage material tones plus bark materials; no external texture dependency",
+      "features": ["14 foliage levels", "short overlapping fan fronds", "instanced branch/frond batches", "soft/full silhouette", "root flare", "crown taper", "ground skirt"],
+      "rendering": "instanced-overlapping-fans",
+      "version": "3.1.0",
+      "inspection": "m04-target-inspection.html RIGHT column"
+    },
+    {
+      "id": "bank_target_v4",
+      "type": "terrain_and_shore_geometry",
+      "status": "PRODUCTION_CANDIDATE_ACTIVE_TARGET",
+      "source": "original repo-procedural",
+      "license": "project-owned original",
+      "path": "m04-bank-target-v4.js#createTargetBankV4",
+      "dimensions_m": "configurable width/depth/facing",
+      "origin": "top patch center",
+      "forward": "facing parameter selects water-facing edge",
+      "texture": "rough material palette; no external texture dependency",
+      "features": ["continuous irregular top edge", "four staggered smoother overlapping rock terrace bands", "higher-subdivision deformed rocks", "soil pockets", "moss caps", "fern lip", "embedded top stones", "micro pebble breakup"],
+      "version": "4.2.0",
+      "inspection": "m04-bank-inspection.html RIGHT column"
+    },
+    {
+      "id": "water_target_v3",
+      "type": "shader_surface_with_shore_and_rock_detail",
+      "status": "PRODUCTION_CANDIDATE_ACTIVE_TARGET",
+      "source": "original repo-procedural",
+      "license": "project-owned original",
+      "path": "m04-water-target-v3.js#createTargetWaterV3",
+      "dimensions_m": "configurable width/depth",
+      "origin": "surface center",
+      "forward": "none",
+      "texture": "procedural shader; no external texture dependency",
+      "features": ["multi-frequency displacement", "deep/mid/shallow turquoise breakup", "non-linear specular glints", "shore foam ribbons", "sparkle field", "embedded rocks", "rock foam rings"],
+      "animation_method": "userData.update(t) drives uTime shader uniform",
+      "version": "3.4.0",
+      "inspection": "m04-water-inspection.html RIGHT column"
     }
   ]
 }
