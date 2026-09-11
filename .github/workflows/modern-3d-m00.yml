@@ -1,4 +1,4 @@
-name: Modern 3D M02 Runtime Gate
+name: Modern 3D M03 Traversal Gate
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  browser-webgl-input:
+  browser-webgl-traversal:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Prove WebGL movement input release and redisplay
+      - name: Prove M02 input foundation and M03 traversal collision
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
@@ -42,18 +42,24 @@ jobs:
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=7000 --dump-dom \
-            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m02-dom.html 2>.modern3d/chrome-stderr.log
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m03-dom.html 2>.modern3d/chrome-stderr.log
           browser_rc=$?
           set -e
           echo "BROWSER_RC=$browser_rc"
-          grep -oE 'data-(lq-modern3d|three-revision|m02-ci|m02-error)="[^"]*"' .modern3d/m02-dom.html || true
+          grep -oE 'data-(lq-modern3d|three-revision|m02-ci|m03-ci|m03-route|m03-error)="[^"]*"' .modern3d/m03-dom.html || true
           grep -E 'WebGL ERROR|Uncaught|TypeError|ReferenceError|NotFoundError' .modern3d/chrome-stderr.log || true
           test "$browser_rc" -eq 0
-          grep -q 'data-lq-modern3d="m02-ready"' .modern3d/m02-dom.html
-          grep -q 'data-three-revision="186"' .modern3d/m02-dom.html
-          grep -q 'data-m02-ci="pass"' .modern3d/m02-dom.html
-          ! grep -q 'data-lq-modern3d="m02-error"' .modern3d/m02-dom.html
-      - name: Capture M02 portrait evidence
+          grep -q 'data-lq-modern3d="m03-ready"' .modern3d/m03-dom.html
+          grep -q 'data-three-revision="186"' .modern3d/m03-dom.html
+          grep -q 'data-m02-ci="pass"' .modern3d/m03-dom.html
+          grep -q 'data-m03-ci="pass"' .modern3d/m03-dom.html
+          grep -q 'data-m03-route="R0:' .modern3d/m03-dom.html
+          grep -q 'R1:' .modern3d/m03-dom.html
+          grep -q 'R3:' .modern3d/m03-dom.html
+          grep -q 'R5:' .modern3d/m03-dom.html
+          ! grep -q 'data-lq-modern3d="m03-error"' .modern3d/m03-dom.html
+          grep -oE 'data-m03-route="[^"]*"' .modern3d/m03-dom.html > .modern3d/m03-route.txt
+      - name: Capture M03 portrait evidence
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
@@ -61,43 +67,46 @@ jobs:
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --window-size=390,844 --force-device-scale-factor=1 \
             --virtual-time-budget=7000 \
-            --screenshot=.modern3d/m02-390x844.png \
+            --screenshot=.modern3d/m03-390x844.png \
             'http://127.0.0.1:8140/index.html?ci=1'
-          test -s .modern3d/m02-390x844.png
-          test "$(stat -c %s .modern3d/m02-390x844.png)" -gt 10000
+          test -s .modern3d/m03-390x844.png
+          test "$(stat -c %s .modern3d/m03-390x844.png)" -gt 10000
           python3 - <<'PY'
           from pathlib import Path
           import struct
-          p=Path('.modern3d/m02-390x844.png').read_bytes()
+          p=Path('.modern3d/m03-390x844.png').read_bytes()
           assert p[:8]==b'\x89PNG\r\n\x1a\n'
           w,h=struct.unpack('>II',p[16:24])
           assert w==390 and h>=800,(w,h)
-          print(f'M02_PNG={w}x{h}')
+          print(f'M03_PNG={w}x{h}')
           PY
       - name: Record runtime evidence
         shell: bash
         run: |
           {
-            echo '## Modern 3D M02 runtime gate'
+            echo '## Modern 3D M03 traversal gate'
             echo "- source SHA: $GITHUB_SHA"
             echo '- Three.js 0.186.0 / revision 186: PASS'
-            echo '- browser/WebGL: PASS'
-            echo '- keyboard movement: PASS'
-            echo '- pointer/touch-path movement: PASS'
-            echo '- blur input release: PASS'
-            echo '- resize/redisplay handler: PASS'
-            echo '- 390x844 frame: PASS'
-            echo '- art-quality target: NOT inferred'
+            echo '- M02 keyboard + pointer/touch input path: PASS'
+            echo '- bridge northbound traversal: PASS'
+            echo '- off-bridge river entry blocked: PASS'
+            echo '- shore stop: PASS'
+            echo '- representative world bounds walkable: PASS'
+            echo '- 390x844 running frame: PASS'
+            echo '- final-art quality: NOT inferred; placeholder shapes allowed in M03'
             echo '- physical iPhone: PENDING'
+            echo '- route evidence:'
+            cat .modern3d/m03-route.txt
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload M02 evidence and failure diagnostics
+      - name: Upload M03 evidence and failure diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: modern-3d-m02-${{ github.sha }}
+          name: modern-3d-m03-${{ github.sha }}
           path: |
-            .modern3d/m02-dom.html
-            .modern3d/m02-390x844.png
+            .modern3d/m03-dom.html
+            .modern3d/m03-route.txt
+            .modern3d/m03-390x844.png
             .modern3d/chrome-stderr.log
             /tmp/modern3d-http.log
             prototypes/modern-3d/index.html
