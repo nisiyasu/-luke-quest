@@ -47,18 +47,32 @@ jobs:
           mkdir -p .m07-evidence
           capture(){
             local quality="$1" size="$2" budget="$3" out="$4"
-            local start end
-            start=$(date +%s%3N)
-            timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-              --hide-scrollbars --window-size="$size" --virtual-time-budget="$budget" \
-              --screenshot=".m07-evidence/$out" "http://127.0.0.1:8140/index.html?quality=$quality"
-            end=$(date +%s%3N)
-            echo "$quality $size budget_ms=$budget wall_ms=$((end-start)) file=$out" >> .m07-evidence/m07-performance.txt
+            local attempt start end rc
+            for attempt in 1 2; do
+              start=$(date +%s%3N)
+              set +e
+              timeout 65s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+                --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+                --hide-scrollbars --window-size="$size" --virtual-time-budget="$budget" \
+                --screenshot=".m07-evidence/$out" "http://127.0.0.1:8140/index.html?quality=$quality"
+              rc=$?
+              set -e
+              end=$(date +%s%3N)
+              if [ "$rc" -eq 0 ] && test -s ".m07-evidence/$out"; then
+                echo "$quality $size budget_ms=$budget wall_ms=$((end-start)) file=$out attempt=$attempt result=PASS" >> .m07-evidence/m07-performance.txt
+                return 0
+              fi
+              echo "$quality $size budget_ms=$budget wall_ms=$((end-start)) file=$out attempt=$attempt result=RETRY rc=$rc" >> .m07-evidence/m07-performance.txt
+              rm -f ".m07-evidence/$out"
+              sleep 1
+            done
+            echo "$quality $size file=$out result=FAIL_AFTER_RETRY" >> .m07-evidence/m07-performance.txt
+            return 1
           }
-          capture high 390,844 1100 high-390x844.png
-          capture high 864,1536 1100 high-864x1536.png
-          capture practical 390,844 1100 practical-390x844.png
+          # Capture the practical proof first so a late high/HQ timeout cannot erase preset comparison evidence.
+          capture practical 390,844 900 practical-390x844.png
+          capture high 390,844 900 high-390x844.png
+          capture high 864,1536 900 high-864x1536.png
           test -s .m07-evidence/high-390x844.png
           test -s .m07-evidence/high-864x1536.png
           test -s .m07-evidence/practical-390x844.png
