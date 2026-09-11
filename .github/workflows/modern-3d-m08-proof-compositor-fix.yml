@@ -1,0 +1,41 @@
+name: Modern 3D M08 Proof Compositor Fix
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/modern-3d-m08-proof-compositor-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Add bounded compositor frames and self-remove
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="renderer.render(scene,camera)}else{requestAnimationFrame(tick)"
+          new="let proofFrames=0;const renderProof=()=>{renderer.render(scene,camera);proofFrames++;document.documentElement.dataset.m08ProofRendered=String(proofFrames);if(proofFrames<4)requestAnimationFrame(renderProof)};requestAnimationFrame(renderProof)}else{requestAnimationFrame(tick)"
+          assert s.count(old)==1, s.count(old)
+          p.write_text(s.replace(old,new))
+          PY
+          grep -F "dataset.m08ProofRendered=String(proofFrames)" prototypes/modern-3d/index.html
+          grep -F "if(proofFrames<4)requestAnimationFrame(renderProof)" prototypes/modern-3d/index.html
+          git rm .github/workflows/modern-3d-m08-proof-compositor-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git diff --cached --check
+          git commit -m "fix(modern-3d): flush bounded M08 proof frames"
+          git push origin HEAD:prototype/modern-3d
