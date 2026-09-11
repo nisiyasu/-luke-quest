@@ -62,7 +62,7 @@ jobs:
           grep -q 'data-three-revision="186"' .modern3d/m05-dom.html
           grep -q 'data-m02-ci="pass"' .modern3d/m05-dom.html
           grep -q 'data-m03-ci="pass"' .modern3d/m05-dom.html
-          grep -q 'data-m04-assets="integrated"' .modern3d/m05-dom.html
+          grep -Eq 'data-m04-assets="(integrated|natural-v[0-9]+-integrated)"' .modern3d/m05-dom.html
           grep -q 'data-m05-scene="ready"' .modern3d/m05-dom.html
           ! grep -q 'data-lq-modern3d="m05-error"' .modern3d/m05-dom.html
           grep -oE 'data-m03-route="[^"]*"' .modern3d/m05-dom.html > .modern3d/m05-route.txt
