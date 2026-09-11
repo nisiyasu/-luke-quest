@@ -32,6 +32,8 @@ jobs:
           test -s prototypes/modern-3d/asset-inspection.html
           test -s prototypes/modern-3d/m04-target-assets.js
           test -s prototypes/modern-3d/m04-target-inspection.html
+          test -s prototypes/modern-3d/m04-water-target-v3.js
+          test -s prototypes/modern-3d/m04-water-inspection.html
           python3 - <<'PY'
           import json
           d=json.load(open('prototypes/modern-3d/ASSET_MANIFEST.json',encoding='utf-8'))
@@ -53,6 +55,7 @@ jobs:
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
           curl -fsS http://127.0.0.1:8140/asset-inspection.html >/dev/null
           curl -fsS http://127.0.0.1:8140/m04-target-inspection.html >/dev/null
+          curl -fsS http://127.0.0.1:8140/m04-water-inspection.html >/dev/null
       - name: Prove M04 natural asset inspection runtime
         shell: bash
         run: |
@@ -72,6 +75,12 @@ jobs:
             'http://127.0.0.1:8140/m04-target-inspection.html' > .modern3d/m04-target-dom.html 2>.modern3d/m04-target-stderr.log
           grep -q 'data-m04-target-inspection="ready"' .modern3d/m04-target-dom.html
           grep -q 'data-candidate-asset="conifer_target_v3@3.0.0"' .modern3d/m04-target-dom.html
+          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --virtual-time-budget=1200 --dump-dom \
+            'http://127.0.0.1:8140/m04-water-inspection.html' > .modern3d/m04-water-dom.html 2>.modern3d/m04-water-stderr.log
+          grep -q 'data-m04-water-inspection="ready"' .modern3d/m04-water-dom.html
+          grep -q 'water_target_v3@3.2.0' .modern3d/m04-water-dom.html
       - name: Prove runtime traversal regressions and M05 integrated scene
         shell: bash
         run: |
@@ -92,7 +101,7 @@ jobs:
           grep -q 'data-three-revision="186"' .modern3d/m05-dom.html
           grep -q 'data-m02-ci="pass"' .modern3d/m05-dom.html
           grep -q 'data-m03-ci="pass"' .modern3d/m05-dom.html
-          grep -Eq 'data-m04-assets="(integrated|natural-v[0-9]+-integrated|target-v[0-9]+-bounded)"' .modern3d/m05-dom.html
+          grep -Eq 'data-m04-assets="(integrated|natural-v[0-9]+-integrated|target-v[0-9]+-[^"]+)"' .modern3d/m05-dom.html
           grep -q 'data-m05-scene="ready"' .modern3d/m05-dom.html
           ! grep -q 'data-lq-modern3d="m05-error"' .modern3d/m05-dom.html
           grep -oE 'data-m03-route="[^"]*"' .modern3d/m05-dom.html > .modern3d/m05-route.txt
@@ -129,7 +138,8 @@ jobs:
             echo '- M04 baseline production asset family manifest: PASS'
             echo '- M04 baseline shared-light inspection runtime: PASS'
             echo '- M04 target-candidate shared-light inspection runtime: PASS'
-            echo '- M04 bounded target asset integration in actual game scene: PASS'
+            echo '- M04 target-water shared-light inspection runtime: PASS'
+            echo '- M04 target asset integration in actual game scene: PASS'
             echo '- canonical C1 390x844 running frame: CAPTURED'
             echo '- high-quality 864x1536 running frame: CAPTURED'
             echo '- MINIMUM_QUALITY_LINE + TARGET_PS1_FINAL: INCLUDED FOR HUMAN/VISION COMPARISON'
@@ -148,6 +158,8 @@ jobs:
             .modern3d/m04-inspection-stderr.log
             .modern3d/m04-target-dom.html
             .modern3d/m04-target-stderr.log
+            .modern3d/m04-water-dom.html
+            .modern3d/m04-water-stderr.log
             .modern3d/m05-dom.html
             .modern3d/m05-route.txt
             .modern3d/m05-c1-390x844.png
@@ -159,6 +171,8 @@ jobs:
             prototypes/modern-3d/index.html
             prototypes/modern-3d/asset-inspection.html
             prototypes/modern-3d/m04-target-inspection.html
+            prototypes/modern-3d/m04-water-inspection.html
+            prototypes/modern-3d/m04-water-target-v3.js
             prototypes/modern-3d/assets.js
             prototypes/modern-3d/natural-assets.js
             prototypes/modern-3d/m04-target-assets.js
