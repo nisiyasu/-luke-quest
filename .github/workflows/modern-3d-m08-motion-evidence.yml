@@ -41,6 +41,7 @@ jobs:
           grep -F "dataset.m08ProofEnd=" prototypes/modern-3d/index.html
           grep -F "dataset.m08ProofDone='1'" prototypes/modern-3d/index.html
           grep -F "dataset.m08ProofRendered=String(proofFrames)" prototypes/modern-3d/index.html
+          grep -F "query.get('m08walk')==='1'" prototypes/modern-3d/index.html
       - name: Start isolated prototype server
         shell: bash
         run: |
@@ -95,27 +96,27 @@ jobs:
           Path('.modern3d-m08/walk-position-proof.txt').write_text(f'start={start}\nend={end}\ndelta_z={end[2]-start[2]:.3f}\nrendered={attr("data-m08-proof-rendered")}\nPASS\n')
           print(start,end)
           PY
-      - name: Capture bounded M08 proof-pose frames and reject black world evidence
+      - name: Capture live bounded M08 walk frames and reject black world evidence
         shell: bash
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 35s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 40s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=500 \
-            --screenshot=.modern3d-m08/m08-proof-390x844.png \
-            'http://127.0.0.1:8140/index.html?m08proof=1'
-          timeout 35s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=120 \
+            --screenshot=.modern3d-m08/m08-walk-390x844.png \
+            'http://127.0.0.1:8140/index.html?m08walk=1'
+          timeout 40s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=500 \
-            --screenshot=.modern3d-m08/m08-proof-864x1536.png \
-            'http://127.0.0.1:8140/index.html?m08proof=1'
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=120 \
+            --screenshot=.modern3d-m08/m08-walk-864x1536.png \
+            'http://127.0.0.1:8140/index.html?m08walk=1'
           python3 - <<'PY'
           from pathlib import Path
           import struct,zlib,math
           expected={
-            '.modern3d-m08/m08-proof-390x844.png':(390,844),
-            '.modern3d-m08/m08-proof-864x1536.png':(864,1536),
+            '.modern3d-m08/m08-walk-390x844.png':(390,844),
+            '.modern3d-m08/m08-walk-864x1536.png':(864,1536),
           }
           def paeth(a,b,c):
               p=a+b-c; pa=abs(p-a); pb=abs(p-b); pc=abs(p-c)
@@ -166,8 +167,8 @@ jobs:
             .modern3d-m08/walk-proof.html
             .modern3d-m08/walk-position-proof.txt
             .modern3d-m08/chrome-stderr.log
-            .modern3d-m08/m08-proof-390x844.png
-            .modern3d-m08/m08-proof-864x1536.png
+            .modern3d-m08/m08-walk-390x844.png
+            .modern3d-m08/m08-walk-864x1536.png
             /tmp/m08-http.log
             prototypes/modern-3d/index.html
             prototypes/modern-3d/assets.js
