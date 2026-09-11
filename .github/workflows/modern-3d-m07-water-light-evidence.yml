@@ -1,0 +1,111 @@
+name: Modern 3D M07 Water Light Evidence
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - 'prototypes/modern-3d/**'
+      - '.github/workflows/modern-3d-m07-water-light-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start prototype server
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m07-http.log 2>&1 &
+          sleep 1
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+
+      - name: Verify M07 water contract and runtime
+        run: |
+          set -euo pipefail
+          grep -q "stage:'M07_IN_PROGRESS'" prototypes/modern-3d/m04-water-target-v3.js
+          grep -q "single-pass analytic wave-normal Fresnel sky reflection" prototypes/modern-3d/m04-water-target-v3.js
+          grep -q "qualityPreset:resolvedQuality" prototypes/modern-3d/m04-water-target-v3.js
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          test -n "$BROWSER"
+          mkdir -p .m07-evidence
+          timeout 55s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=390,844 --virtual-time-budget=850 --dump-dom \
+            'http://127.0.0.1:8140/index.html?ci=1&quality=high' > .m07-evidence/high-dom.html 2>.m07-evidence/high-chrome.log
+          grep -q 'data-lq-modern3d="m05-ready"' .m07-evidence/high-dom.html
+          grep -q 'data-m03-ci="pass"' .m07-evidence/high-dom.html
+
+      - name: Capture high and practical preset stills
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          mkdir -p .m07-evidence
+          capture(){
+            local quality="$1" size="$2" budget="$3" out="$4"
+            local start end
+            start=$(date +%s%3N)
+            timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+              --hide-scrollbars --window-size="$size" --virtual-time-budget="$budget" \
+              --screenshot=".m07-evidence/$out" "http://127.0.0.1:8140/index.html?quality=$quality"
+            end=$(date +%s%3N)
+            echo "$quality $size budget_ms=$budget wall_ms=$((end-start)) file=$out" >> .m07-evidence/m07-performance.txt
+          }
+          capture high 390,844 1100 high-390x844.png
+          capture high 864,1536 1100 high-864x1536.png
+          capture practical 390,844 1100 practical-390x844.png
+          test -s .m07-evidence/high-390x844.png
+          test -s .m07-evidence/high-864x1536.png
+          test -s .m07-evidence/practical-390x844.png
+
+      - name: Capture deterministic water motion sequence
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          for spec in '01 450' '02 900' '03 1350' '04 1800' '05 2250' '06 2700'; do
+            set -- $spec
+            timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+              --hide-scrollbars --window-size=390,844 --virtual-time-budget="$2" \
+              --screenshot=".m07-evidence/motion-$1.png" 'http://127.0.0.1:8140/index.html?quality=high'
+          done
+          test -s .m07-evidence/motion-06.png
+          if command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -y -framerate 3 -i .m07-evidence/motion-%02d.png -c:v libx264 -pix_fmt yuv420p .m07-evidence/water-motion-high.mp4 >/tmp/m07-ffmpeg.log 2>&1
+            test -s .m07-evidence/water-motion-high.mp4
+            echo 'MOTION_VIDEO=PASS ffmpeg deterministic virtual-time frame sequence' >> .m07-evidence/m07-performance.txt
+          else
+            echo 'MOTION_VIDEO=PENDING ffmpeg unavailable on runner; PNG motion sequence preserved' >> .m07-evidence/m07-performance.txt
+          fi
+
+      - name: Record M07 evidence manifest
+        run: |
+          cat > .m07-evidence/M07_EVIDENCE.txt <<EOF
+          HEAD=${GITHUB_SHA}
+          REFLECTION_METHOD=single-pass analytic wave-normal Fresnel sky reflection + directional sun specular; no planar RTT/SSR
+          HIGH_PRESET=96x40 water grid; denser glints/shore treatment; shoreline rock cast shadows
+          PRACTICAL_PRESET=52x20 water grid; reduced glints/shore treatment; fewer rocks; no shoreline rock cast shadows
+          VIEWPORTS=390x844 high/practical; 864x1536 high
+          MOTION=6 deterministic high-preset runtime frames; MP4 when ffmpeg is available
+          OWNER_EXPERIENCE_PASS=PENDING
+          IOS_PHYSICAL_VERIFICATION=PENDING
+          EOF
+          cat .m07-evidence/m07-performance.txt >> .m07-evidence/M07_EVIDENCE.txt
+
+      - name: Upload M07 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: modern-3d-m07-water-light-${{ github.sha }}
+          path: |
+            .m07-evidence/
+            /tmp/m07-http.log
+            /tmp/m07-ffmpeg.log
+            assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+          if-no-files-found: error
+          retention-days: 14
