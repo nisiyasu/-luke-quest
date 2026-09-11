@@ -1,1 +1,0 @@
-REGISTRATION_ONLY. Do not mark M00 IN_PROGRESS or start implementation solely because the parent/stage Issues are being registered. Execution begins only after an explicit execution start authority is present.

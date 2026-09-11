@@ -1,1 +1,0 @@
-The `PARENT_ISSUE_BODY.md` and `STAGE_ISSUE_BODY_M00.md` ... `STAGE_ISSUE_BODY_M12.md` files are durable registration source bodies. They do not themselves replace the required GitHub Issues. The Issue set must be created and linked before REGISTRATION_STATUS becomes COMPLETE.
