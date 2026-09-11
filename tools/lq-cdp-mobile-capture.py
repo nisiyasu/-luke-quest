@@ -35,12 +35,17 @@ def browser_path(explicit: str | None) -> str:
     raise SystemExit("no Chromium/Chrome browser found")
 
 
-def wait_for_tab(port: int, timeout: float = 10.0) -> dict:
+def wait_for_tab(port: int, proc: subprocess.Popen, timeout: float = 20.0) -> dict:
     deadline = time.time() + timeout
     last_error: Exception | None = None
+    attempts = 0
     while time.time() < deadline:
+        attempts += 1
+        return_code = proc.poll()
+        if return_code is not None:
+            raise SystemExit(f"Chrome exited before DevTools page target became ready: exit={return_code}, attempts={attempts}")
         try:
-            with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/list", timeout=0.5) as response:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/list", timeout=1.0) as response:
                 tabs = json.load(response)
             page_tabs = [tab for tab in tabs if tab.get("type") == "page" and not str(tab.get("url", "")).startswith("chrome-extension://")]
             blank_tabs = [tab for tab in page_tabs if tab.get("url") in {"about:blank", "chrome://newtab/"}]
@@ -50,8 +55,8 @@ def wait_for_tab(port: int, timeout: float = 10.0) -> dict:
                 return page_tabs[0]
         except Exception as exc:
             last_error = exc
-        time.sleep(0.1)
-    raise SystemExit(f"Chrome DevTools page target did not become ready: {last_error}")
+        time.sleep(0.15)
+    raise SystemExit(f"Chrome DevTools page target did not become ready after {attempts} attempts: {last_error}")
 
 
 class Cdp:
@@ -113,7 +118,7 @@ def main() -> None:
     )
     cdp: Cdp | None = None
     try:
-        tab = wait_for_tab(args.port)
+        tab = wait_for_tab(args.port, proc)
         cdp = Cdp(tab["webSocketDebuggerUrl"], args.port)
         cdp.call("Page.enable")
         cdp.call("Runtime.enable")
