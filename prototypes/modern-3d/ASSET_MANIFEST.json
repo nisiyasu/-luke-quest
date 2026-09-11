@@ -135,6 +135,21 @@
       "version": "2.1.0"
     },
     {
+      "id": "meadow_field_v1",
+      "type": "instanced_ground_detail",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code created after M05 natural-v3 comparison",
+      "license": "project-owned original",
+      "path": "natural-assets.js#createMeadowField",
+      "dimensions_m": "configurable rectangular footprint; M05 v4 uses two 27 x 7.2 fields",
+      "origin": "field footprint center at ground level",
+      "forward": "none",
+      "texture": "instance colors across four grass greens plus four flower colors",
+      "features": ["InstancedMesh grass blades", "seeded scale and lean variation", "instance color variation", "instanced flower heads", "high-density surface detail with low draw-call growth"],
+      "performance_note": "M05 v4 uses 560 grass + 84 flower instances per bank in four total instanced draw groups rather than individual mesh draw calls",
+      "version": "1.0.0"
+    },
+    {
       "id": "layered_bank_v2",
       "type": "terrain_and_shore_geometry",
       "status": "PRODUCTION_CANDIDATE",
@@ -156,7 +171,7 @@
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createRichWater",
-      "dimensions_m": "configurable width/depth; M05 v3 river uses approximately 30 x 6.6",
+      "dimensions_m": "configurable width/depth; M05 v4 river uses approximately 30 x 6.6",
       "origin": "surface center",
       "forward": "none",
       "texture": "custom procedural shader; no external texture dependency",
