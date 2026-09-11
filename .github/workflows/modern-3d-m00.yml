@@ -56,9 +56,9 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
           mkdir -p .modern3d
-          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=3500 --dump-dom \
+            --virtual-time-budget=1200 --dump-dom \
             'http://127.0.0.1:8140/asset-inspection.html' > .modern3d/m04-inspection-dom.html 2>.modern3d/m04-inspection-stderr.log
           grep -q 'data-m04-inspection="natural-v2-ready"' .modern3d/m04-inspection-dom.html
           grep -q 'meadow_field_v1@1.0.0' .modern3d/m04-inspection-dom.html
@@ -70,9 +70,9 @@ jobs:
           test -n "$BROWSER"
           mkdir -p .modern3d
           set +e
-          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=7000 --dump-dom \
+            --virtual-time-budget=800 --dump-dom \
             'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m05-dom.html 2>.modern3d/chrome-stderr.log
           browser_rc=$?
           set -e
@@ -91,14 +91,14 @@ jobs:
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 90s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=2500 \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=500 \
             --screenshot=.modern3d/m05-c1-390x844.png \
             'http://127.0.0.1:8140/index.html'
-          timeout 90s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=2500 \
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=500 \
             --screenshot=.modern3d/m05-hq-864x1536.png \
             'http://127.0.0.1:8140/index.html'
           python3 - <<'PY'
