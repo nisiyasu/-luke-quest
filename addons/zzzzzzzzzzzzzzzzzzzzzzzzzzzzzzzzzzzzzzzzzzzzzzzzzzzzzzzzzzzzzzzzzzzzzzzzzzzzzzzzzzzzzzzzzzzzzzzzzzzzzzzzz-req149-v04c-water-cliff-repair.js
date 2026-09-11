@@ -11,6 +11,7 @@ function h(x,y,k=0){let n=(x*374761393+y*668265263+k*1442695041)>>>0;n=(n^(n>>>1
 function ch(m,x,y){return x<0||y<0||x>=m.w||y>=m.h?'#':((m.tiles[y]||'')[x]||'#')}
 function isWater(c){return c==='~'}
 function isBlockedNatural(c){return c==='#'||c==='H'||c==='*'||c==='^'}
+function isCliff(c){return c==='#'||c==='H'}
 
 function repaintWater(ctx,m){
   const H=m.h*TS;
@@ -67,7 +68,7 @@ function banks(ctx,m){
 }
 function boundaryCliffs(ctx,m){
   for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
-    const c=ch(m,x,y);if(c!=='#'&&c!=='H')continue;const X=x*TS,Y=y*TS;
+    const c=ch(m,x,y);if(!isCliff(c))continue;const X=x*TS,Y=y*TS;
     /* warmer readable cliff mass; preserve blocked geometry but stop presenting it as a black tile card */
     const g=ctx.createLinearGradient(X,Y,X,Y+TS);g.addColorStop(0,'#596448');g.addColorStop(.13,'#4b5b40');g.addColorStop(.48,'#3b4736');g.addColorStop(.76,'#303a30');g.addColorStop(1,'#26312b');ctx.fillStyle=g;ctx.fillRect(X,Y,TS,TS);
     ctx.fillStyle='rgba(137,166,88,.76)';ctx.fillRect(X,Y,TS,3);
@@ -87,6 +88,56 @@ function boundaryCliffs(ctx,m){
     }
   }
 }
+function unifyCliffRuns(ctx,m){
+  /* Draw geology across contiguous blocked runs so the eye reads one landform, not 48px cards. */
+  ctx.lineCap='round';ctx.lineJoin='round';
+  for(let y=0;y<m.h;y++){
+    let start=-1;
+    for(let x=0;x<=m.w;x++){
+      const cliff=x<m.w&&isCliff(ch(m,x,y));
+      if(cliff&&start<0)start=x;
+      if((!cliff||x===m.w)&&start>=0){
+        const end=x-1,count=end-start+1;
+        if(count>=2){
+          const X=start*TS,Y=y*TS,W=count*TS;
+          const crest=Y+4+Math.round((h(start,end,610)-.5)*2);
+          ctx.strokeStyle='rgba(151,178,95,.58)';ctx.lineWidth=2.2;
+          ctx.beginPath();ctx.moveTo(X+2,crest);
+          for(let i=1;i<=Math.max(3,count*2);i++){
+            const px=X+(W-4)*(i/Math.max(3,count*2));
+            const py=crest+(h(start+i,y,611)-.5)*3;
+            ctx.lineTo(px,py);
+          }
+          ctx.stroke();
+          for(let band=0;band<2;band++){
+            const yy=Y+20+band*14+(h(start,y,620+band)-.5)*4;
+            ctx.strokeStyle=band===0?'rgba(184,166,119,.20)':'rgba(19,31,26,.22)';ctx.lineWidth=1.2;
+            ctx.beginPath();ctx.moveTo(X+5,yy);
+            for(let i=1;i<=count*2;i++){
+              const px=X+5+(W-10)*(i/(count*2));
+              const py=yy+(h(start+i,y,630+band)-.5)*7;
+              ctx.lineTo(px,py);
+            }
+            ctx.stroke();
+          }
+          /* soften internal tile boundaries without erasing readable rock texture */
+          for(let sx=start+1;sx<=end;sx++){
+            const seam=sx*TS;
+            const grad=ctx.createLinearGradient(seam-4,0,seam+4,0);
+            grad.addColorStop(0,'rgba(54,65,49,0)');grad.addColorStop(.5,'rgba(61,72,54,.34)');grad.addColorStop(1,'rgba(54,65,49,0)');
+            ctx.fillStyle=grad;ctx.fillRect(seam-4,Y+7,8,TS-10);
+          }
+        }
+        start=-1;
+      }
+    }
+  }
+  /* vertical neighbors get shared fractures/vines so stacked rows also read as one face */
+  for(let y=1;y<m.h;y++)for(let x=0;x<m.w;x++)if(isCliff(ch(m,x,y))&&isCliff(ch(m,x,y-1))&&h(x,y,650)>.42){
+    const X=x*TS,Y=y*TS;const px=X+9+h(x,y,651)*29;
+    ctx.strokeStyle='rgba(116,141,82,.30)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(px,Y-5);ctx.bezierCurveTo(px+4,Y+4,px-5,Y+12,px+2,Y+22);ctx.stroke();
+  }
+}
 function waterDetails(ctx,m){
   /* occasional rocks/grass islets only where water has enough neighboring water */
   for(let y=1;y<m.h-1;y++)for(let x=1;x<m.w-1;x++)if(isWater(ch(m,x,y))&&isWater(ch(m,x+1,y))&&isWater(ch(m,x-1,y))&&h(x,y,601)>.78){
@@ -95,10 +146,10 @@ function waterDetails(ctx,m){
 }
 function refine(){
   if(s.screen!=='world'||s.map!=='field')return;const worldEl=app.querySelector('.lqReq149FieldCanvasWorld');const canvas=worldEl&&worldEl.querySelector('.lqReq149FieldCanvas');if(!canvas)return;
-  if(canvas.dataset.req149V04c==='1')return;const ctx=canvas.getContext('2d',{alpha:false}),m=MAPS.field;
-  repaintWater(ctx,m);banks(ctx,m);boundaryCliffs(ctx,m);waterDetails(ctx,m);canvas.dataset.req149V04c='1';
-  document.body.dataset.req149FieldRenderer='canvas-prototype-c';
+  if(canvas.dataset.req149V04c==='2')return;const ctx=canvas.getContext('2d',{alpha:false}),m=MAPS.field;
+  repaintWater(ctx,m);banks(ctx,m);boundaryCliffs(ctx,m);unifyCliffRuns(ctx,m);waterDetails(ctx,m);canvas.dataset.req149V04c='2';
+  document.body.dataset.req149FieldRenderer='canvas-prototype-c2';
 }
 const renderBase=render;render=function(){const r=renderBase();refine();return r};if(s.screen==='world')refine();
-window.LQ_REQ149_V04C_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-C',presentationOnly:true,collisionChanged:false,broadRollout:false};
+window.LQ_REQ149_V04C_STATUS={requirement:'REQ-149',stage:'FIELD-V04-PROTOTYPE-C2',presentationOnly:true,collisionChanged:false,broadRollout:false,continuousCliffRuns:true};
 })();
