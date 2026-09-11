@@ -28,6 +28,18 @@ export function createProductionBridge(){
     b.rotation.y=Math.sin(i*1.91)*.009;b.position.y+=Math.sin(i*1.37)*.014;
     if(i%5===1){const seam=beam(g,3.16,.015,.018,woodDark,0,.445,z+step*.31);seam.castShadow=false}
   }
+  // M06 finish: the bridge must read as a load-bearing structure, not a floating deck.
+  // Cross-beams, lower stringers and diagonal trestle braces visibly connect the deck to the banks/water.
+  for(const z of[-2.35,0,2.35]){
+    beam(g,3.92,.24,.30,woodDark,0,.03,z);
+    for(const x of[-1.18,1.18]){
+      const pier=new THREE.Mesh(new THREE.CylinderGeometry(.24,.34,1.55,10),woodDark);pier.position.set(x,-.54,z);g.add(pier);
+      const shoe=new THREE.Mesh(new THREE.CylinderGeometry(.42,.52,.26,10),rockMats[(z===0?1:2)]);shoe.position.set(x,-1.28,z);shoe.scale.z=1.15;g.add(shoe);
+      const collar=new THREE.Mesh(new THREE.TorusGeometry(.29,.042,6,16),ironMat);collar.rotation.x=Math.PI/2;collar.position.set(x,-.02,z);g.add(collar);
+    }
+    const braceL=beam(g,.16,.16,2.7,woodDark,-.92,-.42,z);braceL.rotation.x=Math.PI/3.7;braceL.rotation.z=.08;
+    const braceR=beam(g,.16,.16,2.7,woodDark,.92,-.42,z);braceR.rotation.x=-Math.PI/3.7;braceR.rotation.z=-.08;
+  }
   for(const x of[-1.58,1.58]){
     beam(g,.26,.34,7,woodDark,x,.16,0);
     for(const z of[-3.05,-1.5,0,1.5,3.05]){
@@ -43,8 +55,17 @@ export function createProductionBridge(){
     const footing=new THREE.Mesh(new THREE.CylinderGeometry(.35,.43,1.28,10),woodDark);footing.position.set(x,-.10,z);g.add(footing);
     const collar=new THREE.Mesh(new THREE.TorusGeometry(.39,.045,6,16),ironMat);collar.rotation.x=Math.PI/2;collar.position.set(x,.28,z);g.add(collar);
   }
+  // End abutments and sacrificial wear planks eliminate the visual seam where bridge meets terrain.
+  const abutmentMat=new THREE.MeshStandardMaterial({color:0x6f7166,roughness:.98,metalness:0});
+  for(const z of[-3.58,3.58]){
+    const abut=new THREE.Mesh(new THREE.BoxGeometry(4.25,.62,.82),abutmentMat);abut.position.set(0,-.17,z);abut.rotation.y=.01*Math.sign(z);g.add(abut);
+    const wear=beam(g,3.62,.11,.42,woodDark,0,.45,z-Math.sign(z)*.22);wear.rotation.y=.012*Math.sign(z);
+    for(const x of[-1.45,-.5,.5,1.45]){
+      const peg=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.055,8),ironMat);peg.position.set(x,.515,z-Math.sign(z)*.22);g.add(peg);
+    }
+  }
   for(const z of[-3.38,3.38]){const sill=beam(g,3.7,.18,.38,woodDark,0,.08,z);sill.rotation.y=.01*Math.sign(z)}
-  g.userData={assetId:'bridge_principal_v1',version:'1.1.0',stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'denser warm timber bridge with capped posts, collars, dual rails and deck wear'};
+  g.userData={assetId:'bridge_principal_v1',version:'1.2.0',stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',intent:'load-bearing warm timber bridge with visible trestles, stone shoes, bank abutments, capped posts, iron collars, dual rails and deck wear'};
   return shadow(g)
 }
 
@@ -130,4 +151,4 @@ export function createLukeCharacter({scale=1}={}){
 
 export function createSign(){const g=new THREE.Group();beam(g,.17,1.45,.17,woodDark,0,.72,0);const board=beam(g,1.35,.55,.12,woodMat,0,1.28,0);const cap=beam(g,1.48,.08,.14,woodDark,0,1.58,0);g.userData={assetId:'sign_v1',version:'1.0.0'};return shadow(g)}
 
-export function assetMetadata(){return{bridge:'bridge_principal_v1@1.1.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.1.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.1.0',sign:'sign_v1@1.0.0'}}
+export function assetMetadata(){return{bridge:'bridge_principal_v1@1.2.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.1.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.1.0',sign:'sign_v1@1.0.0'}}
