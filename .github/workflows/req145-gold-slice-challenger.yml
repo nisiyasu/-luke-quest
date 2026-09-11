@@ -1,0 +1,185 @@
+name: REQ-145 Gold Vertical Slice Challenger
+
+on:
+  push:
+    branches: ["experiment/gold-vertical-slice"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: req145-gold-slice-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  challenger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout challenger with main history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate challenger source syntax
+        shell: bash
+        run: |
+          node --check addons/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-req145-gold-slice-foundation.js
+          python3 -m py_compile tools/lq-req145-assemble-local.py tools/lq-req145-capture-harness.py
+          test -s docs/quality/REQ145_GOLD_VERTICAL_SLICE_EXPERIENCE_CONTRACT.md
+      - name: Assemble candidate and exact-main baseline
+        shell: bash
+        run: |
+          mkdir -p .req145
+          git fetch origin main
+          git worktree add /tmp/lq-main origin/main
+          python3 tools/lq-req145-assemble-local.py --root "$GITHUB_WORKSPACE" --out "$GITHUB_WORKSPACE/req145-assembled.html"
+          python3 tools/lq-req145-assemble-local.py --root /tmp/lq-main --out /tmp/lq-main/req145-assembled.html
+          python3 tools/lq-req145-capture-harness.py --html "$GITHUB_WORKSPACE/req145-assembled.html" --out-dir "$GITHUB_WORKSPACE/.req145" --label candidate
+          python3 tools/lq-req145-capture-harness.py --html /tmp/lq-main/req145-assembled.html --out-dir /tmp/lq-main/.req145 --label baseline
+          printf 'candidate=%s\nbaseline=%s\n' "$GITHUB_SHA" "$(git -C /tmp/lq-main rev-parse HEAD)" > .req145/source-shas.txt
+
+      - name: Start isolated candidate and baseline servers
+        shell: bash
+        run: |
+          python3 -m http.server 8126 --directory "$GITHUB_WORKSPACE" >/tmp/req145-candidate-http.log 2>&1 &
+          echo $! > /tmp/req145-candidate.pid
+          python3 -m http.server 8127 --directory /tmp/lq-main >/tmp/req145-baseline-http.log 2>&1 &
+          echo $! > /tmp/req145-baseline.pid
+          sleep 1
+          curl -fsS http://127.0.0.1:8126/req145-assembled.html >/dev/null
+          curl -fsS http://127.0.0.1:8127/req145-assembled.html >/dev/null
+      - name: Exercise candidate P0 touch/fullscreen runtime
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          probe_touch() {
+            local attempt="$1"
+            local budget="$2"
+            rm -rf "/tmp/req145-touch-profile-$attempt"
+            timeout 60 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-background-networking --disable-extensions --disable-sync --no-first-run --user-data-dir="/tmp/req145-touch-profile-$attempt" --window-size=390,844 --virtual-time-budget="$budget" --dump-dom 'http://127.0.0.1:8126/req145-assembled.html?lqTouchSmoke=1' > .req145/candidate-touch-dom.html 2>"/tmp/req145-touch-chrome-$attempt.log" || true
+            grep -q 'id="lqFloatingTouchRuntimeSmokeMarker"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-tap-action="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-drag-no-action="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-cancel-no-action="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-map-transition-stops="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'data-battle-transition-stops="true"' .req145/candidate-touch-dom.html &&
+            grep -q 'id="lqFullscreenWorldRuntimeSmokeMarker"' .req145/candidate-touch-dom.html &&
+            ! grep -q 'lqFloatingTouchSmokeFailure' .req145/candidate-touch-dom.html
+          }
+          if ! probe_touch 1 6500; then
+            echo 'REQ-145 P0 touch probe first attempt incomplete; retrying with larger virtual-time budget.'
+            grep -o 'id="lqFloatingTouchRuntimeSmokeMarker"[^>]*' .req145/candidate-touch-dom.html || true
+            grep -o 'id="lqFullscreenWorldRuntimeSmokeMarker"[^>]*' .req145/candidate-touch-dom.html || true
+            tail -40 /tmp/req145-touch-chrome-1.log || true
+            probe_touch 2 9500
+          fi
+
+      - name: Exercise REQ-145 canonical action feedback smoke
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=6000 --dump-dom 'http://127.0.0.1:8126/req145-assembled.html?lqReq145Smoke=1' > .req145/candidate-req145-dom.html 2>/tmp/req145-contract-chrome.log || true
+          grep -q 'id="lqReq145GoldSliceSmokeMarker"' .req145/candidate-req145-dom.html
+          grep -q 'data-canonical-action="true"' .req145/candidate-req145-dom.html
+          grep -q 'data-single-pulse="true"' .req145/candidate-req145-dom.html
+          grep -q 'data-pulse-target="true"' .req145/candidate-req145-dom.html
+          grep -q 'data-pointer-safe="true"' .req145/candidate-req145-dom.html
+          grep -q 'data-input-authority="false"' .req145/candidate-req145-dom.html
+          grep -q 'data-save-authority="false"' .req145/candidate-req145-dom.html
+          grep -q 'data-story-authority="preserved"' .req145/candidate-req145-dom.html
+
+      - name: Validate A/B capture harness runtime fidelity
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8126/.req145/candidate-town.html' > .req145/candidate-capture-dom.html 2>/tmp/req145-capture-dom.log || true
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8127/.req145/baseline-town.html' > .req145/baseline-capture-dom.html 2>/tmp/req145-baseline-dom.log || true
+          grep -q 'data-req145-capture="town"' .req145/candidate-capture-dom.html
+          grep -q 'class="[^"]*lqReq145GoldSlice' .req145/candidate-capture-dom.html
+          grep -q 'data-req145-capture="town"' .req145/baseline-capture-dom.html
+          if grep -q 'lqReq145GoldSlice' .req145/baseline-capture-dom.html; then exit 1; fi
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8126/.req145/candidate-field-move.html' > .req145/candidate-field-move-dom.html 2>/tmp/req145-field-move-dom.log || true
+          grep -q 'data-req145-world-motion-presented="true"' .req145/candidate-field-move-dom.html
+          grep -q 'data-req145-world-motion-class="true"' .req145/candidate-field-move-dom.html
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8126/.req145/candidate-evac.html' > .req145/candidate-evac-dom.html 2>/tmp/req145-evac-dom.log || true
+          grep -q 'data-req145-critical-wrap="true"' .req145/candidate-evac-dom.html
+          timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8126/.req145/candidate-battle-hit.html' > .req145/candidate-battle-hit-dom.html 2>/tmp/req145-battle-hit-dom.log || true
+          grep -q 'data-req145-canonical-attack="true"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-impact-presented="true"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-impact-count="1"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-player-hurt-presented="true"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-player-hurt-count="1"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-slash-cue="true"' .req145/candidate-battle-hit-dom.html
+          grep -q 'data-req145-hurt-cue="true"' .req145/candidate-battle-hit-dom.html
+
+      - name: Capture current main versus candidate
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          for scene in town field field-move evac dialogue battle battle-hit; do
+            "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars --user-data-dir="/tmp/chrome-candidate-$scene" --window-size=390,844 --virtual-time-budget=5500 --screenshot="$GITHUB_WORKSPACE/.req145/candidate-$scene.png" "http://127.0.0.1:8126/.req145/candidate-$scene.html" >/tmp/req145-candidate-$scene.log 2>&1
+            "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars --user-data-dir="/tmp/chrome-baseline-$scene" --window-size=390,844 --virtual-time-budget=5500 --screenshot="$GITHUB_WORKSPACE/.req145/baseline-$scene.png" "http://127.0.0.1:8127/.req145/baseline-$scene.html" >/tmp/req145-baseline-$scene.log 2>&1
+          done
+      - name: Reject blank or missing captures
+        shell: bash
+        run: |
+          python3 tools/lq-png-black-check.py .req145/candidate-town.png
+          python3 tools/lq-png-black-check.py .req145/candidate-field.png
+          python3 tools/lq-png-black-check.py .req145/candidate-field-move.png
+          python3 tools/lq-png-black-check.py .req145/candidate-evac.png
+          python3 tools/lq-png-black-check.py .req145/candidate-dialogue.png
+          python3 tools/lq-png-black-check.py .req145/candidate-battle.png
+          python3 tools/lq-png-black-check.py .req145/candidate-battle-hit.png
+          python3 tools/lq-png-black-check.py .req145/baseline-town.png
+          python3 tools/lq-png-black-check.py .req145/baseline-field.png
+          python3 tools/lq-png-black-check.py .req145/baseline-field-move.png
+          python3 tools/lq-png-black-check.py .req145/baseline-evac.png
+          python3 tools/lq-png-black-check.py .req145/baseline-dialogue.png
+          python3 tools/lq-png-black-check.py .req145/baseline-battle.png
+          python3 tools/lq-png-black-check.py .req145/baseline-battle-hit.png
+          test -s .req145/source-shas.txt
+
+      - name: Record challenger evidence summary
+        shell: bash
+        run: |
+          {
+            echo '## REQ-145 Gold Vertical Slice Challenger'
+            echo
+            echo 'Branch candidate and exact main baseline were assembled separately.'
+            echo
+            echo '```'
+            cat .req145/source-shas.txt
+            echo '```'
+            echo
+            echo '- candidate touch/fullscreen runtime smoke: PASS'
+            echo '- candidate town/battle captures: produced and non-black'
+            echo '- baseline town/battle captures: produced and non-black'
+            echo '- visual superiority remains an explicit A/B critic decision, not inferred from CI'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload A/B evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: req145-gold-slice-ab-${{ github.sha }}
+          path: |
+            .req145/source-shas.txt
+            .req145/candidate-town.png
+            .req145/candidate-field.png
+            .req145/candidate-field-move.png
+            .req145/candidate-evac.png
+            .req145/candidate-dialogue.png
+            .req145/candidate-battle.png
+            .req145/baseline-town.png
+            .req145/baseline-field.png
+            .req145/baseline-field-move.png
+            .req145/baseline-evac.png
+            .req145/baseline-dialogue.png
+            .req145/baseline-battle.png
+            .req145/candidate-touch-dom.html
+            .req145/candidate-req145-dom.html
+          retention-days: 14

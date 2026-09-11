@@ -24,14 +24,19 @@ async function run(){
   win();
   await settle(120);
   const expected='REQ-137 TESTを倒した！ EXP17 / 9G';
-  const dialogText=s.dialog?.text||'';
+  const dialog=s.dialog||null;
+  const dialogText=dialog?.text||'';
   const rewardCount=occurrences(dialogText,expected);
-  const lukeCommentKept=dialogText.includes('ルーク');
+  const lukeCommentKept=dialog?.name==='ルーク'||dialogText.includes('ルーク');
   const canonicalDialogueKept=rewardCount===1&&dialogText.replace(expected,'').trim().length>0;
   const battleFrame=document.getElementById('lqVictoryBattleFrame');
+  const backdrop=document.getElementById('lqVictoryBattleBackdrop');
   const canonicalDialog=!!battleFrame?.querySelector('.dialogBox');
-  const noSeparateOverlay=!document.getElementById('lqReq147VictoryOverlay');
-  const battleStillVisible=!!battleFrame&&battleFrame.textContent.includes('REQ-137 TEST');
+  const victoryVisible=battleFrame?.querySelector('.lqReq148VictoryBanner')?.textContent?.trim()==='VICTORY';
+  const battleStillVisible=!!backdrop&&backdrop.textContent.includes('REQ-137 TEST');
+  const backdropStyle=backdrop?getComputedStyle(backdrop):null;
+  const dimmed=!!backdropStyle&&backdropStyle.filter.includes('brightness');
+  const blurred=!!backdropStyle&&backdropStyle.filter.includes('blur');
   const xpOnce=Number(s.xp)===startXp+17;
   const goldOnce=Number(s.gold)===startGold+9;
   const winOnce=Number(s.wins)===1;
@@ -44,10 +49,10 @@ async function run(){
   const oneDismissAction=actionCalls===1;
   const stillWorld=s.screen==='world';
   const battleFrameGone=!document.getElementById('lqVictoryBattleFrame');
-  const pass=!!api&&api.canonicalWinPreserved===true&&api.canonicalDialogPreserved===true&&api.separateVictoryOverlay===false&&api.battleFrameHeldUntilDismiss===true&&api.rewardMutation===false&&xpOnce&&goldOnce&&winOnce&&worldState&&canonicalDialogueKept&&lukeCommentKept&&rewardCount===1&&canonicalDialog&&noSeparateOverlay&&battleStillVisible&&beforeDismissNoAction&&dialogueConsumed&&oneDismissAction&&stillWorld&&battleFrameGone;
-  marker({pass,xpOnce,goldOnce,winOnce,worldState,canonicalDialogueKept,lukeCommentKept,rewardCount,canonicalDialog,noSeparateOverlay,battleStillVisible,beforeDismissNoAction,dialogueConsumed,oneDismissAction,stillWorld,battleFrameGone});
-  if(!pass)console.error('REQ-137/147 acceptance details',document.getElementById('lqReq137VictoryRewardSmokeMarker')?.dataset,s.dialog);
- }catch(error){console.error('REQ-137 smoke FAIL',error);marker({pass:false,reason:error?.message||String(error)});}
+  const pass=!!api&&api.canonicalWinPreserved===true&&api.canonicalDialogPreserved===true&&api.victoryLabelVisible===true&&api.battleBackdropDimmed===true&&api.battleBackdropBlurred===true&&api.battleFrameHeldUntilDismiss===true&&api.rewardMutation===false&&xpOnce&&goldOnce&&winOnce&&worldState&&canonicalDialogueKept&&lukeCommentKept&&rewardCount===1&&canonicalDialog&&victoryVisible&&battleStillVisible&&dimmed&&blurred&&beforeDismissNoAction&&dialogueConsumed&&oneDismissAction&&stillWorld&&battleFrameGone;
+  marker({pass,xpOnce,goldOnce,winOnce,worldState,canonicalDialogueKept,lukeCommentKept,rewardCount,canonicalDialog,victoryVisible,battleStillVisible,dimmed,blurred,beforeDismissNoAction,dialogueConsumed,oneDismissAction,stillWorld,battleFrameGone});
+  if(!pass)console.error('REQ-148 acceptance details',document.getElementById('lqReq137VictoryRewardSmokeMarker')?.dataset,s.dialog);
+ }catch(error){console.error('REQ-148 smoke FAIL',error);marker({pass:false,reason:error?.message||String(error)});}
  finally{action=originalAction;move=originalMove;document.getElementById('lqVictoryBattleFrame')?.remove();Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);render();}
 }
 if(document.readyState==='complete')setTimeout(run,900);else addEventListener('load',()=>setTimeout(run,900),{once:true});
