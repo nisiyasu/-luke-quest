@@ -1,21 +1,21 @@
 # LUKE QUEST CURRENT
 
-- UPDATED_AT: `2026-09-11 15:31 JST`
+- UPDATED_AT: `2026-09-11 15:38 JST`
 - REPOSITORY: `nisiyasu/-luke-quest`
 - ACTIVE_BRANCH: `experiment/gold-vertical-slice`
 - DEFAULT_BRANCH: `main`
 - DEFAULT_BRANCH_HEAD_SHA_AT_REQ149_BOOT: `bcbf07f0317474f2e9da82f004ed9eb593dc3638`
-- LATEST_BRANCH_HEAD_BEFORE_THIS_AUTOSAVE: `cf429fc89f14f6c575bfb4c87b8c93b49f3f30f3`
-- LATEST_IMPLEMENTATION_COMMIT_SHA: `cf429fc89f14f6c575bfb4c87b8c93b49f3f30f3`
-- LATEST_MANAGEMENT_AND_GATE_COMMIT_SHA_BEFORE_THIS_AUTOSAVE: `d588add3699cff850ca29fb161d0e22432b93756`
+- LATEST_BRANCH_HEAD_BEFORE_THIS_AUTOSAVE: `5c39b0c80950ba5cc0e7b2ebd886666e8499062a`
+- LATEST_IMPLEMENTATION_COMMIT_SHA: `5c39b0c80950ba5cc0e7b2ebd886666e8499062a`
+- LATEST_MANAGEMENT_AND_GATE_COMMIT_SHA_BEFORE_THIS_AUTOSAVE: `020d364a766006a901ebe938acbf161748d6023b`
 - PAGES_URL: https://nisiyasu.github.io/-luke-quest/
 - GOLD_PREVIEW_URL: https://nisiyasu.github.io/-luke-quest/preview/gold/
 - GOLD_PREVIEW_SOURCE_BRANCH: `experiment/gold-vertical-slice`
-- CURRENT_BUILD_STATUS: `REQ-149 IN_PROGRESS. Fresh HEAD-first V04 work continued from the verified shoreline/cliff checkpoint. Commit e239f116 unifies contiguous cliff runs across former 48px seams so blocked terrain reads as one geological mass. Commit cf429fc adds presentation-only irregular shallow/earth/moss shoreline contours so logical rectangular water tiles no longer need to read as perfectly rectangular pools. REQ-149 renderer, REQ-023 evacuation guidance, and REQ-145 Gold Challenger all completed SUCCESS for cf429fc. P0 Touch initially produced one serialized-smoke failure on cf429fc, while the isolated extended viewport probe stayed green; the exact failed job was rerun without code changes and then completed SUCCESS across all P0 gates, classifying the first result as a transient probe failure rather than an accepted regression. Fresh 390x844 cf429fc artifact was fetched and visually inspected. TARGET_PS1 acceptance remains PENDING; broad V05-V12 rollout remains blocked behind the V04 quality gate.`
+- CURRENT_BUILD_STATUS: `REQ-149 IN_PROGRESS. Fresh HEAD-first V04 work continued through terrain-coherence C4. e239f116 unified contiguous cliff runs across former 48px seams. cf429fc added presentation-only irregular shallow/earth/moss shoreline contours while preserving the exact logical water/collision grid. 5c39b0c then added clipped macro ground material variation, soft worn-earth islands, and grass-density strokes across logical '.' walkable ground so the broad central field no longer reads as one flat green slab. On 5c39b0c, REQ-149 Field Renderer, P0 Touch, REQ-023 evacuation guidance, and REQ-145 Gold Challenger all completed SUCCESS. Fresh 390x844 C4 artifact was fetched and visually inspected. TARGET_PS1 acceptance remains PENDING; broad V05-V12 rollout remains blocked behind the V04 whole-scene quality gate.`
 - ACTIVE_REQUIREMENT_ID: `REQ-149`
 - ACTIVE_REQUIREMENT_PATH: `requirements/REQ-149_PS1_VISUAL_QUALITY_MIGRATION.md`
 - ACTIVE_REQUIREMENT_STATUS: `IN_PROGRESS`
-- ACTIVE_STAGE: `FIELD-V04-PROTOTYPE-E + TERRAIN COHERENCE C3`
+- ACTIVE_STAGE: `FIELD-V04-PROTOTYPE-E + TERRAIN COHERENCE C4`
 - PARENT_LANE: `REQ-145`
 - ISSUE_EPIC: `#5`
 - ACTIVE_EXECUTION_ISSUE: `#7 after #6 V00-V02 evidence closeout`
@@ -25,6 +25,7 @@
 
 ## REQ-149 RECENT CHECKPOINTS
 
+- `5c39b0c80950ba5cc0e7b2ebd886666e8499062a` — V04 terrain-coherence C4: macro ground material patches, subtle worn-earth islands, and grass-density strokes clipped strictly to logical `.` ground; presentation only. Fresh 390x844 artifact inspected. REQ-149 / P0 Touch / REQ-023 / REQ-145 all SUCCESS.
 - `cf429fc89f14f6c575bfb4c87b8c93b49f3f30f3` — V04 terrain-coherence C3: deterministic shallow/earth/moss shoreline contouring breaks rigid rectangular water silhouettes visually while the exact logical tile/collision grid remains unchanged. Fresh 390x844 artifact inspected. REQ-149 / REQ-023 / REQ-145 SUCCESS; P0 Touch first run transient-failed then exact no-code rerun SUCCESS.
 - `e239f11678199102dbb12cfc7af3ba8177810038` — V04 terrain-coherence C2: contiguous cliff rows share crest/geology bands and internal tile seams are softened; presentation only. REQ-149 / P0 Touch / REQ-023 / REQ-145 all SUCCESS and artifact inspected.
 - `081b77e564cc8be49ecfa89ca0a3522fa7b01090` — shoreline near-black rectangular frame reduced; blocked boundary cliffs shifted to layered moss/earth/rock massing without changing collision or input authority. Fresh 390x844 artifact inspected. REQ-149 / P0 Touch / REQ-023 / REQ-145 Challenger all SUCCESS.
@@ -43,23 +44,26 @@
 - Existing A/B artifact at Gold `3422c62f...` confirmed the pre-renderer candidate remained structurally close to CURRENT_BAD and materially below TARGET_PS1; this justified renderer-level work rather than continuing barrel/bench micro-polish.
 - `e239f116...`: REQ-149 PS1 Field Renderer run `34569880342` = `SUCCESS`; P0 Touch `34569880449` = `SUCCESS`; REQ-023 `34569880343` = `SUCCESS`; REQ-145 Gold Challenger `34569880340` = `SUCCESS`. Generated `req149-v04-field-e239f116...` artifact was fetched and visually inspected.
 - `cf429fc...`: REQ-149 PS1 Field Renderer run `34570064119` = `SUCCESS`; REQ-023 run `34570064109` = `SUCCESS`; REQ-145 Gold Challenger run `34570064111` = `SUCCESS`.
-- `cf429fc...` P0 Touch run `34570064114`: first attempt serialized core smoke reported false tap/drag/long-press/multitouch markers while the isolated extended viewport probe passed. No code change was made. Exact failed job rerun completed `SUCCESS` across every P0 gate. Treat this as a transient test-probe failure and retain it in evidence; do not erase the first red result.
-- Fresh `cf429fc...` 390x844 artifact was fetched and inspected. Shoreline edges are less mechanically rectangular and cliff masses retain continuity; gameplay geometry is unchanged. The candidate is materially beyond the old DOM/CSS-tile look but still contains a large relatively low-density grass field and remains below final TARGET_PS1 whole-scene production value.
+- `cf429fc...` P0 Touch run `34570064114`: first attempt serialized core smoke reported false tap/drag/long-press/multitouch markers while the isolated extended viewport probe passed. No code change was made. Exact failed job rerun completed `SUCCESS` across every P0 gate. Keep the first red as evidence; do not erase or weaken assertions.
+- `5c39b0c...`: REQ-149 PS1 Field Renderer run `34570476522` = `SUCCESS`; P0 Touch run `34570476518` = `SUCCESS`; REQ-023 run `34570476511` = `SUCCESS`; REQ-145 Gold Challenger run `34570476528` = `SUCCESS`.
+- Fresh `5c39b0c...` 390x844 artifact was fetched and visually inspected. Large-scale ground material/color variation is visibly stronger while bridge, water, shoreline, cliffs and navigation readability remain intact. Logical map/collision geometry is unchanged.
+- The C4 artifact still exposes a conspicuous dark lower viewport band under the visible world near the field edge while A/MENU remain overlaid. This is not yet classified as a shell-height bug because `100dvh` fullscreen CSS is present; fresh camera/world-coverage analysis is required before changing it.
 - V04 visual TARGET_PS1 acceptance = `PENDING`.
 - OWNER_EXPERIENCE_PASS = `PENDING`.
 - IOS_PHYSICAL_VERIFICATION = `PENDING`.
 
 ## CURRENT VISUAL GAP
 
-The renderer prototype now materially reduces visible 48px ground/cliff repetition, adds deeper water and bridge structure, layered conifers, continuous cliff geology, and irregularized shoreline contours. Fresh C3 artifact review shows the next largest whole-scene gap is no longer the black/card-like shoreline itself; it is the broad low-density central grass mass and overall authored terrain/material density relative to TARGET_PS1. The next V04 increment should improve large-scale ground variation and scene composition without hiding navigation cues or adding gameplay authority. HUD/world hierarchy and character/world integration remain secondary whole-scene gaps after terrain density.
+The renderer prototype now materially reduces visible 48px ground/cliff repetition, adds deeper water and bridge structure, layered conifers, continuous cliff geology, irregular shoreline contours, and macro ground-material variation. The broad central green-slab problem is reduced in C4. Fresh C4 whole-scene review now elevates world/HUD coexistence and camera/world visual coverage as the next structural gap: near the deterministic field camera position, the rendered world visually terminates above the bottom of the 390x844 viewport, leaving a conspicuous dark lower band beneath the map while floating controls occupy that region. Because shell fullscreen CSS already uses `100dvh`, the next step is a camera/world-coverage audit rather than blindly stretching the shell. Character/world integration and final production-value density remain subsequent gaps.
 
 ## REQ-149 ARCHITECTURE DECISION
 
 - Preserve: `MAPS`, `s.x/s.y`, `blocked()`, `move()`, canonical `action()`, P0 touch arbitration, story, battle, save/resume.
 - Replace incrementally: field presentation/renderer where required.
-- Prototype A-E/C2/C3 use one cached Canvas for the field base presentation instead of adding another per-tile CSS visual stack.
-- `081b77e...`, `e239f116...`, and `cf429fc...` change presentation-side terrain drawing only; no collision/input/save/story authority changes.
-- C3 shoreline irregularity is deliberately visual-only: logical water/blocking remains exact and therefore regression-safe.
+- Prototype A-E/C2/C3/C4 use one cached Canvas for the field base presentation instead of adding another per-tile CSS visual stack.
+- `081b77e...`, `e239f116...`, `cf429fc...`, and `5c39b0c...` change presentation-side terrain drawing only; no collision/input/save/story authority changes.
+- C3 shoreline irregularity is visual-only: logical water/blocking remains exact.
+- C4 macro ground variation is clipped to logical `.` walkable ground and does not create new route/collision semantics.
 - No new collision semantics in V04.
 - No broad map rollout before V04 target-quality gate.
 - If Canvas prototype fails quality/performance, revise V03/V04 rather than spreading it.
@@ -68,7 +72,7 @@ The renderer prototype now materially reduces visible 48px ground/cliff repetiti
 
 - V04 prototype has not yet been visually accepted against TARGET_PS1.
 - Procedural Canvas art is a renderer proof, not automatically final production art.
-- C3 still has a large low-density central grass mass; next critique should target macro terrain/material composition rather than returning to isolated prop polish.
+- C4 screenshot reveals a persistent dark lower viewport band / incomplete world visual coverage near the deterministic field camera position. Root cause is not yet proven; audit camera clamping/world bounds/fullscreen coexistence before editing.
 - P0 Touch produced one transient serialized-smoke failure on cf429fc before an exact no-code rerun passed. Keep monitoring for recurrence; do not weaken touch assertions to hide it.
 - Current Gold/public Pages may lag implementation HEAD until required deployment chain completes; do not claim public deployed SHA without verification.
 - WORK_QUEUE metadata predates REQ-149. Owner direct priority + canonical REQ-149 currently outrank the stale queue row; do not roll back to micro-polish solely because queue text lags.
@@ -81,11 +85,11 @@ The renderer prototype now materially reduces visible 48px ground/cliff repetiti
 
 ## NEXT_ACTION
 
-`Continue FIELD-V04 only. Starting from cf429fc C3, use the fresh 390x844 artifact as the critic surface and attack the broad low-density central grass/terrain-composition gap with presentation-only macro material variation and authored ground structure. Preserve clear navigation, bridge/exit readability, and all logical MAPS/collision/input/save/story authority. Keep REQ-149 / P0 Touch / REQ-023 / REQ-145 challenger green. Do not advance to broad V05-V12 rollout or claim V04 PASS until the whole-scene candidate materially closes the TARGET_PS1 gap.`
+`Continue FIELD-V04 only. Starting from verified 5c39b0c C4, audit the 390x844 world/HUD coexistence and camera/world-coverage behavior that leaves a dark lower viewport band near the field edge. Locate the current camera transform/clamp authority and distinguish map-edge geometry from UI-reserved-space behavior before editing. If a presentation-only safe fix exists, let the world visually occupy the available viewport beneath floating A/MENU/controller overlays without changing logical MAPS/collision/input/save/story authority or hiding exit/navigation cues. Keep REQ-149 / P0 Touch / REQ-023 / REQ-145 challenger green. Do not advance to broad V05-V12 rollout or claim V04 PASS until the whole-scene candidate materially closes the TARGET_PS1 gap.`
 
 ## NEXT_ACTION_COMPLETION_CONDITION
 
-`The next V04 increment is complete only when a fresh 390x844 artifact shows materially richer, more authored ground/terrain composition without obscuring gameplay readability, and REQ-149 / P0 Touch / REQ-023 / REQ-145 protected gates remain green. V04 overall PASS, Owner experience, and iPhone physical verification remain PENDING.`
+`The next V04 increment is complete only when fresh 390x844 evidence shows the conspicuous dark lower visual band materially reduced or correctly explained as unavoidable map-edge behavior, the world/HUD coexistence remains readable, camera clamping/navigation are not broken, and REQ-149 / P0 Touch / REQ-023 / REQ-145 protected gates remain green. V04 overall PASS, Owner experience, and iPhone physical verification remain PENDING.`
 
 ## DO_NOT_REPEAT
 
@@ -102,6 +106,7 @@ The renderer prototype now materially reduces visible 48px ground/cliff repetiti
 - Do not broaden rollout before V04 passes.
 - Do not merge Gold into production main automatically.
 - Do not re-solve the already-addressed black rectangular shoreline/cliff seam as the primary gap unless a fresh artifact proves regression.
+- Do not stretch the shell or camera blindly to hide the lower band; prove the current camera/world-bound cause first.
 
 ## PROTECTED P0 INPUT / FULLSCREEN
 
