@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify pinned Three.js resource and manifest
+      - name: Verify pinned Three.js resource and full M04 manifest
         shell: bash
         run: |
           curl -fLsS --retry 3 'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' -o /tmp/three.module.js
@@ -31,11 +31,13 @@ jobs:
           p='prototypes/modern-3d/ASSET_MANIFEST.json'
           d=json.load(open(p,encoding='utf-8'))
           ids={x['id']:x for x in d['assets']}
-          for k in ['bridge_principal_v1','conifer_family_v1','rock_cluster_v1']:
-              assert ids[k]['status']=='PRODUCTION_CANDIDATE', (k,ids[k]['status'])
+          required=['bridge_principal_v1','conifer_family_v1','rock_cluster_v1','terrain_grass_cliff_v1','water_river_v1','luke_player_v1','sign_v1']
+          for k in required:
+              assert ids[k]['status']=='PRODUCTION_CANDIDATE',(k,ids[k]['status'])
               assert ids[k]['source']=='original procedural code'
               assert ids[k]['license']=='project-owned original'
-          print('M04_MANIFEST=PASS')
+          assert 'animation_method' in ids['luke_player_v1']
+          print('M04_MANIFEST_FULL_FAMILY=PASS')
           PY
       - name: Start isolated server
         shell: bash
@@ -67,7 +69,7 @@ jobs:
           grep -q 'data-m03-route="R0:' .modern3d/m03-dom.html
           ! grep -q 'data-lq-modern3d="m03-error"' .modern3d/m03-dom.html
           grep -oE 'data-m03-route="[^"]*"' .modern3d/m03-dom.html > .modern3d/m03-route.txt
-      - name: Prove M04 common-light inspection view
+      - name: Prove M04 common-light inspection view and all asset identities
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
@@ -82,9 +84,9 @@ jobs:
           grep -oE 'data-(m04-inspection|m04-assets|m04-error)="[^"]*"' .modern3d/m04-inspection-dom.html || true
           test "$browser_rc" -eq 0
           grep -q 'data-m04-inspection="ready"' .modern3d/m04-inspection-dom.html
-          grep -q 'bridge_principal_v1@1.0.0' .modern3d/m04-inspection-dom.html
-          grep -q 'conifer_family_v1@1.0.0' .modern3d/m04-inspection-dom.html
-          grep -q 'rock_cluster_v1@1.0.0' .modern3d/m04-inspection-dom.html
+          for asset in bridge_principal_v1 conifer_family_v1 rock_cluster_v1 terrain_grass_cliff_v1 water_river_v1 luke_player_v1 sign_v1; do
+            grep -q "${asset}@1.0.0" .modern3d/m04-inspection-dom.html
+          done
           ! grep -q 'data-m04-inspection="error"' .modern3d/m04-inspection-dom.html
       - name: Capture M04 inspection and M03 portrait evidence
         shell: bash
@@ -116,10 +118,11 @@ jobs:
             echo "- source SHA: $GITHUB_SHA"
             echo '- M02 input regression: PASS'
             echo '- M03 bridge/shore traversal regression: PASS'
-            echo '- M04 manifest/provenance for bridge/conifer/rocks: PASS'
-            echo '- M04 same-light inspection runtime: PASS'
-            echo '- 864x1536 inspection frame: PASS'
-            echo '- current M04 coverage: PARTIAL; terrain/water/player production assets remain'
+            echo '- M04 provenance/manifest full family: PASS'
+            echo '- bridge/conifer/rocks/terrain/water/Luke/sign inspection runtime: PASS'
+            echo '- Luke hierarchical animation method recorded: PASS'
+            echo '- 864x1536 common-light inspection frame: PASS'
+            echo '- final visual quality: NOT inferred; M05 remains separate beauty gate'
             echo '- physical iPhone: PENDING'
             echo '- route evidence:'
             cat .modern3d/m03-route.txt
