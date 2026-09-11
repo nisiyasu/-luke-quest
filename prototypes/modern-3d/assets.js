@@ -51,7 +51,32 @@ export function createProductionBridge(){
 export function createConifer({seed=1,scale=1}={}){const r=seeded(seed),g=new THREE.Group();g.name=`conifer_family_v1_${seed}`;const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.19*scale,.36*scale,4.2*scale,9),barkMat);trunk.position.y=2.1*scale;g.add(trunk);for(let level=0;level<7;level++){const y=(1.15+level*.52)*scale,rad=(1.48-level*.13)*scale,count=5+(level%3);for(let i=0;i<count;i++){const a=i/count*Math.PI*2+r()*.32,len=rad*(.75+r()*.38),branch=new THREE.Mesh(new THREE.CylinderGeometry(.035*scale,.07*scale,len,6),barkMat);branch.position.set(Math.cos(a)*len*.36,y,Math.sin(a)*len*.36);branch.rotation.z=Math.PI/2.2;branch.rotation.y=-a;g.add(branch);const fol=new THREE.Mesh(new THREE.DodecahedronGeometry((.38+r()*.18)*scale,0),foliageMats[(level+i)%3]);fol.scale.set(.72+r()*.28,1.35+r()*.48,.72+r()*.3);fol.position.set(Math.cos(a)*len*.78,y+(r()-.4)*.18*scale,Math.sin(a)*len*.78);fol.rotation.y=a+r();g.add(fol)}}for(let i=0;i<5;i++){const top=new THREE.Mesh(new THREE.DodecahedronGeometry((.42-i*.045)*scale,0),foliageMats[i%3]);top.scale.set(.75,1.45,.75);top.position.y=(4.15+i*.3)*scale;top.rotation.y=r()*Math.PI;g.add(top)}const skirt=new THREE.Mesh(new THREE.CylinderGeometry(.58*scale,.76*scale,.09*scale,11),mossMat);skirt.position.y=.045*scale;g.add(skirt);g.rotation.y=r()*Math.PI*2;g.userData={assetId:'conifer_family_v1',version:'1.0.0',seed};return shadow(g)}
 
 function deform(geometry,r,amount=.18){const p=geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),m=1+(r()-.5)*amount;p.setXYZ(i,x*m,y*(1+(r()-.5)*amount*.65),z*m)}p.needsUpdate=true;geometry.computeVertexNormals();return geometry}
-export function createRockCluster({seed=1,scale=1}={}){const r=seeded(seed),g=new THREE.Group();g.name=`rock_cluster_v1_${seed}`;const count=3+Math.floor(r()*3);for(let i=0;i<count;i++){const geo=deform(new THREE.DodecahedronGeometry((.42+r()*.48)*scale,1),r,.28),m=new THREE.Mesh(geo,rockMats[i%3]);m.scale.set(.8+r()*.7,.55+r()*.65,.75+r()*.8);m.position.set((r()-.5)*1.45*scale,m.scale.y*.28,(r()-.5)*1.2*scale);m.rotation.set(r()*.35,r()*Math.PI,r()*.25);g.add(m)}const moss=new THREE.Mesh(new THREE.CircleGeometry(.72*scale,14),mossMat);moss.rotation.x=-Math.PI/2;moss.position.y=.018;g.add(moss);g.userData={assetId:'rock_cluster_v1',version:'1.0.0',seed};return shadow(g)}
+export function createRockCluster({seed=1,scale=1}={}){
+  const r=seeded(seed),g=new THREE.Group();g.name=`rock_cluster_v1_${seed}`;
+  const count=4+Math.floor(r()*3);
+  const lichenMats=[
+    new THREE.MeshStandardMaterial({color:0x65764a,roughness:1}),
+    new THREE.MeshStandardMaterial({color:0x7d8153,roughness:1})
+  ];
+  for(let i=0;i<count;i++){
+    const radius=(.34+r()*.52)*scale;
+    const geo=deform(new THREE.IcosahedronGeometry(radius,2),r,.22);
+    const m=new THREE.Mesh(geo,rockMats[i%rockMats.length]);
+    const sx=.72+r()*.72,sy=.46+r()*.52,sz=.70+r()*.68;
+    m.scale.set(sx,sy,sz);
+    m.position.set((r()-.5)*1.55*scale,radius*sy*.42,(r()-.5)*1.28*scale);
+    m.rotation.set((r()-.5)*.42,r()*Math.PI,(r()-.5)*.34);
+    g.add(m);
+    if(i%2===0){
+      const cap=new THREE.Mesh(new THREE.CircleGeometry(radius*(.34+r()*.16),12),lichenMats[i%lichenMats.length]);
+      cap.rotation.x=-Math.PI/2;cap.position.set(m.position.x,m.position.y+radius*sy*.74,m.position.z);cap.rotation.z=r()*Math.PI;g.add(cap);
+    }
+  }
+  const moss=new THREE.Mesh(new THREE.CircleGeometry(.86*scale,20),mossMat);moss.rotation.x=-Math.PI/2;moss.position.y=.018;g.add(moss);
+  for(let i=0;i<6;i++){const peb=new THREE.Mesh(deform(new THREE.IcosahedronGeometry((.08+r()*.12)*scale,1),r,.18),rockMats[(i+1)%rockMats.length]);peb.scale.y=.55+r()*.25;peb.position.set((r()-.5)*1.75*scale,.05*scale,(r()-.5)*1.45*scale);peb.rotation.y=r()*Math.PI;g.add(peb)}
+  g.userData={assetId:'rock_cluster_v1',version:'1.1.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'rounded layered boulder cluster with lichen caps, moss footprint and pebble breakup'};
+  return shadow(g)
+}
 
 export function createTerrainPatch({seed=1,width=8,depth=7,cliff=false}={}){const r=seeded(seed),g=new THREE.Group();const geo=new THREE.PlaneGeometry(width,depth,14,12),p=geo.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),edge=Math.abs(x)/(width*.5);p.setZ(i,(Math.sin(x*1.7+y*.8)*.08+(r()-.5)*.08)*(1-edge*.35))}geo.computeVertexNormals();const top=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:grassTex,color:0x91a955,roughness:.96}));top.rotation.x=-Math.PI/2;top.receiveShadow=true;g.add(top);if(cliff){const face=new THREE.Mesh(new THREE.BoxGeometry(width,1.9,.7),new THREE.MeshStandardMaterial({map:cliffTex,color:0x8b8a7e,roughness:.98}));face.position.set(0,-.93,depth*.49);g.add(face);for(let i=0;i<6;i++){const ledge=new THREE.Mesh(new THREE.BoxGeometry(.7+r()*1.4,.08,.18+r()*.22),mossMat);ledge.position.set((r()-.5)*width*.85,-.2-r()*1.25,depth*.18+r()*.35);g.add(ledge)}}g.userData={assetId:'terrain_grass_cliff_v1',version:'1.0.0'};return shadow(g)}
 
@@ -105,4 +130,4 @@ export function createLukeCharacter({scale=1}={}){
 
 export function createSign(){const g=new THREE.Group();beam(g,.17,1.45,.17,woodDark,0,.72,0);const board=beam(g,1.35,.55,.12,woodMat,0,1.28,0);const cap=beam(g,1.48,.08,.14,woodDark,0,1.58,0);g.userData={assetId:'sign_v1',version:'1.0.0'};return shadow(g)}
 
-export function assetMetadata(){return{bridge:'bridge_principal_v1@1.1.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.0.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.1.0',sign:'sign_v1@1.0.0'}}
+export function assetMetadata(){return{bridge:'bridge_principal_v1@1.1.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.1.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.1.0',sign:'sign_v1@1.0.0'}}
