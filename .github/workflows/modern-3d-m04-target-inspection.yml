@@ -57,7 +57,15 @@ jobs:
         with:
           name: modern-3d-m04-target-${{ github.sha }}
           path: |
-            .m04-target/
+            .m04-target/dom.html
+            .m04-target/chrome-stderr.log
+            .m04-target/m04-target-1200x900.png
+            .m04-target/bank-dom.html
+            .m04-target/bank-stderr.log
+            .m04-target/m04-bank-1200x900.png
+            .m04-target/water-dom.html
+            .m04-target/water-stderr.log
+            .m04-target/m04-water-1200x900.png
             /tmp/m04-target-http.log
             prototypes/modern-3d/m04-target-assets.js
             prototypes/modern-3d/m04-bank-target-v4.js
