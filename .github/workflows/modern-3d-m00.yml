@@ -1,0 +1,131 @@
+name: Modern 3D M00 WebGL Bootstrap
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - "prototypes/modern-3d/**"
+      - ".github/workflows/modern-3d-m00.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: modern-3d-m00-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-webgl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify pinned Three.js CDN resource
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' \
+            --output /tmp/three.module.js
+          test -s /tmp/three.module.js
+          grep -q 'REVISION' /tmp/three.module.js
+
+      - name: Start isolated prototype server
+        shell: bash
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-http.log 2>&1 &
+          echo $! >/tmp/modern3d-http.pid
+          sleep 1
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+
+      - name: Prove Three.js and WebGL runtime
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          mkdir -p .modern3d-m00
+          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
+            --virtual-time-budget=8000 --dump-dom \
+            http://127.0.0.1:8140/index.html > .modern3d-m00/dom.html
+          grep -q 'data-lq-modern3d="m00-webgl-ready"' .modern3d-m00/dom.html
+          grep -q 'data-three-revision="186"' .modern3d-m00/dom.html
+          ! grep -q 'data-lq-modern3d="m00-error"' .modern3d-m00/dom.html
+
+      - name: Capture real portrait frame
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
+            --window-size=390,844 --force-device-scale-factor=1 \
+            --virtual-time-budget=8000 \
+            --screenshot=.modern3d-m00/m00-390x844.png \
+            http://127.0.0.1:8140/index.html
+          test -s .modern3d-m00/m00-390x844.png
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct, zlib
+          p=Path('.modern3d-m00/m00-390x844.png').read_bytes()
+          assert p[:8]==b'\x89PNG\r\n\x1a\n'
+          w,h=struct.unpack('>II',p[16:24])
+          assert w==390, (w,h)
+          assert h>=800, (w,h)
+          # Decode RGBA/RGB PNG scanlines enough to reject near-uniform/black output.
+          pos=8; idat=b''; ctype=None
+          while pos<len(p):
+            n=struct.unpack('>I',p[pos:pos+4])[0]; typ=p[pos+4:pos+8]; data=p[pos+8:pos+8+n]; pos+=12+n
+            if typ==b'IHDR': ctype=data[9]
+            if typ==b'IDAT': idat+=data
+            if typ==b'IEND': break
+          raw=zlib.decompress(idat)
+          bpp=4 if ctype==6 else 3
+          stride=w*bpp
+          rows=[]; prev=bytearray(stride); off=0
+          for _ in range(h):
+            ft=raw[off]; off+=1; cur=bytearray(raw[off:off+stride]); off+=stride
+            for i in range(stride):
+              a=cur[i-bpp] if i>=bpp else 0; b=prev[i]; c=prev[i-bpp] if i>=bpp else 0
+              if ft==1: cur[i]=(cur[i]+a)&255
+              elif ft==2: cur[i]=(cur[i]+b)&255
+              elif ft==3: cur[i]=(cur[i]+((a+b)//2))&255
+              elif ft==4:
+                pr=a+b-c; pa=abs(pr-a); pb=abs(pr-b); pc=abs(pr-c); pred=a if pa<=pb and pa<=pc else (b if pb<=pc else c)
+                cur[i]=(cur[i]+pred)&255
+            rows.append(cur); prev=cur
+          samples=[]
+          for y in range(0,h,max(1,h//20)):
+            row=rows[y]
+            for x in range(0,w,max(1,w//20)):
+              i=x*bpp; samples.extend(row[i:i+3])
+          assert max(samples)>80, max(samples)
+          assert len(set(samples))>24, len(set(samples))
+          print(f'PNG={w}x{h}; dynamic_levels={len(set(samples))}; max={max(samples)}')
+          PY
+
+      - name: Record M00 evidence
+        shell: bash
+        run: |
+          {
+            echo '## Modern 3D M00 browser/WebGL proof'
+            echo
+            echo "- source SHA: $GITHUB_SHA"
+            echo '- Three.js pin: 0.186.0 / revision 186'
+            echo '- CDN fetch: PASS'
+            echo '- browser module execution: PASS'
+            echo '- WebGL frame: PASS'
+            echo '- portrait screenshot: PASS / non-uniform output'
+            echo '- production integration: NOT ATTEMPTED (isolated prototype)'
+            echo '- physical iPhone: PENDING'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload M00 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: modern-3d-m00-${{ github.sha }}
+          path: |
+            .modern3d-m00/dom.html
+            .modern3d-m00/m00-390x844.png
+            prototypes/modern-3d/index.html
+            prototypes/modern-3d/README.md
+          retention-days: 14
