@@ -68,9 +68,7 @@ jobs:
           import struct, zlib
           p=Path('.modern3d-m00/m00-390x844.png').read_bytes()
           assert p[:8]==b'\x89PNG\r\n\x1a\n'
-          w,h=struct.unpack('>II',p[16:24])
-          assert w==390, (w,h)
-          assert h>=800, (w,h)
+          w,h=struct.unpack('>II',p[16:24]); assert w==390 and h>=800,(w,h)
           pos=8; idat=b''; ctype=None
           while pos<len(p):
             n=struct.unpack('>I',p[pos:pos+4])[0]; typ=p[pos+4:pos+8]; data=p[pos+8:pos+8+n]; pos+=12+n
@@ -95,8 +93,7 @@ jobs:
             row=rows[y]
             for x in range(0,w,max(1,w//20)):
               i=x*bpp; samples.extend(row[i:i+3])
-          assert max(samples)>80, max(samples)
-          assert len(set(samples))>24, len(set(samples))
+          assert max(samples)>80 and len(set(samples))>24
           print(f'PNG={w}x{h}; dynamic_levels={len(set(samples))}; max={max(samples)}')
           PY
 
@@ -104,8 +101,12 @@ jobs:
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          FFMPEG="$(command -v ffmpeg || true)"
-          test -n "$FFMPEG"
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+          fi
+          command -v ffmpeg
+          command -v ffprobe
           for spec in '4500:motion-01.png' '6500:motion-02.png' '8500:motion-03.png'; do
             budget="${spec%%:*}"; name="${spec#*:}"
             "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
