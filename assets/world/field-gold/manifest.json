@@ -1,0 +1,38 @@
+{
+  "schema": "luke-quest-field-gold-assets-v1",
+  "requirement": "REQ-149",
+  "status": "PROTOTYPE",
+  "canonicalCurrentReference": "assets/reference/owner_2026-09-11_ps1_visual_target/CURRENT_BAD.png",
+  "canonicalTargetReference": "assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1.png",
+  "logicalTileSize": 48,
+  "firstSlice": {
+    "map": "field",
+    "captureState": {"x": 10, "y": 15, "dir": "up", "wins": 2},
+    "viewport": {"width": 390, "height": 844}
+  },
+  "renderContract": {
+    "view": "top-down 2D JRPG",
+    "lightDirection": "upper-left",
+    "grounding": "lower-right contact shadows",
+    "collisionAuthority": "existing MAPS/blocked()",
+    "inputAuthority": "existing REQ-021/REQ-001 integrated world input",
+    "storySaveBattleAuthority": "preserved",
+    "rendererMigration": "presentation-only staged prototype; no collision/state rewrite"
+  },
+  "materials": [
+    {"id": "grass", "variants": 4, "role": "continuous traversable ground", "prototype": "deterministic canvas texture"},
+    {"id": "shore", "variants": ["n","e","s","w","inner-corner","outer-corner"], "role": "water/land depth transition", "prototype": "adjacency-driven canvas edge"},
+    {"id": "cliff", "variants": ["top","face","corner"], "role": "visible elevation", "prototype": "adjacency-driven canvas edge"},
+    {"id": "water", "variants": 3, "role": "deep blue water material", "prototype": "layered canvas bands/highlights"},
+    {"id": "conifer", "variants": 3, "role": "blocked forest/tree tile", "prototype": "layered canvas silhouette"},
+    {"id": "bridge", "variants": ["deck","edge","support","rail","joint"], "role": "structural route presentation", "prototype": "canvas path over existing route geometry"},
+    {"id": "ground-shadow", "variants": 1, "role": "contact grounding", "prototype": "canvas/DOM responsibility split"}
+  ],
+  "acceptance": {
+    "noBroadRolloutBeforeV04Pass": true,
+    "noTargetImageAsBackground": true,
+    "noTextBakedIntoArt": true,
+    "ownerExperiencePass": "PENDING",
+    "iosPhysicalVerification": "PENDING"
+  }
+}
