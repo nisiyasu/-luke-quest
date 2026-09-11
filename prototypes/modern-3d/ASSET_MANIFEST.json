@@ -21,7 +21,7 @@
     {
       "id": "conifer_family_v1",
       "type": "model_procedural",
-      "status": "PRODUCTION_CANDIDATE",
+      "status": "BASELINE_SUPERSEDED_FOR_M05",
       "source": "original procedural code",
       "license": "project-owned original",
       "path": "assets.js#createConifer",
@@ -30,7 +30,8 @@
       "forward": "radially symmetric silhouette with seeded variation",
       "texture": "runtime CanvasTexture bark 128x256; foliage material variation",
       "features": ["tapered trunk", "branch whorls", "multi-cluster foliage", "seeded silhouette variation", "ground skirt"],
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "superseded_by": "conifer_natural_v2"
     },
     {
       "id": "rock_cluster_v1",
@@ -49,7 +50,7 @@
     {
       "id": "terrain_grass_cliff_v1",
       "type": "material_and_geometry",
-      "status": "PRODUCTION_CANDIDATE",
+      "status": "BASELINE_SUPERSEDED_FOR_M05",
       "source": "original procedural code",
       "license": "project-owned original",
       "path": "assets.js#createTerrainPatch",
@@ -58,12 +59,13 @@
       "forward": "cliff face toward +Z when cliff=true",
       "texture": "runtime CanvasTexture grass macro breakup 256x256 + cliff strata 256x256",
       "features": ["subdivided uneven surface", "macro grass breakup", "cliff face", "strata texture", "moss ledges"],
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "superseded_by": "layered_bank_v2"
     },
     {
       "id": "water_river_v1",
       "type": "shader_surface",
-      "status": "PRODUCTION_CANDIDATE",
+      "status": "BASELINE_SUPERSEDED_FOR_M05",
       "source": "original procedural code",
       "license": "project-owned original",
       "path": "assets.js#createWaterSurface",
@@ -73,7 +75,7 @@
       "texture": "procedural shader; deep/shallow color variation + animated ripple displacement",
       "features": ["deep/shallow color variation", "animated geometry ripple", "transparent surface"],
       "version": "1.0.0",
-      "note": "M04 establishes production base; final shoreline/reflection/light integration remains M07"
+      "superseded_by": "water_rich_v2"
     },
     {
       "id": "luke_player_v1",
@@ -102,6 +104,66 @@
       "forward": "+Z readable face",
       "texture": "wood grain materials",
       "version": "1.0.0"
+    },
+    {
+      "id": "conifer_natural_v2",
+      "type": "model_procedural_layered_foliage",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code created after M05 visual-gate feedback",
+      "license": "project-owned original",
+      "path": "natural-assets.js#createNaturalConifer",
+      "dimensions_m": "height approximately 5.3-6.1 before scale variants",
+      "origin": "trunk base",
+      "forward": "radially distributed branch/frond silhouette with seeded variation",
+      "texture": "material-separated bark plus three rough foliage tones; no external texture dependency",
+      "features": ["nine branch levels", "radial branch variation", "layered frond cards", "multi-tone foliage", "top crown taper", "seeded silhouette variation", "ground needle accents"],
+      "version": "2.0.0",
+      "replaces_for_m05": "conifer_family_v1"
+    },
+    {
+      "id": "understory_cluster_v2",
+      "type": "model_procedural_ground_detail",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code created after M05 visual-gate feedback",
+      "license": "project-owned original",
+      "path": "natural-assets.js#createUnderstoryCluster",
+      "dimensions_m": "approximately 1.4 m footprint at scale=1; configurable scale",
+      "origin": "cluster footprint center at ground level",
+      "forward": "none",
+      "texture": "rough grass materials with light/dark variation plus optional white/pink flowers",
+      "features": ["18 varied grass blades", "seeded radial scatter", "stem variation", "optional flower heads", "scale variation"],
+      "version": "2.0.0"
+    },
+    {
+      "id": "layered_bank_v2",
+      "type": "terrain_and_shore_geometry",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code created after M05 visual-gate feedback",
+      "license": "project-owned original",
+      "path": "natural-assets.js#createLayeredBank",
+      "dimensions_m": "configurable width/depth; M05 authored banks use scene-specific placement",
+      "origin": "top patch center",
+      "forward": "facing parameter selects river-facing edge",
+      "texture": "rough grass/soil/moss/rock material family with deformed rock geometry",
+      "features": ["subdivided uneven top surface", "multi-layer deformed shoreline rocks", "soil transition band", "moss/rock color variation", "integrated understory clusters", "non-straight naturalized edge"],
+      "version": "2.0.0",
+      "replaces_for_m05": "terrain_grass_cliff_v1"
+    },
+    {
+      "id": "water_rich_v2",
+      "type": "shader_surface_with_shore_detail",
+      "status": "PRODUCTION_CANDIDATE",
+      "source": "original procedural code created after M05 visual-gate feedback",
+      "license": "project-owned original",
+      "path": "natural-assets.js#createRichWater",
+      "dimensions_m": "configurable width/depth; M05 river uses 28 x approximately 6.2",
+      "origin": "surface center",
+      "forward": "none",
+      "texture": "custom procedural shader; no external texture dependency",
+      "features": ["multi-frequency animated wave displacement", "deep/mid/light color breakup", "animated specular-like sparkle bands", "shore brightening", "two irregular foam strips", "embedded deformed rocks"],
+      "animation_method": "userData.update(t) drives uTime shader uniform",
+      "version": "2.0.0",
+      "replaces_for_m05": "water_river_v1"
     }
   ]
 }
