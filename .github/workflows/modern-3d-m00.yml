@@ -83,7 +83,8 @@ jobs:
             --virtual-time-budget=1200 --dump-dom \
             'http://127.0.0.1:8140/m04-water-inspection.html' > .modern3d/m04-water-dom.html 2>.modern3d/m04-water-stderr.log
           grep -q 'data-m04-water-inspection="ready"' .modern3d/m04-water-dom.html
-          grep -Eq 'data-candidate-asset="water_target_v3@3\.6\.[0-9]+"' .modern3d/m04-water-dom.html
+          # The family/major version is the contract. M07 legitimately advances the water-v3 minor/patch version.
+          grep -Eq 'data-candidate-asset="water_target_v3@3\.[0-9]+\.[0-9]+"' .modern3d/m04-water-dom.html
       - name: Prove runtime traversal regressions and M05 integrated scene
         shell: bash
         run: |
