@@ -4,35 +4,47 @@ if(window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE)return;
 const style=document.createElement('style');
 style.id='lqReq147BattleCommandTwoColumnStyle';
 style.textContent=`
+.lqReq147BattleCommandSurface,
 .lqReq147BattleCommandGrid{
  display:grid!important;
- grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
  grid-auto-flow:row!important;
  gap:8px!important;
  width:100%!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
 }
+.lqReq147BattleCommandSurface>button,
+.lqReq147BattleCommandSurface>.btn,
 .lqReq147BattleCommandGrid>button,
 .lqReq147BattleCommandGrid>.btn{
  width:100%!important;
  min-width:0!important;
+ min-height:44px!important;
  margin:0!important;
+ box-sizing:border-box!important;
 }
 .lqReq147BattleCommandStack{
  display:grid!important;
- grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
  gap:8px!important;
  width:100%!important;
+ min-width:0!important;
 }
 .lqReq147BattleCommandStack>.lqReq147BattleCommandRow{display:contents!important;}
 .lqReq147BattleCommandStack>.lqReq147BattleCommandRow>button,
 .lqReq147BattleCommandStack>.lqReq147BattleCommandRow>.btn{
  width:100%!important;
  min-width:0!important;
+ min-height:44px!important;
  margin:0!important;
+ box-sizing:border-box!important;
 }
 .lqReq147BattleCommandStack>:not(.lqReq147BattleCommandRow){grid-column:1/-1;}
 @media (max-width:430px){
- .lqReq147BattleCommandGrid,.lqReq147BattleCommandStack{gap:6px!important;}
+ .lqReq147BattleCommandSurface,.lqReq147BattleCommandGrid,.lqReq147BattleCommandStack{gap:6px!important;}
+ .lqReq147BattleCommandSurface>button,
+ .lqReq147BattleCommandSurface>.btn,
  .lqReq147BattleCommandGrid>button,
  .lqReq147BattleCommandGrid>.btn,
  .lqReq147BattleCommandStack>.lqReq147BattleCommandRow>button,
@@ -41,6 +53,7 @@ style.textContent=`
 `;
 document.head.appendChild(style);
 function clearMarks(){
+ document.querySelectorAll('#app .lqReq147BattleCommandSurface').forEach(el=>el.classList.remove('lqReq147BattleCommandSurface'));
  document.querySelectorAll('#app .lqReq147BattleCommandGrid').forEach(row=>row.classList.remove('lqReq147BattleCommandGrid'));
  document.querySelectorAll('#app .lqReq147BattleCommandRow').forEach(row=>row.classList.remove('lqReq147BattleCommandRow'));
  document.querySelectorAll('#app .lqReq147BattleCommandStack').forEach(parent=>parent.classList.remove('lqReq147BattleCommandStack'));
@@ -48,6 +61,12 @@ function clearMarks(){
 function markBattleCommandRows(){
  clearMarks();
  if(typeof s==='undefined'||s?.screen!=='battle')return;
+ // Gold/UX v10 canonical battle surface. This is the player-visible four-command grid.
+ document.querySelectorAll('#app .commandGrid').forEach(surface=>{
+  const directButtons=[...surface.children].filter(el=>el.matches('button,.btn'));
+  if(directButtons.length>=4)surface.classList.add('lqReq147BattleCommandSurface');
+ });
+ // Legacy/base renderer fallback: two buttons per .row.
  const rows=[...document.querySelectorAll('#app .lqBattleCommandCard .row,#app .card .row')].filter(row=>
   [...row.children].some(el=>el.matches('button,.btn'))
  );
@@ -81,5 +100,5 @@ if(canonicalBattle){
 const observer=new MutationObserver(markBattleCommandRows);
 observer.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
 markBattleCommandRows();
-window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE={version:'1.3.0',columns:2,multiRow:true,scope:'battle-command-surface',singleButtonRowRecovery:true,canonicalBattlePreserved:!!canonicalBattle};
+window.LQ_REQ147_BATTLE_COMMAND_TWO_COLUMN_RESTORE={version:'1.4.0',columns:2,multiRow:true,scope:'battle-command-surface',commandGridRecovery:true,singleButtonRowRecovery:true,canonicalBattlePreserved:!!canonicalBattle};
 })();
