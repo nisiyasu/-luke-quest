@@ -80,7 +80,7 @@ jobs:
             --virtual-time-budget=1200 --dump-dom \
             'http://127.0.0.1:8140/m04-water-inspection.html' > .modern3d/m04-water-dom.html 2>.modern3d/m04-water-stderr.log
           grep -q 'data-m04-water-inspection="ready"' .modern3d/m04-water-dom.html
-          grep -q 'water_target_v3@3.2.0' .modern3d/m04-water-dom.html
+          grep -q 'water_target_v3@3.4.0' .modern3d/m04-water-dom.html
       - name: Prove runtime traversal regressions and M05 integrated scene
         shell: bash
         run: |
