@@ -83,7 +83,7 @@ jobs:
             --virtual-time-budget=1200 --dump-dom \
             'http://127.0.0.1:8140/m04-water-inspection.html' > .modern3d/m04-water-dom.html 2>.modern3d/m04-water-stderr.log
           grep -q 'data-m04-water-inspection="ready"' .modern3d/m04-water-dom.html
-          grep -q 'water_target_v3@3.4.0' .modern3d/m04-water-dom.html
+          grep -Eq 'data-candidate-asset="water_target_v3@3\.6\.[0-9]+"' .modern3d/m04-water-dom.html
       - name: Prove runtime traversal regressions and M05 integrated scene
         shell: bash
         run: |
@@ -141,7 +141,7 @@ jobs:
             echo '- M04 baseline production asset family manifest: PASS'
             echo '- M04 baseline shared-light inspection runtime: PASS'
             echo '- M04 target-conifer v3.2.1 three-way inspection runtime: PASS'
-            echo '- M04 target-water v3.4 shared-light inspection runtime: PASS'
+            echo '- M04/M07 target-water current shared-light inspection runtime: PASS'
             echo '- M04 target asset integration in actual game scene: PASS'
             echo '- canonical C1 390x844 running frame: CAPTURED'
             echo '- high-quality 864x1536 running frame: CAPTURED'
