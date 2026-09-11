@@ -28,13 +28,18 @@ jobs:
           grep -q 'REVISION' /tmp/three.module.js
           test -s assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
           test -s assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+          test -s prototypes/modern-3d/natural-assets.js
           python3 - <<'PY'
           import json
           d=json.load(open('prototypes/modern-3d/ASSET_MANIFEST.json',encoding='utf-8'))
           ids={x['id']:x for x in d['assets']}
-          required=['bridge_principal_v1','conifer_family_v1','rock_cluster_v1','terrain_grass_cliff_v1','water_river_v1','luke_player_v1','sign_v1']
+          required=['bridge_principal_v1','rock_cluster_v1','luke_player_v1','sign_v1','conifer_natural_v2','understory_cluster_v2','layered_bank_v2','water_rich_v2']
           for k in required: assert ids[k]['status']=='PRODUCTION_CANDIDATE',(k,ids[k]['status'])
+          assert ids['conifer_family_v1']['superseded_by']=='conifer_natural_v2'
+          assert ids['terrain_grass_cliff_v1']['superseded_by']=='layered_bank_v2'
+          assert ids['water_river_v1']['superseded_by']=='water_rich_v2'
           print('M05_INPUT_AUTHORITY=PASS')
+          print('M04_NATURAL_V2_MANIFEST=PASS')
           PY
       - name: Start isolated server
         shell: bash
@@ -96,6 +101,7 @@ jobs:
             echo "- source SHA: $GITHUB_SHA"
             echo '- M02 input regression: PASS'
             echo '- M03 traversal/collision regression: PASS'
+            echo '- M04 natural-v2 production asset family manifest: PASS'
             echo '- M04 production asset family integrated in actual game scene: PASS'
             echo '- canonical C1 390x844 running frame: CAPTURED'
             echo '- high-quality 864x1536 running frame: CAPTURED'
@@ -121,6 +127,7 @@ jobs:
             assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
             prototypes/modern-3d/index.html
             prototypes/modern-3d/assets.js
+            prototypes/modern-3d/natural-assets.js
             prototypes/modern-3d/ASSET_MANIFEST.json
             prototypes/modern-3d/M01_ART_DIRECTION_AND_COMPARISON_CONTRACT.md
           if-no-files-found: warn
