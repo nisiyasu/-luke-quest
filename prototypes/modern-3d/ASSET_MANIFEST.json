@@ -11,7 +11,11 @@
     "water": "water_target_v3@3.4.0",
     "bridge": "bridge_principal_v1@1.1.0",
     "character": "luke_player_v1@1.1.0",
-    "inspection_surfaces": ["m04-target-inspection.html", "m04-bank-inspection.html", "m04-water-inspection.html"]
+    "inspection_surfaces": [
+      "m04-target-inspection.html",
+      "m04-bank-inspection.html",
+      "m04-water-inspection.html"
+    ]
   },
   "assets": [
     {
@@ -55,9 +59,9 @@
       "origin": "cluster footprint center",
       "forward": "none",
       "texture": "material color/roughness variation; geometry vertex deformation",
-      "features": ["irregular silhouettes", "multi-stone clusters", "moss accent", "grounded rotation/scale variation"],
-      "version": "1.0.0",
-      "note": "Standalone scene rocks remain a valid candidate; cliff-face rock fidelity is governed by bank_target_v4@4.2.0."
+      "features": ["higher-subdivision rounded boulders", "seeded deformation", "multi-stone clusters", "lichen caps", "moss footprint", "micro pebble breakup", "grounded rotation/scale variation"],
+      "version": "1.1.0",
+      "note": "M04 target-facing standalone rock refinement preserves existing scene placements while reducing low-poly faceting; cliff-face rock fidelity remains governed by bank_target_v4@4.2.0."
     },
     {
       "id": "terrain_grass_cliff_v1",
