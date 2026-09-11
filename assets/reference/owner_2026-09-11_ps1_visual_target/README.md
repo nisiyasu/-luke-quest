@@ -1,76 +1,94 @@
-# LUKE QUEST — Owner Visual Reference: Current vs PS1-Class Target
+# LUKE QUEST — Owner Visual Reference Ladder
 
 ## Purpose
 
-This folder is the canonical visual comparison set for the current LUKE QUEST field presentation versus the Owner-approved target quality direction.
+This folder is the canonical visual-quality ladder for the LUKE QUEST field renderer.
 
-The two images in this folder have different roles. They must never be treated as equivalent references.
+The images have three distinct roles and must never be treated as equivalent references.
 
-## Canonical files
+## Canonical roles
 
 ### `CURRENT_BAD.png`
 
-Role: current-state / regression-comparison reference only.
+Role: starting point / bad example / regression reference only.
 
-This image records the present LUKE QUEST visual quality and structure before the rendering-quality migration.
+- Records the old low-quality presentation.
+- Never use it as the desired visual direction.
+- Use it only to measure whether a candidate has genuinely moved away from the old state.
 
-Rules:
+### `MINIMUM_QUALITY_LINE.png`
 
-- Do **not** imitate this image as the desired result.
-- Do **not** preserve its simplified visual treatment merely because it is the current implementation.
-- Do **not** treat its DOM/CSS rendering style, flatness, sparse environmental detail, simplified terrain, simplified water, simplified bridge/building rendering, or low scene density as a target constraint.
-- Use it to measure how far candidate builds have actually moved away from the current state.
-- It is valuable as a regression / before-image, not as an art-direction target.
+Role: minimum acceptable quality floor.
 
-### `TARGET_PS1.png`
+This is the former second reference image. It is **not the final destination anymore**.
 
-Role: Owner-approved target visual-quality reference.
+A candidate that remains visibly below this image is not acceptable for the visual migration.
+Meeting this image only means the candidate has reached the minimum line required to continue toward the real target.
 
-This image is the quality destination for the Gold visual direction. It represents the intended early-PlayStation-era commercial JRPG level of perceived presentation quality, not an instruction to copy a specific copyrighted game or asset set.
+Benchmark it for:
 
-Treat it as a visual-quality benchmark for:
-
-- terrain richness and material definition
-- tile / ground variation and density
-- trees, rocks, flowers and environmental layering
-- bridge, architecture and object dimensionality
-- water depth, texture and light response
-- cliffs, edges and elevation readability
-- shadows and grounding
-- sprite readability and character presence
-- depth / overlap / occlusion hierarchy
-- scene composition and environmental coherence
-- HUD / world coexistence and information hierarchy
+- terrain richness and continuity
+- water depth and shoreline readability
+- bridge dimensionality
+- trees / rocks / flowers / environmental layering
+- cliffs / elevation readability
+- shadow / grounding
+- sprite readability
+- HUD / world coexistence
 - overall first-glance production value
 
-## Comparison rule
+### `TARGET_PS1_FINAL.png`
 
-Evaluation should be performed as:
+Role: primary Owner-approved final visual target.
 
-`CURRENT_BAD.png -> candidate build -> TARGET_PS1.png`
+This is the third reference image and is now the **main destination** for the visual-quality program.
 
-The question is not "is the candidate prettier than CURRENT_BAD?"
+The objective is not merely to equal `MINIMUM_QUALITY_LINE.png` and stop. The renderer should continue closing the visible gap toward `TARGET_PS1_FINAL.png` while preserving gameplay, input safety, story state, save compatibility and mobile usability.
 
-The question is:
+Benchmark it for:
 
-"Has the candidate materially closed the gap toward TARGET_PS1 while preserving gameplay, input safety, story state, save compatibility and mobile usability?"
+- dense but readable environment composition
+- natural terrain transitions rather than obvious logical tiles
+- lush layered vegetation and strong silhouette depth
+- convincing water material, highlights, rocks and shoreline interaction
+- substantial bridge structure, supports, rails, depth and contact shadows
+- coherent elevation / cliff massing
+- integrated player scale and grounding
+- directional light, ambient light and coherent shadow language
+- polished dark navy / gold HUD coexistence with the world
+- commercial-game first-glance quality rather than prototype quality
 
-Small cosmetic improvements that leave the underlying presentation effectively at CURRENT_BAD quality are not sufficient.
+The reference is a quality-direction benchmark, not an instruction to copy copyrighted game assets or reproduce a specific commercial title literally.
+
+## Mandatory comparison ladder
+
+Evaluation must use:
+
+`CURRENT_BAD.png -> candidate build -> MINIMUM_QUALITY_LINE.png -> TARGET_PS1_FINAL.png`
+
+Two separate questions must be answered:
+
+1. **Minimum gate:** Has the candidate at least reached or exceeded the perceived quality floor represented by `MINIMUM_QUALITY_LINE.png`?
+2. **Target gap:** Has the candidate materially closed the remaining gap toward `TARGET_PS1_FINAL.png`?
+
+A small improvement over `CURRENT_BAD.png` is insufficient.
+Reaching `MINIMUM_QUALITY_LINE.png` is also not final completion by itself.
 
 ## Architecture implication
 
-The Owner has explicitly recognized that the gap between CURRENT_BAD and TARGET_PS1 is not merely a matter of polishing individual CSS objects.
+The Owner has explicitly recognized that the gap is not merely a matter of polishing individual CSS objects.
 
-If the current DOM/CSS-heavy rendering architecture prevents the target quality from being reached efficiently or reliably, the implementation should be allowed to migrate the rendering layer rather than endlessly decorating the existing structure.
+If the current DOM/CSS-heavy rendering architecture prevents efficient progress toward `TARGET_PS1_FINAL.png`, the rendering layer may be migrated or replaced incrementally while preserving reusable game logic such as story/state, interaction semantics, battle logic, save behavior and input requirements.
 
-Preserve reusable game logic where appropriate, including story/state, interaction semantics, battle logic, save behavior and input requirements, while treating the visual renderer as replaceable when necessary.
-
-Do not perform a reckless whole-game rewrite. Prefer staged migration behind safe checkpoints and A/B comparison.
+Do not preserve a weak renderer merely because it already exists.
+Do not perform a reckless whole-game rewrite either. Use staged migration, safe checkpoints, playable comparisons and regression gates.
 
 ## Non-negotiable interpretation
 
-`CURRENT_BAD.png` = evidence of the starting point.
+`CURRENT_BAD.png` = where we started.
 
-`TARGET_PS1.png` = visual quality target.
+`MINIMUM_QUALITY_LINE.png` = the floor. Falling below it is a fail.
 
-**Never use CURRENT_BAD as the implementation target. Never downgrade TARGET_PS1 into a vague mood-board reference.**
+`TARGET_PS1_FINAL.png` = the actual visual destination.
+
+**Never downgrade `TARGET_PS1_FINAL.png` into a vague mood-board reference, and never mistake the minimum line for final completion.**
