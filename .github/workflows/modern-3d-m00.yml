@@ -71,16 +71,13 @@ jobs:
           w,h=struct.unpack('>II',p[16:24])
           assert w==390, (w,h)
           assert h>=800, (w,h)
-          # Decode RGBA/RGB PNG scanlines enough to reject near-uniform/black output.
           pos=8; idat=b''; ctype=None
           while pos<len(p):
             n=struct.unpack('>I',p[pos:pos+4])[0]; typ=p[pos+4:pos+8]; data=p[pos+8:pos+8+n]; pos+=12+n
             if typ==b'IHDR': ctype=data[9]
             if typ==b'IDAT': idat+=data
             if typ==b'IEND': break
-          raw=zlib.decompress(idat)
-          bpp=4 if ctype==6 else 3
-          stride=w*bpp
+          raw=zlib.decompress(idat); bpp=4 if ctype==6 else 3; stride=w*bpp
           rows=[]; prev=bytearray(stride); off=0
           for _ in range(h):
             ft=raw[off]; off+=1; cur=bytearray(raw[off:off+stride]); off+=stride
@@ -103,6 +100,29 @@ jobs:
           print(f'PNG={w}x{h}; dynamic_levels={len(set(samples))}; max={max(samples)}')
           PY
 
+      - name: Verify motion/video evidence toolchain
+        shell: bash
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          FFMPEG="$(command -v ffmpeg || true)"
+          test -n "$FFMPEG"
+          for spec in '4500:motion-01.png' '6500:motion-02.png' '8500:motion-03.png'; do
+            budget="${spec%%:*}"; name="${spec#*:}"
+            "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
+              --window-size=390,844 --force-device-scale-factor=1 \
+              --virtual-time-budget="$budget" \
+              --screenshot=".modern3d-m00/$name" \
+              http://127.0.0.1:8140/index.html >/dev/null
+          done
+          test -s .modern3d-m00/motion-01.png
+          test -s .modern3d-m00/motion-02.png
+          test -s .modern3d-m00/motion-03.png
+          printf "file 'motion-01.png'\nduration 0.35\nfile 'motion-02.png'\nduration 0.35\nfile 'motion-03.png'\nduration 0.35\nfile 'motion-03.png'\n" > .modern3d-m00/frames.txt
+          (cd .modern3d-m00 && ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i frames.txt -vf 'fps=12,format=yuv420p' m00-motion-proof.mp4)
+          test -s .modern3d-m00/m00-motion-proof.mp4
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 .modern3d-m00/m00-motion-proof.mp4
+
       - name: Record M00 evidence
         shell: bash
         run: |
@@ -115,6 +135,7 @@ jobs:
             echo '- browser module execution: PASS'
             echo '- WebGL frame: PASS'
             echo '- portrait screenshot: PASS / non-uniform output'
+            echo '- motion/video evidence toolchain: PASS / Chrome frames + ffmpeg artifact'
             echo '- production integration: NOT ATTEMPTED (isolated prototype)'
             echo '- physical iPhone: PENDING'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -126,6 +147,10 @@ jobs:
           path: |
             .modern3d-m00/dom.html
             .modern3d-m00/m00-390x844.png
+            .modern3d-m00/motion-01.png
+            .modern3d-m00/motion-02.png
+            .modern3d-m00/motion-03.png
+            .modern3d-m00/m00-motion-proof.mp4
             prototypes/modern-3d/index.html
             prototypes/modern-3d/README.md
           retention-days: 14
