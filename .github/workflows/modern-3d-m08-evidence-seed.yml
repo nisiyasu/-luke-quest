@@ -1,0 +1,40 @@
+name: Modern 3D M08 Evidence Seed
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/modern-3d-m08-evidence-seed.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Add evidence-only pre-step parameter and self-remove
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="if(query.get('m08walk')==='1'){document.documentElement.dataset.m08WalkStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout("
+          new="if(query.get('m08walk')==='1'){const seedSteps=Math.max(0,Math.min(64,Number(query.get('m08steps')||0)));if(seedSteps){dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));for(let i=0;i<seedSteps;i++)stepMovement(1/60);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState()}document.documentElement.dataset.m08WalkSeedSteps=String(seedSteps);document.documentElement.dataset.m08WalkStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout("
+          assert s.count(old)==1, s.count(old)
+          p.write_text(s.replace(old,new))
+          PY
+          grep -F "dataset.m08WalkSeedSteps=String(seedSteps)" prototypes/modern-3d/index.html
+          git rm .github/workflows/modern-3d-m08-evidence-seed.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git diff --cached --check
+          git commit -m "test(modern-3d): add bounded M08 visual movement seed"
+          git push origin HEAD:prototype/modern-3d
