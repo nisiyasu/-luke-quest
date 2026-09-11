@@ -17,7 +17,7 @@ style.textContent=`
 .lqAldiaCrate{position:absolute;z-index:4;pointer-events:none;width:28px;height:28px;border:2px solid #4b3928;background:linear-gradient(180deg,#b99062 0 16%,transparent 17%),linear-gradient(45deg,transparent 44%,#59432e 45% 54%,transparent 55%),linear-gradient(-45deg,transparent 44%,#6a5036 45% 54%,transparent 55%),#92704a;box-shadow:0 5px 5px #0006,inset 2px 2px #d0aa7666,inset -3px -3px #4c382844}
 .lqAldiaBarrel{position:absolute;z-index:4;pointer-events:none;width:24px;height:31px;border-radius:8px;background:linear-gradient(180deg,#c09a69aa 0 12%,transparent 13% 86%,#3d2b1f55 87%),linear-gradient(90deg,#65482e,#b18555 35%,#8b633d 65%,#523923);border-top:4px solid #3d3935;border-bottom:4px solid #3d3935;box-shadow:0 5px 5px #0006,inset 2px 0 #d3ad7866,inset -3px 0 #3c291d55}
 .lqAldiaWallPennant{position:absolute;z-index:4;pointer-events:none;width:16px;height:38px;background:linear-gradient(180deg,#7da0d255 0 13%,transparent 14% 78%,#071b3c55 79%),linear-gradient(90deg,#123a79,#4278bd 48%,#285d9f 58%,#123a79);border-top:4px solid #cab45e;clip-path:polygon(0 0,100% 0,100% 78%,50% 100%,0 78%);filter:drop-shadow(0 4px 2px #0006)}
-.lqAldiaGroundShadow{position:absolute;z-index:3;pointer-events:none;height:16px;border-radius:50%;background:radial-gradient(ellipse,#0005,transparent 72%);filter:blur(1px)}
+.lqAldiaGroundShadow{position:absolute;z-index:3;pointer-events:none;height:16px;border-radius:50%;background:radial-gradient(ellipse at 50% 55%,#0007 0 30%,#0004 48%,transparent 74%);filter:blur(1px)}
 `;
 document.head.appendChild(style);
 
