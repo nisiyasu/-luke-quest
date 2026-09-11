@@ -32,13 +32,15 @@ jobs:
           ! grep -F "camera.position.lerp(target.clone().add(offset),.06)" prototypes/modern-3d/index.html
           grep -F "addEventListener('blur',()=>{releaseAll();blurRelease=true})" prototypes/modern-3d/index.html
           grep -F "document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()})" prototypes/modern-3d/index.html
+          grep -F "dataset.m08Ci=pass?'pass':'fail'" prototypes/modern-3d/index.html
+          grep -F "groundSamples:groundSamples.map" prototypes/modern-3d/index.html
       - name: Start isolated prototype server
         shell: bash
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m08-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Run movement collision and release evidence
+      - name: Run movement collision release and grounding evidence
         shell: bash
         run: |
           set -euo pipefail
@@ -51,12 +53,14 @@ jobs:
           grep -q 'data-lq-modern3d="m05-ready"' .modern3d-m08/dom.html
           grep -q 'data-m02-ci="pass"' .modern3d-m08/dom.html
           grep -q 'data-m03-ci="pass"' .modern3d-m08/dom.html
+          grep -q 'data-m08-ci="pass"' .modern3d-m08/dom.html
           grep -q 'data-m05-scene="ready"' .modern3d-m08/dom.html
           grep -q '"crossedBridge":true' .modern3d-m08/dom.html
           grep -q '"blockedAtShore":true' .modern3d-m08/dom.html
           grep -q '"pointerMoved":true' .modern3d-m08/dom.html
           grep -q '"released":true' .modern3d-m08/dom.html
           grep -q '"noHole":true' .modern3d-m08/dom.html
+          grep -q '"groundingSmooth":true' .modern3d-m08/dom.html
       - name: Capture M08 runtime frames
         shell: bash
         run: |
