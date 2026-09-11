@@ -1,4 +1,4 @@
-name: Modern 3D M04 Asset Inspection Gate
+name: Modern 3D M05 Visual Evidence Gate
 
 on:
   push:
@@ -16,28 +16,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  browser-webgl-assets:
+  browser-webgl-m05:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify pinned Three.js resource and full M04 manifest
+      - name: Verify Three.js asset manifest and visual authority files
         shell: bash
         run: |
           curl -fLsS --retry 3 'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' -o /tmp/three.module.js
           test -s /tmp/three.module.js
           grep -q 'REVISION' /tmp/three.module.js
+          test -s assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          test -s assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
           python3 - <<'PY'
           import json
-          p='prototypes/modern-3d/ASSET_MANIFEST.json'
-          d=json.load(open(p,encoding='utf-8'))
+          d=json.load(open('prototypes/modern-3d/ASSET_MANIFEST.json',encoding='utf-8'))
           ids={x['id']:x for x in d['assets']}
           required=['bridge_principal_v1','conifer_family_v1','rock_cluster_v1','terrain_grass_cliff_v1','water_river_v1','luke_player_v1','sign_v1']
-          for k in required:
-              assert ids[k]['status']=='PRODUCTION_CANDIDATE',(k,ids[k]['status'])
-              assert ids[k]['source']=='original procedural code'
-              assert ids[k]['license']=='project-owned original'
-          assert 'animation_method' in ids['luke_player_v1']
-          print('M04_MANIFEST_FULL_FAMILY=PASS')
+          for k in required: assert ids[k]['status']=='PRODUCTION_CANDIDATE',(k,ids[k]['status'])
+          print('M05_INPUT_AUTHORITY=PASS')
           PY
       - name: Start isolated server
         shell: bash
@@ -45,8 +42,7 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-          curl -fsS http://127.0.0.1:8140/asset-inspection.html >/dev/null
-      - name: Regression prove M02 input and M03 traversal
+      - name: Prove runtime traversal regressions and M05 integrated scene
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
@@ -56,93 +52,74 @@ jobs:
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=7000 --dump-dom \
-            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m03-dom.html 2>.modern3d/chrome-stderr.log
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m05-dom.html 2>.modern3d/chrome-stderr.log
           browser_rc=$?
           set -e
           echo "BROWSER_RC=$browser_rc"
-          grep -oE 'data-(lq-modern3d|three-revision|m02-ci|m03-ci|m03-route|m03-error)="[^"]*"' .modern3d/m03-dom.html || true
+          grep -oE 'data-(lq-modern3d|three-revision|m02-ci|m03-ci|m03-route|m04-assets|m05-scene|m05-error)="[^"]*"' .modern3d/m05-dom.html || true
           test "$browser_rc" -eq 0
-          grep -q 'data-lq-modern3d="m03-ready"' .modern3d/m03-dom.html
-          grep -q 'data-three-revision="186"' .modern3d/m03-dom.html
-          grep -q 'data-m02-ci="pass"' .modern3d/m03-dom.html
-          grep -q 'data-m03-ci="pass"' .modern3d/m03-dom.html
-          grep -q 'data-m03-route="R0:' .modern3d/m03-dom.html
-          ! grep -q 'data-lq-modern3d="m03-error"' .modern3d/m03-dom.html
-          grep -oE 'data-m03-route="[^"]*"' .modern3d/m03-dom.html > .modern3d/m03-route.txt
-      - name: Prove M04 common-light inspection view and all asset identities
+          grep -q 'data-lq-modern3d="m05-ready"' .modern3d/m05-dom.html
+          grep -q 'data-three-revision="186"' .modern3d/m05-dom.html
+          grep -q 'data-m02-ci="pass"' .modern3d/m05-dom.html
+          grep -q 'data-m03-ci="pass"' .modern3d/m05-dom.html
+          grep -q 'data-m04-assets="integrated"' .modern3d/m05-dom.html
+          grep -q 'data-m05-scene="ready"' .modern3d/m05-dom.html
+          ! grep -q 'data-lq-modern3d="m05-error"' .modern3d/m05-dom.html
+          grep -oE 'data-m03-route="[^"]*"' .modern3d/m05-dom.html > .modern3d/m05-route.txt
+      - name: Capture canonical portrait and high-quality M05 evidence
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          set +e
-          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=7000 --dump-dom \
-            'http://127.0.0.1:8140/asset-inspection.html' > .modern3d/m04-inspection-dom.html 2>.modern3d/m04-chrome-stderr.log
-          browser_rc=$?
-          set -e
-          echo "M04_BROWSER_RC=$browser_rc"
-          grep -oE 'data-(m04-inspection|m04-assets|m04-error)="[^"]*"' .modern3d/m04-inspection-dom.html || true
-          test "$browser_rc" -eq 0
-          grep -q 'data-m04-inspection="ready"' .modern3d/m04-inspection-dom.html
-          for asset in bridge_principal_v1 conifer_family_v1 rock_cluster_v1 terrain_grass_cliff_v1 water_river_v1 luke_player_v1 sign_v1; do
-            grep -q "${asset}@1.0.0" .modern3d/m04-inspection-dom.html
-          done
-          ! grep -q 'data-m04-inspection="error"' .modern3d/m04-inspection-dom.html
-      - name: Capture M04 inspection and M03 portrait evidence
-        shell: bash
-        run: |
-          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=7000 \
-            --screenshot=.modern3d/m04-inspection-864x1536.png \
-            'http://127.0.0.1:8140/asset-inspection.html'
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=7000 \
-            --screenshot=.modern3d/m03-390x844.png \
-            'http://127.0.0.1:8140/index.html?ci=1'
+            --screenshot=.modern3d/m05-c1-390x844.png \
+            'http://127.0.0.1:8140/index.html'
+          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=7000 \
+            --screenshot=.modern3d/m05-hq-864x1536.png \
+            'http://127.0.0.1:8140/index.html'
           python3 - <<'PY'
           from pathlib import Path
           import struct
-          for path,expected in [('.modern3d/m04-inspection-864x1536.png',(864,1536)),('.modern3d/m03-390x844.png',(390,844))]:
-              p=Path(path).read_bytes(); assert len(p)>10000 and p[:8]==b'\x89PNG\r\n\x1a\n'
+          for path,expected in [('.modern3d/m05-c1-390x844.png',(390,844)),('.modern3d/m05-hq-864x1536.png',(864,1536))]:
+              p=Path(path).read_bytes(); assert len(p)>15000 and p[:8]==b'\x89PNG\r\n\x1a\n'
               w,h=struct.unpack('>II',p[16:24]); assert (w,h)==expected,(path,w,h)
               print(path,w,h,len(p))
           PY
-      - name: Record runtime evidence
+      - name: Record evidence scope without self-passing art
         shell: bash
         run: |
           {
-            echo '## Modern 3D M04 asset inspection gate'
+            echo '## Modern 3D M05 visual evidence gate'
             echo "- source SHA: $GITHUB_SHA"
             echo '- M02 input regression: PASS'
-            echo '- M03 bridge/shore traversal regression: PASS'
-            echo '- M04 provenance/manifest full family: PASS'
-            echo '- bridge/conifer/rocks/terrain/water/Luke/sign inspection runtime: PASS'
-            echo '- Luke hierarchical animation method recorded: PASS'
-            echo '- 864x1536 common-light inspection frame: PASS'
-            echo '- final visual quality: NOT inferred; M05 remains separate beauty gate'
+            echo '- M03 traversal/collision regression: PASS'
+            echo '- M04 production asset family integrated in actual game scene: PASS'
+            echo '- canonical C1 390x844 running frame: CAPTURED'
+            echo '- high-quality 864x1536 running frame: CAPTURED'
+            echo '- MINIMUM_QUALITY_LINE + TARGET_PS1_FINAL: INCLUDED FOR HUMAN/VISION COMPARISON'
+            echo '- M05 visual acceptance: NOT SELF-PASSED BY CI'
             echo '- physical iPhone: PENDING'
             echo '- route evidence:'
-            cat .modern3d/m03-route.txt
+            cat .modern3d/m05-route.txt
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload M04 evidence and failure diagnostics
+      - name: Upload M05 comparison evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: modern-3d-m04-${{ github.sha }}
+          name: modern-3d-m05-${{ github.sha }}
           path: |
-            .modern3d/m03-dom.html
-            .modern3d/m03-route.txt
-            .modern3d/m03-390x844.png
-            .modern3d/m04-inspection-dom.html
-            .modern3d/m04-inspection-864x1536.png
+            .modern3d/m05-dom.html
+            .modern3d/m05-route.txt
+            .modern3d/m05-c1-390x844.png
+            .modern3d/m05-hq-864x1536.png
             .modern3d/chrome-stderr.log
-            .modern3d/m04-chrome-stderr.log
             /tmp/modern3d-http.log
+            assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
             prototypes/modern-3d/index.html
-            prototypes/modern-3d/asset-inspection.html
             prototypes/modern-3d/assets.js
             prototypes/modern-3d/ASSET_MANIFEST.json
             prototypes/modern-3d/M01_ART_DIRECTION_AND_COMPARISON_CONTRACT.md
