@@ -18,6 +18,7 @@ concurrency:
 jobs:
   browser-webgl-m05:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - name: Verify Three.js asset manifest and visual authority files
@@ -83,7 +84,6 @@ jobs:
             --virtual-time-budget=1200 --dump-dom \
             'http://127.0.0.1:8140/m04-water-inspection.html' > .modern3d/m04-water-dom.html 2>.modern3d/m04-water-stderr.log
           grep -q 'data-m04-water-inspection="ready"' .modern3d/m04-water-dom.html
-          # The family/major version is the contract. M07 legitimately advances the water-v3 minor/patch version.
           grep -Eq 'data-candidate-asset="water_target_v3@3\.[0-9]+\.[0-9]+"' .modern3d/m04-water-dom.html
       - name: Prove runtime traversal regressions and M05 integrated scene
         shell: bash
@@ -92,8 +92,6 @@ jobs:
           test -n "$BROWSER"
           mkdir -p .modern3d
           set +e
-          # Traversal/state correctness does not depend on the expensive high visual preset.
-          # Keep this proof on practical so functional CI cannot fail merely because the art scene got richer.
           timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=700 --dump-dom \
@@ -114,17 +112,30 @@ jobs:
       - name: Capture canonical portrait and high-quality M05 evidence
         shell: bash
         run: |
+          set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=500 \
-            --screenshot=.modern3d/m05-c1-390x844.png \
-            'http://127.0.0.1:8140/index.html'
-          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=500 \
-            --screenshot=.modern3d/m05-hq-864x1536.png \
-            'http://127.0.0.1:8140/index.html'
+          capture(){
+            local size="$1" out="$2" attempt rc
+            for attempt in 1 2; do
+              set +e
+              timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+                --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+                --hide-scrollbars --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=700 \
+                --screenshot=".modern3d/$out" 'http://127.0.0.1:8140/index.html?quality=high'
+              rc=$?
+              set -e
+              if [ "$rc" -eq 0 ] && test -s ".modern3d/$out"; then
+                echo "M05_CAPTURE $out attempt=$attempt PASS" >> .modern3d/m05-capture-performance.txt
+                return 0
+              fi
+              echo "M05_CAPTURE $out attempt=$attempt RETRY rc=$rc" >> .modern3d/m05-capture-performance.txt
+              rm -f ".modern3d/$out"
+              sleep 1
+            done
+            return 1
+          }
+          capture 390,844 m05-c1-390x844.png
+          capture 864,1536 m05-hq-864x1536.png
           python3 - <<'PY'
           from pathlib import Path
           import struct
@@ -153,6 +164,7 @@ jobs:
             echo '- physical iPhone: PENDING'
             echo '- route evidence:'
             cat .modern3d/m05-route.txt
+            test -f .modern3d/m05-capture-performance.txt && cat .modern3d/m05-capture-performance.txt || true
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload M05 comparison evidence
         if: always()
@@ -168,6 +180,7 @@ jobs:
             .modern3d/m04-water-stderr.log
             .modern3d/m05-dom.html
             .modern3d/m05-route.txt
+            .modern3d/m05-capture-performance.txt
             .modern3d/m05-c1-390x844.png
             .modern3d/m05-hq-864x1536.png
             .modern3d/chrome-stderr.log
