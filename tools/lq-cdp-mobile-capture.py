@@ -42,12 +42,16 @@ def wait_for_tab(port: int, timeout: float = 10.0) -> dict:
         try:
             with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/list", timeout=0.5) as response:
                 tabs = json.load(response)
-            if tabs:
-                return tabs[0]
+            page_tabs = [tab for tab in tabs if tab.get("type") == "page" and not str(tab.get("url", "")).startswith("chrome-extension://")]
+            blank_tabs = [tab for tab in page_tabs if tab.get("url") in {"about:blank", "chrome://newtab/"}]
+            if blank_tabs:
+                return blank_tabs[0]
+            if page_tabs:
+                return page_tabs[0]
         except Exception as exc:
             last_error = exc
         time.sleep(0.1)
-    raise SystemExit(f"Chrome DevTools endpoint did not become ready: {last_error}")
+    raise SystemExit(f"Chrome DevTools page target did not become ready: {last_error}")
 
 
 class Cdp:
@@ -148,7 +152,7 @@ def main() -> None:
         screenshot = cdp.call("Page.captureScreenshot", {"format": "png", "fromSurface": True, "captureBeyondViewport": False})
         png_path.write_bytes(base64.b64decode(screenshot["data"]))
 
-        print(json.dumps({"viewport": f"{args.width}x{args.height}", "metrics": page_state, "initialNavigationError": navigation_error, "png": str(png_path), "dom": str(dom_path)}, ensure_ascii=False))
+        print(json.dumps({"viewport": f"{args.width}x{args.height}", "metrics": page_state, "initialNavigationError": navigation_error, "targetType": tab.get("type"), "targetUrl": tab.get("url"), "png": str(png_path), "dom": str(dom_path)}, ensure_ascii=False))
     finally:
         if cdp is not None:
             try:
