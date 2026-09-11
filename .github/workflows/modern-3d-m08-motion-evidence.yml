@@ -81,9 +81,7 @@ jobs:
           from pathlib import Path
           text=Path('.modern3d-m08/walk-proof.html').read_text()
           def attr(name):
-              m=re.search(fr'{name}="([^"]+)"', text)
-              assert m, f'missing {name}'
-              return m.group(1)
+              m=re.search(fr'{name}="([^"]+)"', text); assert m, f'missing {name}'; return m.group(1)
           assert attr('data-m08-proof-done') == '1'
           assert int(attr('data-m08-proof-rendered')) >= 4
           start=[float(v) for v in attr('data-m08-proof-start').split(',')]
@@ -93,47 +91,61 @@ jobs:
           assert .30 < start[1] < .55 and .30 < end[1] < .55, (start,end)
           Path('.modern3d-m08/walk-position-proof.txt').write_text(f'start={start}\nend={end}\ndelta_z={end[2]-start[2]:.3f}\nrendered={attr("data-m08-proof-rendered")}\nPASS\n')
           PY
-      - name: Capture canonical mobile live-walk evidence and reject black world
+      - name: Capture two canonical mobile live-walk frames
         shell: bash
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 50s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=120 \
-            --screenshot=.modern3d-m08/m08-walk-390x844.png \
-            'http://127.0.0.1:8140/index.html?m08walk=1'
+          for spec in early:120 late:650; do
+            name="${spec%%:*}"; budget="${spec##*:}"
+            timeout 55s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+              --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget="$budget" \
+              --screenshot=".modern3d-m08/m08-walk-${name}-390x844.png" \
+              'http://127.0.0.1:8140/index.html?m08walk=1'
+          done
           python3 - <<'PY'
           from pathlib import Path
-          import struct,zlib,math
-          data=Path('.modern3d-m08/m08-walk-390x844.png').read_bytes()
-          assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n'
-          pos=8; ids=[]; w=h=ct=bd=None
-          while pos<len(data):
-              n=struct.unpack('>I',data[pos:pos+4])[0]; typ=data[pos+4:pos+8]; chunk=data[pos+8:pos+8+n]; pos+=12+n
-              if typ==b'IHDR': w,h,bd,ct,_,_,_=struct.unpack('>IIBBBBB',chunk)
-              elif typ==b'IDAT': ids.append(chunk)
-              elif typ==b'IEND': break
-          assert (w,h)==(390,844) and bd==8 and ct in (2,6)
-          bpp=3 if ct==2 else 4; raw=zlib.decompress(b''.join(ids)); stride=w*bpp; rows=[]; p=0; prev=bytearray(stride)
-          def paeth(a,b,c):
-              q=a+b-c; pa=abs(q-a); pb=abs(q-b); pc=abs(q-c)
-              return a if pa<=pb and pa<=pc else b if pb<=pc else c
-          for _ in range(h):
-              f=raw[p]; p+=1; scan=bytearray(raw[p:p+stride]); p+=stride; out=bytearray(stride)
-              for i,x in enumerate(scan):
-                  a=out[i-bpp] if i>=bpp else 0; b=prev[i]; c=prev[i-bpp] if i>=bpp else 0
-                  v=x if f==0 else (x+a)&255 if f==1 else (x+b)&255 if f==2 else (x+((a+b)//2))&255 if f==3 else (x+paeth(a,b,c))&255
-                  out[i]=v
-              rows.append(out); prev=out
-          vals=[]; colors=set()
-          for y in range(int(h*.16),int(h*.80),5):
-              row=rows[y]
-              for x in range(int(w*.20),int(w*.80),5):
-                  i=x*bpp; rgb=tuple(row[i:i+3]); colors.add(rgb); vals.append(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2])
-          mean=sum(vals)/len(vals); std=math.sqrt(sum((v-mean)**2 for v in vals)/len(vals))
-          print('canonical_mobile',len(data),'central_unique',len(colors),'luma_std',round(std,2))
-          assert len(colors)>80 and std>8,(len(colors),std)
+          import struct,zlib,math,hashlib
+          paths=[Path('.modern3d-m08/m08-walk-early-390x844.png'),Path('.modern3d-m08/m08-walk-late-390x844.png')]
+          def decode(path):
+              data=path.read_bytes(); assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n'
+              pos=8; ids=[]; w=h=ct=bd=None
+              while pos<len(data):
+                  n=struct.unpack('>I',data[pos:pos+4])[0]; typ=data[pos+4:pos+8]; chunk=data[pos+8:pos+8+n]; pos+=12+n
+                  if typ==b'IHDR': w,h,bd,ct,_,_,_=struct.unpack('>IIBBBBB',chunk)
+                  elif typ==b'IDAT': ids.append(chunk)
+                  elif typ==b'IEND': break
+              assert (w,h)==(390,844) and bd==8 and ct in (2,6)
+              bpp=3 if ct==2 else 4; raw=zlib.decompress(b''.join(ids)); stride=w*bpp; rows=[]; p=0; prev=bytearray(stride)
+              def paeth(a,b,c):
+                  q=a+b-c; pa=abs(q-a); pb=abs(q-b); pc=abs(q-c); return a if pa<=pb and pa<=pc else b if pb<=pc else c
+              for _ in range(h):
+                  f=raw[p]; p+=1; scan=bytearray(raw[p:p+stride]); p+=stride; out=bytearray(stride)
+                  for i,x in enumerate(scan):
+                      a=out[i-bpp] if i>=bpp else 0; b=prev[i]; c=prev[i-bpp] if i>=bpp else 0
+                      v=x if f==0 else (x+a)&255 if f==1 else (x+b)&255 if f==2 else (x+((a+b)//2))&255 if f==3 else (x+paeth(a,b,c))&255
+                      out[i]=v
+                  rows.append(out); prev=out
+              vals=[]; colors=set()
+              for y in range(int(h*.16),int(h*.80),5):
+                  row=rows[y]
+                  for x in range(int(w*.20),int(w*.80),5):
+                      i=x*bpp; rgb=tuple(row[i:i+3]); colors.add(rgb); vals.append(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2])
+              mean=sum(vals)/len(vals); std=math.sqrt(sum((v-mean)**2 for v in vals)/len(vals))
+              assert len(colors)>80 and std>8,(path,len(colors),std)
+              return data,rows,bpp
+          decoded=[decode(p) for p in paths]
+          assert hashlib.sha256(decoded[0][0]).digest()!=hashlib.sha256(decoded[1][0]).digest()
+          a,b=decoded[0][1],decoded[1][1]; bpp=decoded[0][2]; total=diff=0
+          for y in range(160,760,8):
+              for x in range(70,320,8):
+                  i=x*bpp; total+=1
+                  if sum(abs(a[y][i+j]-b[y][i+j]) for j in range(3))>24: diff+=1
+          ratio=diff/total
+          print('two_frame_change_ratio',round(ratio,3))
+          assert ratio>.05,ratio
+          Path('.modern3d-m08/walk-sequence-proof.txt').write_text(f'early_budget=120\nlate_budget=650\nchanged_sample_ratio={ratio:.3f}\nPASS\n')
           PY
       - name: Upload M08 evidence
         if: always()
@@ -144,8 +156,10 @@ jobs:
             .modern3d-m08/dom.html
             .modern3d-m08/walk-proof.html
             .modern3d-m08/walk-position-proof.txt
+            .modern3d-m08/walk-sequence-proof.txt
             .modern3d-m08/chrome-stderr.log
-            .modern3d-m08/m08-walk-390x844.png
+            .modern3d-m08/m08-walk-early-390x844.png
+            .modern3d-m08/m08-walk-late-390x844.png
             /tmp/m08-http.log
             prototypes/modern-3d/index.html
             prototypes/modern-3d/assets.js
