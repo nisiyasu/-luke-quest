@@ -1,0 +1,95 @@
+name: Modern 3D M08 Motion Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/modern-3d-m08-motion-evidence.yml"
+      - "prototypes/modern-3d/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: modern-3d-m08-motion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  m08-motion-input:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify M08 motion contract in source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F "player.userData.animate(sec,moving?1:0)" prototypes/modern-3d/index.html
+          ! grep -F "player.userData.animate(sec,moving?1:.12)" prototypes/modern-3d/index.html
+          grep -F "THREE.MathUtils.clamp(movement,0,1)" prototypes/modern-3d/assets.js
+          grep -F "function playerGroundY" prototypes/modern-3d/index.html
+          grep -F "addEventListener('blur',()=>{releaseAll();blurRelease=true})" prototypes/modern-3d/index.html
+          grep -F "document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()})" prototypes/modern-3d/index.html
+      - name: Start isolated prototype server
+        shell: bash
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m08-http.log 2>&1 &
+          sleep 1
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Run movement collision and release evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          mkdir -p .modern3d-m08
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --virtual-time-budget=1000 --dump-dom \
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-m08/dom.html 2>.modern3d-m08/chrome-stderr.log
+          grep -q 'data-lq-modern3d="m05-ready"' .modern3d-m08/dom.html
+          grep -q 'data-m02-ci="pass"' .modern3d-m08/dom.html
+          grep -q 'data-m03-ci="pass"' .modern3d-m08/dom.html
+          grep -q 'data-m05-scene="ready"' .modern3d-m08/dom.html
+          grep -q '"crossedBridge":true' .modern3d-m08/dom.html
+          grep -q '"blockedAtShore":true' .modern3d-m08/dom.html
+          grep -q '"pointerMoved":true' .modern3d-m08/dom.html
+          grep -q '"released":true' .modern3d-m08/dom.html
+          grep -q '"noHole":true' .modern3d-m08/dom.html
+      - name: Capture M08 runtime frames
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=700 \
+            --screenshot=.modern3d-m08/m08-390x844.png \
+            'http://127.0.0.1:8140/index.html'
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=700 \
+            --screenshot=.modern3d-m08/m08-864x1536.png \
+            'http://127.0.0.1:8140/index.html'
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          for path, expected in [('.modern3d-m08/m08-390x844.png',(390,844)),('.modern3d-m08/m08-864x1536.png',(864,1536))]:
+              data=Path(path).read_bytes()
+              assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n'
+              assert struct.unpack('>II',data[16:24])==expected
+              print(path,len(data))
+          PY
+      - name: Upload M08 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: modern-3d-m08-motion-${{ github.sha }}
+          path: |
+            .modern3d-m08/dom.html
+            .modern3d-m08/chrome-stderr.log
+            .modern3d-m08/m08-390x844.png
+            .modern3d-m08/m08-864x1536.png
+            /tmp/m08-http.log
+            prototypes/modern-3d/index.html
+            prototypes/modern-3d/assets.js
+          if-no-files-found: warn
+          retention-days: 14
