@@ -1,0 +1,44 @@
+name: Modern 3D M08 Walk Proof Optimize
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - '.github/workflows/modern-3d-m08-walk-proof-optimize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  optimize-walk-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Persist walk start and end positions in one browser session
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="if(new URLSearchParams(location.search).get('m08walk')==='1'){dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout(()=>dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true})),1600)}"
+          new="if(new URLSearchParams(location.search).get('m08walk')==='1'){document.documentElement.dataset.m08WalkStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout(()=>{dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState();document.documentElement.dataset.m08WalkEnd=document.documentElement.dataset.m08Player;document.documentElement.dataset.m08WalkDone='1'},1600)}"
+          count=s.count(old)
+          if count!=1: raise SystemExit(f'expected one m08walk block, found {count}')
+          p.write_text(s.replace(old,new))
+      - name: Verify exact walk proof patch
+        run: |
+          git diff --check
+          grep -F 'dataset.m08WalkStart=' prototypes/modern-3d/index.html
+          grep -F "dataset.m08WalkDone='1'" prototypes/modern-3d/index.html
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit optimized walk proof
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && exit 1
+          git commit -m 'test(modern-3d): persist M08 walk start and end evidence'
+          git push origin HEAD:prototype/modern-3d
