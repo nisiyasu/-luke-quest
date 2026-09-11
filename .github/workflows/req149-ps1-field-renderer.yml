@@ -64,7 +64,7 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
           test -n "$BROWSER"
           timeout 30 "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars --window-size=390,844 --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:8139/.req149/candidate-field.html' > .req149/candidate-field-dom.html 2>/tmp/req149-dom.log || true
-          grep -q 'data-req149-field-renderer="canvas-prototype"' .req149/candidate-field-dom.html
+          grep -Eq 'data-req149-field-renderer="canvas-prototype[^\"]*"' .req149/candidate-field-dom.html
           grep -q 'data-req149-collision-authority="preserved"' .req149/candidate-field-dom.html
           grep -q 'class="lqReq149FieldCanvas"' .req149/candidate-field-dom.html
           grep -q 'class="[^"]*lqReq149FieldCanvasWorld' .req149/candidate-field-dom.html
