@@ -44,7 +44,7 @@ def wait_for_tab(port: int, timeout: float = 10.0) -> dict:
                 tabs = json.load(response)
             if tabs:
                 return tabs[0]
-        except Exception as exc:  # browser may still be starting
+        except Exception as exc:
             last_error = exc
         time.sleep(0.1)
     raise SystemExit(f"Chrome DevTools endpoint did not become ready: {last_error}")
@@ -69,6 +69,14 @@ class Cdp:
             if "error" in message:
                 raise RuntimeError(f"CDP {method} failed: {message['error']}")
             return message.get("result", {})
+
+
+def evaluated_json(cdp: Cdp, expression: str) -> dict:
+    result = cdp.call("Runtime.evaluate", {"expression": f"JSON.stringify({expression})", "returnByValue": True})
+    raw = result["result"].get("value")
+    if not raw:
+        raise RuntimeError(f"evaluation returned no value: {expression}")
+    return json.loads(raw)
 
 
 def main() -> None:
@@ -118,17 +126,21 @@ def main() -> None:
             },
         )
         navigation = cdp.call("Page.navigate", {"url": args.url})
-        if navigation.get("errorText"):
-            raise RuntimeError(f"navigation failed: {navigation['errorText']}")
+        navigation_error = navigation.get("errorText")
         time.sleep(max(0, args.wait_ms) / 1000.0)
 
-        metrics_expr = "JSON.stringify({innerWidth,innerHeight,dpr:devicePixelRatio,visualWidth:visualViewport?.width||0,visualHeight:visualViewport?.height||0,ready:document.readyState})"
-        metrics_result = cdp.call("Runtime.evaluate", {"expression": metrics_expr, "returnByValue": True})
-        metrics = json.loads(metrics_result["result"]["value"])
-        if metrics["innerWidth"] != args.width or metrics["innerHeight"] != args.height:
-            raise RuntimeError(f"viewport mismatch: expected {args.width}x{args.height}, observed {metrics['innerWidth']}x{metrics['innerHeight']}")
-        if round(metrics["visualWidth"]) != args.width or round(metrics["visualHeight"]) != args.height:
-            raise RuntimeError(f"visualViewport mismatch: {metrics['visualWidth']}x{metrics['visualHeight']}")
+        page_state = evaluated_json(
+            cdp,
+            "({href:location.href,innerWidth,innerHeight,dpr:devicePixelRatio,visualWidth:visualViewport?.width||0,visualHeight:visualViewport?.height||0,ready:document.readyState})",
+        )
+        if not page_state["href"].startswith(args.url):
+            raise RuntimeError(f"navigation did not settle on target: {page_state['href']} (initial error={navigation_error})")
+        if page_state["ready"] != "complete":
+            raise RuntimeError(f"document not complete after wait: {page_state['ready']}")
+        if page_state["innerWidth"] != args.width or page_state["innerHeight"] != args.height:
+            raise RuntimeError(f"viewport mismatch: expected {args.width}x{args.height}, observed {page_state['innerWidth']}x{page_state['innerHeight']}")
+        if round(page_state["visualWidth"]) != args.width or round(page_state["visualHeight"]) != args.height:
+            raise RuntimeError(f"visualViewport mismatch: {page_state['visualWidth']}x{page_state['visualHeight']}")
 
         dom_result = cdp.call("Runtime.evaluate", {"expression": "document.documentElement.outerHTML", "returnByValue": True})
         dom_path.write_text(dom_result["result"]["value"], encoding="utf-8")
@@ -136,7 +148,7 @@ def main() -> None:
         screenshot = cdp.call("Page.captureScreenshot", {"format": "png", "fromSurface": True, "captureBeyondViewport": False})
         png_path.write_bytes(base64.b64decode(screenshot["data"]))
 
-        print(json.dumps({"viewport": f"{args.width}x{args.height}", "metrics": metrics, "png": str(png_path), "dom": str(dom_path)}, ensure_ascii=False))
+        print(json.dumps({"viewport": f"{args.width}x{args.height}", "metrics": page_state, "initialNavigationError": navigation_error, "png": str(png_path), "dom": str(dom_path)}, ensure_ascii=False))
     finally:
         if cdp is not None:
             try:
