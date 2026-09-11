@@ -1,0 +1,31 @@
+import * as THREE from 'three';
+
+function seeded(seed=1){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
+function canvasTexture(w,h,paint){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');paint(x,w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t}
+
+export function makeWoodTexture(seed=11){const r=seeded(seed);return canvasTexture(256,256,(x,w,h)=>{x.fillStyle='#8a582e';x.fillRect(0,0,w,h);for(let i=0;i<95;i++){const y=r()*h,amp=2+r()*8;x.strokeStyle=`rgba(${55+Math.floor(r()*35)},${28+Math.floor(r()*22)},${12+Math.floor(r()*14)},${.12+r()*.2})`;x.lineWidth=.5+r()*1.5;x.beginPath();for(let px=0;px<=w;px+=8){const py=y+Math.sin(px*.035+r()*5)*amp;x.lineTo(px,py)}x.stroke()}for(let i=0;i<12;i++){const cx=r()*w,cy=r()*h,rx=5+r()*15,ry=2+r()*5;x.strokeStyle='rgba(54,28,14,.34)';x.lineWidth=1.2;x.beginPath();x.ellipse(cx,cy,rx,ry,r()*.5,0,Math.PI*2);x.stroke()}})}
+export function makeBarkTexture(seed=29){const r=seeded(seed);return canvasTexture(128,256,(x,w,h)=>{x.fillStyle='#5d402a';x.fillRect(0,0,w,h);for(let i=0;i<75;i++){const xx=r()*w;x.strokeStyle=`rgba(${40+Math.floor(r()*35)},${24+Math.floor(r()*20)},${12+Math.floor(r()*12)},${.16+r()*.25})`;x.lineWidth=1+r()*3;x.beginPath();x.moveTo(xx,0);for(let y=0;y<h;y+=18)x.lineTo(xx+Math.sin(y*.05+r()*5)*(2+r()*4),y);x.stroke()}})}
+
+const woodTex=makeWoodTexture();woodTex.repeat.set(2.2,.45);const barkTex=makeBarkTexture();barkTex.repeat.set(1.4,2.4);
+const woodMat=new THREE.MeshStandardMaterial({map:woodTex,color:0xb97a3f,roughness:.78,metalness:0});
+const woodDark=new THREE.MeshStandardMaterial({map:woodTex,color:0x70401f,roughness:.88,metalness:0});
+const ironMat=new THREE.MeshStandardMaterial({color:0x3b4143,roughness:.45,metalness:.68});
+const barkMat=new THREE.MeshStandardMaterial({map:barkTex,color:0x745038,roughness:1,metalness:0});
+const foliageMats=[0x184d34,0x21613e,0x2b7046].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.93,metalness:0}));
+const rockMats=[0x777a73,0x686d68,0x85877e].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.94,metalness:0}));
+const mossMat=new THREE.MeshStandardMaterial({color:0x566a37,roughness:1,metalness:0});
+
+function shadow(o){o.traverse?.(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});return o}
+function beam(g,w,h,d,mat,x,y,z,rotZ=0){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.rotation.z=rotZ;g.add(m);return m}
+
+export function createProductionBridge(){const g=new THREE.Group();g.name='bridge_principal_v1';const boardCount=18,depth=6.8,step=depth/boardCount;for(let i=0;i<boardCount;i++){const z=-depth/2+step*(i+.5),j=Math.sin(i*2.71)*.035;const b=beam(g,3.45,.18,step*.91,woodMat,j,.34,z);b.rotation.y=Math.sin(i*1.91)*.012;b.position.y+=Math.sin(i*1.37)*.018}
+ for(const x of [-1.55,1.55]){beam(g,.22,.32,7.0,woodDark,x,.16,0);for(const z of [-3.0,-1.5,0,1.5,3.0]){beam(g,.20,1.22,.20,woodDark,x,.76,z);const bolt=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.07,10),ironMat);bolt.rotation.z=Math.PI/2;bolt.position.set(x+(x<0?-.12:.12),.72,z);g.add(bolt)}beam(g,.18,.16,6.6,woodMat,x,1.28,0);for(let z=-2.65;z<2.8;z+=1.35){const brace=beam(g,.13,.13,1.7,woodDark,x,.88,z+.55);brace.rotation.x=Math.PI/4}}
+ for(const z of [-3.15,3.15])for(const x of [-1.42,1.42])beam(g,.34,1.15,.34,woodDark,x,-.08,z);
+ g.userData={assetId:'bridge_principal_v1',version:'1.0.0',dimensions:[3.6,1.45,7.0],license:'project-owned original'};return shadow(g)}
+
+export function createConifer({seed=1,scale=1}={}){const r=seeded(seed),g=new THREE.Group();g.name=`conifer_family_v1_${seed}`;const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.19*scale,.36*scale,4.2*scale,9),barkMat);trunk.position.y=2.1*scale;g.add(trunk);for(let level=0;level<7;level++){const y=(1.15+level*.52)*scale,rad=(1.48-level*.13)*scale;const count=5+(level%3);for(let i=0;i<count;i++){const a=i/count*Math.PI*2+r()*.32,len=rad*(.75+r()*.38);const branch=new THREE.Mesh(new THREE.CylinderGeometry(.035*scale,.07*scale,len,6),barkMat);branch.position.set(Math.cos(a)*len*.36,y,Math.sin(a)*len*.36);branch.rotation.z=Math.PI/2.2;branch.rotation.y=-a;g.add(branch);const fol=new THREE.Mesh(new THREE.DodecahedronGeometry((.38+r()*.18)*scale,0),foliageMats[(level+i)%foliageMats.length]);fol.scale.set(.72+r()*.28,1.35+r()*.48,.72+r()*.3);fol.position.set(Math.cos(a)*len*.78,y+(r()-.4)*.18*scale,Math.sin(a)*len*.78);fol.rotation.y=a+r();g.add(fol)}}for(let i=0;i<5;i++){const top=new THREE.Mesh(new THREE.DodecahedronGeometry((.42-i*.045)*scale,0),foliageMats[i%3]);top.scale.set(.75,1.45,.75);top.position.y=(4.15+i*.3)*scale;top.rotation.y=r()*Math.PI;g.add(top)}const skirt=new THREE.Mesh(new THREE.CylinderGeometry(.58*scale,.76*scale,.09*scale,11),mossMat);skirt.position.y=.045*scale;g.add(skirt);g.rotation.y=r()*Math.PI*2;g.userData={assetId:'conifer_family_v1',version:'1.0.0',seed,license:'project-owned original'};return shadow(g)}
+
+function deform(geometry,r,amount=.18){const p=geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),m=1+(r()-.5)*amount;p.setXYZ(i,x*m,y*(1+(r()-.5)*amount*.65),z*m)}p.needsUpdate=true;geometry.computeVertexNormals();return geometry}
+export function createRockCluster({seed=1,scale=1}={}){const r=seeded(seed),g=new THREE.Group();g.name=`rock_cluster_v1_${seed}`;const count=3+Math.floor(r()*3);for(let i=0;i<count;i++){const geo=deform(new THREE.DodecahedronGeometry((.42+r()*.48)*scale,1),r,.28);const m=new THREE.Mesh(geo,rockMats[i%rockMats.length]);m.scale.set(.8+r()*.7,.55+r()*.65,.75+r()*.8);m.position.set((r()-.5)*1.45*scale,m.scale.y*.28,(r()-.5)*1.2*scale);m.rotation.set(r()*.35,r()*Math.PI,r()*.25);g.add(m)}const moss=new THREE.Mesh(new THREE.CircleGeometry(.72*scale,14),mossMat);moss.rotation.x=-Math.PI/2;moss.position.y=.018;g.add(moss);g.userData={assetId:'rock_cluster_v1',version:'1.0.0',seed,license:'project-owned original'};return shadow(g)}
+
+export function assetMetadata(){return {bridge:'bridge_principal_v1@1.0.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.0.0'}}
