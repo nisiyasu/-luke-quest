@@ -117,7 +117,7 @@
       "forward": "radially distributed branch/frond silhouette with seeded variation",
       "texture": "material-separated bark plus three rough foliage tones; no external texture dependency",
       "features": ["nine branch levels", "radial branch variation", "layered frond cards", "multi-tone foliage", "top crown taper", "seeded silhouette variation", "ground needle accents"],
-      "version": "2.0.0",
+      "version": "2.1.0",
       "replaces_for_m05": "conifer_family_v1"
     },
     {
@@ -132,7 +132,7 @@
       "forward": "none",
       "texture": "rough grass materials with light/dark variation plus optional white/pink flowers",
       "features": ["18 varied grass blades", "seeded radial scatter", "stem variation", "optional flower heads", "scale variation"],
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     {
       "id": "layered_bank_v2",
@@ -144,9 +144,9 @@
       "dimensions_m": "configurable width/depth; M05 authored banks use scene-specific placement",
       "origin": "top patch center",
       "forward": "facing parameter selects river-facing edge",
-      "texture": "rough grass/soil/moss/rock material family with deformed rock geometry",
-      "features": ["subdivided uneven top surface", "multi-layer deformed shoreline rocks", "soil transition band", "moss/rock color variation", "integrated understory clusters", "non-straight naturalized edge"],
-      "version": "2.0.0",
+      "texture": "procedural 256x256 grass CanvasTexture with macro color breakup, thousands of blade flecks and soil/light speckle plus rough soil/moss/rock materials",
+      "features": ["subdivided uneven top surface", "macro and micro grass color breakup", "multi-layer deformed shoreline rocks", "soil transition band", "moss/rock color variation", "denser integrated understory clusters", "non-straight naturalized edge"],
+      "version": "2.1.0",
       "replaces_for_m05": "terrain_grass_cliff_v1"
     },
     {
@@ -156,13 +156,13 @@
       "source": "original procedural code created after M05 visual-gate feedback",
       "license": "project-owned original",
       "path": "natural-assets.js#createRichWater",
-      "dimensions_m": "configurable width/depth; M05 river uses 28 x approximately 6.2",
+      "dimensions_m": "configurable width/depth; M05 v3 river uses approximately 30 x 6.6",
       "origin": "surface center",
       "forward": "none",
       "texture": "custom procedural shader; no external texture dependency",
       "features": ["multi-frequency animated wave displacement", "deep/mid/light color breakup", "animated specular-like sparkle bands", "shore brightening", "two irregular foam strips", "embedded deformed rocks"],
       "animation_method": "userData.update(t) drives uTime shader uniform",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "replaces_for_m05": "water_river_v1"
     }
   ]
