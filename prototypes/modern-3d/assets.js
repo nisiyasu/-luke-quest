@@ -57,8 +57,52 @@ export function createTerrainPatch({seed=1,width=8,depth=7,cliff=false}={}){cons
 
 export function createWaterSurface({width=8,depth=6}={}){const uniforms={uTime:{value:0},uDeep:{value:new THREE.Color(0x0c5f7d)},uShallow:{value:new THREE.Color(0x31b9c8)}};const mat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms,vertexShader:`varying vec2 vUv;uniform float uTime;void main(){vUv=uv;vec3 p=position;p.z+=sin((p.x+uTime*.9)*2.1)*.035+cos((p.y-uTime*.7)*2.8)*.025;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,fragmentShader:`varying vec2 vUv;uniform vec3 uDeep;uniform vec3 uShallow;uniform float uTime;void main(){float ripple=.5+.5*sin(vUv.x*35.+vUv.y*24.+uTime*2.);vec3 c=mix(uDeep,uShallow,.22+vUv.y*.28+ripple*.06);gl_FragColor=vec4(c,.83);}`});const m=new THREE.Mesh(new THREE.PlaneGeometry(width,depth,32,24),mat);m.rotation.x=-Math.PI/2;m.userData={assetId:'water_river_v1',version:'1.0.0',update:t=>uniforms.uTime.value=t};return m}
 
-export function createLukeCharacter({scale=1}={}){const g=new THREE.Group();g.name='luke_player_v1';const skin=new THREE.MeshStandardMaterial({color:0xf0c9ac,roughness:.68}),shirt=new THREE.MeshStandardMaterial({color:0x2f4a71,roughness:.78}),coat=new THREE.MeshStandardMaterial({color:0xe4e1d4,roughness:.82}),boots=new THREE.MeshStandardMaterial({color:0x403329,roughness:.9}),hairMat=new THREE.MeshStandardMaterial({color:0x185bd9,roughness:.42}),belt=new THREE.MeshStandardMaterial({color:0x8d673a,roughness:.75});const hips=new THREE.Group();hips.position.y=1.0*scale;g.add(hips);const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.32*scale,.52*scale,5,10),coat);torso.position.y=.55*scale;hips.add(torso);const beltMesh=new THREE.Mesh(new THREE.CylinderGeometry(.34*scale,.34*scale,.12*scale,12),belt);beltMesh.position.y=.19*scale;hips.add(beltMesh);const head=new THREE.Mesh(new THREE.SphereGeometry(.32*scale,16,12),skin);head.scale.set(.9,1.03,.88);head.position.y=1.35*scale;hips.add(head);for(let i=0;i<7;i++){const h=new THREE.Mesh(new THREE.ConeGeometry(.12*scale,.46*scale,6),hairMat);const a=(i/7)*Math.PI*2;h.position.set(Math.cos(a)*.22*scale,1.56*scale,Math.sin(a)*.22*scale);h.rotation.z=Math.cos(a)*.4;h.rotation.x=Math.sin(a)*.4;hips.add(h)}const limb=(x,y,mat)=>{const pivot=new THREE.Group();pivot.position.set(x*scale,y*scale,0);const mesh=new THREE.Mesh(new THREE.CapsuleGeometry(.095*scale,.48*scale,4,8),mat);mesh.position.y=-.3*scale;pivot.add(mesh);hips.add(pivot);return pivot};const armL=limb(-.39,.9,shirt),armR=limb(.39,.9,shirt),legL=limb(-.17,.18,boots),legR=limb(.17,.18,boots);for(const [x,leg] of [[-.17,legL],[.17,legR]]){const foot=new THREE.Mesh(new THREE.BoxGeometry(.2*scale,.14*scale,.38*scale),boots);foot.position.set(0,-.64*scale,.09*scale);leg.add(foot)}g.userData={assetId:'luke_player_v1',version:'1.0.0',rig:'procedural hierarchical pivots',animate:(t,speed=1)=>{const swing=Math.sin(t*7*speed)*.55;armL.rotation.x=swing;armR.rotation.x=-swing;legL.rotation.x=-swing*.75;legR.rotation.x=swing*.75;hips.position.y=(1+.025*Math.abs(Math.sin(t*7*speed)))*scale}};return shadow(g)}
+export function createLukeCharacter({scale=1}={}){
+  const g=new THREE.Group();g.name='luke_player_v1';
+  const skin=new THREE.MeshStandardMaterial({color:0xf0c9ac,roughness:.7});
+  const navy=new THREE.MeshStandardMaterial({color:0x263f68,roughness:.78});
+  const coat=new THREE.MeshStandardMaterial({color:0xe9e4d6,roughness:.86});
+  const coatShade=new THREE.MeshStandardMaterial({color:0xbec7c8,roughness:.88});
+  const boots=new THREE.MeshStandardMaterial({color:0x3c2c26,roughness:.92});
+  const hair=new THREE.MeshStandardMaterial({color:0x1660d9,roughness:.38});
+  const hairDark=new THREE.MeshStandardMaterial({color:0x123c9f,roughness:.48});
+  const belt=new THREE.MeshStandardMaterial({color:0x8b6236,roughness:.82});
+  const gold=new THREE.MeshStandardMaterial({color:0xd7ad48,roughness:.48,metalness:.18});
+  const hips=new THREE.Group();hips.position.y=.91*scale;g.add(hips);
+
+  const pelvis=new THREE.Mesh(new THREE.BoxGeometry(.42*scale,.18*scale,.30*scale),navy);pelvis.position.y=.15*scale;hips.add(pelvis);
+  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.255*scale,.48*scale,6,12),coat);torso.scale.set(1.08,1,.78);torso.position.y=.63*scale;hips.add(torso);
+  const chest=new THREE.Mesh(new THREE.BoxGeometry(.42*scale,.30*scale,.10*scale),navy);chest.position.set(0,.67*scale,-.22*scale);hips.add(chest);
+  const beltMesh=new THREE.Mesh(new THREE.CylinderGeometry(.29*scale,.31*scale,.105*scale,16),belt);beltMesh.position.y=.32*scale;hips.add(beltMesh);
+  const buckle=new THREE.Mesh(new THREE.BoxGeometry(.13*scale,.10*scale,.055*scale),gold);buckle.position.set(0,.32*scale,-.30*scale);hips.add(buckle);
+
+  const coatTailGeo=new THREE.BoxGeometry(.22*scale,.48*scale,.08*scale);
+  for(const x of[-.15,.15]){const tail=new THREE.Mesh(coatTailGeo,coatShade);tail.position.set(x,.08*scale,.16*scale);tail.rotation.x=-.10;tail.rotation.z=x<0?-.08:.08;hips.add(tail)}
+  const crest=new THREE.Mesh(new THREE.OctahedronGeometry(.105*scale,0),gold);crest.scale.set(.75,1.15,.30);crest.position.set(0,.66*scale,-.285*scale);hips.add(crest);
+
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.10*scale,.115*scale,.16*scale,10),skin);neck.position.y=1.03*scale;hips.add(neck);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.30*scale,18,14),skin);head.scale.set(.88,1.02,.84);head.position.y=1.30*scale;hips.add(head);
+  const earGeo=new THREE.SphereGeometry(.055*scale,8,6);for(const x of[-.255,.255]){const ear=new THREE.Mesh(earGeo,skin);ear.position.set(x,1.30*scale,0);hips.add(ear)}
+
+  for(let i=0;i<11;i++){
+    const a=i/11*Math.PI*2;
+    const lock=new THREE.Mesh(new THREE.ConeGeometry((.105+(i%3)*.012)*scale,(.38+(i%4)*.055)*scale,7),i%3===0?hairDark:hair);
+    lock.position.set(Math.cos(a)*.225*scale,1.51*scale,Math.sin(a)*.215*scale);
+    lock.rotation.z=Math.cos(a)*.47;lock.rotation.x=Math.sin(a)*.47;lock.rotation.y=-a*.32;hips.add(lock);
+  }
+  const fringeGeo=new THREE.ConeGeometry(.08*scale,.28*scale,6);
+  for(const [x,rz] of [[-.14,-.18],[-.045,-.07],[.055,.08],[.145,.19]]){const f=new THREE.Mesh(fringeGeo,hair);f.position.set(x*scale,1.43*scale,-.235*scale);f.rotation.x=-.62;f.rotation.z=rz;hips.add(f)}
+
+  const limb=(x,y,upperMat,side)=>{const pivot=new THREE.Group();pivot.position.set(x*scale,y*scale,0);const sleeve=new THREE.Mesh(new THREE.CapsuleGeometry(.085*scale,.27*scale,4,8),upperMat);sleeve.position.y=-.17*scale;pivot.add(sleeve);const hand=new THREE.Mesh(new THREE.SphereGeometry(.095*scale,9,7),skin);hand.scale.set(.85,1,.8);hand.position.y=-.43*scale;pivot.add(hand);const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.105*scale,.095*scale,.10*scale,9),navy);cuff.position.y=-.34*scale;pivot.add(cuff);hips.add(pivot);pivot.rotation.z=side*.05;return pivot};
+  const armL=limb(-.36,.88,coat,-1),armR=limb(.36,.88,coat,1);
+  const leg=(x)=>{const pivot=new THREE.Group();pivot.position.set(x*scale,.24*scale,0);const thigh=new THREE.Mesh(new THREE.CapsuleGeometry(.105*scale,.30*scale,4,8),navy);thigh.position.y=-.20*scale;pivot.add(thigh);const boot=new THREE.Mesh(new THREE.CapsuleGeometry(.115*scale,.25*scale,4,8),boots);boot.position.set(0,-.49*scale,.015*scale);pivot.add(boot);const foot=new THREE.Mesh(new THREE.BoxGeometry(.22*scale,.15*scale,.38*scale),boots);foot.position.set(0,-.66*scale,-.07*scale);foot.rotation.x=-.05;pivot.add(foot);hips.add(pivot);return pivot};
+  const legL=leg(-.15),legR=leg(.15);
+
+  const shoulderGeo=new THREE.SphereGeometry(.13*scale,10,8);for(const x of[-.35,.35]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.05,.72,.82);s.position.set(x,.90*scale,0);hips.add(s)}
+  g.userData={assetId:'luke_player_v1',version:'1.1.0',stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',rig:'procedural hierarchical pivots',intent:'stylized blue-haired JRPG hero with readable coat silhouette, crest, layered hair, hands and boots',animate:(t,speed=1)=>{const swing=Math.sin(t*7*speed)*.48;armL.rotation.x=swing;armR.rotation.x=-swing;legL.rotation.x=-swing*.72;legR.rotation.x=swing*.72;hips.position.y=(.91+.024*Math.abs(Math.sin(t*7*speed)))*scale;hips.rotation.z=Math.sin(t*7*speed)*.012}};
+  return shadow(g)
+}
 
 export function createSign(){const g=new THREE.Group();beam(g,.17,1.45,.17,woodDark,0,.72,0);const board=beam(g,1.35,.55,.12,woodMat,0,1.28,0);const cap=beam(g,1.48,.08,.14,woodDark,0,1.58,0);g.userData={assetId:'sign_v1',version:'1.0.0'};return shadow(g)}
 
-export function assetMetadata(){return{bridge:'bridge_principal_v1@1.1.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.0.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.0.0',sign:'sign_v1@1.0.0'}}
+export function assetMetadata(){return{bridge:'bridge_principal_v1@1.1.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.0.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.1.0',sign:'sign_v1@1.0.0'}}
