@@ -91,14 +91,14 @@ jobs:
         shell: bash
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 90s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=7000 \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=2500 \
             --screenshot=.modern3d/m05-c1-390x844.png \
             'http://127.0.0.1:8140/index.html'
-          "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 90s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=7000 \
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=2500 \
             --screenshot=.modern3d/m05-hq-864x1536.png \
             'http://127.0.0.1:8140/index.html'
           python3 - <<'PY'
