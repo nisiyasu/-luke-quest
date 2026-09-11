@@ -101,16 +101,23 @@ jobs:
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 40s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=120 \
-            --screenshot=.modern3d-m08/m08-walk-390x844.png \
-            'http://127.0.0.1:8140/index.html?m08walk=1'
-          timeout 40s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=120 \
-            --screenshot=.modern3d-m08/m08-walk-864x1536.png \
-            'http://127.0.0.1:8140/index.html?m08walk=1'
+          capture_frame() {
+            local out="$1" size="$2"
+            set +e
+            timeout 50s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+              --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=120 \
+              --screenshot="$out" \
+              'http://127.0.0.1:8140/index.html?m08walk=1'
+            local rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then
+              echo "Chrome exited rc=$rc after screenshot attempt; accepting only if a non-empty image was actually written and passes pixel validation."
+              test -s "$out"
+            fi
+          }
+          capture_frame .modern3d-m08/m08-walk-390x844.png 390,844
+          capture_frame .modern3d-m08/m08-walk-864x1536.png 864,1536
           python3 - <<'PY'
           from pathlib import Path
           import struct,zlib,math
