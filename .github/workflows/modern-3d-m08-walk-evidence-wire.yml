@@ -1,0 +1,44 @@
+name: Modern 3D M08 Walk Evidence Wire
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - '.github/workflows/modern-3d-m08-walk-evidence-wire.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire-walk-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Add opt-in walk evidence mode
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);requestAnimationFrame(tick);"
+          new="addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);requestAnimationFrame(tick);if(new URLSearchParams(location.search).get('m08walk')==='1'){dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout(()=>dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true})),1600)}"
+          count=s.count(old)
+          if count!=1: raise SystemExit(f'expected one startup anchor, found {count}')
+          p.write_text(s.replace(old,new))
+      - name: Verify opt-in boundary
+        run: |
+          git diff --check
+          grep -F "get('m08walk')==='1'" prototypes/modern-3d/index.html
+          grep -F "setTimeout(()=>dispatchEvent(new KeyboardEvent('keyup'" prototypes/modern-3d/index.html
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit evidence mode
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && exit 1
+          git commit -m 'test(modern-3d): add opt-in M08 walk evidence mode'
+          git push origin HEAD:prototype/modern-3d
