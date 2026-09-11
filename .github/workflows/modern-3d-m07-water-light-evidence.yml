@@ -67,9 +67,9 @@ jobs:
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          # Motion proof uses the explicitly supported practical preset. High-quality appearance is
-          # proven by the stills above; temporal behavior does not require paying the full high-preset
-          # SwiftShader cost on every fresh browser process.
+          # Motion proof uses the practical preset because appearance is already proven by high stills.
+          # Capture attempts are individually bounded; at least two successful time-separated frames
+          # are required before a video is allowed to be emitted.
           success=0
           for spec in '01 450' '02 1050' '03 1800'; do
             set -- $spec
@@ -88,14 +88,14 @@ jobs:
           done
           echo "MOTION_FRAMES_CAPTURED=$success" >> .m07-evidence/m07-performance.txt
           test "$success" -ge 2
-          if command -v ffmpeg >/dev/null 2>&1; then
-            printf "file '%s'\n" $(find .m07-evidence -maxdepth 1 -name 'motion-*.png' -type f | sort) > .m07-evidence/motion-list.txt
-            ffmpeg -y -f concat -safe 0 -i .m07-evidence/motion-list.txt -r 3 -c:v libx264 -pix_fmt yuv420p .m07-evidence/water-motion-practical.mp4 >/tmp/m07-ffmpeg.log 2>&1
-            test -s .m07-evidence/water-motion-practical.mp4
-            echo 'MOTION_VIDEO=PASS bounded practical-preset deterministic frame sequence' >> .m07-evidence/m07-performance.txt
-          else
-            echo 'MOTION_VIDEO=PENDING ffmpeg unavailable; PNG motion sequence preserved' >> .m07-evidence/m07-performance.txt
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
           fi
+          ffmpeg -y -pattern_type glob -framerate 2 -i '.m07-evidence/motion-*.png' \
+            -c:v libx264 -pix_fmt yuv420p .m07-evidence/water-motion-practical.mp4 >/tmp/m07-ffmpeg.log 2>&1
+          test -s .m07-evidence/water-motion-practical.mp4
+          echo 'MOTION_VIDEO=PASS bounded practical-preset deterministic frame sequence' >> .m07-evidence/m07-performance.txt
 
       - name: Record M07 evidence manifest
         if: ${{ always() }}
@@ -105,17 +105,19 @@ jobs:
           STILL_HIGH_HQ=$(test -s .m07-evidence/high-864x1536.png && echo PASS || echo MISSING)
           STILL_PRACTICAL_390=$(test -s .m07-evidence/practical-390x844.png && echo PASS || echo MISSING)
           MOTION_COUNT=$(find .m07-evidence -maxdepth 1 -name 'motion-*.png' -type f 2>/dev/null | wc -l | tr -d ' ')
+          MOTION_VIDEO=$(test -s .m07-evidence/water-motion-practical.mp4 && echo PASS || echo MISSING)
           cat > .m07-evidence/M07_EVIDENCE.txt <<EOF
           HEAD=${GITHUB_SHA}
           REFLECTION_METHOD=single-pass analytic wave-normal Fresnel sky reflection + directional sun specular; no planar RTT/SSR
           HIGH_PRESET=96x40 water grid; denser glints/shore treatment; shoreline rock cast shadows
           PRACTICAL_PRESET=52x20 water grid; reduced glints/shore treatment; fewer rocks; no shoreline rock cast shadows
           VIEWPORTS=390x844 high/practical; 864x1536 high
-          MOTION=bounded practical-preset deterministic runtime sequence; two or more frames required; MP4 when ffmpeg is available
+          MOTION=bounded practical-preset deterministic runtime sequence; two or more frames required; MP4 encoded with ffmpeg
           STILL_HIGH_390=${STILL_HIGH_390}
           STILL_HIGH_HQ=${STILL_HIGH_HQ}
           STILL_PRACTICAL_390=${STILL_PRACTICAL_390}
           MOTION_FRAME_COUNT=${MOTION_COUNT}
+          MOTION_VIDEO=${MOTION_VIDEO}
           OWNER_EXPERIENCE_PASS=PENDING
           IOS_PHYSICAL_VERIFICATION=PENDING
           EOF
