@@ -39,7 +39,7 @@ jobs:
           test -n "$BROWSER"
           mkdir -p .modern3d
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=7000 --dump-dom \
             'http://127.0.0.1:8140/index.html?ci=1' > .modern3d/m02-dom.html
           grep -q 'data-lq-modern3d="m02-ready"' .modern3d/m02-dom.html
@@ -51,7 +51,7 @@ jobs:
         run: |
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader \
+            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --window-size=390,844 --force-device-scale-factor=1 \
             --virtual-time-budget=7000 \
             --screenshot=.modern3d/m02-390x844.png \
