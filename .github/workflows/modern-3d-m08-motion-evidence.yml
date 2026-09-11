@@ -34,6 +34,8 @@ jobs:
           grep -F "document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()})" prototypes/modern-3d/index.html
           grep -F "dataset.m08Ci=pass?'pass':'fail'" prototypes/modern-3d/index.html
           grep -F "groundSamples:groundSamples.map" prototypes/modern-3d/index.html
+          grep -F "get('m08walk')==='1'" prototypes/modern-3d/index.html
+          grep -F "dataset.m08Player=" prototypes/modern-3d/index.html
       - name: Start isolated prototype server
         shell: bash
         run: |
@@ -61,7 +63,34 @@ jobs:
           grep -q '"released":true' .modern3d-m08/dom.html
           grep -q '"noHole":true' .modern3d-m08/dom.html
           grep -q '"groundingSmooth":true' .modern3d-m08/dom.html
-      - name: Capture M08 runtime frames
+      - name: Prove timed walking advances the real player
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          for budget in 350 900 1400; do
+            timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+              --virtual-time-budget=$budget --dump-dom \
+              'http://127.0.0.1:8140/index.html?m08walk=1' > ".modern3d-m08/walk-${budget}.html" 2>>.modern3d-m08/chrome-stderr.log
+          done
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          def pos(budget):
+              text=Path(f'.modern3d-m08/walk-{budget}.html').read_text()
+              m=re.search(r'data-m08-player="([^"]+)"', text)
+              assert m, f'missing m08 player at {budget}'
+              return [float(v) for v in m.group(1).split(',')]
+          early=pos(350); mid=pos(900); late=pos(1400)
+          assert late[2] < early[2]-1.5, (early,late)
+          assert mid[2] < early[2] and late[2] < mid[2], (early,mid,late)
+          assert abs(early[0]+1.35)<.15 and abs(late[0]+1.35)<.15, (early,late)
+          assert .30 < early[1] < .55 and .30 < mid[1] < .55 and .30 < late[1] < .55, (early,mid,late)
+          Path('.modern3d-m08/walk-position-proof.txt').write_text(f'early={early}\nmid={mid}\nlate={late}\nPASS\n')
+          print(early,mid,late)
+          PY
+      - name: Capture M08 idle and walk runtime frames
         shell: bash
         run: |
           set -euo pipefail
@@ -76,13 +105,27 @@ jobs:
             --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=700 \
             --screenshot=.modern3d-m08/m08-864x1536.png \
             'http://127.0.0.1:8140/index.html'
+          for budget in 350 900 1400; do
+            timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+              --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=$budget \
+              --screenshot=".modern3d-m08/m08-walk-${budget}.png" \
+              'http://127.0.0.1:8140/index.html?m08walk=1'
+          done
           python3 - <<'PY'
           from pathlib import Path
           import struct
-          for path, expected in [('.modern3d-m08/m08-390x844.png',(390,844)),('.modern3d-m08/m08-864x1536.png',(864,1536))]:
+          expected={
+            '.modern3d-m08/m08-390x844.png':(390,844),
+            '.modern3d-m08/m08-864x1536.png':(864,1536),
+            '.modern3d-m08/m08-walk-350.png':(390,844),
+            '.modern3d-m08/m08-walk-900.png':(390,844),
+            '.modern3d-m08/m08-walk-1400.png':(390,844),
+          }
+          for path,size in expected.items():
               data=Path(path).read_bytes()
               assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n'
-              assert struct.unpack('>II',data[16:24])==expected
+              assert struct.unpack('>II',data[16:24])==size
               print(path,len(data))
           PY
       - name: Upload M08 evidence
@@ -92,9 +135,12 @@ jobs:
           name: modern-3d-m08-motion-${{ github.sha }}
           path: |
             .modern3d-m08/dom.html
+            .modern3d-m08/walk-*.html
+            .modern3d-m08/walk-position-proof.txt
             .modern3d-m08/chrome-stderr.log
             .modern3d-m08/m08-390x844.png
             .modern3d-m08/m08-864x1536.png
+            .modern3d-m08/m08-walk-*.png
             /tmp/m08-http.log
             prototypes/modern-3d/index.html
             prototypes/modern-3d/assets.js
