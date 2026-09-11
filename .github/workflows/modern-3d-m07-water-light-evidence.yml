@@ -67,37 +67,54 @@ jobs:
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          for spec in '01 450' '02 900' '03 1350' '04 1800' '05 2250' '06 2700'; do
+          # Four bounded high-preset frames are sufficient to prove deterministic temporal change.
+          # Six separate Chromium startups previously pushed SwiftShader over the per-frame timeout
+          # after four successful frames, discarding otherwise valid evidence.
+          for spec in '01 450' '02 1000' '03 1700' '04 2400'; do
             set -- $spec
+            start=$(date +%s%3N)
             timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
               --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
               --hide-scrollbars --window-size=390,844 --virtual-time-budget="$2" \
               --screenshot=".m07-evidence/motion-$1.png" 'http://127.0.0.1:8140/index.html?quality=high'
+            end=$(date +%s%3N)
+            echo "motion frame=$1 budget_ms=$2 wall_ms=$((end-start))" >> .m07-evidence/m07-performance.txt
           done
-          test -s .m07-evidence/motion-06.png
+          test -s .m07-evidence/motion-04.png
           if command -v ffmpeg >/dev/null 2>&1; then
-            ffmpeg -y -framerate 3 -i .m07-evidence/motion-%02d.png -c:v libx264 -pix_fmt yuv420p .m07-evidence/water-motion-high.mp4 >/tmp/m07-ffmpeg.log 2>&1
+            ffmpeg -y -framerate 3 -i .m07-evidence/motion-%02d.png -frames:v 4 -c:v libx264 -pix_fmt yuv420p .m07-evidence/water-motion-high.mp4 >/tmp/m07-ffmpeg.log 2>&1
             test -s .m07-evidence/water-motion-high.mp4
-            echo 'MOTION_VIDEO=PASS ffmpeg deterministic virtual-time frame sequence' >> .m07-evidence/m07-performance.txt
+            echo 'MOTION_VIDEO=PASS four-frame deterministic virtual-time sequence' >> .m07-evidence/m07-performance.txt
           else
-            echo 'MOTION_VIDEO=PENDING ffmpeg unavailable on runner; PNG motion sequence preserved' >> .m07-evidence/m07-performance.txt
+            echo 'MOTION_VIDEO=PENDING ffmpeg unavailable on runner; four-frame PNG motion sequence preserved' >> .m07-evidence/m07-performance.txt
           fi
 
       - name: Record M07 evidence manifest
+        if: ${{ always() }}
         run: |
+          mkdir -p .m07-evidence
+          STILL_HIGH_390=$(test -s .m07-evidence/high-390x844.png && echo PASS || echo MISSING)
+          STILL_HIGH_HQ=$(test -s .m07-evidence/high-864x1536.png && echo PASS || echo MISSING)
+          STILL_PRACTICAL_390=$(test -s .m07-evidence/practical-390x844.png && echo PASS || echo MISSING)
+          MOTION_04=$(test -s .m07-evidence/motion-04.png && echo PASS || echo MISSING)
           cat > .m07-evidence/M07_EVIDENCE.txt <<EOF
           HEAD=${GITHUB_SHA}
           REFLECTION_METHOD=single-pass analytic wave-normal Fresnel sky reflection + directional sun specular; no planar RTT/SSR
           HIGH_PRESET=96x40 water grid; denser glints/shore treatment; shoreline rock cast shadows
           PRACTICAL_PRESET=52x20 water grid; reduced glints/shore treatment; fewer rocks; no shoreline rock cast shadows
           VIEWPORTS=390x844 high/practical; 864x1536 high
-          MOTION=6 deterministic high-preset runtime frames; MP4 when ffmpeg is available
+          MOTION=4 deterministic high-preset runtime frames; MP4 when ffmpeg is available
+          STILL_HIGH_390=${STILL_HIGH_390}
+          STILL_HIGH_HQ=${STILL_HIGH_HQ}
+          STILL_PRACTICAL_390=${STILL_PRACTICAL_390}
+          MOTION_FRAME_04=${MOTION_04}
           OWNER_EXPERIENCE_PASS=PENDING
           IOS_PHYSICAL_VERIFICATION=PENDING
           EOF
-          cat .m07-evidence/m07-performance.txt >> .m07-evidence/M07_EVIDENCE.txt
+          test -f .m07-evidence/m07-performance.txt && cat .m07-evidence/m07-performance.txt >> .m07-evidence/M07_EVIDENCE.txt || true
 
       - name: Upload M07 evidence
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: modern-3d-m07-water-light-${{ github.sha }}
@@ -107,5 +124,5 @@ jobs:
             /tmp/m07-ffmpeg.log
             assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
             assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
