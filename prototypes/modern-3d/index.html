@@ -1,76 +1,18 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>LUKE QUEST Modern 3D — M00</title>
-  <script type="importmap">
-  {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}
-  </script>
-  <style>
-    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#08130e;color:#fff;font-family:system-ui,sans-serif}canvas{display:block;width:100%;height:100%}#status{position:fixed;left:max(12px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));z-index:10;padding:8px 10px;border:1px solid rgba(229,191,108,.72);border-radius:8px;background:rgba(5,15,18,.78);font-size:12px;letter-spacing:.04em}#status strong{color:#e8c779}#hint{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10;white-space:nowrap;padding:7px 10px;border-radius:999px;background:rgba(4,12,14,.62);font-size:11px;color:#d9e7dd}
-  </style>
-</head>
-<body>
-<div id="status"><strong>M00 WEBGL BOOT</strong><br><span id="state">initializing</span></div>
-<div id="hint">Three.js isolated prototype · no production save/state</div>
-<script type="module">
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>LUKE QUEST Modern 3D — M02</title><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07130d;color:#fff;font-family:system-ui,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:10;background:#071019c9;border:1px solid #d7b45f;border-radius:9px;box-shadow:0 3px 16px #0007}#status{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:11px}#status b{color:#e7c66c}#loading{inset:0;display:grid;place-items:center;background:#07130d;z-index:40;position:fixed}#error{display:none;left:12px;right:12px;top:42%;padding:12px;color:#ffb9b9;border-color:#e06b6b}.dpad{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:132px;height:132px;z-index:20}.move{position:absolute;width:48px;height:48px;border-radius:50%;border:1px solid #aab7b9aa;background:#10242cbb;color:#fff;font-size:19px}.up{left:42px;top:0}.down{left:42px;bottom:0}.left{left:0;top:42px}.right{right:0;top:42px}#hint{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:10;font-size:10px;padding:7px 9px;background:#071019b8;border-radius:8px}</style></head><body><div id="loading">Loading Three.js / WebGL…</div><div id="error" class="panel"></div><div id="status" class="panel"><b>M02 THREE.JS</b><br><span id="state">initializing</span></div><div class="dpad" aria-label="movement controls"><button class="move up" data-dir="up">▲</button><button class="move down" data-dir="down">▼</button><button class="move left" data-dir="left">◀</button><button class="move right" data-dir="right">▶</button></div><div id="hint">WASD / arrows · touch D-pad</div><script type="module">
 import * as THREE from 'three';
-const state=document.getElementById('state');
+const stateEl=document.querySelector('#state'),loading=document.querySelector('#loading'),errorEl=document.querySelector('#error');
 try{
-  const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setSize(innerWidth,innerHeight);
-  renderer.shadowMap.enabled=true;
-  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace=THREE.SRGBColorSpace;
-  document.body.prepend(renderer.domElement);
-
-  const scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x9fc5d0);
-  scene.fog=new THREE.Fog(0x9fc5d0,18,42);
-
-  const camera=new THREE.PerspectiveCamera(44,innerWidth/innerHeight,.1,100);
-  camera.position.set(8,10,13);camera.lookAt(0,0,-1.5);
-
-  scene.add(new THREE.HemisphereLight(0xd9efff,0x20361f,1.6));
-  const sun=new THREE.DirectionalLight(0xffe3ac,3.1);sun.position.set(-6,12,8);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
-
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(28,38,1,1),new THREE.MeshStandardMaterial({color:0x527f3e,roughness:.96,metalness:0}));
-  ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
-
-  const river=new THREE.Mesh(new THREE.PlaneGeometry(6,38),new THREE.MeshStandardMaterial({color:0x177ea6,roughness:.16,metalness:.02,transparent:true,opacity:.83}));
-  river.rotation.x=-Math.PI/2;river.position.set(5,.035,0);scene.add(river);
-
-  const bridgeMat=new THREE.MeshStandardMaterial({color:0x8b5d35,roughness:.8,metalness:0});
-  const bridge=new THREE.Group();
-  for(let z=-2.6;z<=2.6;z+=.42){const plank=new THREE.Mesh(new THREE.BoxGeometry(6.7,.22,.34),bridgeMat);plank.position.set(2.1,.34,z);plank.castShadow=plank.receiveShadow=true;bridge.add(plank)}
-  for(const x of [-1.05,5.25])for(const z of [-2.75,2.75]){const post=new THREE.Mesh(new THREE.CylinderGeometry(.14,.19,1.25,8),bridgeMat);post.position.set(x,.9,z);post.castShadow=true;bridge.add(post)}
-  scene.add(bridge);
-
-  const trunkMat=new THREE.MeshStandardMaterial({color:0x5d3f28,roughness:1});
-  const leafMat=new THREE.MeshStandardMaterial({color:0x1f5635,roughness:.92});
-  function tree(x,z,s=1){const g=new THREE.Group();const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16*s,.23*s,1.6*s,7),trunkMat);trunk.position.y=.8*s;trunk.castShadow=true;g.add(trunk);for(let i=0;i<3;i++){const crown=new THREE.Mesh(new THREE.ConeGeometry((1.05-i*.12)*s,1.65*s,9),leafMat);crown.position.y=(1.55+i*.62)*s;crown.castShadow=true;g.add(crown)}g.position.set(x,0,z);scene.add(g)}
-  [[-5,-5,1.2],[-3,-7,.9],[-6,1,1.1],[-4,5,1],[-1,7,.85],[9,-5,1.1],[9,3,.9]].forEach(v=>tree(...v));
-
-  const player=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.75,5,10),new THREE.MeshStandardMaterial({color:0xe8edf2,roughness:.58}));body.position.y=1.05;body.castShadow=true;player.add(body);
-  const hair=new THREE.Mesh(new THREE.IcosahedronGeometry(.48,1),new THREE.MeshStandardMaterial({color:0x145fe7,roughness:.46,metalness:.05}));hair.position.y=1.88;hair.scale.set(1,.72,1);hair.castShadow=true;player.add(hair);
-  player.position.set(0,0,1.3);scene.add(player);
-
-  const clock=new THREE.Clock();
-  function frame(){requestAnimationFrame(frame);river.material.opacity=.78+Math.sin(clock.elapsedTime*1.15)*.035;renderer.render(scene,camera)}
-  frame();
-  window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-
-  const gl=renderer.getContext();
-  document.documentElement.dataset.lqModern3d='m00-webgl-ready';
-  document.documentElement.dataset.threeRevision=THREE.REVISION;
-  window.LQ_MODERN_3D_M00={ready:true,threeRevision:THREE.REVISION,webglVersion:gl instanceof WebGL2RenderingContext?'WebGL2':'WebGL1',isolated:true};
-  state.textContent=`ready · Three r${THREE.REVISION} · ${window.LQ_MODERN_3D_M00.webglVersion}`;
-}catch(err){
-  console.error(err);document.documentElement.dataset.lqModern3d='m00-error';state.textContent='ERROR: '+(err&&err.message?err.message:String(err));window.LQ_MODERN_3D_M00={ready:false,error:String(err)};
-}
-</script>
-</body>
-</html>
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9fc5d0);scene.fog=new THREE.Fog(0x9fc5d0,20,46);const camera=new THREE.PerspectiveCamera(34,innerWidth/innerHeight,.1,100);
+scene.add(new THREE.HemisphereLight(0xd9efff,0x20361f,1.55));const sun=new THREE.DirectionalLight(0xffe3ac,3);sun.position.set(-7,13,8);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(28,38),new THREE.MeshStandardMaterial({color:0x527f3e,roughness:.96}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);const river=new THREE.Mesh(new THREE.PlaneGeometry(6,38),new THREE.MeshStandardMaterial({color:0x177ea6,roughness:.18,transparent:true,opacity:.84}));river.rotation.x=-Math.PI/2;river.position.set(5,.03,0);scene.add(river);
+const wood=new THREE.MeshStandardMaterial({color:0x8b5d35,roughness:.8});for(let z=-2.6;z<=2.6;z+=.42){const p=new THREE.Mesh(new THREE.BoxGeometry(6.7,.22,.34),wood);p.position.set(2.1,.34,z);p.castShadow=p.receiveShadow=true;scene.add(p)}
+const trunkMat=new THREE.MeshStandardMaterial({color:0x5d3f28,roughness:1}),leafMat=new THREE.MeshStandardMaterial({color:0x1f5635,roughness:.92});function tree(x,z,s=1){const g=new THREE.Group(),t=new THREE.Mesh(new THREE.CylinderGeometry(.16*s,.23*s,1.6*s,7),trunkMat);t.position.y=.8*s;t.castShadow=true;g.add(t);for(let i=0;i<3;i++){const c=new THREE.Mesh(new THREE.ConeGeometry((1.05-i*.12)*s,1.65*s,9),leafMat);c.position.y=(1.55+i*.62)*s;c.castShadow=true;g.add(c)}g.position.set(x,0,z);scene.add(g)}[[-5,-5,1.2],[-3,-7,.9],[-6,1,1.1],[-4,5,1],[-1,7,.85],[9,-5,1.1],[9,3,.9]].forEach(v=>tree(...v));
+const player=new THREE.Group(),body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.75,5,10),new THREE.MeshStandardMaterial({color:0xe8edf2,roughness:.58})),hair=new THREE.Mesh(new THREE.IcosahedronGeometry(.48,1),new THREE.MeshStandardMaterial({color:0x145fe7,roughness:.46}));body.position.y=1.05;hair.position.y=1.88;hair.scale.set(1,.72,1);body.castShadow=hair.castShadow=true;player.add(body,hair);player.position.set(0,0,1.3);scene.add(player);
+const keys=new Set(),pointers=new Map();let last=performance.now(),blurRelease=false,resizes=0;const dirMap={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};const keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};function releaseAll(){keys.clear();pointers.clear()}function onKey(e,on){const d=keyMap[e.code];if(!d)return;e.preventDefault();on?keys.add(d):keys.delete(d)}addEventListener('keydown',e=>onKey(e,true));addEventListener('keyup',e=>onKey(e,false));for(const b of document.querySelectorAll('.move')){b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);pointers.set(e.pointerId,b.dataset.dir)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,e=>pointers.delete(e.pointerId))}addEventListener('blur',()=>{releaseAll();blurRelease=true});addEventListener('pagehide',releaseAll);document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()});
+function activeDirs(){return [...keys,...pointers.values()]}function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-last)/1000,.05);last=now;let x=0,z=0;for(const d of activeDirs()){x+=dirMap[d][0];z+=dirMap[d][1]}const n=Math.hypot(x,z)||1;player.position.x=THREE.MathUtils.clamp(player.position.x+x/n*3.4*dt,-9.5,9.5);player.position.z=THREE.MathUtils.clamp(player.position.z+z/n*3.4*dt,-14,14);river.material.opacity=.81+Math.sin(now*.0012)*.035;const target=new THREE.Vector3(player.position.x,0,player.position.z);camera.position.lerp(new THREE.Vector3(target.x+8.5,12.5,target.z+15),.075);camera.lookAt(target.x,target.y+.8,target.z);renderer.render(scene,camera);window.LQ_MODERN_3D_M02.player=[+player.position.x.toFixed(3),+player.position.z.toFixed(3)];window.LQ_MODERN_3D_M02.activeInputs=activeDirs().length}
+function resize(){resizes++;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);window.LQ_MODERN_3D_M02.resizes=resizes}addEventListener('resize',resize,{passive:true});resize();requestAnimationFrame(tick);
+window.LQ_MODERN_3D_M02={ready:true,threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[0,1.3],activeInputs:0,resizes};document.documentElement.dataset.lqModern3d='m02-ready';document.documentElement.dataset.threeRevision=THREE.REVISION;loading.remove();stateEl.textContent=`ready · Three r${THREE.REVISION} · ${window.LQ_MODERN_3D_M02.webglVersion}`;
+if(new URLSearchParams(location.search).get('ci')==='1'){const startZ=player.position.z;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout(()=>dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true})),350);setTimeout(()=>{const keyboardMoved=player.position.z<startZ-.15;const b=document.querySelector('[data-dir="right"]');b.dispatchEvent(new PointerEvent('pointerdown',{pointerId:7,bubbles:true,cancelable:true}));setTimeout(()=>b.dispatchEvent(new PointerEvent('pointerup',{pointerId:7,bubbles:true,cancelable:true})),260);setTimeout(()=>{const pointerMoved=player.position.x>.12;dispatchEvent(new Event('blur'));dispatchEvent(new Event('resize'));const pass=keyboardMoved&&pointerMoved&&blurRelease&&activeDirs().length===0&&resizes>=2;document.documentElement.dataset.m02Ci=pass?'pass':'fail';window.LQ_MODERN_3D_M02.ci={keyboardMoved,pointerMoved,blurRelease,inputsReleased:activeDirs().length===0,resizeHandled:resizes>=2,pass}},380)},520)}
+}catch(err){console.error(err);loading.remove();errorEl.style.display='block';errorEl.textContent='WebGL ERROR: '+(err?.message||err);document.documentElement.dataset.lqModern3d='m02-error'}
+</script></body></html>
