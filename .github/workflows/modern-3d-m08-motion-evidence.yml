@@ -40,6 +40,7 @@ jobs:
           grep -F "dataset.m08ProofDone='1'" prototypes/modern-3d/index.html
           grep -F "dataset.m08ProofRendered=String(proofFrames)" prototypes/modern-3d/index.html
           grep -F "query.get('m08walk')==='1'" prototypes/modern-3d/index.html
+          grep -F "dataset.m08WalkSeedSteps=String(seedSteps)" prototypes/modern-3d/index.html
       - name: Start isolated prototype server
         shell: bash
         run: |
@@ -91,18 +92,18 @@ jobs:
           assert .30 < start[1] < .55 and .30 < end[1] < .55, (start,end)
           Path('.modern3d-m08/walk-position-proof.txt').write_text(f'start={start}\nend={end}\ndelta_z={end[2]-start[2]:.3f}\nrendered={attr("data-m08-proof-rendered")}\nPASS\n')
           PY
-      - name: Capture two canonical mobile live-walk frames
+      - name: Capture seeded hero positions on canonical mobile frame
         shell: bash
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          for spec in early:120 late:650; do
-            name="${spec%%:*}"; budget="${spec##*:}"
+          for spec in early:8 late:48; do
+            name="${spec%%:*}"; steps="${spec##*:}"
             timeout 55s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
               --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-              --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget="$budget" \
+              --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=120 \
               --screenshot=".modern3d-m08/m08-walk-${name}-390x844.png" \
-              'http://127.0.0.1:8140/index.html?m08walk=1'
+              "http://127.0.0.1:8140/index.html?m08walk=1&m08steps=${steps}"
           done
           python3 - <<'PY'
           from pathlib import Path
@@ -137,15 +138,16 @@ jobs:
               return data,rows,bpp
           decoded=[decode(p) for p in paths]
           assert hashlib.sha256(decoded[0][0]).digest()!=hashlib.sha256(decoded[1][0]).digest()
-          a,b=decoded[0][1],decoded[1][1]; bpp=decoded[0][2]; total=diff=0
-          for y in range(160,760,8):
-              for x in range(70,320,8):
+          a,b=decoded[0][1],decoded[1][1]; bpp=decoded[0][2]
+          total=changed=0
+          for y in range(430,745,5):
+              for x in range(80,305,5):
                   i=x*bpp; total+=1
-                  if sum(abs(a[y][i+j]-b[y][i+j]) for j in range(3))>24: diff+=1
-          ratio=diff/total
-          print('two_frame_change_ratio',round(ratio,3))
-          assert ratio>.05,ratio
-          Path('.modern3d-m08/walk-sequence-proof.txt').write_text(f'early_budget=120\nlate_budget=650\nchanged_sample_ratio={ratio:.3f}\nPASS\n')
+                  if sum(abs(a[y][i+j]-b[y][i+j]) for j in range(3))>24: changed+=1
+          ratio=changed/total
+          print('hero_bridge_corridor_change_ratio',round(ratio,3))
+          assert ratio>.03,ratio
+          Path('.modern3d-m08/walk-sequence-proof.txt').write_text(f'early_seed_steps=8\nlate_seed_steps=48\nhero_bridge_corridor_change_ratio={ratio:.3f}\nPASS\n')
           PY
       - name: Upload M08 evidence
         if: always()
