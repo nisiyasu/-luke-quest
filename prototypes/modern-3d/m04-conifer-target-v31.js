@@ -28,36 +28,45 @@ const FAN=fanGeo();
 export function createTargetConiferV31({seed=1,scale=1}={}){
   const r=rng(seed),root=new THREE.Group(),dummy=new THREE.Object3D();
   root.name=`conifer_target_v31_${seed}`;
-  const h=(5.6+r()*.8)*scale;
-  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18*scale,.42*scale,h,12),bark);
-  trunk.position.y=h*.5;root.add(trunk);
+
+  // M06 variation contract: each seed gets a recognizable silhouette family instead of a repeated cloned cone.
+  const family=seed%4;
+  const h=(5.25+r()*1.05+(family===1?.45:family===3?-.25:0))*scale;
+  const trunkLeanX=(r()-.5)*.075, trunkLeanZ=(r()-.5)*.075;
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.17*scale,.43*scale,h,12),bark);
+  trunk.position.y=h*.5;trunk.rotation.x=trunkLeanX;trunk.rotation.z=trunkLeanZ;root.add(trunk);
   for(let i=0;i<8;i++){
     const a=i/8*Math.PI*2,rt=new THREE.Mesh(new THREE.CylinderGeometry(.055*scale,.14*scale,.95*scale,7),i%2?barkDark:bark);
     rt.position.set(Math.cos(a)*.38*scale,.08*scale,Math.sin(a)*.38*scale);rt.rotation.set(0,-a,Math.PI/2.12);root.add(rt);
   }
 
   const branchData=[],fanData=[[],[],[],[]];
-  const levels=14;
+  const levels=family===0?14:family===1?15:family===2?13:12;
+  const crownBias=family===0?1:family===1?.90:family===2?1.12:.82;
   for(let lv=0;lv<levels;lv++){
-    const n=lv/(levels-1),y=(.62+h*(.058*lv))*scale;
-    const tierRadius=(2.2*(1-Math.pow(n,.78))+.28)*scale;
-    const branches=10+(lv%3);
+    const n=lv/(levels-1),y=(.60+h*(.058*lv)*(14/levels))*scale;
+    const broadness=family===0?1:family===1?.88:family===2?1.16:.96;
+    const tierRadius=(2.2*(1-Math.pow(n,.78))+.28)*scale*broadness;
+    const branches=9+((lv+family)%4);
     for(let i=0;i<branches;i++){
-      const a=i/branches*Math.PI*2+(lv%2)*.19+(r()-.5)*.12;
-      const len=tierRadius*(.82+r()*.22);
-      branchData.push({a,len,y});
-      const pads=5;
+      // Deliberate sparse windows and a few bare lower limbs break the uniform bottle-brush rhythm.
+      if((lv<4 && (i+seed+lv)%11===3) || (family===3 && lv%4===1 && i%7===2)) continue;
+      const a=i/branches*Math.PI*2+(lv%2)*.19+(r()-.5)*.16;
+      const len=tierRadius*(.76+r()*.30);
+      const droop=.07+(1-n)*(.08+r()*.11)+(family===2?.04:0);
+      branchData.push({a,len,y,droop});
+      const pads=4+((i+lv+family)%3);
       for(let p=0;p<pads;p++){
-        const d=len*(.24+p*.145),side=(p%2?1:-1),mat=(lv+i+p)%4;
+        const d=len*(.22+p*(.56/Math.max(1,pads-1))),side=(p%2?1:-1),mat=(lv+i+p+family)%4;
         fanData[mat].push({
-          x:Math.cos(a)*d+Math.cos(a+Math.PI/2)*side*.08*scale,
-          y:y-(.03+p*.018)*scale,
-          z:Math.sin(a)*d+Math.sin(a+Math.PI/2)*side*.08*scale,
-          rx:-.32-(1-n)*.08-r()*.08,
-          ry:-a+Math.PI/2+(r()-.5)*.11,
-          rz:(r()-.5)*.08,
-          sx:(.48+r()*.10)*scale,
-          sz:(.55+r()*.13)*scale
+          x:Math.cos(a)*d+Math.cos(a+Math.PI/2)*side*(.07+r()*.035)*scale,
+          y:y-(.025+p*.017)*scale-d*drop,
+          z:Math.sin(a)*d+Math.sin(a+Math.PI/2)*side*(.07+r()*.035)*scale,
+          rx:-.29-(1-n)*.11-r()*.10,
+          ry:-a+Math.PI/2+(r()-.5)*.15,
+          rz:(r()-.5)*.11,
+          sx:(.43+r()*.16)*scale*(family===2?1.08:1),
+          sz:(.50+r()*.19)*scale
         });
       }
     }
@@ -65,7 +74,7 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
 
   const bgeo=new THREE.CylinderGeometry(.025*scale,.064*scale,1,6);
   const branches=new THREE.InstancedMesh(bgeo,barkDark,branchData.length);
-  branchData.forEach((v,i)=>{dummy.position.set(Math.cos(v.a)*v.len*.46,v.y,Math.sin(v.a)*v.len*.46);dummy.rotation.set(.10,-v.a,Math.PI/2.03);dummy.scale.set(1,v.len,1);dummy.updateMatrix();branches.setMatrixAt(i,dummy.matrix)});
+  branchData.forEach((v,i)=>{dummy.position.set(Math.cos(v.a)*v.len*.46,v.y-v.len*v.droop*.20,Math.sin(v.a)*v.len*.46);dummy.rotation.set(.10+v.droop,-v.a,Math.PI/2.03);dummy.scale.set(1,v.len,1);dummy.updateMatrix();branches.setMatrixAt(i,dummy.matrix)});
   branches.instanceMatrix.needsUpdate=true;root.add(branches);
 
   foliage.forEach((mat,mi)=>{
@@ -74,22 +83,33 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
     mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
   });
 
-  const crownGeo=new THREE.ConeGeometry(1,1,10),crown=new THREE.InstancedMesh(crownGeo,foliage[1],8);
-  for(let i=0;i<8;i++){
-    const rad=(.66-i*.058)*scale;
-    dummy.position.set((r()-.5)*.055*scale,h-.82*scale+i*.15*scale,(r()-.5)*.055*scale);
-    dummy.rotation.set(0,r()*Math.PI,0);dummy.scale.set(rad,.82*scale,rad);dummy.updateMatrix();crown.setMatrixAt(i,dummy.matrix);
+  const crownGeo=new THREE.ConeGeometry(1,1,10),crownCount=family===3?6:8,crown=new THREE.InstancedMesh(crownGeo,foliage[1],crownCount);
+  let crownDriftX=0,crownDriftZ=0;
+  for(let i=0;i<crownCount;i++){
+    crownDriftX+=(r()-.5)*.035*scale;crownDriftZ+=(r()-.5)*.035*scale;
+    const rad=(.66-i*.058)*scale*crownBias;
+    dummy.position.set(crownDriftX,h-.82*scale+i*.15*scale,crownDriftZ);
+    dummy.rotation.set(0,r()*Math.PI,(r()-.5)*.035);dummy.scale.set(rad,.82*scale,rad);dummy.updateMatrix();crown.setMatrixAt(i,dummy.matrix);
   }
   crown.instanceMatrix.needsUpdate=true;root.add(crown);
 
-  const skirt=new THREE.InstancedMesh(FAN,foliage[0],18);
-  for(let i=0;i<18;i++){
-    const a=i/18*Math.PI*2+(r()-.5)*.09,rad=(.48+r()*.40)*scale;
-    dummy.position.set(Math.cos(a)*rad,.30*scale,Math.sin(a)*rad);dummy.rotation.set(-.44,-a+Math.PI/2,(r()-.5)*.08);dummy.scale.set(.62*scale,1,.75*scale);dummy.updateMatrix();skirt.setMatrixAt(i,dummy.matrix);
+  const skirtCount=family===1?14:family===2?20:17;
+  const skirt=new THREE.InstancedMesh(FAN,foliage[0],skirtCount);
+  for(let i=0;i<skirtCount;i++){
+    const a=i/skirtCount*Math.PI*2+(r()-.5)*.13,rad=(.45+r()*.48)*scale;
+    dummy.position.set(Math.cos(a)*rad,.28*scale+(r()-.5)*.05*scale,Math.sin(a)*rad);dummy.rotation.set(-.40-r()*.10,-a+Math.PI/2,(r()-.5)*.12);dummy.scale.set((.55+r()*.15)*scale,1,(.68+r()*.18)*scale);dummy.updateMatrix();skirt.setMatrixAt(i,dummy.matrix);
   }
   skirt.instanceMatrix.needsUpdate=true;root.add(skirt);
 
+  // A small number of dead branch stubs gives mature trees age and prevents foliage-only repetition.
+  const deadCount=2+(seed%3);
+  for(let i=0;i<deadCount;i++){
+    const a=r()*Math.PI*2,len=(.45+r()*.55)*scale,y=(.85+r()*1.45)*scale;
+    const dead=new THREE.Mesh(new THREE.CylinderGeometry(.018*scale,.045*scale,len,5),barkDark);
+    dead.position.set(Math.cos(a)*len*.42,y,Math.sin(a)*len*.42);dead.rotation.set(.16+r()*.18,-a,Math.PI/2.08);root.add(dead);
+  }
+
   root.rotation.y=r()*Math.PI*2;
-  root.userData={assetId:'conifer_target_v31',version:'3.1.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',rendering:'instanced-overlapping-fans',intent:'fuller soft layered conifer silhouette with shorter overlapping fan fronds, reduced radial spike appearance and target-facing color variation'};
+  root.userData={assetId:'conifer_target_v31',version:'3.2.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',rendering:'instanced-overlapping-fans',variationFamily:family,intent:'seed-driven mature conifer families with varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail to suppress obvious repetition'};
   return shadow(root);
 }
