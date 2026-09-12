@@ -79,22 +79,23 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
 
   foliage.forEach((mat,mi)=>{
     const arr=fanData[mi],mesh=new THREE.InstancedMesh(FAN,mat,arr.length);
-    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set(v.rx,v.ry,v.rz);dummy.scale.set(v.sx*.82,1,v.sz*.82);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
+    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set(v.rx, v.ry,v.rz);dummy.scale.set(v.sx*.82,1,v.sz*.82);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
     mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
   });
 
-  // M04 quality re-gate v3.3: directional fans plus compact volume clusters carry mature crown mass.
-  const tuftGeo=new THREE.IcosahedronGeometry(.34*scale,1),tuftData=[[],[],[]];
+  // Quality re-gate v3.4: replace spherical/broccoli crown blobs with tapered, layered needle tufts.
+  // These keep crown volume while retaining directional conifer silhouettes at portrait distance.
+  const tuftGeo=new THREE.ConeGeometry(.38*scale,.72*scale,7,1,false),tuftData=[[],[],[]];
   branchData.forEach((v,bi)=>{
     for(const q of [.54,.78,.96]){
       if(q>.9 && bi%3===1) continue;
       const d=v.len*q,mi=(bi+(q>.9?2:q>.7?1:0))%3;
-      tuftData[mi].push({x:Math.cos(v.a)*d,y:v.y-d*v.droop+(.02+(bi%4)*.018)*scale,z:Math.sin(v.a)*d,ry:v.a+(bi%5)*.17,sx:(.86+(bi%5)*.07)*(family===2?1.08:1),sy:.58+(bi%4)*.07,sz:.72+((bi+2)%5)*.06});
+      tuftData[mi].push({x:Math.cos(v.a)*d,y:v.y-d*v.droop+(.08+(bi%4)*.022)*scale,z:Math.sin(v.a)*d,ry:v.a+(bi%5)*.17,sx:(.92+(bi%5)*.07)*(family===2?1.08:1),sy:.72+(bi%4)*.08,sz:.80+((bi+2)%5)*.06});
     }
   });
   [foliage[0],foliage[1],foliage[2]].forEach((mat,mi)=>{
     const arr=tuftData[mi],mesh=new THREE.InstancedMesh(tuftGeo,mat,arr.length);
-    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set((i%5-.2)*.025,v.ry,(i%7-.3)*.018);dummy.scale.set(v.sx,v.sy,v.sz);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
+    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set((i%5-.2)*.018,v.ry,(i%7-.3)*.016);dummy.scale.set(v.sx,v.sy,v.sz);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
     mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
   });
   const crownGeo=new THREE.ConeGeometry(1,1,10),crownCount=family===3?6:8,crown=new THREE.InstancedMesh(crownGeo,foliage[1],crownCount);
@@ -124,6 +125,6 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
   }
 
   root.rotation.y=r()*Math.PI*2;
-  root.userData={assetId:'conifer_target_v31',version:'3.3.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',rendering:'instanced-fans-plus-volumetric-tufts',variationFamily:family,intent:'seed-driven mature conifer families with compact volumetric foliage masses layered over directional needle fans, varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail'};
+  root.userData={assetId:'conifer_target_v31',version:'3.4.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',rendering:'instanced-fans-plus-layered-conical-tufts',variationFamily:family,intent:'seed-driven mature conifer families with tapered layered needle masses over directional fans, varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail; removes the round broccoli-crown read rejected by the visual quality regate'};
   return shadow(root);
 }
