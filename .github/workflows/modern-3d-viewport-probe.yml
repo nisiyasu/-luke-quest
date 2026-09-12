@@ -1,0 +1,32 @@
+name: Modern 3D Viewport Geometry Probe
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths: [".github/workflows/modern-3d-viewport-probe.yml"]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Measure Chrome viewport geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          cat >/tmp/viewport.html <<'EOF'
+          <!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><pre id="v"></pre><script>const r=document.documentElement;document.querySelector('#v').textContent=JSON.stringify({innerWidth,innerHeight,outerWidth,outerHeight,clientWidth:r.clientWidth,clientHeight:r.clientHeight,screenWidth:screen.width,screenHeight:screen.height,availWidth:screen.availWidth,availHeight:screen.availHeight,webdriver:navigator.webdriver});</script>
+          EOF
+          cd /tmp
+          python3 -m http.server 8141 >/tmp/probe-http.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          sleep 1
+          timeout 25s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --window-size=390,844 --force-device-scale-factor=1 --dump-dom http://127.0.0.1:8141/viewport.html >/tmp/probe-dom.html 2>/tmp/probe-stderr.log
+          python3 - <<'PY'
+          import html,re
+          s=open('/tmp/probe-dom.html').read()
+          m=re.search(r'<pre id="v">(.*?)</pre>',s,re.S)
+          assert m
+          print('VIEWPORT_GEOMETRY='+html.unescape(m.group(1)))
+          PY
