@@ -18,15 +18,19 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Verify player-facing HUD contract
+      - name: Verify player-facing exploration HUD contract
         shell: bash
         run: |
           set -euo pipefail
           grep -F "import './ui-quality-v51b.js';" prototypes/modern-3d/m04-water-target-v3.js
           grep -F "class=\"hud-title-row\"" prototypes/modern-3d/ui-quality-v51b.js
-          grep -F "class=\"hud-hp-track\"" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "id='exploration-route'" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "id='location-ribbon'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F "class=\"action-orb\"" prototypes/modern-3d/ui-quality-v51b.js
           grep -F "dataset.m09OwnerHud='pass'" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "dataset.m09HudMode='truthful-exploration-v53'" prototypes/modern-3d/ui-quality-v51b.js
+          ! grep -F 'LUKE HP' prototypes/modern-3d/ui-quality-v51b.js
+          ! grep -F '62/69' prototypes/modern-3d/ui-quality-v51b.js
           grep -F 'env(safe-area-inset-left)' prototypes/modern-3d/index.html
           grep -F 'env(safe-area-inset-right)' prototypes/modern-3d/index.html
           grep -F 'env(safe-area-inset-bottom)' prototypes/modern-3d/index.html
@@ -99,13 +103,18 @@ jobs:
             'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
           rm -rf "$profile"
           grep -q 'data-m09-owner-hud="pass"' .modern3d-m09/dom.html
+          grep -q 'data-m09-hud-mode="truthful-exploration-v53"' .modern3d-m09/dom.html
           grep -q 'class="hud-title-row"' .modern3d-m09/dom.html
-          grep -q 'class="hud-hp-track"' .modern3d-m09/dom.html
+          grep -q 'id="exploration-route"' .modern3d-m09/dom.html
+          grep -q 'id="location-ribbon"' .modern3d-m09/dom.html
           grep -q 'class="action-orb"' .modern3d-m09/dom.html
           grep -q 'FOREST BRIDGE' .modern3d-m09/dom.html
           grep -q 'MONSTER FOREST' .modern3d-m09/dom.html
+          grep -q 'PATH OPEN' .modern3d-m09/dom.html
           ! grep -q '3D PROTOTYPE · DEMO HUD' .modern3d-m09/dom.html
           ! grep -q 'DISPLAY SAMPLE' .modern3d-m09/dom.html
+          ! grep -q 'LUKE HP' .modern3d-m09/dom.html
+          ! grep -q '62/69' .modern3d-m09/dom.html
       - uses: actions/upload-artifact@v4
         with:
           name: m09-runtime-hud-${{ github.sha }}
@@ -138,7 +147,7 @@ jobs:
               rows.append(f'{n} bytes={len(b)} sha256={hashlib.sha256(b).hexdigest()}')
           assert (root/names[0]).read_bytes()!=(root/names[1]).read_bytes()
           assert (root/names[2]).read_bytes()!=(root/names[3]).read_bytes()
-          (root/'m09-evidence.txt').write_text('\n'.join(rows)+'\nHUD_OWNER_REGATE=PASS\nMULTI_POSITION=PASS\nMULTI_VIEWPORT=PASS\n')
+          (root/'m09-evidence.txt').write_text('\n'.join(rows)+'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=TRUTHFUL_EXPLORATION_V53\nMULTI_POSITION=PASS\nMULTI_VIEWPORT=PASS\n')
           PY
       - uses: actions/upload-artifact@v4
         with:
