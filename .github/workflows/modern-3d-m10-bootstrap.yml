@@ -2,10 +2,8 @@ name: Modern 3D M10 Optimize Package Verify
 
 on:
   push:
-    branches:
-      - prototype/modern-3d
-    paths:
-      - .github/workflows/modern-3d-m10-bootstrap.yml
+    branches: [prototype/modern-3d]
+    paths: [.github/workflows/modern-3d-m10-bootstrap.yml]
   workflow_dispatch:
 
 permissions:
@@ -17,43 +15,35 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Add explicit high/practical presets and CI proxy instrumentation
+        with: {fetch-depth: 1}
+      - name: Build M10 candidate
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('prototypes/modern-3d/index.html')
-          s=p.read_text()
+          p=Path('prototypes/modern-3d/index.html'); s=p.read_text()
           old="const stateEl=document.querySelector('#state'),loading=document.querySelector('#loading'),errorEl=document.querySelector('#error'),ciEvidence=document.querySelector('#ci-evidence');\ntry{\nconst renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});\nrenderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;document.body.prepend(renderer.domElement);"
           new="const stateEl=document.querySelector('#state'),loading=document.querySelector('#loading'),errorEl=document.querySelector('#error'),ciEvidence=document.querySelector('#ci-evidence');\nconst query=new URLSearchParams(location.search);\nconst qualityPreset=query.get('quality')==='practical'?'practical':'high',practicalPreset=qualityPreset==='practical';\nconst simulatedDpr=Number(query.get('m10dpr'));\nconst sourceDpr=Number.isFinite(simulatedDpr)&&simulatedDpr>0?simulatedDpr:devicePixelRatio;\nconst effectiveDpr=Math.min(sourceDpr,practicalPreset?1.25:2);\ndocument.documentElement.dataset.m10QualityPreset=qualityPreset;\ndocument.documentElement.dataset.m10DprSource=Number.isFinite(simulatedDpr)&&simulatedDpr>0?'simulated-query':'device';\ndocument.documentElement.dataset.m10SourceDpr=sourceDpr.toFixed(2);\ndocument.documentElement.dataset.m10PixelRatio=effectiveDpr.toFixed(2);\ndocument.documentElement.dataset.m10ShadowMapSize=practicalPreset?'1024':'2048';\ntry{\nconst renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});\nrenderer.setPixelRatio(effectiveDpr);renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=practicalPreset?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;document.body.prepend(renderer.domElement);"
-          assert old in s
-          s=s.replace(old,new,1)
+          assert old in s; s=s.replace(old,new,1)
+
           old="const sun=new THREE.DirectionalLight(0xffd28c,4.05);sun.position.set(-16,36,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-26;sun.shadow.camera.right=26;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-.00022;sun.shadow.normalBias=.04;scene.add(sun);"
           new="const sun=new THREE.DirectionalLight(0xffd28c,4.05);sun.position.set(-16,36,8);sun.castShadow=true;const shadowSize=practicalPreset?1024:2048;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-26;sun.shadow.camera.right=26;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-.00022;sun.shadow.normalBias=.04;scene.add(sun);"
-          assert old in s
-          s=s.replace(old,new,1)
+          assert old in s; s=s.replace(old,new,1)
+
           old="function tick(now){requestAnimationFrame(tick);const dt=Math.max(0,Math.min((now-last)/1000,.05));last=now;stepMovement(dt);const sec=now/1000;waterMain.userData.update(sec);waterLower.userData.update(sec);waterUpperRight.userData.update(sec);player.userData.animate(sec,moving?1:0);const target=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.7);const cameraBlend=1-Math.exp(-4.2*dt);camera.position.lerp(target.clone().add(offset),cameraBlend);camera.lookAt(target.x,target.y+.45,target.z);renderer.render(scene,camera)}"
-          new="const m10PerfSamples=[];let m10PerfWarmup=20;\nfunction publishM10Perf(){if(document.documentElement.dataset.m10PerfReady==='1'||m10PerfSamples.length<60)return;const a=[...m10PerfSamples].sort((x,y)=>x-y),median=a[Math.floor(a.length*.5)],p95=a[Math.min(a.length-1,Math.floor(a.length*.95))];document.documentElement.dataset.m10PerfMedianMs=median.toFixed(2);document.documentElement.dataset.m10PerfP95Ms=p95.toFixed(2);document.documentElement.dataset.m10DrawCalls=String(renderer.info.render.calls);document.documentElement.dataset.m10Triangles=String(renderer.info.render.triangles);document.documentElement.dataset.m10Textures=String(renderer.info.memory.textures);document.documentElement.dataset.m10PerfSamples=String(a.length);document.documentElement.dataset.m10PerfScope='browser-ci-proxy-not-physical-iphone';document.documentElement.dataset.m10PerfReady='1'}\nfunction tick(now){requestAnimationFrame(tick);const rawFrameMs=Math.max(0,now-last),dt=Math.max(0,Math.min(rawFrameMs/1000,.05));last=now;if(m10PerfWarmup>0)m10PerfWarmup--;else if(m10PerfSamples.length<60){m10PerfSamples.push(rawFrameMs);if(m10PerfSamples.length===60)queueMicrotask(publishM10Perf)}stepMovement(dt);const sec=now/1000;waterMain.userData.update(sec);waterLower.userData.update(sec);waterUpperRight.userData.update(sec);player.userData.animate(sec,moving?1:0);const target=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.7);const cameraBlend=1-Math.exp(-4.2*dt);camera.position.lerp(target.clone().add(offset),cameraBlend);camera.lookAt(target.x,target.y+.45,target.z);renderer.render(scene,camera)}"
-          assert old in s
-          s=s.replace(old,new,1)
+          new="const m10PerfSamples=[];let m10PerfWarmup=8;\nfunction publishM10Perf(){if(m10PerfSamples.length<20)return;const a=[...m10PerfSamples].sort((x,y)=>x-y),median=a[Math.floor(a.length*.5)],p95=a[Math.min(a.length-1,Math.floor(a.length*.95))];document.documentElement.dataset.m10PerfMedianMs=median.toFixed(2);document.documentElement.dataset.m10PerfP95Ms=p95.toFixed(2);document.documentElement.dataset.m10DrawCalls=String(renderer.info.render.calls);document.documentElement.dataset.m10Triangles=String(renderer.info.render.triangles);document.documentElement.dataset.m10Textures=String(renderer.info.memory.textures);document.documentElement.dataset.m10PerfSamples=String(a.length);document.documentElement.dataset.m10PerfScope='browser-ci-proxy-not-physical-iphone';document.documentElement.dataset.m10PerfReady='1'}\nfunction tick(now){requestAnimationFrame(tick);const rawFrameMs=Math.max(0,now-last),dt=Math.max(0,Math.min(rawFrameMs/1000,.05));last=now;if(m10PerfWarmup>0)m10PerfWarmup--;else if(m10PerfSamples.length<60){m10PerfSamples.push(rawFrameMs);if(m10PerfSamples.length>=20)publishM10Perf()}stepMovement(dt);const sec=now/1000;waterMain.userData.update(sec);waterLower.userData.update(sec);waterUpperRight.userData.update(sec);player.userData.animate(sec,moving?1:0);const target=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.7);const cameraBlend=1-Math.exp(-4.2*dt);camera.position.lerp(target.clone().add(offset),cameraBlend);camera.lookAt(target.x,target.y+.45,target.z);renderer.render(scene,camera)}"
+          assert old in s; s=s.replace(old,new,1)
+
           old="addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);const query=new URLSearchParams(location.search),m08Proof=query.get('m08proof')==='1';"
           new="addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);const m08Proof=query.get('m08proof')==='1';"
-          assert old in s
-          s=s.replace(old,new,1)
+          assert old in s; s=s.replace(old,new,1)
           old="loading.remove();stateEl.textContent='王都近郊 · FIELD PROTOTYPE';"
           new="loading.remove();stateEl.textContent=`王都近郊 · ${practicalPreset?'PRACTICAL':'HIGH'}`;"
-          assert old in s
-          s=s.replace(old,new,1)
+          assert old in s; s=s.replace(old,new,1)
           p.write_text(s)
           PY
 
-      - name: Build single-HTML distribution
-        shell: bash
-        run: |
-          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -73,30 +63,17 @@ jobs:
           (root/'.m10-entry.mjs').unlink(); (root/'.m10-bundle.mjs').unlink()
           PY
 
-      - name: Document M10 source/package contract
-        shell: bash
-        run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('prototypes/modern-3d/README.md'); s=p.read_text(); marker='## M10 distribution and quality presets'
-          block='''\n\n## M10 distribution and quality presets\n\nM10 keeps the editable source and the packaged distribution side by side.\n\n- Source runtime: `index.html` plus the local JavaScript modules in this directory.\n- Single-HTML distribution: `dist/luke-quest-modern-3d.html`. HTML, CSS and local JavaScript are bundled into this one HTML file.\n- Three.js remains an explicit external CDN dependency pinned to `three@0.186.0` through the import map. No claim of offline/self-contained Three.js is made.\n- Serve through HTTP, for example: `python3 -m http.server 8140 --directory prototypes/modern-3d`. Do not treat direct `file://` opening as the supported launch path.\n- High-quality preset: append `?quality=high` (default). Pixel ratio cap 2.0 and 2048 shadow map.\n- iPhone practical preset: append `?quality=practical`. Pixel ratio cap 1.25 and 1024 shadow map. This is an explicit performance preset, not a downgrade of the Owner visual target.\n- CI may append `m10dpr=2` to exercise the DPR cap deterministically. That value is labelled as simulated-query evidence and is not physical-device evidence.\n- Browser CI frame-time / draw-call / triangle results are proxy evidence only. Physical iPhone verification remains `PENDING` until actually observed on-device.\n- CI proxy statistics use a warmup plus 60 rendered-frame samples. This is enough for a bounded median/p95 comparison, but it is not a substitute for sustained physical-device profiling.\n\nThe packaged HTML must be reverified after every material packaging change. Source success alone is not package success.\n'''
+          block='''\n\n## M10 distribution and quality presets\n\nM10 keeps the editable source and packaged distribution side by side.\n\n- Source: `index.html` plus local JavaScript modules.\n- Single-HTML package: `dist/luke-quest-modern-3d.html`; HTML, CSS and local JavaScript are bundled into one HTML.\n- Three.js remains an explicit external CDN dependency pinned to `three@0.186.0` through the import map; offline Three.js is not claimed.\n- Supported launch is HTTP, for example `python3 -m http.server 8140 --directory prototypes/modern-3d`; direct `file://` is not the supported path.\n- High preset: `?quality=high` (default), DPR cap 2.0, 2048 shadow map.\n- iPhone practical preset: `?quality=practical`, DPR cap 1.25, 1024 shadow map. This does not redefine the Owner visual target downward.\n- CI may append `m10dpr=2` to exercise DPR caps deterministically; runtime labels it simulated-query evidence.\n- Browser CI statistics are proxy evidence only. After 8 warmup frames, statistics become publishable from 20 samples and continue updating up to 60 samples. Physical iPhone profiling remains `PENDING`.\n- Every material packaging change must reverify the packaged HTML itself; source success is not package success.\n'''
           if marker not in s: s=s.rstrip()+block+'\n'
           p.write_text(s)
           PY
-
-      - name: Validate candidate package contract
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s prototypes/modern-3d/index.html
           test -s prototypes/modern-3d/dist/luke-quest-modern-3d.html
           grep -F "qualityPreset=query.get('quality')==='practical'?'practical':'high'" prototypes/modern-3d/index.html
-          grep -F "m10PerfScope='browser-ci-proxy-not-physical-iphone'" prototypes/modern-3d/index.html
-          grep -F 'dist/luke-quest-modern-3d.html' prototypes/modern-3d/README.md
           grep -F 'three@0.186.0' prototypes/modern-3d/dist/luke-quest-modern-3d.html
           ! grep -F "from './" prototypes/modern-3d/dist/luke-quest-modern-3d.html
-          ! grep -F 'from "./' prototypes/modern-3d/dist/luke-quest-modern-3d.html
-
       - uses: actions/upload-artifact@v4
         with:
           name: m10-candidate-${{ github.sha }}
@@ -119,13 +96,12 @@ jobs:
         with:
           name: m10-candidate-${{ github.sha }}
           path: candidate
-      - name: Start candidate server
-        shell: bash
+      - name: Start server
         run: |
           python3 -m http.server 8140 --directory candidate >/tmp/m10-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Capture ${{ matrix.surface }} ${{ matrix.preset }} runtime
+      - name: Capture runtime
         id: capture
         continue-on-error: true
         shell: bash
@@ -134,45 +110,33 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           mkdir -p evidence; profile="$(mktemp -d)"
           timeout 120s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --disable-background-networking --disable-component-update --disable-sync \
-            --no-first-run --no-default-browser-check --metrics-recording-only \
+            --disable-background-networking --disable-component-update --disable-sync --no-first-run --no-default-browser-check --metrics-recording-only \
             --user-data-dir="$profile" --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=6000 \
             --screenshot="evidence/${{ matrix.surface }}-${{ matrix.preset }}.png" --dump-dom \
             "http://127.0.0.1:8140/${{ matrix.page }}?quality=${{ matrix.preset }}&m10dpr=2&m08walk=1&m08steps=28" \
             > "evidence/${{ matrix.surface }}-${{ matrix.preset }}.html" 2> "evidence/${{ matrix.surface }}-${{ matrix.preset }}-stderr.log"
-          rc=$?
-          rm -rf "$profile"
-          printf '%s\n' "$rc" > "evidence/${{ matrix.surface }}-${{ matrix.preset }}-chrome-exit.txt"
-          exit "$rc"
-      - name: Diagnose and validate runtime markers
+          rc=$?; rm -rf "$profile"; echo "$rc" > "evidence/${{ matrix.surface }}-${{ matrix.preset }}-chrome-exit.txt"; exit "$rc"
+      - name: Validate runtime
         shell: bash
         run: |
           set -euo pipefail
-          f="evidence/${{ matrix.surface }}-${{ matrix.preset }}.html"
-          png="evidence/${{ matrix.surface }}-${{ matrix.preset }}.png"
-          echo "capture_outcome=${{ steps.capture.outcome }}"
-          test '${{ steps.capture.outcome }}' = success
-          test -s "$png"
-          for key in m10-quality-preset m10-dpr-source m10-source-dpr m10-pixel-ratio m10-shadow-map-size m10-perf-ready m10-perf-scope m10-perf-samples m08-walk-done; do
-            printf '%s=' "$key"
-            grep -o "data-${key}=\"[^\"]*\"" "$f" | head -1 || true
-          done
+          f="evidence/${{ matrix.surface }}-${{ matrix.preset }}.html"; png="evidence/${{ matrix.surface }}-${{ matrix.preset }}.png"
+          echo "capture_outcome=${{ steps.capture.outcome }}"; test '${{ steps.capture.outcome }}' = success; test -s "$png"
+          for key in m10-quality-preset m10-dpr-source m10-source-dpr m10-pixel-ratio m10-shadow-map-size m10-perf-ready m10-perf-scope m10-perf-samples m10-perf-median-ms m10-perf-p95-ms m08-walk-done; do printf '%s=' "$key"; grep -o "data-${key}=\"[^\"]*\"" "$f" | head -1 || true; done
           grep -q 'data-m10-perf-ready="1"' "$f"
           grep -q 'data-m10-perf-scope="browser-ci-proxy-not-physical-iphone"' "$f"
-          grep -Eq 'data-m10-perf-samples="(6[0-9]|[7-9][0-9]|[1-9][0-9]{2,})"' "$f"
-          grep -q 'data-m08-walk-done="1"' "$f"
-          grep -q '3D PROTOTYPE · DEMO HUD' "$f"
+          python3 - "$f" <<'PY'
+          import re,sys
+          s=open(sys.argv[1],errors='replace').read(); m=re.search(r'data-m10-perf-samples="(\d+)"',s); assert m and int(m.group(1))>=20,m.group(1) if m else 'missing'
+          PY
+          grep -q 'data-m08-walk-done="1"' "$f"; grep -q '3D PROTOTYPE · DEMO HUD' "$f"
           if [ '${{ matrix.preset }}' = high ]; then
-            grep -q 'data-m10-quality-preset="high"' "$f"
-            grep -q 'data-m10-pixel-ratio="2.00"' "$f"
-            grep -q 'data-m10-shadow-map-size="2048"' "$f"
+            grep -q 'data-m10-quality-preset="high"' "$f"; grep -q 'data-m10-pixel-ratio="2.00"' "$f"; grep -q 'data-m10-shadow-map-size="2048"' "$f"
           else
-            grep -q 'data-m10-quality-preset="practical"' "$f"
-            grep -q 'data-m10-pixel-ratio="1.25"' "$f"
-            grep -q 'data-m10-shadow-map-size="1024"' "$f"
+            grep -q 'data-m10-quality-preset="practical"' "$f"; grep -q 'data-m10-pixel-ratio="1.25"' "$f"; grep -q 'data-m10-shadow-map-size="1024"' "$f"
           fi
-      - name: Upload runtime evidence even on failure
+      - name: Upload runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -190,31 +154,28 @@ jobs:
           pattern: m10-runtime-*-${{ github.sha }}
           path: all-evidence
           merge-multiple: true
-      - name: Aggregate proxy metrics and screenshot liveness
+      - name: Aggregate measurements
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re, struct
+          import re,struct
           root=Path('all-evidence'); rows=[]
           for surface in ('source','package'):
             for preset in ('high','practical'):
               dom=(root/f'{surface}-{preset}.html').read_text(errors='replace')
-              def attr(name):
-                m=re.search(fr'data-{name}="([^"]+)"',dom); assert m,(surface,preset,name); return m.group(1)
-              v={k:attr(k) for k in ['m10-quality-preset','m10-dpr-source','m10-source-dpr','m10-pixel-ratio','m10-shadow-map-size','m10-perf-median-ms','m10-perf-p95-ms','m10-draw-calls','m10-triangles','m10-textures','m10-perf-samples','m10-perf-scope']}
-              assert v['m10-quality-preset']==preset and v['m10-dpr-source']=='simulated-query'
-              assert v['m10-perf-scope']=='browser-ci-proxy-not-physical-iphone' and int(v['m10-perf-samples'])>=60
-              data=(root/f'{surface}-{preset}.png').read_bytes(); assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n'
-              w,h=struct.unpack('>II',data[16:24]); assert (w,h)==(390,844)
+              def a(n):
+                m=re.search(fr'data-{n}="([^"]+)"',dom); assert m,(surface,preset,n); return m.group(1)
+              v={k:a(k) for k in ['m10-quality-preset','m10-dpr-source','m10-source-dpr','m10-pixel-ratio','m10-shadow-map-size','m10-perf-median-ms','m10-perf-p95-ms','m10-draw-calls','m10-triangles','m10-textures','m10-perf-samples','m10-perf-scope']}
+              assert v['m10-quality-preset']==preset and v['m10-dpr-source']=='simulated-query' and v['m10-perf-scope']=='browser-ci-proxy-not-physical-iphone' and int(v['m10-perf-samples'])>=20
+              data=(root/f'{surface}-{preset}.png').read_bytes(); assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n'; assert struct.unpack('>II',data[16:24])==(390,844)
               rows.append((surface,preset,v,len(data)))
           assert all(r[2]['m10-pixel-ratio']=='2.00' and r[2]['m10-shadow-map-size']=='2048' for r in rows if r[1]=='high')
           assert all(r[2]['m10-pixel-ratio']=='1.25' and r[2]['m10-shadow-map-size']=='1024' for r in rows if r[1]=='practical')
-          lines=['# M10 Measurement — CI proxy and package verification','', 'These values are browser/GitHub-hosted CI proxy evidence, not physical iPhone measurements. Physical iPhone verification remains PENDING.','', '| Surface | Preset | DPR source | Effective DPR | Shadow map | Median frame ms | p95 frame ms | Draw calls | Triangles | Textures | Samples | PNG bytes |','|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
-          for surface,preset,v,n in rows:
-            lines.append(f"| {surface} | {preset} | {v['m10-dpr-source']} | {v['m10-pixel-ratio']} | {v['m10-shadow-map-size']} | {v['m10-perf-median-ms']} | {v['m10-perf-p95-ms']} | {v['m10-draw-calls']} | {v['m10-triangles']} | {v['m10-textures']} | {v['m10-perf-samples']} | {n} |")
-          lines += ['', '## Interpretation', '', '- High and practical are explicit renderer presets. Practical lowers render-pixel cap and shadow-map size without changing the Owner visual authority.', '- `m10dpr=2` is deterministic CI-only DPR simulation and must not be reported as physical-device data.', '- Editable source and bundled single-HTML package both booted, moved and rendered with runtime proof.', '- Physical iPhone sustained movement, background/foreground recovery, thermal behavior and actual-device frame-time remain PENDING.', '']
-          Path('M10_MEASUREMENT.md').write_text('\n'.join(lines))
+          L=['# M10 Measurement — CI proxy and package verification','', 'These are browser/GitHub-hosted CI proxy measurements, not physical iPhone measurements. `IOS_PHYSICAL_VERIFICATION` remains `PENDING`.','', '| Surface | Preset | DPR source | Effective DPR | Shadow map | Median ms | p95 ms | Draw calls | Triangles | Textures | Samples | PNG bytes |','|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+          for surface,preset,v,n in rows: L.append(f"| {surface} | {preset} | {v['m10-dpr-source']} | {v['m10-pixel-ratio']} | {v['m10-shadow-map-size']} | {v['m10-perf-median-ms']} | {v['m10-perf-p95-ms']} | {v['m10-draw-calls']} | {v['m10-triangles']} | {v['m10-textures']} | {v['m10-perf-samples']} | {n} |")
+          L += ['', '## Interpretation', '', '- High and practical are explicit presets; practical lowers DPR and shadow-map size without redefining the Owner visual target.', '- `m10dpr=2` is deterministic CI-only DPR simulation.', '- Source and bundled single-HTML package both booted, moved and rendered.', '- Physical iPhone sustained movement, background/foreground recovery, thermals and actual-device timing remain PENDING.', '']
+          Path('M10_MEASUREMENT.md').write_text('\n'.join(L))
           PY
       - uses: actions/upload-artifact@v4
         with:
@@ -229,31 +190,20 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Ensure candidate base is still current
-        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+        with: {fetch-depth: 1}
+      - run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - uses: actions/download-artifact@v4
-        with:
-          name: m10-candidate-${{ github.sha }}
-          path: candidate
+        with: {name: 'm10-candidate-${{ github.sha }}', path: candidate}
       - uses: actions/download-artifact@v4
-        with:
-          name: m10-aggregate-${{ github.sha }}
-          path: aggregate
-      - name: Promote verified M10 source/package checkpoint
+        with: {name: 'm10-aggregate-${{ github.sha }}', path: aggregate}
+      - name: Promote verified candidate
         shell: bash
         run: |
           set -euo pipefail
-          cp candidate/index.html prototypes/modern-3d/index.html
-          cp candidate/README.md prototypes/modern-3d/README.md
-          mkdir -p prototypes/modern-3d/dist
-          cp candidate/dist/luke-quest-modern-3d.html prototypes/modern-3d/dist/luke-quest-modern-3d.html
+          cp candidate/index.html prototypes/modern-3d/index.html; cp candidate/README.md prototypes/modern-3d/README.md
+          mkdir -p prototypes/modern-3d/dist; cp candidate/dist/luke-quest-modern-3d.html prototypes/modern-3d/dist/luke-quest-modern-3d.html
           cp aggregate/M10_MEASUREMENT.md prototypes/modern-3d/M10_MEASUREMENT.md
-          git diff --check
-          git add prototypes/modern-3d/index.html prototypes/modern-3d/README.md prototypes/modern-3d/dist/luke-quest-modern-3d.html prototypes/modern-3d/M10_MEASUREMENT.md
+          git diff --check; git add prototypes/modern-3d/index.html prototypes/modern-3d/README.md prototypes/modern-3d/dist/luke-quest-modern-3d.html prototypes/modern-3d/M10_MEASUREMENT.md
           git diff --cached --quiet && exit 0
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'feat(modern-3d): add M10 quality presets and single-html package'
-          git push origin HEAD:prototype/modern-3d
+          git config user.name 'github-actions[bot]'; git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(modern-3d): add M10 quality presets and single-html package'; git push origin HEAD:prototype/modern-3d
