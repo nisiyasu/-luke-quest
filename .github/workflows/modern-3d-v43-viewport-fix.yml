@@ -1,0 +1,55 @@
+name: Modern 3D v43 Canonical Viewport Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/modern-3d-v43-viewport-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Patch renderer sizing to canonical document viewport
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old1="""const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+          renderer.setPixelRatio(effectiveDpr);renderer.setSize(innerWidth,innerHeight);"""
+          new1="""const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+          function viewportSize(){const root=document.documentElement;return{w:Math.max(1,root.clientWidth||innerWidth),h:Math.max(1,root.clientHeight||innerHeight)}}
+          const initialViewport=viewportSize();
+          renderer.setPixelRatio(effectiveDpr);renderer.setSize(initialViewport.w,initialViewport.h);"""
+          old2="const camera=new THREE.PerspectiveCamera(34,innerWidth/innerHeight,.1,150);"
+          new2="const camera=new THREE.PerspectiveCamera(34,initialViewport.w/initialViewport.h,.1,150);"
+          old3="function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();resizes++;window.LQ_MODERN_3D_M05.resizes=resizes}"
+          new3="function resize(){const v=viewportSize();renderer.setSize(v.w,v.h,false);camera.aspect=v.w/v.h;camera.updateProjectionMatrix();resizes++;window.LQ_MODERN_3D_M05.resizes=resizes}"
+          for old in (old1,old2,old3):
+              assert s.count(old)==1, f'expected exactly one patch target, got {s.count(old)}: {old[:70]!r}'
+          s=s.replace(old1,new1).replace(old2,new2).replace(old3,new3)
+          p.write_text(s)
+          PY
+          grep -F "function viewportSize()" prototypes/modern-3d/index.html
+          grep -F "initialViewport.w/initialViewport.h" prototypes/modern-3d/index.html
+          grep -F "const v=viewportSize()" prototypes/modern-3d/index.html
+      - name: Commit material source repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "LUKE QUEST autonomous repair"
+          git config user.email "actions@github.com"
+          git add prototypes/modern-3d/index.html
+          git diff --cached --check
+          git commit -m "fix(modern-3d): fill canonical narrow viewport"
+          git push origin HEAD:prototype/modern-3d
