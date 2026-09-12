@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   reframe:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,11 +40,7 @@ jobs:
           marker="const meadowA=createMeadowField({seed:901,width:13,depth:10,density:520,flowers:120});"
           if marker not in s:
               raise SystemExit('meadow marker missing')
-          insert="""
-// v60 macro composition reframe: break the central lawn into a target-like layered path corridor.
-for(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[1,2.9,-7.5,.70],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}
-for(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[1,2.0,-8.4,1.55],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}
-"""
+          insert="// v60 macro composition reframe: break the central lawn into a target-like layered path corridor.\nfor(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[1,2.9,-7.5,.70],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}\nfor(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[1,2.0,-8.4,1.55],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}\n"
           s=s.replace(marker,insert+marker)
           p.write_text(s)
           PY
@@ -53,8 +49,8 @@ for(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[1,2.0,-8.4,1.55],[2,-3.5,-11.2,1.9]
           grep -q 'PerspectiveCamera(39' prototypes/modern-3d/index.html
       - name: Commit v60 implementation
         run: |
-          git config user.name "nisiyasu"
-          git config user.email "yasunori.hashigami@gmail.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add prototypes/modern-3d/index.html
           git commit -m "fix(m03): macro reframe toward visual floor [m03-v60]"
           git push origin HEAD:prototype/modern-3d
