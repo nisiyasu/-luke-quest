@@ -24,51 +24,34 @@ jobs:
           from pathlib import Path
           p=Path('prototypes/modern-3d/m04-conifer-target-v31.js')
           s=p.read_text()
-          anchor="""  foliage.forEach((mat,mi)=>{
-    const arr=fanData[mi],mesh=new THREE.InstancedMesh(FAN,mat,arr.length);
-    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set(v.rx,v.ry,v.rz);dummy.scale.set(v.sx,1,v.sz);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
-    mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
-  });
-
-"""
-          insert="""  foliage.forEach((mat,mi)=>{
-    const arr=fanData[mi],mesh=new THREE.InstancedMesh(FAN,mat,arr.length);
-    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set(v.rx,v.ry,v.rz);dummy.scale.set(v.sx*.82,1,v.sz*.82);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
-    mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
-  });
-
-  // M04 quality re-gate v3.3: fans keep needle direction, but compact deformed volume clusters carry the crown mass.
-  // This removes the conspicuous flat/blade-only read in the canonical portrait frame without abandoning the existing asset family.
-  const tuftGeo=new THREE.IcosahedronGeometry(.34*scale,1),tuftData=[[],[],[]];
-  branchData.forEach((v,bi)=>{
-    for(const q of [.54,.78,.96]){
-      if(q>.9 && bi%3===1) continue;
-      const d=v.len*q,mi=(bi+(q>.9?2:q>.7?1:0))%3;
-      tuftData[mi].push({
-        x:Math.cos(v.a)*d,
-        y:v.y-d*v.droop+(.02+(bi%4)*.018)*scale,
-        z:Math.sin(v.a)*d,
-        ry:v.a+(bi%5)*.17,
-        sx:(.86+(bi%5)*.07)*(family===2?1.08:1),
-        sy:.58+(bi%4)*.07,
-        sz:.72+((bi+2)%5)*.06
-      });
-    }
-  });
-  [foliage[0],foliage[1],foliage[2]].forEach((mat,mi)=>{
-    const arr=tuftData[mi],mesh=new THREE.InstancedMesh(tuftGeo,mat,arr.length);
-    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set((i%5-.2)*.025,v.ry,(i%7-.3)*.018);dummy.scale.set(v.sx,v.sy,v.sz);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
-    mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
-  });
-
-"""
-          if anchor not in s: raise SystemExit('foliage anchor missing')
-          s=s.replace(anchor,insert,1)
+          old="dummy.scale.set(v.sx,1,v.sz);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)"
+          if old not in s: raise SystemExit('fan scale anchor missing')
+          s=s.replace(old,"dummy.scale.set(v.sx*.82,1,v.sz*.82);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)",1)
+          marker="  const crownGeo=new THREE.ConeGeometry(1,1,10)"
+          if marker not in s: raise SystemExit('crown anchor missing')
+          lines=[
+            "  // M04 quality re-gate v3.3: directional fans plus compact volume clusters carry mature crown mass.",
+            "  const tuftGeo=new THREE.IcosahedronGeometry(.34*scale,1),tuftData=[[],[],[]];",
+            "  branchData.forEach((v,bi)=>{",
+            "    for(const q of [.54,.78,.96]){",
+            "      if(q>.9 && bi%3===1) continue;",
+            "      const d=v.len*q,mi=(bi+(q>.9?2:q>.7?1:0))%3;",
+            "      tuftData[mi].push({x:Math.cos(v.a)*d,y:v.y-d*v.droop+(.02+(bi%4)*.018)*scale,z:Math.sin(v.a)*d,ry:v.a+(bi%5)*.17,sx:(.86+(bi%5)*.07)*(family===2?1.08:1),sy:.58+(bi%4)*.07,sz:.72+((bi+2)%5)*.06});",
+            "    }",
+            "  });",
+            "  [foliage[0],foliage[1],foliage[2]].forEach((mat,mi)=>{",
+            "    const arr=tuftData[mi],mesh=new THREE.InstancedMesh(tuftGeo,mat,arr.length);",
+            "    arr.forEach((v,i)=>{dummy.position.set(v.x,v.y,v.z);dummy.rotation.set((i%5-.2)*.025,v.ry,(i%7-.3)*.018);dummy.scale.set(v.sx,v.sy,v.sz);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});",
+            "    mesh.instanceMatrix.needsUpdate=true;root.add(mesh);",
+            "  });",
+            ""
+          ]
+          s=s.replace(marker,"\n".join(lines)+marker,1)
           s=s.replace("version:'3.2.1'","version:'3.3.0'")
           s=s.replace("rendering:'instanced-overlapping-fans'","rendering:'instanced-fans-plus-volumetric-tufts'")
-          s=s.replace("intent:'seed-driven mature conifer families with varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail to suppress obvious repetition'","intent:'seed-driven mature conifer families with compact volumetric foliage masses layered over directional needle fans, varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail' ")
+          s=s.replace("intent:'seed-driven mature conifer families with varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail to suppress obvious repetition'","intent:'seed-driven mature conifer families with compact volumetric foliage masses layered over directional needle fans, varied height, breadth, sparse windows, droop, crown drift, skirt density and dead branch detail'")
+          if "version:'3.3.0'" not in s or 'tuftData' not in s: raise SystemExit('conifer patch verification failed')
           p.write_text(s)
-
           m=Path('prototypes/modern-3d/ASSET_MANIFEST.json')
           x=m.read_text()
           x=x.replace('conifer_target_v31@3.2.1','conifer_target_v31@3.3.0')
