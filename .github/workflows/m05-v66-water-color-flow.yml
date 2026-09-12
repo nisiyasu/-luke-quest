@@ -1,0 +1,53 @@
+name: M05 Water Color Flow v66
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m05-v66-water-color-flow.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Lift integrated water color and directional breakup
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/m04-water-target-v3.js')
+          s=p.read_text()
+          reps={
+            "uDeep:{value:new THREE.Color(0x075978)}":"uDeep:{value:new THREE.Color(0x08708f)}",
+            "uMid:{value:new THREE.Color(0x1289aa)}":"uMid:{value:new THREE.Color(0x18a5bf)}",
+            "uShallow:{value:new THREE.Color(0x65c8cb)}":"uShallow:{value:new THREE.Color(0x76d9d3)}",
+            "uSky:{value:new THREE.Color(0xa3c0c7)}":"uSky:{value:new THREE.Color(0xb5d2d6)}",
+            "uSparkleStrength:{value:practical?.48:.76}":"uSparkleStrength:{value:practical?.52:.90}",
+            "uCausticStrength:{value:practical?.23:.40}":"uCausticStrength:{value:practical?.27:.54}",
+            "uFoamStrength:{value:practical?.72:1.10}":"uFoamStrength:{value:practical?.78:1.34}",
+            "float caustic=pow(ca1*ca2,2.8)*(1.-basin)*uCausticStrength;float depthMix":"float caustic=pow(ca1*ca2,2.8)*(1.-basin)*uCausticStrength;float flowRibbon=pow(.5+.5*sin(alongCoord*63.0+sin(crossCoord*22.0)*2.4-uTime*1.45),9.0)*(0.22+0.78*basin);float depthMix",
+            "c=mix(c,vec3(.96,1.0,1.0),min(.62,(spark*.58+lace*.24)*uSparkleStrength+foam*.44));":"c=mix(c,vec3(.96,1.0,1.0),min(.66,(spark*.58+lace*.24)*uSparkleStrength+foam*.48));c=mix(c,vec3(.78,.98,1.0),flowRibbon*.20);",
+            "version:'3.12.0'":"version:'3.13.0'",
+            "intent:'luminous target-derived river with deterministic irregular clipping on both bank sides and longitudinal end caps, readable turquoise shallows, whitewater/sparkle cues and preserved depth; removes hard rectangular pool/river endpoints visible in integrated HQ evidence without changing traversal authority'":"intent:'v3.13 luminous turquoise river with four-edge organic clipping, brighter basin, stronger shore foam/caustic breakup and directional flow ribbons; preserves traversal authority and single-pass performance'"
+          }
+          for old,new in reps.items():
+            if old not in s: raise SystemExit(f'missing token: {old[:90]}')
+            s=s.replace(old,new)
+          p.write_text(s)
+          PY
+          git diff --check
+          grep -q "version:'3.13.0'" prototypes/modern-3d/m04-water-target-v3.js
+          grep -q 'flowRibbon' prototypes/modern-3d/m04-water-target-v3.js
+      - name: Commit v66 water repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/m04-water-target-v3.js
+          git commit -m "fix(m05): brighten water and add directional flow [m05-v66]"
+          git push origin HEAD:prototype/modern-3d
