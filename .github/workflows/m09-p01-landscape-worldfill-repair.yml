@@ -1,0 +1,44 @@
+name: M09-P01 Landscape World Fill Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m09-p01-landscape-worldfill-repair.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Tighten only the landscape camera envelope
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old='offsetLandscape=new THREE.Vector3(.8,20.8,14.0)'
+          new='offsetLandscape=new THREE.Vector3(.8,18.0,12.0)'
+          if s.count(old)!=1:
+              raise SystemExit(f'FAIL_CLOSED expected one landscape offset, found {s.count(old)}')
+          s=s.replace(old,new)
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit focused repair
+        run: |
+          git config user.name "LUKE QUEST Scheduled Engineer"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && { echo 'No repair produced'; exit 1; }
+          git commit -m "fix(m09-p01): tighten landscape world-fill camera"
+          git push origin HEAD:prototype/modern-3d
