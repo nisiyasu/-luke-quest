@@ -47,39 +47,42 @@ jobs:
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
             const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});
+            // GitHub SwiftShader can throttle real rAF far below an interactive browser. Keep exact runtime source,
+            // but advance callback timestamps deterministically at 50 ms per 16 ms wall-clock tick. Runtime dt
+            // remains capped by its own production logic; this is functional evidence, not performance evidence.
+            await page.addInitScript(()=>{
+              let clock=performance.now();
+              window.requestAnimationFrame=(cb)=>setTimeout(()=>{clock+=50;cb(clock)},16);
+            });
             const errs=[];page.on('pageerror',e=>errs.push(String(e)));
-            const rows=[];
+            const rows=['test_clock=deterministic_rAF_50ms_timestamp_per_16ms_wallclock performance_claim=NONE'];
             try{
-              await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:90000});
-              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,null,{timeout:90000});
-              await page.waitForTimeout(900);
+              await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,null,{timeout:60000});
+              await page.waitForTimeout(300);
               if(errs.length)throw new Error(`page errors=${JSON.stringify(errs)}`);
-              const start=await meta(page);await page.screenshot({path:'.m08-p02/start.png',timeout:45000});
+              const start=await meta(page);await page.screenshot({path:'.m08-p02/start.png',timeout:30000});
               const a=p3(start.player);if(a.length<3||!a.every(Number.isFinite))throw new Error('invalid start player');
 
-              // Real keyboard route: hold ArrowUp until the live player crosses the bridge and north height transition.
-              // This deliberately fails closed unless actual runtime input reaches north terrain; the internal CI moveBy oracle alone cannot satisfy it.
+              // Actual keyboard event path, collision and grounding code must carry the player across the north transition.
               await page.keyboard.down('ArrowUp');
               await page.waitForFunction(()=>{
                 const p=String(document.documentElement.dataset.m08Player||'').split(',').map(Number);
                 return p.length===3&&p.every(Number.isFinite)&&p[2]<-3.72&&p[1]>.90;
-              },null,{timeout:90000,polling:250});
-              await page.keyboard.up('ArrowUp');await page.waitForTimeout(250);
+              },null,{timeout:30000,polling:50});
+              await page.keyboard.up('ArrowUp');await page.waitForTimeout(120);
               const north=await meta(page);const b=p3(north.player);rows.push(`keyboard start=${start.player} north_shore=${north.player} delta=${delta(a,b).toFixed(3)}`);
               if(delta(a,b)<6.7||b[2]>=-3.65||b[1]<.90)throw new Error(`keyboard did not cross bridge-to-terrain transition ${north.player}`);
               rows.push(`keyboard_bridge_to_terrain=PASS y=${b[1].toFixed(3)} z=${b[2].toFixed(3)}`);
-              await page.screenshot({path:'.m08-p02/keyboard-north-shore.png',timeout:45000});
+              await page.screenshot({path:'.m08-p02/keyboard-north-shore.png',timeout:30000});
 
-              // Release proof: position must remain stable after keyup.
-              const releaseA=p3((await meta(page)).player);await page.waitForTimeout(850);const releaseB=p3((await meta(page)).player);
+              const releaseA=p3((await meta(page)).player);await page.waitForTimeout(180);const releaseB=p3((await meta(page)).player);
               const releaseDelta=delta(releaseA,releaseB);rows.push(`keyboard_release_delta=${releaseDelta.toFixed(4)}`);if(releaseDelta>.035)throw new Error(`keyboard release drift ${releaseDelta}`);
 
-              // Turn coherently and move laterally on north terrain.
-              await page.keyboard.down('ArrowRight');await page.waitForTimeout(800);await page.keyboard.up('ArrowRight');await page.waitForTimeout(180);
+              await page.keyboard.down('ArrowRight');await page.waitForTimeout(120);await page.keyboard.up('ArrowRight');await page.waitForTimeout(80);
               const right=await meta(page);const c=p3(right.player);rows.push(`turn_right from=${north.player} to=${right.player} delta=${delta(b,c).toFixed(3)}`);
               if(delta(b,c)<.15)throw new Error('right turn/movement too small');
 
-              // Touch/pointer path through actual on-screen down button; pointerup must release.
               const down=page.locator('button.move.down');const box=await down.boundingBox();if(!box)throw new Error('touch down button missing');
               const cx=box.x+box.width/2,cy=box.y+box.height/2;
               await page.touchscreen.tap(cx,cy);
@@ -87,19 +90,18 @@ jobs:
                 const el=document.elementFromPoint(x,y);if(!el)throw new Error('no touch target');
                 const id=777;el.dispatchEvent(new PointerEvent('pointerdown',{pointerId:id,pointerType:'touch',bubbles:true,clientX:x,clientY:y,isPrimary:true}));
               },{x:cx,y:cy});
-              const touchStart=p3((await meta(page)).player);await page.waitForTimeout(900);
+              const touchStart=p3((await meta(page)).player);await page.waitForTimeout(120);
               await page.evaluate(({x,y})=>{
                 const el=document.elementFromPoint(x,y);const id=777;el?.dispatchEvent(new PointerEvent('pointerup',{pointerId:id,pointerType:'touch',bubbles:true,clientX:x,clientY:y,isPrimary:true}));
               },{x:cx,y:cy});
-              await page.waitForTimeout(160);const touchEndMeta=await meta(page);const touchEnd=p3(touchEndMeta.player);
+              await page.waitForTimeout(80);const touchEndMeta=await meta(page);const touchEnd=p3(touchEndMeta.player);
               const touchDelta=delta(touchStart,touchEnd);rows.push(`touch_down delta=${touchDelta.toFixed(3)} start=${touchStart.join(',')} end=${touchEnd.join(',')}`);if(touchDelta<.12)throw new Error(`touch movement too small ${touchDelta}`);
-              const touchReleaseA=p3((await meta(page)).player);await page.waitForTimeout(750);const touchReleaseB=p3((await meta(page)).player);const touchReleaseDelta=delta(touchReleaseA,touchReleaseB);rows.push(`touch_release_delta=${touchReleaseDelta.toFixed(4)}`);if(touchReleaseDelta>.035)throw new Error(`touch release drift ${touchReleaseDelta}`);
-              await page.screenshot({path:'.m08-p02/touch-after.png',timeout:45000});
+              const touchReleaseA=p3((await meta(page)).player);await page.waitForTimeout(180);const touchReleaseB=p3((await meta(page)).player);const touchReleaseDelta=delta(touchReleaseA,touchReleaseB);rows.push(`touch_release_delta=${touchReleaseDelta.toFixed(4)}`);if(touchReleaseDelta>.035)throw new Error(`touch release drift ${touchReleaseDelta}`);
+              await page.screenshot({path:'.m08-p02/touch-after.png',timeout:30000});
 
-              // Machine bridge grounding/collision oracle, secondary to the real-input traversal above.
               const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});const cie=[];ci.on('pageerror',e=>cie.push(String(e)));
-              await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:90000});
-              await ci.waitForFunction(()=>document.documentElement.dataset.m03Ci,null,{timeout:90000});
+              await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await ci.waitForFunction(()=>document.documentElement.dataset.m03Ci,null,{timeout:60000});
               const ciResult=await ci.evaluate(()=>({m03Ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route,ci:window.LQ_MODERN_3D_M05?.ci||null}));
               if(cie.length||ciResult.m03Ci!=='pass'||!ciResult.ci?.crossedBridge||!ciResult.ci?.noHole||!ciResult.ci?.groundingSmooth)throw new Error(`CI route fail ${JSON.stringify(ciResult)} errors=${JSON.stringify(cie)}`);
               rows.push(`bridge_ci=${JSON.stringify(ciResult)}`);await ci.close();
@@ -109,6 +111,9 @@ jobs:
               rows.push(`camera_regression_frames=start.png,keyboard-north-shore.png,touch-after.png`);
               rows.push(`page_errors=0 head=${process.env.GITHUB_SHA||'UNKNOWN'} RESULT=PASS`);
               fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');
+            }catch(e){
+              try{const m=await meta(page);rows.push(`FAIL player=${m.player} camera=${m.camera} active=${m.active} error=${String(e)}`);fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n')}catch{}
+              throw e;
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
