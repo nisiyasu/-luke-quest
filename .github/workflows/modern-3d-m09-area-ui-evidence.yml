@@ -116,15 +116,15 @@ jobs:
           Path('.modern3d-m09/m09-evidence.txt').write_text('\n'.join(results)+'\nPASS\n')
           PY
 
-      - name: Prove HUD remains in runtime DOM
+      - name: Prove HUD remains in verified runtime DOM
         shell: bash
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           timeout 35s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=220 --dump-dom \
-            'http://127.0.0.1:8140/index.html?m08walk=1&m08steps=28' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
+            --virtual-time-budget=250 --dump-dom \
+            'http://127.0.0.1:8140/index.html?ci=1&m08proof=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
           grep -q 'id="status"' .modern3d-m09/dom.html
           grep -q 'class="objective panel"' .modern3d-m09/dom.html
           grep -q 'class="dpad"' .modern3d-m09/dom.html
@@ -132,6 +132,7 @@ jobs:
           grep -q '3D PROTOTYPE · DEMO HUD' .modern3d-m09/dom.html
           grep -q 'DISPLAY SAMPLE' .modern3d-m09/dom.html
           grep -q 'data-m08-ci="pass"' .modern3d-m09/dom.html
+          grep -q 'data-m08-proof-done="1"' .modern3d-m09/dom.html
 
       - name: Upload M09 evidence
         uses: actions/upload-artifact@v4
