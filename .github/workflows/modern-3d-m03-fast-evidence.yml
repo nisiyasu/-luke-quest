@@ -40,6 +40,7 @@ jobs:
           old='https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js'
           assert old in s, 'expected Three CDN importmap URL'
           p.write_text(s.replace(old,'./three.module.js',1))
+          Path('.modern3d-ci/viewport.html').write_text('''<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><pre id="v"></pre><script>const r=document.documentElement;document.querySelector('#v').textContent=JSON.stringify({innerWidth,innerHeight,outerWidth,outerHeight,clientWidth:r.clientWidth,clientHeight:r.clientHeight,screenWidth:screen.width,screenHeight:screen.height,availWidth:screen.availWidth,availHeight:screen.availHeight,webdriver:navigator.webdriver});</script>''')
           PY
           grep -q '"three":"./three.module.js"' .modern3d-ci/index.html
       - name: Start prototype server
@@ -50,6 +51,17 @@ jobs:
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
           curl -fsS http://127.0.0.1:8140/three.module.js >/dev/null
           curl -fsS http://127.0.0.1:8140/three.core.js >/dev/null
+      - name: Measure canonical headless viewport
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          mkdir -p .modern3d-fast
+          timeout 30s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=390,844 --force-device-scale-factor=1 --dump-dom \
+            'http://127.0.0.1:8140/viewport.html' > .modern3d-fast/viewport-dom.html 2>.modern3d-fast/viewport-stderr.log
+          sed -n 's#.*<pre id="v">\(.*\)</pre>.*#HEADLESS_VIEWPORT=\1#p' .modern3d-fast/viewport-dom.html | tee .modern3d-fast/viewport.txt
+          test -s .modern3d-fast/viewport.txt
       - name: Verify traversal state with bootstrap retry
         shell: bash
         run: |
@@ -107,6 +119,9 @@ jobs:
             .modern3d-fast/dom.html
             .modern3d-fast/route.txt
             .modern3d-fast/chrome-stderr.log
+            .modern3d-fast/viewport-dom.html
+            .modern3d-fast/viewport-stderr.log
+            .modern3d-fast/viewport.txt
             .modern3d-fast/m03-390x844.png
             .modern3d-fast/m03-864x1536.png
             /tmp/modern3d-fast-http.log
