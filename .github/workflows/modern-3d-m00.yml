@@ -78,7 +78,7 @@ jobs:
           grep -q 'data-m04-target-inspection="ready"' .modern3d/m04-target-dom.html
           grep -q 'data-current-asset="conifer_natural_v2@2.1.0"' .modern3d/m04-target-dom.html
           grep -q 'data-previous-candidate="conifer_target_v3@3.0.0"' .modern3d/m04-target-dom.html
-          grep -q 'data-candidate-asset="conifer_target_v31@3.5.0"' .modern3d/m04-target-dom.html
+          grep -q 'data-candidate-asset="conifer_target_v31@3.7.0"' .modern3d/m04-target-dom.html
           timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=1200 --dump-dom \
@@ -154,7 +154,7 @@ jobs:
             echo '- M03 traversal/collision regression: PASS (practical functional preset)'
             echo '- M04 baseline production asset family manifest: PASS'
             echo '- M04 baseline shared-light inspection runtime: PASS'
-            echo '- M04 target-conifer v3.5.0 three-way inspection runtime: PASS'
+            echo '- M04 target-conifer v3.7.0 three-way inspection runtime: PASS'
             echo '- M04/M07 target-water current shared-light inspection runtime: PASS'
             echo '- M04 target asset integration in actual game scene: PASS'
             echo '- canonical C1 390x844 high running frame: CAPTURED'
