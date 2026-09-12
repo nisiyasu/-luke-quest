@@ -1,0 +1,67 @@
+name: Modern 3D Preview Sync
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - "prototypes/modern-3d/**"
+      - ".github/workflows/modern-3d-preview-sync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: modern-3d-preview-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout latest Modern 3D source
+        uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          path: source
+
+      - name: Sync playable preview snapshot
+        shell: bash
+        run: |
+          rm -rf site/preview/modern-3d
+          mkdir -p site/preview/modern-3d
+          rsync -a --delete --exclude='.git' source/prototypes/modern-3d/ site/preview/modern-3d/
+
+      - name: Commit preview if changed
+        id: commit
+        working-directory: site
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add preview/modern-3d
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Preview already matches the source branch."
+            exit 0
+          fi
+          git commit -m "chore(preview): sync Modern 3D ${GITHUB_SHA::7}"
+          git push origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        working-directory: site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: gh workflow run pages.yml --ref main
