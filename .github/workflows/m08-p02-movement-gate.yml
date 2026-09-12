@@ -1,3 +1,4 @@
+# evidence retrigger after guarded runtime hook insertion
 name: M08-P02 Movement Collision Camera Gate
 
 on:
