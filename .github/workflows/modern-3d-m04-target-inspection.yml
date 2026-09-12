@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   capture:
@@ -24,6 +24,48 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: One-shot apply M04 v50 narrow trail repair
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          if 'v50 M04 terrain regate' in s:
+              print('v50 trail repair already applied; no mutation needed')
+              raise SystemExit(0)
+          old="const pathMat=new THREE.MeshStandardMaterial({color:0xb79a61,roughness:1});"
+          new="function makePathTexture(seed=811){let s=seed>>>0;const rand=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle='#9f8758';x.fillRect(0,0,256,256);for(let i=0;i<130;i++){const px=rand()*256,py=rand()*256,rx=5+rand()*24,ry=2+rand()*8;x.fillStyle=i%5===0?'rgba(72,65,44,.17)':i%3===0?'rgba(193,164,94,.20)':'rgba(118,100,62,.18)';x.beginPath();x.ellipse(px,py,rx,ry,rand()*Math.PI,0,Math.PI*2);x.fill()}for(let i=0;i<1100;i++){const v=rand();x.fillStyle=v<.22?'rgba(61,58,43,.26)':v>.86?'rgba(226,205,135,.20)':'rgba(145,123,78,.20)';x.fillRect(rand()*256,rand()*256,.5+rand()*1.6,.5+rand()*1.1)}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2.4,5.2);t.anisotropy=4;return t}const pathMat=new THREE.MeshStandardMaterial({color:0xffffff,map:makePathTexture(),roughness:1});"
+          if old not in s: raise SystemExit('expected v49 path material marker missing; fail closed')
+          s=s.replace(old,new,1)
+          old2="""pathPatch([[-2.6,-2.2],[-.3,-2.1],[-2.2,-5.1],[-5.0,-7.6],[-6.7,-10.8],[-5.7,-14.8],[-8.2,-14.6],[-9.0,-10.1],[-7.3,-6.5],[-4.7,-3.8]],1.04);
+pathPatch([[-2.5,4.1],[-.2,4.0],[.1,6.2],[-.8,8.6],[-2.5,11.2],[-3.7,14.9],[-6.0,14.7],[-4.3,10.1],[-2.8,7.0]],-.25);
+pathRibbon([[-1.35,-2.0],[-2.0,-3.6],[-3.4,-5.1],[-2.7,-6.8],[-1.4,-8.5],[-2.2,-10.4]],.72,1.13);pathRibbon([[-2.2,-10.35],[-1.0,-11.2],[.2,-12.1],[1.0,-13.0]],.64,2.28);pathRibbon([[-1.35,6.0],[-.75,7.8],[-1.8,9.8],[-.55,12.0],[-1.35,15.4]],1.08,-.20);"""
+          new2="""// v50 M04 terrain regate: replace broad triangular placeholder slabs with authored narrow dirt trails.
+pathRibbon([[-1.35,-2.0],[-2.0,-3.2],[-3.1,-4.5],[-3.8,-5.8],[-3.0,-7.0],[-1.7,-8.5],[-2.1,-10.2]],.68,1.13);
+pathRibbon([[-2.15,-10.2],[-1.35,-11.0],[-.6,-11.65],[.15,-12.35],[.85,-13.05]],.58,2.29);
+pathRibbon([[-1.35,6.0],[-.95,7.2],[-1.55,8.6],[-1.95,9.9],[-1.15,11.1],[-.55,12.2],[-1.05,13.7],[-1.35,15.35]],.74,-.20);
+// Small irregular widening pads preserve route readability without forming giant polygonal beige fields.
+pathPatch([[-2.25,-3.55],[-1.25,-3.3],[-1.45,-4.15],[-2.65,-4.35]],1.125);
+pathPatch([[-1.85,9.25],[-.75,9.05],[-.60,10.0],[-1.75,10.25]],-.195);"""
+          if old2 not in s: raise SystemExit('expected v49 broad path block missing; fail closed')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+          if git diff --quiet -- prototypes/modern-3d/index.html; then
+            echo 'No source diff to commit'
+          else
+            grep -q 'v50 M04 terrain regate' prototypes/modern-3d/index.html
+            grep -q 'makePathTexture(seed=811)' prototypes/modern-3d/index.html
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add prototypes/modern-3d/index.html
+            git commit -m 'feat(modern-3d): replace broad path slabs with narrow textured trails'
+            git push origin HEAD:prototype/modern-3d
+          fi
       - name: Start prototype server
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m04-target-http.log 2>&1 &
