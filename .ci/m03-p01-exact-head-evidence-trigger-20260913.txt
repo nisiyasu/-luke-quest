@@ -1,0 +1,3 @@
+Purpose: trigger fresh exact-HEAD runtime evidence after M03-P01 landscape macro camera repair.
+Source implementation: 048e77cc1fc543de629349057e0cf9aa74e0272a
+Packet: M03-P01 #29
