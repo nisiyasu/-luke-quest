@@ -1,0 +1,3 @@
+M03 owner quality regate v47 evidence trigger.
+Source implementation parent: bf8d8dff93ad240678df77668fee261e0000c49e
+Purpose: trigger fresh runtime screenshot/evidence workflows after bridge-world continuity repair.
