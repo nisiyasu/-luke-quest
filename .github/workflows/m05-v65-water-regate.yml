@@ -1,0 +1,55 @@
+name: M05 Water Quality Regate v65
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m05-v65-water-regate.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Lift water color and break four-edge geometry read
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/m04-water-target-v3.js')
+          s=p.read_text()
+          reps={
+            "uDeep:{value:new THREE.Color(0x075978)}":"uDeep:{value:new THREE.Color(0x08708f)}",
+            "uMid:{value:new THREE.Color(0x1289aa)}":"uMid:{value:new THREE.Color(0x18a5bf)}",
+            "uShallow:{value:new THREE.Color(0x65c8cb)}":"uShallow:{value:new THREE.Color(0x76d9d3)}",
+            "uSky:{value:new THREE.Color(0xa3c0c7)}":"uSky:{value:new THREE.Color(0xb5d2d6)}",
+            "uSparkleStrength:{value:practical?.48:.76}":"uSparkleStrength:{value:practical?.52:.90}",
+            "uCausticStrength:{value:practical?.23:.40}":"uCausticStrength:{value:practical?.27:.54}",
+            "uFoamStrength:{value:practical?.72:1.10}":"uFoamStrength:{value:practical?.78:1.34}",
+            "bankJitter=.022*sin(alongCoord*19.0+1.7)+.015*sin(alongCoord*43.0+4.1)+.009*sin(alongCoord*91.0);float edge=min(crossCoord,1.-crossCoord)-bankJitter;if(edge<.006)discard;float shore=1.-smoothstep(.020,.145,edge);float basin=smoothstep(.01,.49,min(crossCoord,1.-crossCoord));":"bankJitter=.032*sin(alongCoord*19.0+1.7)+.020*sin(alongCoord*43.0+4.1)+.010*sin(alongCoord*91.0);float endJitter=.026*sin(crossCoord*17.0+2.4)+.014*sin(crossCoord*39.0+5.1);float crossEdge=min(crossCoord,1.-crossCoord)-bankJitter;float alongEdge=min(alongCoord,1.-alongCoord)-endJitter;if(crossEdge<.010||alongEdge<.012)discard;float shoreCross=1.-smoothstep(.020,.155,crossEdge);float shoreEnd=1.-smoothstep(.020,.145,alongEdge);float shore=max(shoreCross,shoreEnd);float basin=smoothstep(.012,.49,min(crossCoord,1.-crossCoord));",
+            "float caustic=pow(ca1*ca2,2.8)*(1.-basin)*uCausticStrength;float depthMix":"float caustic=pow(ca1*ca2,2.8)*(1.-basin)*uCausticStrength;float flowRibbon=pow(.5+.5*sin(alongCoord*63.0+sin(crossCoord*22.0)*2.4-uTime*1.45),9.0)*(0.22+0.78*basin);float depthMix",
+            "c=mix(c,vec3(.96,1.0,1.0),min(.62,(spark*.58+lace*.24)*uSparkleStrength+foam*.44));":"c=mix(c,vec3(.96,1.0,1.0),min(.66,(spark*.58+lace*.24)*uSparkleStrength+foam*.48));c=mix(c,vec3(.78,.98,1.0),flowRibbon*.20);",
+            "version:'3.11.0'":"version:'3.12.0'",
+            "v3.11 removes the near-black basin read visible in integrated portrait evidence":"v3.12 brightens the basin, clips all four plane edges with deterministic meander, and adds directional flow-ribbon breakup so integrated water no longer reads as a dark rectangular shader panel"
+          }
+          for old,new in reps.items():
+            if old not in s: raise SystemExit(f'missing token: {old[:100]}')
+            s=s.replace(old,new)
+          p.write_text(s)
+          PY
+          git diff --check
+          grep -q "version:'3.12.0'" prototypes/modern-3d/m04-water-target-v3.js
+          grep -q 'alongEdge' prototypes/modern-3d/m04-water-target-v3.js
+          grep -q 'flowRibbon' prototypes/modern-3d/m04-water-target-v3.js
+      - name: Commit v65 water repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/m04-water-target-v3.js
+          git commit -m "fix(m05): brighten and organicize water surface [m05-v65]"
+          git push origin HEAD:prototype/modern-3d
