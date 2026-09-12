@@ -46,7 +46,7 @@ jobs:
           grep -q 'data-m04-bank-inspection="ready"' .m04-target/bank-dom.html
           grep -q 'data-current-asset="layered_bank_v2@2.1.0"' .m04-target/bank-dom.html
           grep -q 'data-previous-candidate="bank_target_v3@3.0.0"' .m04-target/bank-dom.html
-          grep -q 'data-candidate-asset="bank_target_v4@4.5.0"' .m04-target/bank-dom.html
+          grep -q 'data-candidate-asset="bank_target_v4@4.6.0"' .m04-target/bank-dom.html
           timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1200,900 --virtual-time-budget=2200 --screenshot=.m04-target/m04-bank-1200x900.png 'http://127.0.0.1:8140/m04-bank-inspection.html'
           test -s .m04-target/m04-bank-1200x900.png
           timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1200,900 --virtual-time-budget=2200 --dump-dom 'http://127.0.0.1:8140/m04-water-inspection.html' > .m04-target/water-dom.html 2>.m04-target/water-stderr.log
