@@ -1,0 +1,61 @@
+name: M04-P02 Terrain Authority Sync
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m04-p02-terrain-authority-sync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Sync bank manifest and inspection to actual v4.7 source
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          mp=Path('prototypes/modern-3d/ASSET_MANIFEST.json')
+          data=json.loads(mp.read_text())
+          data['active_target_set']['bank']='bank_target_v4@4.7.0'
+          for a in data['assets']:
+            if a.get('id')=='bank_target_v4':
+              a['version']='4.7.0'
+              a['features']=[
+                'continuous irregular four-edge organic top silhouette',
+                'multi-row macro-relief grass heightfield',
+                '512px multi-scale forest-floor grass/soil/leaf color breakup',
+                'dense instanced bank-top grass tufts with controlled variation',
+                'clustered exposed-soil top patches and flower/leaf islands',
+                'four staggered smoother overlapping rock terrace bands',
+                'higher-subdivision deformed multi-tone rocks',
+                'fern lip and embedded top stones',
+                'micro pebble breakup and shoreline toe rubble',
+                'moss shelves and exposed roots'
+              ]
+              a['note']='v4.7 active M04-P02 source removes pale-lawn/repeated-spike reads while preserving accepted M03 world silhouette and collision-neutral placement.'
+          mp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+
+          p=Path('prototypes/modern-3d/m04-bank-inspection.html')
+          s=p.read_text()
+          s=s.replace('bank_target_v4.6 four-edge heightfield + microdetail + shoreline finish','bank_target_v4.7 forest-floor breakup + four-edge cliff + shoreline finish')
+          s=s.replace("document.documentElement.dataset.candidateAsset='bank_target_v4@4.6.0'","document.documentElement.dataset.candidateAsset='bank_target_v4@4.7.0'")
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/ASSET_MANIFEST.json prototypes/modern-3d/m04-bank-inspection.html
+      - name: Commit authority sync
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/ASSET_MANIFEST.json prototypes/modern-3d/m04-bank-inspection.html
+          git commit -m "chore(m04-p02): sync terrain source authority"
+          git push origin HEAD:prototype/modern-3d
