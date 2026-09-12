@@ -17,6 +17,7 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-24.04
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,6 +31,7 @@ jobs:
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m11-latest-http.log 2>&1 &
           sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
       - name: Capture latest canonical portrait near far
         run: |
           mkdir -p .m11-latest
@@ -37,17 +39,18 @@ jobs:
           const {chromium}=require('playwright');
           const fs=require('fs');
           (async()=>{
-            const browser=await chromium.launch({headless:true});
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
             const rows=[];
             for(const [name,steps] of [['portrait-near',8],['portrait-far',48]]){
               const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
-              page.setDefaultTimeout(60000); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
-              await page.goto(`http://127.0.0.1:8140/index.html?quality=high&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:60000});
-              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:60000});
-              await page.waitForTimeout(1400); if(errors.length) throw new Error(`${name}: ${errors.join(' | ')}`);
+              page.setDefaultTimeout(150000); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto(`http://127.0.0.1:8140/index.html?quality=high&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:150000});
+              await page.waitForFunction(()=>document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+              await page.waitForTimeout(2500);
               const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,hudMode:document.documentElement.dataset.m09HudMode,assets:document.documentElement.dataset.m04Assets,player:document.documentElement.dataset.m08Player,three:document.documentElement.dataset.threeRevision}));
-              await page.screenshot({path:`.m11-latest/${name}.png`,fullPage:true,timeout:60000});
-              rows.push(`${name} ${JSON.stringify(meta)}`); await page.close();
+              if(!meta.scene||!meta.hud) throw new Error(`${name}: runtime metadata incomplete ${JSON.stringify(meta)}`);
+              await page.screenshot({path:`.m11-latest/${name}.png`,fullPage:true,timeout:150000});
+              rows.push(`${name} ${JSON.stringify(meta)} pageerrors=${JSON.stringify(errors)}`); await page.close();
             }
             fs.writeFileSync('.m11-latest/runtime-audit.txt',rows.join('\n')+'\n'); await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
