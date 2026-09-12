@@ -32,27 +32,54 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m11-latest-http.log 2>&1 &
           sleep 2
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Capture latest canonical portrait near far
+      - name: Capture exact-head portrait landscape and traversal evidence
         run: |
           mkdir -p .m11-latest
           cat > capture-m11-latest.cjs <<'JS'
           const {chromium}=require('playwright');
           const fs=require('fs');
+          const parsePlayer=(s)=>s.split(',').map(Number);
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
             const rows=[];
-            for(const [name,steps] of [['portrait-near',8],['portrait-far',48]]){
-              const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const captures=[];
+            const configs=[
+              ['portrait-near',{width:390,height:844},8],
+              ['portrait-far',{width:390,height:844},48],
+              ['landscape-near',{width:844,height:390},8],
+              ['landscape-far',{width:844,height:390},48],
+            ];
+            for(const [name,viewport,steps] of configs){
+              const page=await browser.newPage({viewport,deviceScaleFactor:1});
               page.setDefaultTimeout(150000); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
               await page.goto(`http://127.0.0.1:8140/index.html?quality=high&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:150000});
               await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
               await page.waitForTimeout(1800);
-              const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,hudMode:document.documentElement.dataset.m09HudMode,assets:document.documentElement.dataset.m04Assets,player:document.documentElement.dataset.m08Player,three:document.documentElement.dataset.threeRevision}));
+              const meta=await page.evaluate(()=>({
+                scene:document.documentElement.dataset.lqModern3d,
+                hud:document.documentElement.dataset.m09OwnerHud,
+                hudMode:document.documentElement.dataset.m09HudMode,
+                assets:document.documentElement.dataset.m04Assets,
+                player:document.documentElement.dataset.m08Player,
+                three:document.documentElement.dataset.threeRevision,
+                cameraProfile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'
+              }));
               if(meta.scene!=='m05-ready'||meta.hud!=='pass'||errors.length) throw new Error(`${name}: runtime invalid meta=${JSON.stringify(meta)} errors=${JSON.stringify(errors)}`);
               await page.screenshot({path:`.m11-latest/${name}.png`,fullPage:true,timeout:150000});
-              rows.push(`${name} ${JSON.stringify(meta)} pageerrors=[]`); await page.close();
+              rows.push(`${name} ${JSON.stringify(meta)} pageerrors=[]`);
+              captures.push({name,viewport,steps,meta});
+              await page.close();
             }
-            fs.writeFileSync('.m11-latest/runtime-audit.txt',rows.join('\n')+'\n'); await browser.close();
+            for(const prefix of ['portrait','landscape']){
+              const near=captures.find(x=>x.name===`${prefix}-near`);
+              const far=captures.find(x=>x.name===`${prefix}-far`);
+              const a=parsePlayer(near.meta.player), b=parsePlayer(far.meta.player);
+              const dist=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);
+              if(!Number.isFinite(dist)||dist<1.0) throw new Error(`${prefix}: traversal regression distance=${dist}`);
+              rows.push(`${prefix}-traversal PASS distance=${dist.toFixed(3)} near=${near.meta.player} far=${far.meta.player}`);
+            }
+            fs.writeFileSync('.m11-latest/runtime-audit.txt',rows.join('\n')+'\n');
+            await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node capture-m11-latest.cjs
