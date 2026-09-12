@@ -63,13 +63,13 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           mkdir -p .modern3d-m09
           profile="$(mktemp -d)"
-          timeout 90s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 100s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --disable-background-networking --disable-component-update --disable-sync \
             --no-first-run --no-default-browser-check --metrics-recording-only \
             --user-data-dir="$profile" --enable-webgl --ignore-gpu-blocklist \
             --use-angle=swiftshader --enable-unsafe-swiftshader \
             --window-size="${{ matrix.size }}" --force-device-scale-factor=1 \
-            --virtual-time-budget=2600 \
+            --virtual-time-budget=6000 \
             --screenshot=".modern3d-m09/${{ matrix.name }}.png" \
             "http://127.0.0.1:8140/index.html?quality=practical&ci=1&m08walk=1&m08steps=${{ matrix.steps }}"
           rm -rf "$profile"
@@ -101,7 +101,7 @@ jobs:
             --no-first-run --no-default-browser-check --metrics-recording-only \
             --user-data-dir="$profile" --enable-webgl --ignore-gpu-blocklist \
             --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=1200 --dump-dom \
+            --virtual-time-budget=3000 --dump-dom \
             'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
           rm -rf "$profile"
           grep -q 'data-lq-modern3d="m05-ready"' .modern3d-m09/dom.html
@@ -135,21 +135,49 @@ jobs:
           pattern: m09-capture-*-${{ github.sha }}
           path: .modern3d-m09
           merge-multiple: true
-      - name: Validate captures
+      - name: Install image analysis dependency
+        run: python3 -m pip install --disable-pip-version-check --quiet pillow
+      - name: Validate captures and reject blank world renders
         shell: bash
         run: |
           set -euo pipefail
           for f in portrait-near portrait-far landscape-near landscape-far; do test -s ".modern3d-m09/$f.png"; done
           python3 - <<'PY'
           from pathlib import Path
-          import hashlib
+          import hashlib, statistics
+          from PIL import Image
+
           root=Path('.modern3d-m09')
           names=['portrait-near.png','portrait-far.png','landscape-near.png','landscape-far.png']
           rows=[]
           for n in names:
-              b=(root/n).read_bytes(); assert len(b)>15000 and b[:8]==b'\x89PNG\r\n\x1a\n'
-              rows.append(f'{n} bytes={len(b)} sha256={hashlib.sha256(b).hexdigest()}')
-          (root/'m09-evidence.txt').write_text('\n'.join(rows)+'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=MAP_FIRST_V63\nSTATIC_VIEWPORT_CAPTURE=PASS\nPOSITION_VARIATION=NOT_ASSERTED_IN_STATIC_UI_JOB\nMULTI_VIEWPORT=PASS\n')
+              p=root/n
+              b=p.read_bytes()
+              assert len(b)>15000 and b[:8]==b'\x89PNG\r\n\x1a\n', f'{n}: invalid PNG transport'
+              im=Image.open(p).convert('RGB')
+              w,h=im.size
+              # Exclude most HUD/control chrome and inspect the world-dominant center region.
+              crop=im.crop((int(w*.08), int(h*.15), int(w*.92), int(h*.82)))
+              pixels=list(crop.getdata())
+              gray=[(r+g+b)/(3*255.0) for r,g,b in pixels]
+              std=statistics.pstdev(gray)
+              unique=len(set(pixels))
+              lo=sorted(gray)[max(0,int(len(gray)*.05)-1)]
+              hi=sorted(gray)[min(len(gray)-1,int(len(gray)*.95))]
+              dynamic=hi-lo
+              # A valid game-world frame must contain substantial non-uniform visual information.
+              # Previous false-positive blank frame was std=0, unique=1 in this same ROI.
+              assert std >= 0.025, f'{n}: WORLD_RENDER_BLANK std={std:.6f}'
+              assert unique >= 128, f'{n}: WORLD_RENDER_BLANK unique_colors={unique}'
+              assert dynamic >= 0.08, f'{n}: WORLD_RENDER_LOW_DYNAMIC_RANGE p95-p05={dynamic:.6f}'
+              rows.append(f'{n} bytes={len(b)} sha256={hashlib.sha256(b).hexdigest()} world_std={std:.6f} world_unique={unique} world_dynamic={dynamic:.6f}')
+
+          (root/'m09-evidence.txt').write_text(
+              '\n'.join(rows)
+              +'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=MAP_FIRST_V63\n'
+              +'STATIC_VIEWPORT_CAPTURE=PASS\nWORLD_RENDER_NONBLANK=PASS\n'
+              +'POSITION_VARIATION=NOT_ASSERTED_IN_STATIC_UI_JOB\nMULTI_VIEWPORT=PASS\n'
+          )
           PY
       - uses: actions/upload-artifact@v4
         with:
