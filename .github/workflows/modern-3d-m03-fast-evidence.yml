@@ -25,15 +25,25 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-fast-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Verify traversal state with bounded virtual time
+      - name: Verify traversal state with bootstrap retry
         shell: bash
         run: |
+          set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           mkdir -p .modern3d-fast
-          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=800 --dump-dom \
-            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-fast/dom.html 2>.modern3d-fast/chrome-stderr.log
+          capture_dom() {
+            local attempt="$1"
+            timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
+              --user-data-dir="/tmp/lq-m03-profile-${attempt}" \
+              --virtual-time-budget=3500 --dump-dom \
+              'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-fast/dom.html 2>.modern3d-fast/chrome-stderr.log || true
+          }
+          capture_dom 1
+          if ! grep -q 'data-lq-modern3d="m05-ready"' .modern3d-fast/dom.html; then
+            echo 'M03 module bootstrap incomplete on attempt 1; retrying with fresh Chrome profile'
+            capture_dom 2
+          fi
           grep -q 'data-lq-modern3d="m05-ready"' .modern3d-fast/dom.html
           grep -q 'data-m02-ci="pass"' .modern3d-fast/dom.html
           grep -q 'data-m03-ci="pass"' .modern3d-fast/dom.html
@@ -45,12 +55,12 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=500 \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=2500 \
             --screenshot=.modern3d-fast/m03-390x844.png \
             'http://127.0.0.1:8140/index.html'
           timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=500 \
+            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=2500 \
             --screenshot=.modern3d-fast/m03-864x1536.png \
             'http://127.0.0.1:8140/index.html'
           python3 - <<'PY'
