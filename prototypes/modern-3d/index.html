@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>LUKE QUEST Modern 3D â€” M03 Composition Rebuild v40</title>
+<title>LUKE QUEST Modern 3D â€” M03 Composition Rebuild v41</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07130d;color:#fff;font-family:system-ui,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:10;background:linear-gradient(180deg,#071019e6,#0c1720c7);border:1px solid #d7b45f;border-radius:9px;box-shadow:0 3px 16px #0007}#status{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:11px}#status b,.objective b{color:#f0d177}.objective{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:10px;color:#f2ead4}.hp{margin-top:4px;width:72px;height:5px;border:1px solid #bfa65d;background:#18232a;border-radius:3px;overflow:hidden}.hp:after{content:"";display:block;width:82%;height:100%;background:#65c575}#loading{inset:0;display:grid;place-items:center;background:#07130d;z-index:40;position:fixed}#error{display:none;left:12px;right:12px;top:42%;padding:12px;color:#ffb9b9;border-color:#e06b6b}.dpad{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:118px;height:118px;z-index:20;opacity:.58}.move{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid #c5d0d2aa;background:#10242c73;color:#fff;font-size:17px}.up{left:37px;top:0}.down{left:37px;bottom:0}.left{left:0;top:37px}.right{right:0;top:37px}#hint{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:10;font-size:10px;padding:7px 9px;background:#071019b8;border:1px solid #d7b45f80;border-radius:8px}#ci-evidence{display:none}.demo-tag{display:block;margin-top:3px;font-size:8px;letter-spacing:.08em;color:#d9d1b9;opacity:.82}.hp-label{display:block;margin-top:4px;font-size:8px;color:#cfc7b3;opacity:.78}@media (max-height:480px){#status,.objective{padding:5px 7px;font-size:9px}.objective{max-width:132px}.dpad{width:96px;height:96px;bottom:max(8px,env(safe-area-inset-bottom))}.move{width:38px;height:38px;font-size:14px}.up,.down{left:29px}.left,.right{top:29px}#hint{bottom:max(8px,env(safe-area-inset-bottom));font-size:8px;padding:5px 7px}}
@@ -57,59 +57,4 @@ const nearMassSideMat=new THREE.MeshStandardMaterial({color:0x564b39,roughness:1
 function nearFieldMass(x,z,radius,height,ry=0){const geo=new THREE.CylinderGeometry(radius*.84,radius,height,7,1,false);const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);mesh.position.set(x,-.28+height/2,z);mesh.rotation.y=ry;mesh.receiveShadow=true;mesh.castShadow=true;scene.add(mesh);return mesh}
 nearFieldMass(-6.15,11.6,4.25,1.25,.18);nearFieldMass(4.85,12.0,3.65,.95,-.14);nearFieldMass(-5.2,7.7,2.75,.85,.31);nearFieldMass(7.4,7.8,3.45,1.08,-.18);nearFieldMass(-8.0,7.2,3.35,1.02,.16);
 const waterMain=createTargetWaterV3({width:30,depth:6.2,seed:311});waterMain.position.set(-1.0,.02,1.0);scene.add(waterMain);
-const waterLower=createTargetWaterV3({width:7.2,depth:17.5,seed:317});waterLower.position.set(-1.35,.04,8.8);scene.add(waterLower);
-const waterUpperRight=createTargetWaterV3({width:7.0,depth:19,seed:331});waterUpperRight.position.set(7.2,.05,-8.3);waterUpperRight.rotation.y=-.34;scene.add(waterUpperRight);
-function bridgeAt(x,z,ry=0,shadow=true){const b=createProductionBridge();b.position.set(x,.05,z);b.rotation.y=ry;if(!shadow)b.traverse(n=>{if(n.isMesh)n.castShadow=false});scene.add(b);return b}
-const bridgeMain=bridgeAt(-1.35,1.1,0,true);const bridgeRight=bridgeAt(4.9,-4.7,Math.PI/2-.16,false);
-const pathMat=new THREE.MeshStandardMaterial({color:0xb79a61,roughness:1});
-const landingTopMat=new THREE.MeshStandardMaterial({color:0x8d8a6e,roughness:.98,metalness:0});const landingSideMat=new THREE.MeshStandardMaterial({color:0x5f6255,roughness:1,metalness:0});function bridgeLanding(zDeck,zLand,yDeck,yLand){const x0=-1.35,w=4.05,half=w/2,bottom=Math.min(yDeck,yLand)-.46;const verts=[x0-half,yDeck,zDeck,x0+half,yDeck,zDeck,x0+half,yLand,zLand,x0-half,yLand,zLand,x0-half,bottom,zDeck,x0+half,bottom,zDeck,x0+half,bottom,zLand,x0-half,bottom,zLand];const idx=[0,1,2,0,2,3,4,6,5,4,7,6,0,4,5,0,5,1,3,2,6,3,6,7,0,3,7,0,7,4,1,5,6,1,6,2];const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const ramp=new THREE.Mesh(geo,landingTopMat);ramp.receiveShadow=true;ramp.castShadow=true;scene.add(ramp);const supportLen=Math.abs“[™^‘XÚÊKİ\Ü[™]È‘QK“Y\Ú
-™]È‘QK›ŞÙ[ÛY]JÊËŒ‹ŒÍ‹İ\Ü[ŠËŒN
-K[™[™ÔÚYSX]
-NÜİ\ÜœÜÚ][Û‹œÙ]
-›İÛJËŒK
-‘XÚÊŞ“[™
-KÌŠNÜİ\Üœ™XÙZ]™TÚYİÏ]YNÜİ\Ü˜Ø\İÚYİÏ]YNÜØÙ[™K˜Y
-İ\Ü
-NÙ›ÜŠÛÛœİŞÙ–ËLKWJ^ØÛÛœİXÜ™X]T›ØÚĞÛ\İ\ŠÜÙYYÌ
-ÓX]œ›İ[™
-
-“[™
-ÌŒ
-JŒÌJJÊŞŒÌLNŒ
-KØØ[N‹JNÜ‹œÜÚ][Û‹œÙ]
-
-ÜŞ
-Œ‹ŒKX]›Z[ŠQXÚËS[™
-KKŒ
-‘XÚÊŞ“[™
-KÌŠNÜØÙ[™K˜Y
-Š_\™]\›ˆ˜[\B˜œšYÙS[™[™ÊL‹ŒMŒKKŒ
-NØœšYÙS[™[™Ê‹ŒL‹KŒ
-NÂ™[˜İ[Ûˆ]Ú]Ú
-Ú[ËJ^ØÛÛœİÙ[Ï[™]È‘QKY™™\‘Ù[ÛY]J
-K™\ÏV×NÙ›ÜŠÛÛœİŞ—HÙˆÚ[Ê]™\Ëœ\Ú
-K–JNØÛÛœİYV×NÙ›ÜŠ]OLNÚOÚ[Ë›[™İLNÚJÊÊZYœ\Ú
-KJÌJNÙÙ[ËœÙ]]šX]J	ÜÜÚ][Û‰Ë™]È‘QK‘›Ø]ÌY™™\]šX]J™\ËÊJNÙÙ[ËœÙ][™^
-Y
-NÙÙ[Ë˜ÛÛ\]U™\^›Ü›X[Ê
-NØÛÛœİO[™]È‘QK“Y\Ú
-Ù[Ë]X]
-NÛKœ™XÙZ]™TÚYİÏ]YNÜØÙ[™K˜Y
-J_B™[˜İ[Ûˆ]šX˜›ÛŠÚ[ËÚYKMKOLKŒ
-^ØÛÛœİ™\ÏV×KYV×NÙ›ÜŠ]OLÚOÚ[Ë›[™İÚJÊÊ^ØÛÛœİŞ—O\Ú[ÖÚWK™]\Ú[ÖÓX]›X^
-KLJWK™^\Ú[ÖÓX]›Z[ŠÚ[Ë›[™İLKJÌJWNØÛÛœİ[™^ÌK\™]–ÌK[™^ÌWK\™]–ÌWK[SX]š\İ
-Š_KKY‹Û[‹YÛ[‹Ï]ÚY
-ŠOOOLOOO\Ú[Ë›[™İLOËÎŒJNİ™\Ëœ\Ú
-
-Û
-ËK–ŠŞ[
-ËKŠÛœ‹›Š‹LJJKYœ\Ú
-JšKJšJÌK
-JÌJJŒŠJ_XÛÛœİÙ[Ï[™]È‘QKY™™\‘Ù[ÛY]J
-NÙÙ[ËœÙ]]šX]J	ÜÜÚ][Û‰Ë™]È‘QK‘›Ø]ÌY™™\]šX]J™\ËÊJNÙÙ[ËœÙ][™^
-Y
-NÙÙ[Ë˜ÛÛ\]U™\^›Ü›X[Ê
-NØÛÛœİO[™]È‘QK“Y\Ú
-Ù[Ë]X]
-NÛKœ™XÙZ]™TÚYİÏ]YNÜØÙ[™K˜Y
-JNÜ™]\›ˆ_
+const wa
