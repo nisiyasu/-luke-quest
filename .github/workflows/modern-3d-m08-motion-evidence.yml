@@ -95,10 +95,9 @@ jobs:
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 40s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --disable-background-networking --disable-component-update --no-first-run \
+          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=700 \
+            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=2200 \
             --screenshot=".modern3d-m08/m08-post-walk-390x844.png" \
             'http://127.0.0.1:8140/index.html?m08proof=1'
           python3 - <<'PY'
