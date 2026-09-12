@@ -1,0 +1,139 @@
+name: M10-P01 HQ vs Practical Profile Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m10-p01-profile-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  profile-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install browser harness
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m10-p01.log 2>&1 &
+          sleep 2
+
+      - name: Measure HQ and practical profiles on identical path
+        run: |
+          mkdir -p .m10-p01
+          cat > m10-profile.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          const assert=require('assert');
+
+          const PROFILES=[
+            {name:'high',query:'quality=high&m10dpr=3'},
+            {name:'practical',query:'quality=practical&m10dpr=3'}
+          ];
+          const VIEW={width:390,height:844};
+          const inside=(b,w,h)=>b&&b.x>=-1&&b.y>=-1&&b.x+b.width<=w+1&&b.y+b.height<=h+1;
+          const percentile=(a,p)=>{const s=[...a].sort((x,y)=>x-y);return s[Math.min(s.length-1,Math.max(0,Math.ceil(p*s.length)-1))]||0};
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const summary={head:process.env.GITHUB_SHA||'UNKNOWN',runner:'GitHub-hosted ubuntu-24.04 / headless Chromium / SwiftShader proxy',viewport:VIEW,profiles:{}};
+            try{
+              for(const profile of PROFILES){
+                const p=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});
+                const errors=[];p.on('pageerror',e=>errors.push(String(e)));
+                const started=Date.now();
+                await p.goto(`http://127.0.0.1:8140/index.html?${profile.query}`,{waitUntil:'domcontentloaded',timeout:150000});
+                await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+                const readyMs=Date.now()-started;
+                await p.waitForTimeout(600);
+                if(errors.length)throw new Error(`${profile.name} page errors ${JSON.stringify(errors)}`);
+
+                const before=await p.evaluate(()=>({
+                  quality:document.documentElement.dataset.m10QualityPreset,
+                  dprSource:document.documentElement.dataset.m10DprSource,
+                  sourceDpr:document.documentElement.dataset.m10SourceDpr,
+                  pixelRatio:document.documentElement.dataset.m10PixelRatio,
+                  shadowMapSize:document.documentElement.dataset.m10ShadowMapSize,
+                  camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',
+                  player:document.documentElement.dataset.m08PlayerState||document.documentElement.dataset.m08Player||'UNKNOWN'
+                }));
+                assert.strictEqual(before.quality,profile.name,`${profile.name} profile marker mismatch`);
+
+                // Identical representative movement path: north, release, east, release.
+                await p.keyboard.down('ArrowUp'); await p.waitForTimeout(700); await p.keyboard.up('ArrowUp'); await p.waitForTimeout(250);
+                await p.keyboard.down('ArrowRight'); await p.waitForTimeout(700); await p.keyboard.up('ArrowRight'); await p.waitForTimeout(350);
+
+                const timing=await p.evaluate(async()=>{
+                  const frames=[];let prev=performance.now();
+                  await new Promise(resolve=>{
+                    let n=0;
+                    const step=t=>{frames.push(t-prev);prev=t;if(++n>=180)resolve();else requestAnimationFrame(step)};
+                    requestAnimationFrame(step);
+                  });
+                  return frames.slice(1);
+                });
+                const avg=timing.reduce((a,b)=>a+b,0)/timing.length;
+                const p95=percentile(timing,.95);
+                const p99=percentile(timing,.99);
+                const over34=timing.filter(x=>x>34).length;
+
+                const ui=await p.evaluate(()=>{
+                  const box=q=>{const e=document.querySelector(q);if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,text:(e.innerText||'').trim()}};
+                  return{status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),body:(document.body.innerText||'').trim()};
+                });
+                for(const [k,b] of Object.entries({status:ui.status,objective:ui.objective,dpad:ui.dpad,hint:ui.hint}))if(!inside(b,VIEW.width,VIEW.height))throw new Error(`${profile.name} ${k} clipped ${JSON.stringify(b)}`);
+                if(['DISPLAY SAMPLE','DEMO HUD','3D PROTOTYPE'].some(x=>ui.body.toUpperCase().includes(x)))throw new Error(`${profile.name} prototype residue`);
+
+                await p.screenshot({path:`.m10-p01/${profile.name}.png`,timeout:150000});
+                summary.profiles[profile.name]={
+                  query:profile.query,
+                  ready_ms:readyMs,
+                  frame_samples:timing.length,
+                  raf_avg_ms:+avg.toFixed(3),
+                  raf_p95_ms:+p95.toFixed(3),
+                  raf_p99_ms:+p99.toFixed(3),
+                  frames_over_34ms:over34,
+                  settings:before,
+                  runtime_errors:errors,
+                  screenshot:`${profile.name}.png`
+                };
+                await p.close();
+              }
+              const h=summary.profiles.high,p=summary.profiles.practical;
+              summary.comparison={
+                pixel_ratio_high:h.settings.pixelRatio,
+                pixel_ratio_practical:p.settings.pixelRatio,
+                shadow_map_high:h.settings.shadowMapSize,
+                shadow_map_practical:p.settings.shadowMapSize,
+                raf_avg_delta_ms:+(p.raf_avg_ms-h.raf_avg_ms).toFixed(3),
+                raf_p95_delta_ms:+(p.raf_p95_ms-h.raf_p95_ms).toFixed(3),
+                note:'CI/browser proxy only. Not physical iPhone performance.'
+              };
+              fs.writeFileSync('.m10-p01/metrics.json',JSON.stringify(summary,null,2)+'\n');
+              const md=`# M10-P01 profile settings and proxy evidence\n\nExact HEAD: \`${summary.head}\`\n\n| Setting | HQ | iPhone-practical |\n|---|---:|---:|\n| query | \`${h.query}\` | \`${p.query}\` |\n| simulated source DPR | ${h.settings.sourceDpr} | ${p.settings.sourceDpr} |\n| effective renderer DPR | ${h.settings.pixelRatio} | ${p.settings.pixelRatio} |\n| shadow map | ${h.settings.shadowMapSize} | ${p.settings.shadowMapSize} |\n| ready proxy (ms) | ${h.ready_ms} | ${p.ready_ms} |\n| rAF avg (ms) | ${h.raf_avg_ms} | ${p.raf_avg_ms} |\n| rAF p95 (ms) | ${h.raf_p95_ms} | ${p.raf_p95_ms} |\n| rAF p99 (ms) | ${h.raf_p99_ms} | ${p.raf_p99_ms} |\n| frames >34ms / ${h.frame_samples} samples | ${h.frames_over_34ms} | ${p.frames_over_34ms} |\n\nThe two profiles run the same representative portrait scene and the same north→release→east→release movement path. Measurements are GitHub-hosted Chromium/SwiftShader proxy signals only. They are not physical-iPhone measurements.\n\nIOS_PHYSICAL_VERIFICATION: PENDING\n`;
+              fs.writeFileSync('.m10-p01/profile-settings.md',md);
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node m10-profile.cjs
+
+      - name: Attach minimum and final visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m10-p01/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m10-p01/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m10-p01-profile-evidence
+          path: .m10-p01
+          include-hidden-files: true
+          retention-days: 14
