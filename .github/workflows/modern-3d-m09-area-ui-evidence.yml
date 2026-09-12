@@ -144,5 +144,6 @@ jobs:
             .modern3d-m09/chrome-stderr.log
             /tmp/m09-http.log
             prototypes/modern-3d/index.html
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14
