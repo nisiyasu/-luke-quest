@@ -1,0 +1,2 @@
+M07 v50b evidence trigger after restoring canonical stage metadata.
+Source implementation parent: 4c77568b7491da6f97d4edb170a1c6d5f287af93
