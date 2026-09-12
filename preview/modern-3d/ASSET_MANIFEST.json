@@ -4,10 +4,10 @@
   "coordinate_system": "+X east, +Z south, +Y up",
   "license_policy": "Original procedural assets are project-owned. External assets require source/license/credit records before use.",
   "active_target_set": {
-    "composition_baseline": "M03 quality-regate accepted large-composition baseline; fresh full-runtime evidence 52926c77b6fda6c7d32ee0a59a25704ff8fa9152",
-    "conifer": "conifer_target_v31@3.5.0",
-    "understory": "fern_patch_target_v2@2.0.0 + meadow_field_v1@1.1.0",
-    "bank": "bank_target_v4@4.5.0",
+    "composition_baseline": "M03 atomic exit accepted: runtime 70aa551c49e890e2f6719696f065def65631274d; evidence head 5ff880cc944e0945b228409de63a43bc09fc7f29; Action 34710908572; artifact 10303232489",
+    "conifer": "conifer_target_v31@3.8.0",
+    "understory": "fern_patch_target_v3@3.0.0 + understory_cluster_v2@2.1.0 + meadow_field_v1@1.1.0",
+    "bank": "bank_target_v4@4.7.0",
     "water": "water_target_v3@3.9.0",
     "bridge": "bridge_principal_v1@1.2.0",
     "character": "luke_player_v1@1.1.0",
@@ -26,11 +26,31 @@
       "source": "original procedural code",
       "license": "project-owned original",
       "path": "assets.js#createProductionBridge",
-      "dimensions_m": [3.6, 1.55, 7.0],
+      "dimensions_m": [
+        3.6,
+        1.55,
+        7.0
+      ],
       "origin": "deck center at world local origin",
       "forward": "-Z north",
       "texture": "runtime CanvasTexture wood grain, 256x256",
-      "features": ["individual varied boards", "deck wear seams", "deck thickness", "side beams", "cross-beams", "trestle piers", "stone shoes", "diagonal structural braces", "bank abutments", "wear planks and pegs", "capped posts", "dual rails", "metal bolt heads", "iron collars", "wood grain variation"],
+      "features": [
+        "individual varied boards",
+        "deck wear seams",
+        "deck thickness",
+        "side beams",
+        "cross-beams",
+        "trestle piers",
+        "stone shoes",
+        "diagonal structural braces",
+        "bank abutments",
+        "wear planks and pegs",
+        "capped posts",
+        "dual rails",
+        "metal bolt heads",
+        "iron collars",
+        "wood grain variation"
+      ],
       "version": "1.2.0",
       "note": "M06 finish adds visible load-bearing support and bank-contact structure while preserving the verified M03 footprint."
     },
@@ -45,7 +65,13 @@
       "origin": "trunk base",
       "forward": "radially symmetric silhouette with seeded variation",
       "texture": "runtime CanvasTexture bark 128x256; foliage material variation",
-      "features": ["tapered trunk", "branch whorls", "multi-cluster foliage", "seeded silhouette variation", "ground skirt"],
+      "features": [
+        "tapered trunk",
+        "branch whorls",
+        "multi-cluster foliage",
+        "seeded silhouette variation",
+        "ground skirt"
+      ],
       "version": "1.0.0",
       "superseded_by": "conifer_natural_v2"
     },
@@ -60,7 +86,15 @@
       "origin": "cluster footprint center",
       "forward": "none",
       "texture": "material color/roughness variation; geometry vertex deformation",
-      "features": ["higher-subdivision rounded boulders", "seeded deformation", "multi-stone clusters", "lichen caps", "moss footprint", "micro pebble breakup", "grounded rotation/scale variation"],
+      "features": [
+        "higher-subdivision rounded boulders",
+        "seeded deformation",
+        "multi-stone clusters",
+        "lichen caps",
+        "moss footprint",
+        "micro pebble breakup",
+        "grounded rotation/scale variation"
+      ],
       "version": "1.1.0",
       "note": "M04 target-facing standalone rock refinement preserves existing scene placements while reducing low-poly faceting; cliff-face rock fidelity is governed by bank_target_v4."
     },
@@ -75,7 +109,13 @@
       "origin": "patch center / top surface Y=0",
       "forward": "cliff face toward +Z when cliff=true",
       "texture": "runtime CanvasTexture grass macro breakup 256x256 + cliff strata 256x256",
-      "features": ["subdivided uneven surface", "macro grass breakup", "cliff face", "strata texture", "moss ledges"],
+      "features": [
+        "subdivided uneven surface",
+        "macro grass breakup",
+        "cliff face",
+        "strata texture",
+        "moss ledges"
+      ],
       "version": "1.0.0",
       "superseded_by": "layered_bank_v2"
     },
@@ -90,7 +130,11 @@
       "origin": "surface center",
       "forward": "none",
       "texture": "procedural shader; deep/shallow color variation + animated ripple displacement",
-      "features": ["deep/shallow color variation", "animated geometry ripple", "transparent surface"],
+      "features": [
+        "deep/shallow color variation",
+        "animated geometry ripple",
+        "transparent surface"
+      ],
       "version": "1.0.0",
       "superseded_by": "water_rich_v2"
     },
@@ -105,7 +149,17 @@
       "origin": "feet/character root",
       "forward": "-Z",
       "texture": "material-separated skin/clothing/boots/hair/belt",
-      "features": ["humanoid torso/pelvis separation", "layered blue hair and fringe", "white coat with navy chest panel and tails", "gold crest and buckle", "hands", "boots", "shoulder forms", "hierarchical limb pivots", "walk-cycle animator"],
+      "features": [
+        "humanoid torso/pelvis separation",
+        "layered blue hair and fringe",
+        "white coat with navy chest panel and tails",
+        "gold crest and buckle",
+        "hands",
+        "boots",
+        "shoulder forms",
+        "hierarchical limb pivots",
+        "walk-cycle animator"
+      ],
       "animation_method": "procedural hierarchical pivot rig via userData.animate(t,speed)",
       "version": "1.1.0",
       "note": "M04 target-facing character refinement preserves the movement root and animation contract while improving JRPG silhouette/readability."
@@ -117,7 +171,11 @@
       "source": "original procedural code",
       "license": "project-owned original",
       "path": "assets.js#createSign",
-      "dimensions_m": [1.48, 1.62, 0.18],
+      "dimensions_m": [
+        1.48,
+        1.62,
+        0.18
+      ],
       "origin": "post base",
       "forward": "+Z readable face",
       "texture": "wood grain materials",
@@ -134,7 +192,15 @@
       "origin": "trunk base",
       "forward": "radially distributed branch/frond silhouette with seeded variation",
       "texture": "material-separated bark plus three rough foliage tones; no external texture dependency",
-      "features": ["nine branch levels", "radial branch variation", "layered frond cards", "multi-tone foliage", "top crown taper", "seeded silhouette variation", "ground needle accents"],
+      "features": [
+        "nine branch levels",
+        "radial branch variation",
+        "layered frond cards",
+        "multi-tone foliage",
+        "top crown taper",
+        "seeded silhouette variation",
+        "ground needle accents"
+      ],
       "version": "2.1.0",
       "active_target_successor": "conifer_target_v31"
     },
@@ -149,7 +215,13 @@
       "origin": "cluster footprint center at ground level",
       "forward": "none",
       "texture": "rough grass materials with light/dark variation plus optional white/pink flowers",
-      "features": ["18 varied grass blades", "seeded radial scatter", "stem variation", "optional flower heads", "scale variation"],
+      "features": [
+        "18 varied grass blades",
+        "seeded radial scatter",
+        "stem variation",
+        "optional flower heads",
+        "scale variation"
+      ],
       "version": "2.1.0"
     },
     {
@@ -163,7 +235,13 @@
       "origin": "field footprint center at ground level",
       "forward": "none",
       "texture": "instance colors across four grass greens plus four flower colors",
-      "features": ["InstancedMesh grass blades", "seeded scale and lean variation", "instance color variation", "instanced flower heads", "high-density surface detail with low draw-call growth"],
+      "features": [
+        "InstancedMesh grass blades",
+        "seeded scale and lean variation",
+        "instance color variation",
+        "instanced flower heads",
+        "high-density surface detail with low draw-call growth"
+      ],
       "performance_note": "Instanced draw groups avoid individual-mesh draw-call growth.",
       "version": "1.1.0"
     },
@@ -178,7 +256,14 @@
       "origin": "top patch center",
       "forward": "facing parameter selects river-facing edge",
       "texture": "procedural grass CanvasTexture plus rough soil/moss/rock materials",
-      "features": ["subdivided uneven top surface", "macro and micro grass breakup", "multi-layer deformed shoreline rocks", "soil transition band", "moss/rock color variation", "integrated understory clusters"],
+      "features": [
+        "subdivided uneven top surface",
+        "macro and micro grass breakup",
+        "multi-layer deformed shoreline rocks",
+        "soil transition band",
+        "moss/rock color variation",
+        "integrated understory clusters"
+      ],
       "version": "2.1.0",
       "active_target_successor": "bank_target_v4"
     },
@@ -193,13 +278,20 @@
       "origin": "surface center",
       "forward": "none",
       "texture": "custom procedural shader; no external texture dependency",
-      "features": ["multi-frequency animated wave displacement", "deep/mid/light color breakup", "animated sparkle bands", "shore brightening", "irregular foam strips", "embedded deformed rocks"],
+      "features": [
+        "multi-frequency animated wave displacement",
+        "deep/mid/light color breakup",
+        "animated sparkle bands",
+        "shore brightening",
+        "irregular foam strips",
+        "embedded deformed rocks"
+      ],
       "animation_method": "userData.update(t) drives uTime shader uniform",
       "version": "2.1.0",
       "active_target_successor": "water_target_v3"
     },
     {
-      "id": "fern_patch_target_v2",
+      "id": "fern_patch_target_v3",
       "type": "instanced_ground_vegetation",
       "status": "PRODUCTION_CANDIDATE",
       "source": "original repo-procedural",
@@ -207,8 +299,14 @@
       "path": "m04-target-assets.js#createTargetFernPatch",
       "dimensions_m": "configurable patch scale and count",
       "origin": "patch footprint center",
-      "features": ["two-tone instanced low fronds", "seeded radial scatter", "lean/height variation"],
-      "version": "1.0.0"
+      "features": [
+        "compound fern leaflet geometry",
+        "two-tone instanced fronds",
+        "seeded radial spread",
+        "lean/height/width/twist variation"
+      ],
+      "version": "3.0.0",
+      "note": "Source function userData is fern_patch_target_v3@3.0.0; manifest identity synchronized to runtime authority."
     },
     {
       "id": "conifer_target_v31",
@@ -221,10 +319,22 @@
       "origin": "trunk base",
       "forward": "radial seeded silhouette",
       "texture": "four foliage material tones plus bark materials; no external texture dependency",
-      "features": ["four seed-driven silhouette families", "varied height and breadth", "14-17 foliage levels", "denser short overlapping directional fan fronds", "fine terminal tip sprays", "smaller less-geometric layered conical needle tuft masses", "instanced branch/frond/tip/tuft batches", "deliberate sparse windows", "family-specific droop", "crown drift", "varied ground skirt density", "dead branch stubs", "root flare"],
-      "rendering": "instanced-directional-fans-plus-fine-tip-sprays-plus-small-layered-tufts",
-      "version": "3.5.0",
-      "inspection": "m04-target-inspection.html RIGHT column; m06-finish-inspection.html RIGHT panel"
+      "features": [
+        "five seed-driven silhouette families",
+        "family-specific height/breadth/skirt language",
+        "16/18/15/14/17 foliage-level families",
+        "tapered conifer needle-spray branchlets with alternating needle teeth",
+        "fine terminal tip sprays and smaller supporting tuft masses",
+        "instanced branch/frond/tip/tuft batches",
+        "intentional seed-driven branch/crown windows",
+        "family-specific droop and crown drift",
+        "varied ground skirt density and dead branch stubs",
+        "collision-neutral moss/stone/fern ground collars"
+      ],
+      "rendering": "instanced-needle-sprays-plus-seed-windows-plus-ground-ecology",
+      "version": "3.8.0",
+      "inspection": "m04-target-inspection.html RIGHT column; m06-finish-inspection.html RIGHT panel",
+      "note": "v3.8 is the active M04-P01 source family. Five silhouette families, tapered needle sprays, crown openings and ground ecology replace the broad-leaf/clone read while preserving accepted M03 placement."
     },
     {
       "id": "bank_target_v4",
@@ -237,9 +347,21 @@
       "origin": "top patch center",
       "forward": "facing parameter selects water-facing edge",
       "texture": "procedural grass CanvasTexture plus rough soil/moss/rock materials; no external texture dependency",
-      "features": ["continuous irregular top edge", "multi-row macro-relief grass heightfield", "procedural macro/micro grass color breakup", "denser instanced bank-top grass tufts", "exposed-soil top patches", "four staggered smoother overlapping rock terrace bands", "higher-subdivision deformed rocks", "soil pockets", "moss caps", "fern lip", "embedded top stones", "micro pebble breakup", "shoreline toe rubble", "moss shelves", "exposed roots"],
-      "version": "4.5.0",
-      "inspection": "m04-bank-inspection.html RIGHT column; m06-finish-inspection.html CENTER panel"
+      "features": [
+        "continuous irregular four-edge organic top silhouette",
+        "multi-row macro-relief grass heightfield",
+        "512px multi-scale forest-floor grass/soil/leaf color breakup",
+        "dense instanced bank-top grass tufts with controlled variation",
+        "clustered exposed-soil top patches and flower/leaf islands",
+        "four staggered smoother overlapping rock terrace bands",
+        "higher-subdivision deformed multi-tone rocks",
+        "fern lip and embedded top stones",
+        "micro pebble breakup and shoreline toe rubble",
+        "moss shelves and exposed roots"
+      ],
+      "version": "4.7.0",
+      "inspection": "m04-bank-inspection.html RIGHT column; m06-finish-inspection.html CENTER panel",
+      "note": "v4.7 active M04-P02 source removes pale-lawn/repeated-spike reads while preserving accepted M03 world silhouette and collision-neutral placement."
     },
     {
       "id": "water_target_v3",
@@ -252,7 +374,18 @@
       "origin": "surface center",
       "forward": "none",
       "texture": "procedural shader; no external texture dependency",
-      "features": ["multi-frequency displacement", "deep/mid/shallow turquoise breakup", "single-pass wave-normal Fresnel sky reflection", "directional sun specular response", "non-linear specular glints", "deterministic irregular narrow-axis bank clipping", "broken shoreline foam ribbons", "sparkle field", "embedded rocks", "rock foam rings"],
+      "features": [
+        "multi-frequency displacement",
+        "deep/mid/shallow turquoise breakup",
+        "single-pass wave-normal Fresnel sky reflection",
+        "directional sun specular response",
+        "non-linear specular glints",
+        "deterministic irregular narrow-axis bank clipping",
+        "broken shoreline foam ribbons",
+        "sparkle field",
+        "embedded rocks",
+        "rock foam rings"
+      ],
       "animation_method": "userData.update(t) drives uTime shader uniform",
       "version": "3.9.0",
       "inspection": "m04-water-inspection.html RIGHT column"
