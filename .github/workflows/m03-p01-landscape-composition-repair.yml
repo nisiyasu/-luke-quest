@@ -23,14 +23,14 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p=Path('prototypes/modern-3d/index.html')
           s=p.read_text()
-          old="offsetLandscape=new THREE.Vector3(.8,20.8,14.0)"
           new="offsetLandscape=new THREE.Vector3(.8,17.6,17.2)"
-          if old not in s:
-              raise SystemExit('current landscape camera anchor not found')
-          s=s.replace(old,new,1)
-          p.write_text(s)
+          s2,n=re.subn(r"offsetLandscape=new THREE\.Vector3\([^)]*\)",new,s,count=1)
+          if n != 1:
+              raise SystemExit(f'landscape camera anchor count={n}')
+          p.write_text(s2)
           PY
           git diff --check
           grep -q "offsetLandscape=new THREE.Vector3(.8,17.6,17.2)" prototypes/modern-3d/index.html
