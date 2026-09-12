@@ -1,4 +1,4 @@
-// M09 Owner Quality Regate v64: target-facing map-first fantasy HUD with stronger portrait legibility.
+// M09 Owner Quality Regate v65: target-facing map-first fantasy HUD with stronger portrait legibility and landscape safe-area fit.
 // DOM-only repair. 3D runtime, traversal, world assets and combat claims remain untouched.
 function installOwnerRegateHud(){
   const status=document.querySelector('#status');
@@ -25,7 +25,8 @@ function installOwnerRegateHud(){
   document.querySelector('#owner-ui-v53')?.remove();
   document.querySelector('#owner-ui-v63')?.remove();
   document.querySelector('#owner-ui-v64')?.remove();
-  const style=document.createElement('style');style.id='owner-ui-v64';style.textContent=`
+  document.querySelector('#owner-ui-v65')?.remove();
+  const style=document.createElement('style');style.id='owner-ui-v65';style.textContent=`
 :root{--hud-gold:#dfbd66;--hud-gold-soft:#aa8f4c;--hud-ivory:#fff1cf;--hud-ink:rgba(4,10,16,.94);--hud-blue:rgba(10,24,34,.91)}
 .panel{background:linear-gradient(180deg,var(--hud-ink),var(--hud-blue));border:1px solid rgba(223,189,102,.94);box-shadow:0 6px 20px rgba(0,0,0,.46),inset 0 0 0 1px rgba(255,255,255,.055),inset 0 -9px 18px rgba(0,0,0,.16);backdrop-filter:blur(6px)}
 .runtime-state{display:none!important}
@@ -35,10 +36,10 @@ function installOwnerRegateHud(){
 .dpad{opacity:.62;filter:drop-shadow(0 3px 8px rgba(0,0,0,.31))}.move{border:1px solid rgba(237,241,225,.34);background:radial-gradient(circle at 35% 30%,rgba(88,112,96,.66),rgba(13,28,33,.54));box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 2px 8px rgba(0,0,0,.24);color:#fff6dc;text-shadow:0 1px 3px #000}
 #hint{display:flex;gap:8px;align-items:flex-end;padding:0;background:transparent;border:0}.action-orb{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;border:2px solid rgba(235,203,113,.94);background:radial-gradient(circle at 38% 28%,#6b5779,#342d47 64%,#151722);box-shadow:0 5px 16px rgba(0,0,0,.42),inset 0 0 0 3px rgba(255,255,255,.055),inset 0 -7px 12px rgba(0,0,0,.18)}.action-orb strong{font-family:Georgia,serif;font-size:25px;line-height:22px;color:#fff8db;text-shadow:0 1px 3px #000}.action-orb small{font-family:Georgia,serif;font-size:7px;letter-spacing:.10em;color:#eee2c3}.menu-orb{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:1px solid rgba(223,189,102,.84);background:radial-gradient(circle at 38% 28%,#2b4c67,#142c3c 68%,#0b141d);box-shadow:0 5px 15px rgba(0,0,0,.38),inset 0 0 0 2px rgba(255,255,255,.05);font-family:Georgia,serif;font-size:9px;letter-spacing:.04em;color:#fff1d4;text-shadow:0 1px 3px #000}
 @media (max-width:380px){#status{width:146px}.objective,#route-cue{width:148px}.objective b{font-size:9px}.hero-sigil{width:25px;height:25px}.action-orb{width:57px;height:57px}.menu-orb{width:48px;height:48px}}
-@media (max-height:480px){#status{width:136px;padding:6px 8px}.objective{width:136px;padding:6px 8px}.objective-arrow{width:25px;height:25px;font-size:13px}#route-cue,#location-ribbon{display:none}.action-orb{width:48px;height:48px}.action-orb strong{font-size:19px}.menu-orb{width:42px;height:42px;font-size:7px}}
+@media (max-height:480px){#status{width:136px;padding:6px 8px}.objective{box-sizing:border-box!important;right:max(8px,env(safe-area-inset-right))!important;left:auto!important;width:150px!important;padding:6px 8px;gap:7px}.objective>div{overflow:hidden}.objective b{font-size:9px;letter-spacing:.015em}.objective small{font-size:6px;letter-spacing:.12em}.objective-arrow{width:25px;height:25px;font-size:13px}#route-cue,#location-ribbon{display:none}.action-orb{width:48px;height:48px}.action-orb strong{font-size:19px}.menu-orb{width:42px;height:42px;font-size:7px}}
 `;document.head.append(style);
 
   document.documentElement.dataset.m09OwnerHud='pass';
-  document.documentElement.dataset.m09HudMode='map-first-v64';
+  document.documentElement.dataset.m09HudMode='map-first-v65';
 }
 installOwnerRegateHud();
