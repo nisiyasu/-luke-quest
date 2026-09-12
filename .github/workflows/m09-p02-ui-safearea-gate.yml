@@ -1,4 +1,5 @@
 name: M09-P02 HUD Safe Area Visual Gate
+# exact-head regate after fake-state cleanup
 
 on:
   push:
@@ -48,19 +49,21 @@ jobs:
                 if(errors.length)throw new Error(`${spec.name} page errors=${JSON.stringify(errors)}`);
                 const data=await page.evaluate(()=>{
                   const box=sel=>{const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect();const cs=getComputedStyle(el);return{x:r.x,y:r.y,width:r.width,height:r.height,display:cs.display,visibility:cs.visibility,opacity:cs.opacity,text:(el.innerText||el.getAttribute('aria-label')||'').trim()}};
-                  return {body:(document.body.innerText||'').trim(),status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),canvas:box('canvas'),hud:document.documentElement.dataset.m09OwnerHud,quality:document.documentElement.dataset.m10QualityPreset};
+                  return {body:(document.body.innerText||'').trim(),status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),canvas:box('canvas'),hud:document.documentElement.dataset.m09OwnerHud,quality:document.documentElement.dataset.m10QualityPreset,statusHtml:document.querySelector('#status')?.outerHTML||''};
                 });
                 const upper=data.body.toUpperCase();
                 for(const bad of ['DISPLAY SAMPLE','DEMO HUD','3D PROTOTYPE'])if(upper.includes(bad))throw new Error(`${spec.name} prototype residue visible: ${bad}`);
+                const lines=upper.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+                if(lines.includes('HP')||data.statusHtml.includes('hud-hp-row')||data.statusHtml.includes('hud-hp-track'))throw new Error(`${spec.name} fake HP/state remains visible or mounted: ${data.statusHtml}`);
                 if(!inside(data.status,spec.w,spec.h)||!inside(data.objective,spec.w,spec.h)||!inside(data.dpad,spec.w,spec.h)||!inside(data.hint,spec.w,spec.h))throw new Error(`${spec.name} critical HUD/control clipping ${JSON.stringify(data)}`);
                 if(!data.canvas||data.canvas.width<spec.w*.95||data.canvas.height<spec.h*.95)throw new Error(`${spec.name} rendered world canvas not viewport-dominant`);
                 const lowerFootprint=(data.dpad.width*data.dpad.height)+(data.hint.width*data.hint.height);
                 if(lowerFootprint>(spec.w*spec.h)*.24)throw new Error(`${spec.name} control footprint too large ${lowerFootprint}`);
                 await page.screenshot({path:`.m09-p02/${spec.name}.png`,timeout:150000});
-                rows.push(`${spec.name} viewport=${spec.w}x${spec.h} hud=${data.hud} status=${JSON.stringify(data.status)} objective=${JSON.stringify(data.objective)} dpad=${JSON.stringify(data.dpad)} hint=${JSON.stringify(data.hint)} canvas=${JSON.stringify(data.canvas)} body=${JSON.stringify(data.body)}`);
+                rows.push(`${spec.name} viewport=${spec.w}x${spec.h} hud=${data.hud} status=${JSON.stringify(data.status)} objective=${JSON.stringify(data.objective)} dpad=${JSON.stringify(data.dpad)} hint=${JSON.stringify(data.hint)} canvas=${JSON.stringify(data.canvas)} body=${JSON.stringify(data.body)} fake_hp=NONE`);
                 await page.close();
               }
-              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} page_errors=0 prototype_residue=NONE critical_clipping=NONE RESULT=PASS`);
+              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} page_errors=0 prototype_residue=NONE fake_hp=NONE critical_clipping=NONE RESULT=PASS`);
               fs.writeFileSync('.m09-p02/ui-audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
