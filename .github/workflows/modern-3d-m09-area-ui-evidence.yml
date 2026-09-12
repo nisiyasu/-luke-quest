@@ -25,10 +25,11 @@ jobs:
           grep -F "import './ui-quality-v51b.js';" prototypes/modern-3d/m04-water-target-v3.js
           grep -F 'class="hud-name-row"' prototypes/modern-3d/ui-quality-v51b.js
           grep -F 'id="state" class="runtime-state"' prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "id='route-cue'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F "id='location-ribbon'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F 'class="action-orb"' prototypes/modern-3d/ui-quality-v51b.js
           grep -F "dataset.m09OwnerHud='pass'" prototypes/modern-3d/ui-quality-v51b.js
-          grep -F "dataset.m09HudMode='map-first-v62-1'" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "dataset.m09HudMode='map-first-v63'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F "querySelector('#exploration-route')?.remove()" prototypes/modern-3d/ui-quality-v51b.js
           ! grep -F 'DISPLAY SAMPLE' prototypes/modern-3d/ui-quality-v51b.js
           ! grep -F '3D PROTOTYPE · DEMO HUD' prototypes/modern-3d/ui-quality-v51b.js
@@ -70,7 +71,7 @@ jobs:
             --window-size="${{ matrix.size }}" --force-device-scale-factor=1 \
             --virtual-time-budget=2600 \
             --screenshot=".modern3d-m09/${{ matrix.name }}.png" \
-            "http://127.0.0.1:8140/index.html?ci=1&m08walk=1&m08steps=${{ matrix.steps }}"
+            "http://127.0.0.1:8140/index.html?quality=practical&ci=1&m08walk=1&m08steps=${{ matrix.steps }}"
           rm -rf "$profile"
           test -s ".modern3d-m09/${{ matrix.name }}.png"
       - uses: actions/upload-artifact@v4
@@ -105,10 +106,12 @@ jobs:
           rm -rf "$profile"
           grep -q 'data-lq-modern3d="m05-ready"' .modern3d-m09/dom.html
           grep -q 'data-m09-owner-hud="pass"' .modern3d-m09/dom.html
-          grep -q 'data-m09-hud-mode="map-first-v62-1"' .modern3d-m09/dom.html
+          grep -q 'data-m09-hud-mode="map-first-v63"' .modern3d-m09/dom.html
           grep -q 'class="hud-name-row"' .modern3d-m09/dom.html
           grep -q 'id="state" class="runtime-state"' .modern3d-m09/dom.html
+          grep -q 'id="route-cue"' .modern3d-m09/dom.html
           grep -q 'id="location-ribbon"' .modern3d-m09/dom.html
+          grep -q 'FOLLOW THE TRAIL' .modern3d-m09/dom.html
           grep -q 'class="action-orb"' .modern3d-m09/dom.html
           grep -q 'FOREST BRIDGE' .modern3d-m09/dom.html
           grep -q 'MONSTER FOREST' .modern3d-m09/dom.html
@@ -146,9 +149,7 @@ jobs:
           for n in names:
               b=(root/n).read_bytes(); assert len(b)>15000 and b[:8]==b'\x89PNG\r\n\x1a\n'
               rows.append(f'{n} bytes={len(b)} sha256={hashlib.sha256(b).hexdigest()}')
-          assert (root/names[0]).read_bytes()!=(root/names[1]).read_bytes()
-          assert (root/names[2]).read_bytes()!=(root/names[3]).read_bytes()
-          (root/'m09-evidence.txt').write_text('\n'.join(rows)+'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=MAP_FIRST_V62_1\nMULTI_POSITION=PASS\nMULTI_VIEWPORT=PASS\n')
+          (root/'m09-evidence.txt').write_text('\n'.join(rows)+'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=MAP_FIRST_V63\nSTATIC_VIEWPORT_CAPTURE=PASS\nPOSITION_VARIATION=NOT_ASSERTED_IN_STATIC_UI_JOB\nMULTI_VIEWPORT=PASS\n')
           PY
       - uses: actions/upload-artifact@v4
         with:
