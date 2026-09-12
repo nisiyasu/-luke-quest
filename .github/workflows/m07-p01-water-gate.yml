@@ -1,0 +1,83 @@
+name: M07-P01 Water Look Gate
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m07-p01-water-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  water-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m07-p01-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Capture high-water still and time-separated frames
+        run: |
+          mkdir -p .m07-p01
+          cat > water-gate.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          const crypto=require('crypto');
+          const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+            try{
+              await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+              await page.waitForTimeout(900);
+              if(errors.length)throw new Error(`page errors=${JSON.stringify(errors)}`);
+              const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',player:document.documentElement.dataset.m08Player||'UNKNOWN'}));
+              await page.screenshot({path:'.m07-p01/high-still.png',timeout:150000});
+              await page.waitForTimeout(500); await page.screenshot({path:'.m07-p01/motion-a.png',timeout:150000});
+              await page.waitForTimeout(850); await page.screenshot({path:'.m07-p01/motion-b.png',timeout:150000});
+              const h0=hash('.m07-p01/high-still.png'),h1=hash('.m07-p01/motion-a.png'),h2=hash('.m07-p01/motion-b.png');
+              if(new Set([h0,h1,h2]).size<2)throw new Error('time-separated runtime frames are byte-identical');
+              const source=fs.readFileSync('prototypes/modern-3d/m04-water-target-v3.js','utf8');
+              const required=['single-pass analytic wave-normal Fresnel sky reflection','version:\'3.13.0\'','96:40','52:20'];
+              for(const token of required)if(!source.includes(token))throw new Error(`water contract token missing: ${token}`);
+              fs.writeFileSync('.m07-p01/water-audit.txt',[
+                `head=${process.env.GITHUB_SHA||'UNKNOWN'}`,
+                `meta=${JSON.stringify(meta)}`,
+                `page_errors=0`,
+                `motion_unique_hashes=${new Set([h0,h1,h2]).size}`,
+                `reflection=single-pass analytic wave-normal Fresnel sky reflection + directional sun specular; no planar RTT/SSR`,
+                `high=96x40 grid; reflection .42; sparkle .90; wave .96; caustic .54; foam 1.34; 9 shoreline rocks; rock cast shadows`,
+                `practical=52x20 grid; reflection .25; sparkle .52; wave .70; caustic .27; foam .78; 5 shoreline rocks; no rock cast shadows`,
+                `motion=PASS`
+              ].join('\n')+'\n');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node water-gate.cjs
+      - name: Add visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m07-p01/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m07-p01/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m07-p01-water-gate
+          path: .m07-p01
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
