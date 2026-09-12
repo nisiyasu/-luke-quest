@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import './ui-quality-v51b.js';
 
 function rng(seed=1){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
 function shoreRibbon(width,z,seed=1,opacity=.54){const r=rng(seed),segments=84,v=[],idx=[];for(let i=0;i<=segments;i++){const x=-width/2+width*i/segments;const wave=Math.sin(i*.39+seed)*.085+Math.sin(i*.16+seed*.3)*.05+(r()-.5)*.035;const w=.07+r()*.095;v.push(x,.025,z+wave-w,x,.025,z+wave+w);if(i<segments){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,b,c,d)}}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setIndex(idx);g.computeVertexNormals();return new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xf5ffff,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide}))}
