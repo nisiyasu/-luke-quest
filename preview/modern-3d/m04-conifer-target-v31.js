@@ -19,15 +19,22 @@ const groundMoss=[
 const pebbleMat=new THREE.MeshStandardMaterial({color:0x77746b,roughness:.98});
 
 function fanGeo(){
-  const g=new THREE.BufferGeometry();
-  const v=new Float32Array([
-     0,0,0,   -.34,.015,.24,  -.42,.035,.52,  -.22,.055,.78,   0,.065,.94,
-     .22,.055,.78, .42,.035,.52, .34,.015,.24
-  ]);
-  g.setAttribute('position',new THREE.BufferAttribute(v,3));
-  g.setIndex([0,1,2,0,2,3,0,3,4,0,4,5,0,5,6,0,6,7]);
-  g.computeVertexNormals();
-  return g;
+  // v3.8 quality regate: needle-spray silhouette. The old broad octagonal fan read as a
+  // deciduous leaf at portrait scale; this keeps one instanced draw language but replaces
+  // the chunky paddle with a tapered conifer sprig and alternating needle teeth.
+  const g=new THREE.BufferGeometry(),verts=[],idx=[];
+  const tri=(a,b,c)=>{const n=verts.length/3;verts.push(...a,...b,...c);idx.push(n,n+1,n+2)};
+  tri([-.035,0,0],[.035,0,0],[0,.018,.98]);
+  const tiers=[[.18,.24],[.31,.30],[.45,.32],[.59,.29],[.72,.23],[.83,.16]];
+  for(const [z,span] of tiers){
+    const tip=Math.min(.98,z+.18),lift=.018+.024*(1-z);
+    tri([-.018,0,z],[-span,lift,z+.055],[0,.020,tip]);
+    tri([.018,0,z],[span,lift,z+.055],[0,.020,tip]);
+  }
+  // small split tip prevents every spray ending in one identical spear point.
+  tri([0,.018,.76],[-.105,.030,.91],[0,.022,1.02]);
+  tri([0,.018,.76],[.105,.030,.91],[0,.022,1.02]);
+  g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));g.setIndex(idx);g.computeVertexNormals();return g;
 }
 const FAN=fanGeo();
 
@@ -190,6 +197,6 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
 
   addGroundCollar(root,r,scale,family);
   root.rotation.y=r()*Math.PI*2;
-  root.userData={assetId:'conifer_target_v31',version:'3.7.0',seed,stage:'M04_REGATE_CANDIDATE',source:'repo-procedural',rendering:'instanced-directional-fans-plus-seed-windows-plus-ground-ecology',variationFamily:family,intent:'five seed-driven mature conifer families with intentional crown/branch openings, family-specific height/breadth/skirt language, and collision-neutral moss/stone/fern ground collars to reduce clone rhythm and hard tree-to-terrain joins'};
+  root.userData={assetId:'conifer_target_v31',version:'3.8.0',seed,stage:'M04_QUALITY_REGATE',source:'repo-procedural',rendering:'instanced-needle-sprays-plus-seed-windows-plus-ground-ecology',variationFamily:family,intent:'five seed-driven mature conifer families with tapered needle-spray branchlets, intentional crown/branch openings, family-specific height/breadth/skirt language, and collision-neutral moss/stone/fern ground collars; v3.8 removes the broad-leaf paddle read visible in the integrated portrait while preserving silhouette mass and traversal-neutral placement'};
   return shadow(root);
 }
