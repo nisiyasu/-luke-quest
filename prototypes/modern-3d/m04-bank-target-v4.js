@@ -1,10 +1,18 @@
 import * as THREE from 'three';
 
 function rng(seed=1){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
+function makeBankGrassMap(seed=417){
+  const r=rng(seed),c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  x.fillStyle='#668b43';x.fillRect(0,0,256,256);
+  for(let i=0;i<95;i++){const px=r()*256,py=r()*256,rad=7+r()*29,g=x.createRadialGradient(px,py,0,px,py,rad);g.addColorStop(0,i%4===0?'rgba(202,194,104,.18)':i%3===0?'rgba(38,82,39,.22)':'rgba(121,156,66,.20)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.beginPath();x.arc(px,py,rad,0,Math.PI*2);x.fill()}
+  for(let i=0;i<3000;i++){const px=r()*256,py=r()*256,l=.7+r()*2.8;x.strokeStyle=i%7===0?'rgba(222,214,126,.30)':i%3===0?'rgba(41,79,35,.36)':'rgba(113,151,65,.34)';x.lineWidth=.4+r()*.75;x.beginPath();x.moveTo(px,py);x.lineTo(px+(r()-.5)*2.3,py-l);x.stroke()}
+  for(let i=0;i<150;i++){x.fillStyle=i%4===0?'rgba(82,63,39,.22)':'rgba(234,225,159,.20)';x.beginPath();x.arc(r()*256,r()*256,.5+r()*1.25,0,Math.PI*2);x.fill()}
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(4.5,3.5);t.anisotropy=4;return t;
+}
 function deform(g,r,a=.22){const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);p.setXYZ(i,x*(1+(r()-.5)*a),y*(1+(r()-.5)*a*.72),z*(1+(r()-.5)*a))}p.needsUpdate=true;g.computeVertexNormals();return g}
 function shadows(root){root.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});return root}
 
-const grass=new THREE.MeshStandardMaterial({color:0x668947,roughness:.99,side:THREE.DoubleSide});
+const grass=new THREE.MeshStandardMaterial({color:0xffffff,map:makeBankGrassMap(417),roughness:.99,side:THREE.DoubleSide});
 const soil=new THREE.MeshStandardMaterial({color:0x514332,roughness:1});
 const moss=new THREE.MeshStandardMaterial({color:0x587941,roughness:1});
 const mossLight=new THREE.MeshStandardMaterial({color:0x719552,roughness:1});
@@ -27,6 +35,7 @@ function makeOrganicTop(r,seed,width,depth,facing){
   const cols=24;
   const vertices=[];
   const indices=[];
+  const uvs=[];
   for(let i=0;i<=cols;i++){
     const t=i/cols;
     const x=-width*.5+t*width;
@@ -35,11 +44,12 @@ function makeOrganicTop(r,seed,width,depth,facing){
     const back=-facing*(depth*.5-(r()-.5)*.25);
     const yFront=.08+Math.sin(t*Math.PI*2.2)*.06+(r()-.5)*.05;
     const yBack=.02+(r()-.5)*.05;
-    vertices.push(x,yBack,back,x,yFront,front);
+    vertices.push(x,yBack,back,x,yFront,front);uvs.push(t,0,t,1);
     if(i<cols){const a=i*2,b=a+1,c=a+2,d=a+3;indices.push(a,c,b,c,d,b)}
   }
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+  geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
   geo.setIndex(indices);geo.computeVertexNormals();
   const top=new THREE.Mesh(geo,grass);top.receiveShadow=true;
   return top;
