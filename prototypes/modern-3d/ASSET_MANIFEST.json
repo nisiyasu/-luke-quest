@@ -5,7 +5,7 @@
   "license_policy": "Original procedural assets are project-owned. External assets require source/license/credit records before use.",
   "active_target_set": {
     "composition_baseline": "M03 v29 / ef4a5c50f404e5a08dde1d417420b69fca8c96ea",
-    "conifer": "conifer_target_v31@3.2.1",
+    "conifer": "conifer_target_v31@3.3.0",
     "understory": "fern_patch_target_v1@1.0.0 + meadow_field_v1@1.0.0",
     "bank": "bank_target_v4@4.3.0",
     "water": "water_target_v3@3.4.0",
@@ -221,9 +221,9 @@
       "origin": "trunk base",
       "forward": "radial seeded silhouette",
       "texture": "four foliage material tones plus bark materials; no external texture dependency",
-      "features": ["four seed-driven silhouette families", "varied height and breadth", "12-15 foliage levels", "short overlapping fan fronds", "instanced branch/frond batches", "deliberate sparse windows", "family-specific droop", "crown drift", "varied ground skirt density", "dead branch stubs", "root flare"],
-      "rendering": "instanced-overlapping-fans",
-      "version": "3.2.1",
+      "features": ["four seed-driven silhouette families", "varied height and breadth", "12-15 foliage levels", "short overlapping fan fronds", "compact volumetric foliage tuft masses", "instanced branch/frond/tuft batches", "deliberate sparse windows", "family-specific droop", "crown drift", "varied ground skirt density", "dead branch stubs", "root flare"],
+      "rendering": "instanced-fans-plus-volumetric-tufts",
+      "version": "3.3.0",
       "inspection": "m04-target-inspection.html RIGHT column; m06-finish-inspection.html RIGHT panel"
     },
     {
