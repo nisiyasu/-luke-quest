@@ -1,0 +1,33 @@
+name: M03 Revert Failed v62 To v61
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/m03-v62-revert-to-v61.yml
+
+permissions:
+  contents: write
+
+jobs:
+  revert:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Restore last known-good v61 runtime implementation
+        run: |
+          git show d593d81659f31ca950f4875c52a446e47097a49c:prototypes/modern-3d/index.html > prototypes/modern-3d/index.html
+          git diff --check
+          grep -q 'Composition Rebuild v61' prototypes/modern-3d/index.html
+          if grep -q 'waterUpperRightShape' prototypes/modern-3d/index.html; then exit 1; fi
+      - name: Commit rollback
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "revert(m03): restore known-good v61 runtime after v62 regression"
+          git push origin HEAD:prototype/modern-3d
