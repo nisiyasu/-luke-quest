@@ -2,7 +2,7 @@
 
 DOCUMENT_ID: LQ-MODERN-3D-VISUAL-PROTOTYPE-20260911-V2
 STAGE: M11
-STATUS: TECHNICAL_CANDIDATE / OWNER_EXPERIENCE_PENDING / IOS_PHYSICAL_PENDING
+STATUS: TECHNICAL_GATE_PASS / OWNER_EXPERIENCE_PENDING / IOS_PHYSICAL_PENDING
 
 ## Authority
 
@@ -18,13 +18,13 @@ STATUS: TECHNICAL_CANDIDATE / OWNER_EXPERIENCE_PENDING / IOS_PHYSICAL_PENDING
 - M10 CI-proxy performance record: `prototypes/modern-3d/M10_MEASUREMENT.md`.
 - M11 target-gap repair implementation: `8259b62b284adfa820eb7b35430a9d54da44af25`.
 - M11 post-repair multi-position / multi-viewport UI and scene evidence: Actions run `34668105787` = SUCCESS at implementation-equivalent head `32a1abdc8099f4b321d63ae1024d7e4b4f858ac1`.
-- M11 fresh M08 motion regression is required after its stale source assertion repair; do not close M11 unless the fresh rerun passes.
+- M11 fresh M08 motion regression after stale-test repair: Actions run `34668385684` = SUCCESS at `004b53f62e8a4479a95e663741b8663d7896bb95`.
 
 ## Functional / visual / performance separation
 
 ### Functional
 
-The existing player movement, grounding, collision, camera follow, release handling and HUD behavior remain the functional authority. M11 did not intentionally redesign those systems. Fresh M08 regression evidence must pass before M11 close.
+Fresh M08 regression passed source contract, runtime movement/collision/release/grounding, bounded real-player walking and seeded mobile-frame evidence. M09 multi-position/multi-viewport HUD evidence also remains green. M11 did not intentionally redesign accepted gameplay behavior.
 
 ### Visual quality
 
@@ -66,18 +66,18 @@ M10 measured HIGH and PRACTICAL presets separately in browser/CI proxy condition
 2. Target vegetation and ground treatment still carry more hand-authored micro-detail and silhouette richness.
 3. Target overall premium material/UI finish remains stronger; subjective final-quality acceptance belongs to Owner authority.
 
-## M11 technical close rule
+## M11 technical close result
 
-M11 may close as a **technical candidate** when all of the following hold:
+The technical close conditions are satisfied:
 
-- no major axis is `BELOW_MINIMUM`;
-- the material Top-3 gap repair above is implemented and runtime evidence is fresh;
-- fresh movement/input/camera regression passes after the M08 test-contract repair;
-- M09 multi-position/multi-viewport evidence remains green;
+- no major axis is assessed `BELOW_MINIMUM`;
+- the material Top-3 gap repair is implemented and fresh runtime evidence exists;
+- fresh movement/input/camera regression passed after the M08 test-contract repair;
+- M09 multi-position/multi-viewport evidence is green;
 - M10 HIGH/PRACTICAL proxy-performance evidence remains separated from physical-device evidence;
 - Owner experience and physical iPhone states remain explicitly `PENDING` rather than being inferred.
 
-M11 closure does not authorize Gold replacement, main merge, or a claim that the final visual target has been fully reached.
+M11 technical closure does not authorize Gold replacement, main merge, or a claim that the final visual target has been fully reached.
 
 ROLLBACK_POINT: `a81c22ff123539b3d0da89c023bdba2d18bae411`
 OWNER_EXPERIENCE_PASS: PENDING
