@@ -1,0 +1,56 @@
+name: Modern 3D M09 Demo HUD Patch
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/modern-3d-m09-demo-hud-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-demo-hud:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 2
+
+      - name: Apply bounded M09 HUD semantics and landscape compaction
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old_style='#ci-evidence{display:none}\n'
+          new_style='#ci-evidence{display:none}.demo-tag{display:block;margin-top:3px;font-size:8px;letter-spacing:.08em;color:#d9d1b9;opacity:.82}.hp-label{display:block;margin-top:4px;font-size:8px;color:#cfc7b3;opacity:.78}@media (max-height:480px){#status,.objective{padding:5px 7px;font-size:9px}.objective{max-width:132px}.dpad{width:96px;height:96px;bottom:max(8px,env(safe-area-inset-bottom))}.move{width:38px;height:38px;font-size:14px}.up,.down{left:29px}.left,.right{top:29px}#hint{bottom:max(8px,env(safe-area-inset-bottom));font-size:8px;padding:5px 7px}}\n'
+          old_hud='<div id="status" class="panel"><b>LUKE</b> · Lv 1<div class="hp"></div><span id="state">initializing</span></div>'
+          new_hud='<div id="status" class="panel"><b>LUKE</b><span class="demo-tag">3D PROTOTYPE · DEMO HUD</span><span class="hp-label">DISPLAY SAMPLE</span><div class="hp" aria-label="demo display sample"></div><span id="state">initializing</span></div>'
+          assert s.count(old_style)==1, f'old_style count={s.count(old_style)}'
+          assert s.count(old_hud)==1, f'old_hud count={s.count(old_hud)}'
+          s=s.replace(old_style,new_style).replace(old_hud,new_hud)
+          assert 'Lv 1' not in s
+          assert '3D PROTOTYPE · DEMO HUD' in s
+          assert 'DISPLAY SAMPLE' in s
+          assert '@media (max-height:480px)' in s
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+
+      - name: Commit bounded M09 HUD patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && { echo 'No patch needed'; exit 0; }
+          git commit -m 'feat(modern-3d): clarify M09 demo HUD and landscape fit'
+          git push origin HEAD:prototype/modern-3d
