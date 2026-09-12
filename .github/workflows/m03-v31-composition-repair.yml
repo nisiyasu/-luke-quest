@@ -1,0 +1,40 @@
+name: M03 v31 Composition Repair
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - .github/workflows/m03-v31-composition-repair.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Recenter hero bridge and player framing
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          s=s.replace('M03 Composition Rebuild v30','M03 Composition Rebuild v31')
+          s=s.replace("const offset=new THREE.Vector3(7.6,29.2,18.0);","const offset=new THREE.Vector3(1.8,26.5,16.0);")
+          s=s.replace("camera.position.set(6.25,29.6,15.2);camera.lookAt(-1.47,.4,-2.5);","camera.position.set(.35,26.9,13.5);camera.lookAt(-1.47,.4,-2.5);")
+          s=s.replace("m03-composition-v30-connected-landings","m03-composition-v31-centered-hero")
+          if 'const offset=new THREE.Vector3(1.8,26.5,16.0);' not in s or 'm03-composition-v31-centered-hero' not in s:
+              raise SystemExit('v31 patch verification failed')
+          p.write_text(s)
+          PY
+          rm .github/workflows/m03-v31-composition-repair.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html .github/workflows/m03-v31-composition-repair.yml
+          git commit -m "fix(modern-3d): recenter M03 hero composition"
+          git push origin HEAD:prototype/modern-3d
