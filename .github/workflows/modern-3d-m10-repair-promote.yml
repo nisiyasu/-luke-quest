@@ -1,0 +1,44 @@
+name: Modern 3D M10 Repair Promote
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths: [.github/workflows/modern-3d-m10-repair-promote.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Repair aggregate artifact upload path
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/modern-3d-m10-bootstrap.yml')
+          s=p.read_text()
+          old="        with: {name: 'm10-aggregate-${{ github.sha }}', path: 'all-evidence\\nM10_MEASUREMENT.md', retention-days: 14}"
+          new="""        with:\n          name: 'm10-aggregate-${{ github.sha }}'\n          path: |\n            all-evidence\n            M10_MEASUREMENT.md\n          retention-days: 14"""
+          if old not in s:
+              raise SystemExit('expected aggregate upload line not found; fail closed')
+          p.write_text(s.replace(old,new,1))
+          PY
+          git diff --check
+          git diff -- .github/workflows/modern-3d-m10-bootstrap.yml
+      - name: Commit repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add .github/workflows/modern-3d-m10-bootstrap.yml
+          git diff --cached --quiet && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(modern-3d): persist M10 aggregate artifact'
+          git push origin HEAD:prototype/modern-3d
