@@ -1,0 +1,44 @@
+name: M03-P02 South Shore Continuity Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-p02-south-shore-continuity-repair.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Extend south receiving bank and break rectangular underlay seam
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          needle="const waterLower=createTargetWaterV3({width:8.6,depth:28.5,seed:317});waterLower.position.set(-4.65,.04,13.6);waterLower.rotation.y=.08;scene.add(waterLower);\n"
+          insert="""const waterLower=createTargetWaterV3({width:8.6,depth:28.5,seed:317});waterLower.position.set(-4.65,.04,13.6);waterLower.rotation.y=.08;scene.add(waterLower);\n// v63 M03-P02: continue the south receiving terrain beyond the bridge approach so the lower camera cannot expose a flat rectangular underlay/world-hole edge beside the downstream river.\nbank(905,8.8,13.8,3.45,-.22,14.4,-1,-.05);\nconst southShoreFern=createTargetFernPatch({seed:913,count:34,radius:2.45});southShoreFern.position.set(.95,-.10,13.8);scene.add(southShoreFern);\nfor(const [i,x,z,sc] of [[0,-.15,11.8,.54],[1,.55,15.2,.62],[2,1.55,18.0,.58]]){const r=createRockCluster({seed:9200+i*29,scale:sc});r.position.set(x,-.15,z);scene.add(r);}\n"""
+          if needle not in s:
+              raise SystemExit('expected waterLower anchor not found exactly')
+          if 'v63 M03-P02' in s:
+              raise SystemExit('v63 repair already present')
+          s=s.replace(needle,insert,1)
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit bounded runtime repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m03-p02): continue south receiving terrain"
+          git push origin HEAD:prototype/modern-3d
