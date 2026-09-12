@@ -1,0 +1,156 @@
+name: M10-P02 Single HTML Package Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m10-p02-package-evidence.yml"
+      - ".ci/build-m10-p02-single-html.mjs"
+      - "prototypes/modern-3d/**"
+      - "dist/luke-quest-modern-3d.html"
+      - "dist/README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+
+      - name: Install packager and browser harness
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install esbuild@0.25.9 playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+
+      - name: Build single-HTML distribution
+        run: |
+          node .ci/build-m10-p02-single-html.mjs
+          test -s dist/luke-quest-modern-3d.html
+          test -s dist/README.md
+          test -s prototypes/modern-3d/index.html
+          if grep -Eq "from ['\"]\./|src=['\"]\./" dist/luke-quest-modern-3d.html; then
+            echo "repository-local JS/module reference remained in packaged HTML" >&2
+            exit 1
+          fi
+          grep -q "cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js" dist/luke-quest-modern-3d.html
+          grep -q "IOS_PHYSICAL_VERIFICATION: PENDING" dist/README.md
+
+      - name: Serve source and packaged artifact
+        run: |
+          python3 -m http.server 8142 --directory . >/tmp/m10-p02-http.log 2>&1 &
+          sleep 2
+
+      - name: Execute packaged artifact and verify render input HUD profiles
+        env:
+          EXPECTED_HEAD: ${{ github.sha }}
+        run: |
+          mkdir -p .m10-p02
+          cat > m10-package-check.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          const assert=require('assert');
+          const VIEW={width:390,height:844};
+          const inside=(b)=>b&&b.x>=-1&&b.y>=-1&&b.x+b.width<=VIEW.width+1&&b.y+b.height<=VIEW.height+1;
+          const profiles=[
+            {name:'high',query:'quality=high&m10dpr=3',pixelRatio:'2.00',shadow:'2048'},
+            {name:'practical',query:'quality=practical&m10dpr=3',pixelRatio:'1.25',shadow:'1024'}
+          ];
+          const summary={head:process.env.EXPECTED_HEAD,artifact:'dist/luke-quest-modern-3d.html',viewport:VIEW,profiles:{},ios_physical_verification:'PENDING'};
+
+          async function ready(page,url){
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:150000});
+            await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+            await page.waitForTimeout(500);
+            if(errors.length)throw new Error(`runtime page errors ${JSON.stringify(errors)}`);
+            return errors;
+          }
+          async function snapshotState(page){
+            return page.evaluate(()=>{
+              const box=q=>{const e=document.querySelector(q);if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,text:(e.innerText||'').trim()}};
+              return{
+                quality:document.documentElement.dataset.m10QualityPreset,
+                pixelRatio:document.documentElement.dataset.m10PixelRatio,
+                shadow:document.documentElement.dataset.m10ShadowMapSize,
+                state:(document.querySelector('#state')?.innerText||'').trim(),
+                status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),
+                body:(document.body.innerText||'').trim()
+              };
+            });
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            try{
+              for(const profile of profiles){
+                const page=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});
+                const url=`http://127.0.0.1:8142/dist/luke-quest-modern-3d.html?${profile.query}`;
+                await ready(page,url);
+                const before=await snapshotState(page);
+                assert.strictEqual(before.quality,profile.name,'profile marker');
+                assert.strictEqual(before.pixelRatio,profile.pixelRatio,'pixel ratio marker');
+                assert.strictEqual(before.shadow,profile.shadow,'shadow marker');
+                for(const [name,b] of Object.entries({status:before.status,objective:before.objective,dpad:before.dpad,hint:before.hint})) assert.ok(inside(b),`${profile.name} ${name} clipped ${JSON.stringify(b)}`);
+                for(const bad of ['DISPLAY SAMPLE','DEMO HUD','3D PROTOTYPE']) assert.ok(!before.body.toUpperCase().includes(bad),`${profile.name} prototype residue ${bad}`);
+
+                await page.screenshot({path:`.m10-p02/${profile.name}-packaged.png`,timeout:150000});
+                await page.keyboard.down('ArrowUp'); await page.waitForTimeout(700); await page.keyboard.up('ArrowUp'); await page.waitForTimeout(300);
+                await page.keyboard.down('ArrowRight'); await page.waitForTimeout(700); await page.keyboard.up('ArrowRight'); await page.waitForTimeout(300);
+                const moved=await snapshotState(page);
+                assert.notStrictEqual(moved.state,before.state,`${profile.name} movement did not change state text`);
+                await page.waitForTimeout(600);
+                const release1=(await snapshotState(page)).state;
+                await page.waitForTimeout(600);
+                const release2=(await snapshotState(page)).state;
+                assert.strictEqual(release2,release1,`${profile.name} release drift detected`);
+                summary.profiles[profile.name]={url,settings:{pixelRatio:before.pixelRatio,shadowMapSize:before.shadow},state_before:before.state,state_after_path:moved.state,state_release_stable:release2,ui_in_bounds:true,runtime_errors:[]};
+                await page.close();
+              }
+
+              const source=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});
+              await ready(source,'http://127.0.0.1:8142/prototypes/modern-3d/index.html?quality=high&m10dpr=3');
+              await source.screenshot({path:'.m10-p02/high-source.png',timeout:150000});
+              const sourceState=await snapshotState(source);
+              summary.source_reference={quality:sourceState.quality,pixelRatio:sourceState.pixelRatio,shadowMapSize:sourceState.shadow};
+              await source.close();
+
+              fs.writeFileSync('.m10-p02/package-verification.json',JSON.stringify(summary,null,2)+'\n');
+              fs.copyFileSync('dist/README.md','.m10-p02/DISTRIBUTION_README.md');
+            } finally { await browser.close(); }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node m10-package-check.cjs
+
+      - name: Attach visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m10-p02/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m10-p02/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+
+      - name: Commit generated distribution when changed
+        run: |
+          if git diff --quiet -- dist/luke-quest-modern-3d.html dist/README.md && git diff --cached --quiet; then
+            echo "distribution already exact at HEAD"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist/luke-quest-modern-3d.html dist/README.md
+          git commit -m "build(m10-p02): refresh verified single-html distribution"
+          git push origin HEAD:prototype/modern-3d
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m10-p02-package-evidence
+          path: .m10-p02
+          include-hidden-files: true
+          retention-days: 14
