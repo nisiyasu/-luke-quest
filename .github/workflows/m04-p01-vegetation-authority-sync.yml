@@ -1,0 +1,77 @@
+name: M04-P01 Vegetation Authority Sync
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m04-p01-vegetation-authority-sync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Sync manifest and common-light inspection to actual vegetation generation
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest_path=Path('prototypes/modern-3d/ASSET_MANIFEST.json')
+          data=json.loads(manifest_path.read_text())
+          target=data['active_target_set']
+          target['composition_baseline']='M03 atomic exit accepted: runtime 70aa551c49e890e2f6719696f065def65631274d; evidence head 5ff880cc944e0945b228409de63a43bc09fc7f29; Action 34710908572; artifact 10303232489'
+          target['conifer']='conifer_target_v31@3.8.0'
+          target['understory']='fern_patch_target_v3@3.0.0 + understory_cluster_v2@2.1.0 + meadow_field_v1@1.1.0'
+
+          for asset in data['assets']:
+            if asset.get('id')=='conifer_target_v31':
+              asset['version']='3.8.0'
+              asset['features']=[
+                'five seed-driven silhouette families',
+                'family-specific height/breadth/skirt language',
+                '16/18/15/14/17 foliage-level families',
+                'tapered conifer needle-spray branchlets with alternating needle teeth',
+                'fine terminal tip sprays and smaller supporting tuft masses',
+                'instanced branch/frond/tip/tuft batches',
+                'intentional seed-driven branch/crown windows',
+                'family-specific droop and crown drift',
+                'varied ground skirt density and dead branch stubs',
+                'collision-neutral moss/stone/fern ground collars'
+              ]
+              asset['rendering']='instanced-needle-sprays-plus-seed-windows-plus-ground-ecology'
+              asset['note']='v3.8 is the active M04-P01 source family. Five silhouette families, tapered needle sprays, crown openings and ground ecology replace the broad-leaf/clone read while preserving accepted M03 placement.'
+            elif asset.get('id')=='fern_patch_target_v2':
+              asset['id']='fern_patch_target_v3'
+              asset['version']='3.0.0'
+              asset['features']=['compound fern leaflet geometry','two-tone instanced fronds','seeded radial spread','lean/height/width/twist variation']
+              asset['note']='Source function userData is fern_patch_target_v3@3.0.0; manifest identity synchronized to runtime authority.'
+          manifest_path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+
+          p=Path('prototypes/modern-3d/m04-target-inspection.html')
+          s=p.read_text()
+          s=s.replace('<b>RIGHT</b> target_v3.7 five-family canopy','<b>RIGHT</b> target_v3.8 five-family canopy + mixed understory')
+          old="for(let i=0;i<2;i++){const x=7.2+i*2.7,z=(i%2)*.45-.2,t=createTargetConiferV31({seed:seeds[i],scale:.92+i*.08});t.position.set(x,0,z);scene.add(t);const f=createTargetFernPatch({seed:600+i*19,scale:.9,count:24});f.position.set(x+.45,.02,z+.5);scene.add(f)}"
+          new="const rightSeeds=[11,23,37];for(let i=0;i<rightSeeds.length;i++){const x=6.35+i*2.65,z=(i%2)*.45-.2,t=createTargetConiferV31({seed:rightSeeds[i],scale:.88+i*.07});t.position.set(x,0,z);scene.add(t);const f=createTargetFernPatch({seed:600+i*19,scale:.72+i*.08,count:18+i*3});f.position.set(x+.38,.02,z+.48);scene.add(f);const u=createUnderstoryCluster({seed:820+i*29,scale:.46+i*.05,flowers:true});u.position.set(x-.42,.02,z+.62);scene.add(u)}"
+          if old not in s:
+            raise SystemExit('right-column inspection anchor not found')
+          s=s.replace(old,new,1)
+          s=s.replace("document.documentElement.dataset.candidateAsset='conifer_target_v31@3.7.0'","document.documentElement.dataset.candidateAsset='conifer_target_v31@3.8.0'")
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/ASSET_MANIFEST.json prototypes/modern-3d/m04-target-inspection.html
+      - name: Commit authority sync
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/ASSET_MANIFEST.json prototypes/modern-3d/m04-target-inspection.html
+          git commit -m "chore(m04-p01): sync vegetation source authority"
+          git push origin HEAD:prototype/modern-3d
