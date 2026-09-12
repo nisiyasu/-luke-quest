@@ -29,7 +29,7 @@ jobs:
           grep -F "id='location-ribbon'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F 'class="action-orb"' prototypes/modern-3d/ui-quality-v51b.js
           grep -F "dataset.m09OwnerHud='pass'" prototypes/modern-3d/ui-quality-v51b.js
-          grep -F "dataset.m09HudMode='map-first-v63'" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "dataset.m09HudMode='map-first-v64'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F "querySelector('#exploration-route')?.remove()" prototypes/modern-3d/ui-quality-v51b.js
           ! grep -F 'DISPLAY SAMPLE' prototypes/modern-3d/ui-quality-v51b.js
           ! grep -F '3D PROTOTYPE · DEMO HUD' prototypes/modern-3d/ui-quality-v51b.js
@@ -63,6 +63,10 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           mkdir -p .modern3d-m09
           profile="$(mktemp -d)"
+          # Visual capture MUST NOT use ci=1. In index.html ci=1 intentionally renders only one
+          # static WebGL frame and then mutates CI state without an animation loop. Headless Chrome
+          # can therefore produce a HUD-only compositor screenshot. Let the normal RAF/tick loop run
+          # for actual visual evidence; CI/DOM assertions remain in the separate runtime-hud job.
           timeout 100s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --disable-background-networking --disable-component-update --disable-sync \
             --no-first-run --no-default-browser-check --metrics-recording-only \
@@ -71,7 +75,7 @@ jobs:
             --window-size="${{ matrix.size }}" --force-device-scale-factor=1 \
             --virtual-time-budget=6000 \
             --screenshot=".modern3d-m09/${{ matrix.name }}.png" \
-            "http://127.0.0.1:8140/index.html?quality=practical&ci=1&m08walk=1&m08steps=${{ matrix.steps }}"
+            "http://127.0.0.1:8140/index.html?quality=practical&m08walk=1&m08steps=${{ matrix.steps }}"
           rm -rf "$profile"
           test -s ".modern3d-m09/${{ matrix.name }}.png"
       - uses: actions/upload-artifact@v4
@@ -106,7 +110,7 @@ jobs:
           rm -rf "$profile"
           grep -q 'data-lq-modern3d="m05-ready"' .modern3d-m09/dom.html
           grep -q 'data-m09-owner-hud="pass"' .modern3d-m09/dom.html
-          grep -q 'data-m09-hud-mode="map-first-v63"' .modern3d-m09/dom.html
+          grep -q 'data-m09-hud-mode="map-first-v64"' .modern3d-m09/dom.html
           grep -q 'class="hud-name-row"' .modern3d-m09/dom.html
           grep -q 'id="state" class="runtime-state"' .modern3d-m09/dom.html
           grep -q 'id="route-cue"' .modern3d-m09/dom.html
@@ -156,17 +160,15 @@ jobs:
               assert len(b)>15000 and b[:8]==b'\x89PNG\r\n\x1a\n', f'{n}: invalid PNG transport'
               im=Image.open(p).convert('RGB')
               w,h=im.size
-              # Exclude most HUD/control chrome and inspect the world-dominant center region.
               crop=im.crop((int(w*.08), int(h*.15), int(w*.92), int(h*.82)))
               pixels=list(crop.getdata())
               gray=[(r+g+b)/(3*255.0) for r,g,b in pixels]
               std=statistics.pstdev(gray)
               unique=len(set(pixels))
-              lo=sorted(gray)[max(0,int(len(gray)*.05)-1)]
-              hi=sorted(gray)[min(len(gray)-1,int(len(gray)*.95))]
+              ordered=sorted(gray)
+              lo=ordered[max(0,int(len(ordered)*.05)-1)]
+              hi=ordered[min(len(ordered)-1,int(len(ordered)*.95))]
               dynamic=hi-lo
-              # A valid game-world frame must contain substantial non-uniform visual information.
-              # Previous false-positive blank frame was std=0, unique=1 in this same ROI.
               assert std >= 0.025, f'{n}: WORLD_RENDER_BLANK std={std:.6f}'
               assert unique >= 128, f'{n}: WORLD_RENDER_BLANK unique_colors={unique}'
               assert dynamic >= 0.08, f'{n}: WORLD_RENDER_LOW_DYNAMIC_RANGE p95-p05={dynamic:.6f}'
@@ -174,7 +176,7 @@ jobs:
 
           (root/'m09-evidence.txt').write_text(
               '\n'.join(rows)
-              +'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=MAP_FIRST_V63\n'
+              +'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=MAP_FIRST_V64\n'
               +'STATIC_VIEWPORT_CAPTURE=PASS\nWORLD_RENDER_NONBLANK=PASS\n'
               +'POSITION_VARIATION=NOT_ASSERTED_IN_STATIC_UI_JOB\nMULTI_VIEWPORT=PASS\n'
           )
