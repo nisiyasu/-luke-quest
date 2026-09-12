@@ -2,10 +2,10 @@ name: M03 Owner Regate Repair v47
 
 on:
   push:
-    branches: [prototype/modern-3d]
+    branches: ["prototype/modern-3d"]
     paths:
-      - '.github/workflows/m03-owner-regate-repair-v47.yml'
-      - 'prototypes/modern-3d/index.html'
+      - ".github/workflows/m03-owner-regate-repair-v47.yml"
+      - "prototypes/modern-3d/index.html"
   workflow_dispatch:
 
 permissions:
@@ -15,45 +15,49 @@ jobs:
   repair:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout prototype
+        uses: actions/checkout@v4
         with:
           ref: prototype/modern-3d
           fetch-depth: 0
-      - name: Apply bounded M03 bridge/world continuity repair
-        shell: python
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply bridge and world continuity repair
+        shell: bash
         run: |
+          python3 - <<'PY'
           from pathlib import Path
-          p=Path('prototypes/modern-3d/index.html')
-          s=p.read_text()
-          old_title='<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v46</title>'
+          p = Path("prototypes/modern-3d/index.html")
+          s = p.read_text()
+          old_title = "<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v46</title>"
           if old_title not in s:
-              print('v46 title not present; bounded repair already applied or branch advanced')
+              print("v47 already applied or branch advanced")
               raise SystemExit(0)
-          s=s.replace(old_title,'<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v47</title>',1)
-          old="bridgeLanding(-2.28,-4.05,.40,1.04);bridgeLanding(4.48,6.12,.40,-.28);"
-          new="""bridgeLanding(-2.28,-4.05,.40,1.04);bridgeLanding(4.48,6.12,.40,-.28);
-// v47 Owner quality regate: visually weld both bridge ends into continuous terrain instead of leaving deck/landing silhouettes floating over water.
-function bridgeThreshold(z,yTop,seed){const base=new THREE.Mesh(new THREE.BoxGeometry(4.85,.58,2.35),landingSideMat);base.position.set(-1.35,yTop-.31,z);base.receiveShadow=true;base.castShadow=true;scene.add(base);const cap=new THREE.Mesh(new THREE.BoxGeometry(4.55,.12,2.12),landingTopMat);cap.position.set(-1.35,yTop+.01,z);cap.receiveShadow=true;scene.add(cap);for(const [i,x] of [[0,-3.42],[1,.72]]){const r=createRockCluster({seed:seed+i*19,scale:.72});r.position.set(x,yTop+.04,z+(i?-.22:.18));scene.add(r)}return base}
-bridgeThreshold(-4.08,1.02,7601);bridgeThreshold(6.16,-.27,7641);
-// Shoulder masses sit outside the traversal lane and make bank -> abutment -> bridge read as one continuous world mass.
-nearFieldMass(-5.05,5.95,2.45,.92,.12);nearFieldMass(2.38,6.05,2.25,.84,-.10);
-const bridgeFernL=createTargetFernPatch({seed:7681,count:24,radius:1.7});bridgeFernL.position.set(-4.35,-.18,6.25);scene.add(bridgeFernL);
-const bridgeFernR=createTargetFernPatch({seed:7691,count:22,radius:1.6});bridgeFernR.position.set(1.75,-.18,6.15);scene.add(bridgeFernR);"""
+          s = s.replace(old_title, "<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v47</title>", 1)
+          old = "bridgeLanding(-2.28,-4.05,.40,1.04);bridgeLanding(4.48,6.12,.40,-.28);"
+          new = '''bridgeLanding(-2.28,-4.05,.40,1.04);bridgeLanding(4.48,6.12,.40,-.28);
+          // v47 Owner quality regate: visually weld both bridge ends into continuous terrain.
+          function bridgeThreshold(z,yTop,seed){const base=new THREE.Mesh(new THREE.BoxGeometry(4.85,.58,2.35),landingSideMat);base.position.set(-1.35,yTop-.31,z);base.receiveShadow=true;base.castShadow=true;scene.add(base);const cap=new THREE.Mesh(new THREE.BoxGeometry(4.55,.12,2.12),landingTopMat);cap.position.set(-1.35,yTop+.01,z);cap.receiveShadow=true;scene.add(cap);for(const [i,x] of [[0,-3.42],[1,.72]]){const r=createRockCluster({seed:seed+i*19,scale:.72});r.position.set(x,yTop+.04,z+(i?-.22:.18));scene.add(r)}return base}
+          bridgeThreshold(-4.08,1.02,7601);bridgeThreshold(6.16,-.27,7641);
+          nearFieldMass(-5.05,5.95,2.45,.92,.12);nearFieldMass(2.38,6.05,2.25,.84,-.10);
+          const bridgeFernL=createTargetFernPatch({seed:7681,count:24,radius:1.7});bridgeFernL.position.set(-4.35,-.18,6.25);scene.add(bridgeFernL);
+          const bridgeFernR=createTargetFernPatch({seed:7691,count:22,radius:1.6});bridgeFernR.position.set(1.75,-.18,6.15);scene.add(bridgeFernR);'''
           if old not in s:
-              raise SystemExit('expected bridgeLanding anchor missing; refusing ambiguous patch')
-          s=s.replace(old,new,1)
-          old2="document.documentElement.dataset.m05Variant='m03-composition-v42-wide-massing';"
-          if old2 in s:
-              s=s.replace(old2,"document.documentElement.dataset.m05Variant='m03-composition-v47-bridge-world-weld';",1)
+              raise SystemExit("expected bridge anchor missing; refusing ambiguous patch")
+          s = s.replace(old, new, 1)
+          s = s.replace("m03-composition-v42-wide-massing", "m03-composition-v47-bridge-world-weld", 1)
           p.write_text(s)
-      - name: Commit bounded repair
+          PY
+
+      - name: Commit repair if changed
+        shell: bash
         run: |
-          if git diff --quiet; then
-            echo 'No bounded repair diff to commit.'
+          git add prototypes/modern-3d/index.html
+          if git diff --cached --quiet; then
+            echo "No repair diff."
             exit 0
           fi
-          git config user.name 'luke-quest-scheduled'
-          git config user.email 'actions@users.noreply.github.com'
-          git add prototypes/modern-3d/index.html
-          git commit -m 'fix(m03): weld bridge into terrain and strengthen world mass [m03-v47-applied]'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03): weld bridge into terrain and strengthen world mass [m03-v47-applied]"
           git push origin HEAD:prototype/modern-3d
