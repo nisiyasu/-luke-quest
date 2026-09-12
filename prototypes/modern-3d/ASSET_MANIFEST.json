@@ -6,7 +6,7 @@
   "active_target_set": {
     "composition_baseline": "M03 v29 / ef4a5c50f404e5a08dde1d417420b69fca8c96ea",
     "conifer": "conifer_target_v31@3.3.0",
-    "understory": "fern_patch_target_v1@1.0.0 + meadow_field_v1@1.0.0",
+    "understory": "fern_patch_target_v2@2.0.0 + meadow_field_v1@1.1.0",
     "bank": "bank_target_v4@4.3.0",
     "water": "water_target_v3@3.4.0",
     "bridge": "bridge_principal_v1@1.2.0",
@@ -199,7 +199,7 @@
       "active_target_successor": "water_target_v3"
     },
     {
-      "id": "fern_patch_target_v1",
+      "id": "fern_patch_target_v2",
       "type": "instanced_ground_vegetation",
       "status": "PRODUCTION_CANDIDATE",
       "source": "original repo-procedural",
@@ -207,7 +207,7 @@
       "path": "m04-target-assets.js#createTargetFernPatch",
       "dimensions_m": "configurable patch scale and count",
       "origin": "patch footprint center",
-      "features": ["two-tone instanced fern blades", "seeded radial scatter", "lean/height variation"],
+      "features": ["two-tone instanced low fronds", "seeded radial scatter", "lean/height variation"],
       "version": "1.0.0"
     },
     {

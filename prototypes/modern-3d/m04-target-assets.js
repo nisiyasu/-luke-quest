@@ -109,23 +109,20 @@ export function createTargetConifer({seed=1,scale=1}={}){
 
 export function createTargetFernPatch({seed=1,scale=1,count=18}={}){
   const r=rng(seed),g=new THREE.Group(),dummy=new THREE.Object3D();
-  const blade=new THREE.PlaneGeometry(.18,1.0,1,4);
   const groups=[[],[]];
   for(let i=0;i<count;i++){
-    const a=r()*Math.PI*2,rad=Math.sqrt(r())*.78*scale,h=(.55+r()*.65)*scale;
-    groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,h,lean:.22+r()*.36});
+    const a=r()*Math.PI*2,rad=Math.sqrt(r())*.72*scale;
+    const len=(.30+r()*.32)*scale,w=(.18+r()*.12)*scale;
+    groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,len,w,lean:.30+r()*.25,twist:(r()-.5)*.32});
   }
   [fernDark,fernLight].forEach((mat,mi)=>{
-    const list=groups[mi],mesh=new THREE.InstancedMesh(blade,mat,list.length);
-    list.forEach((v,i)=>{
-      dummy.position.set(v.x,v.h*.46,v.z);dummy.rotation.set(-v.lean,-v.a,0);dummy.scale.set(.72+r()*.45,v.h,1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
-    });
+    const list=groups[mi],mesh=new THREE.InstancedMesh(FROND,mat,list.length);
+    list.forEach((v,i)=>{dummy.position.set(v.x,.025*scale,v.z);dummy.rotation.set(-v.lean,-v.a+Math.PI/2,v.twist);dummy.scale.set(v.w,1,v.len);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
     mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=false;mesh.receiveShadow=true;g.add(mesh);
   });
-  g.userData={assetId:'fern_patch_target_v1',version:'1.0.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural'};
+  g.userData={assetId:'fern_patch_target_v2',version:'2.0.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'low layered fern groundcover without vertical blade-wall silhouette'};
   return g;
 }
-
 export function createTargetBank({seed=1,width=12,depth=8,facing=1}={}){
   const r=rng(seed),g=new THREE.Group();
   g.name=`bank_target_v3_${seed}`;
