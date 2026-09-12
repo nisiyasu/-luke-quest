@@ -19,19 +19,27 @@ jobs:
         with:
           ref: prototype/modern-3d
           fetch-depth: 0
-      - name: Inspect exact fake HP source construction
+      - name: Trace fake HP generator across runtime source
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          s=Path('prototypes/modern-3d/index.html').read_text()
-          for token in ['hud-hp-row','hud-hp-track','HP']:
-              hits=[]; start=0
-              while True:
-                  i=s.find(token,start)
-                  if i<0: break
-                  hits.append(i); start=i+1
-              print('TOKEN',token,'COUNT',len(hits),'OFFSETS',hits[:20])
-              for i in hits[:8]: print('CONTEXT',repr(s[max(0,i-240):i+360]))
-          if 'hud-hp-row' not in s:
-              raise SystemExit('FAIL_CLOSED: live HUD HP class not found in source')
+          tokens=['hud-hp-row','hud-hp-track','FOREST BRIDGE','NEXT AREA','MONSTER FOREST']
+          hits=0
+          for p in Path('prototypes/modern-3d').rglob('*'):
+              if not p.is_file() or p.suffix.lower() not in {'.html','.js','.mjs','.css','.json'}: continue
+              try: s=p.read_text()
+              except Exception: continue
+              matched=[t for t in tokens if t in s]
+              if matched:
+                  hits+=1
+                  print('FILE',p,'TOKENS',matched)
+                  for t in matched:
+                      start=0
+                      while True:
+                          i=s.find(t,start)
+                          if i<0: break
+                          print('CONTEXT',t,repr(s[max(0,i-220):i+420]))
+                          start=i+1
+          if not hits:
+              raise SystemExit('FAIL_CLOSED: no HUD generator source found')
           PY
