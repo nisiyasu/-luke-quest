@@ -64,6 +64,7 @@ jobs:
             {name:'practical',query:'quality=practical&m10dpr=3',pixelRatio:'1.25',shadow:'1024'}
           ];
           const summary={head:process.env.EXPECTED_HEAD,artifact:'dist/luke-quest-modern-3d.html',viewport:VIEW,profiles:{},ios_physical_verification:'PENDING'};
+          const playerDistance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 
           async function ready(page,url){
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));
@@ -76,11 +77,13 @@ jobs:
           async function snapshotState(page){
             return page.evaluate(()=>{
               const box=q=>{const e=document.querySelector(q);if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,text:(e.innerText||'').trim()}};
+              const player=(document.documentElement.dataset.m08Player||'').split(',').map(Number);
               return{
                 quality:document.documentElement.dataset.m10QualityPreset,
                 pixelRatio:document.documentElement.dataset.m10PixelRatio,
                 shadow:document.documentElement.dataset.m10ShadowMapSize,
-                state:(document.querySelector('#state')?.innerText||'').trim(),
+                player,
+                activeInputs:Number(window.LQ_MODERN_3D_M05?.activeInputs ?? -1),
                 status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),
                 body:(document.body.innerText||'').trim()
               };
@@ -98,6 +101,7 @@ jobs:
                 assert.strictEqual(before.quality,profile.name,'profile marker');
                 assert.strictEqual(before.pixelRatio,profile.pixelRatio,'pixel ratio marker');
                 assert.strictEqual(before.shadow,profile.shadow,'shadow marker');
+                assert.ok(before.player.length===3&&before.player.every(Number.isFinite),`${profile.name} player coordinate marker invalid`);
                 for(const [name,b] of Object.entries({status:before.status,objective:before.objective,dpad:before.dpad,hint:before.hint})) assert.ok(inside(b),`${profile.name} ${name} clipped ${JSON.stringify(b)}`);
                 for(const bad of ['DISPLAY SAMPLE','DEMO HUD','3D PROTOTYPE']) assert.ok(!before.body.toUpperCase().includes(bad),`${profile.name} prototype residue ${bad}`);
 
@@ -105,13 +109,15 @@ jobs:
                 await page.keyboard.down('ArrowUp'); await page.waitForTimeout(700); await page.keyboard.up('ArrowUp'); await page.waitForTimeout(300);
                 await page.keyboard.down('ArrowRight'); await page.waitForTimeout(700); await page.keyboard.up('ArrowRight'); await page.waitForTimeout(300);
                 const moved=await snapshotState(page);
-                assert.notStrictEqual(moved.state,before.state,`${profile.name} movement did not change state text`);
+                assert.ok(playerDistance(moved.player,before.player)>.2,`${profile.name} movement did not change runtime player coordinates`);
+                assert.strictEqual(moved.activeInputs,0,`${profile.name} input remained active after key release`);
                 await page.waitForTimeout(600);
-                const release1=(await snapshotState(page)).state;
+                const release1=await snapshotState(page);
                 await page.waitForTimeout(600);
-                const release2=(await snapshotState(page)).state;
-                assert.strictEqual(release2,release1,`${profile.name} release drift detected`);
-                summary.profiles[profile.name]={url,settings:{pixelRatio:before.pixelRatio,shadowMapSize:before.shadow},state_before:before.state,state_after_path:moved.state,state_release_stable:release2,ui_in_bounds:true,runtime_errors:[]};
+                const release2=await snapshotState(page);
+                assert.ok(playerDistance(release2.player,release1.player)<.02,`${profile.name} release drift detected`);
+                assert.strictEqual(release2.activeInputs,0,`${profile.name} active input drift after release`);
+                summary.profiles[profile.name]={url,settings:{pixelRatio:before.pixelRatio,shadowMapSize:before.shadow},player_before:before.player,player_after_path:moved.player,player_release_stable:release2.player,active_inputs_after_release:release2.activeInputs,ui_in_bounds:true,runtime_errors:[]};
                 await page.close();
               }
 
