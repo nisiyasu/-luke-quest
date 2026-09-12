@@ -19,12 +19,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Build deterministic local browser fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .modern3d-ci
+          cp -a prototypes/modern-3d .modern3d-ci
+          curl -fL --retry 4 --retry-all-errors --connect-timeout 10 \
+            'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' \
+            -o .modern3d-ci/three.module.js
+          test -s .modern3d-ci/three.module.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.modern3d-ci/index.html')
+          s=p.read_text()
+          old='https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js'
+          assert old in s, 'expected Three CDN importmap URL'
+          p.write_text(s.replace(old,'./three.module.js',1))
+          PY
+          grep -q '"three":"./three.module.js"' .modern3d-ci/index.html
       - name: Start prototype server
         shell: bash
         run: |
-          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/modern3d-fast-http.log 2>&1 &
+          python3 -m http.server 8140 --directory .modern3d-ci >/tmp/modern3d-fast-http.log 2>&1 &
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+          curl -fsS http://127.0.0.1:8140/three.module.js >/dev/null
       - name: Verify traversal state with bootstrap retry
         shell: bash
         run: |
