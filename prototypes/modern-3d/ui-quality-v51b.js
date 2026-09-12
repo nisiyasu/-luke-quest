@@ -1,4 +1,4 @@
-// M09 Owner Quality Regate v62: compact map-first fantasy HUD.
+// M09 Owner Quality Regate v62.1: compact map-first fantasy HUD.
 // DOM-only repair. 3D runtime, traversal, world assets and combat claims remain untouched.
 function installOwnerRegateHud(){
   const status=document.querySelector('#status');
@@ -6,7 +6,9 @@ function installOwnerRegateHud(){
   const hint=document.querySelector('#hint');
   if(!status||!objective||!hint){document.documentElement.dataset.m09OwnerHud='missing-anchor';return;}
 
-  status.innerHTML='<div class="hud-name-row"><span class="hero-sigil">L</span><div class="hud-name"><strong>LUKE</strong><small>FOREST BRIDGE</small></div></div><div class="hud-hp-row"><span>HP</span><div class="hud-hp-track"><i></i></div></div>';
+  // Preserve #state because the main runtime captures it after dependency modules execute.
+  // Removing it made the scene finish rendering but then throw at stateEl.textContent.
+  status.innerHTML='<div class="hud-name-row"><span class="hero-sigil">L</span><div class="hud-name"><strong>LUKE</strong><small>FOREST BRIDGE</small></div></div><div class="hud-hp-row"><span>HP</span><div class="hud-hp-track"><i></i></div></div><span id="state" class="runtime-state">initializing</span>';
   objective.innerHTML='<span class="objective-arrow">↗</span><div><small>NEXT AREA</small><b>MONSTER FOREST</b></div>';
   hint.setAttribute('aria-label','action and menu controls');
   hint.innerHTML='<span class="action-orb"><strong>A</strong><small>ACTION</small></span><span class="menu-orb">MENU</span>';
@@ -24,6 +26,7 @@ function installOwnerRegateHud(){
   const style=document.createElement('style');style.id='owner-ui-v62';style.textContent=`
 :root{--hud-gold:#d8b35d;--hud-ivory:#f5ecd2;--hud-ink:rgba(5,12,19,.91);--hud-blue:rgba(12,26,36,.88)}
 .panel{background:linear-gradient(180deg,var(--hud-ink),var(--hud-blue));border:1px solid rgba(216,179,93,.86);box-shadow:0 5px 18px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.045);backdrop-filter:blur(5px)}
+.runtime-state{display:none!important}
 #status{width:148px;min-width:0;padding:8px 9px 9px;border-radius:9px}.hud-name-row{display:flex;align-items:center;gap:8px}.hero-sigil{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;border:1px solid rgba(231,200,119,.84);background:radial-gradient(circle at 35% 30%,#4d563a,#18231d 72%);font-family:Georgia,serif;font-size:13px;font-weight:700;color:#ffe39a}.hud-name{display:grid;min-width:0}.hud-name strong{font-family:Georgia,serif;font-size:10px;letter-spacing:.14em;color:var(--hud-ivory)}.hud-name small{margin-top:1px;font-family:Georgia,serif;font-size:6px;letter-spacing:.08em;color:#aaa795}.hud-hp-row{display:grid;grid-template-columns:18px 1fr;align-items:center;gap:5px;margin-top:6px}.hud-hp-row>span{font:700 7px Georgia,serif;letter-spacing:.08em;color:#d7c99f}.hud-hp-track{height:5px;border:1px solid rgba(218,193,123,.58);background:#172029;border-radius:3px;overflow:hidden}.hud-hp-track i{display:block;width:82%;height:100%;background:linear-gradient(90deg,#49ad64,#78d77c)}
 .objective{display:flex;align-items:center;gap:8px;min-width:0;width:154px;padding:7px 9px;border-radius:9px}.objective>div{display:grid;min-width:0}.objective small{font:normal 6px Georgia,serif;letter-spacing:.15em;color:#b8b09c}.objective b{margin-top:1px;font:700 9px Georgia,serif;letter-spacing:.035em;color:#fff0bd;white-space:nowrap}.objective-arrow{display:grid;place-items:center;flex:0 0 auto;width:29px;height:29px;border-radius:50%;border:1px solid #d8b35d;background:radial-gradient(circle at 35% 30%,#514525,#17201b 72%);font-size:16px;color:#ffd975}
 #exploration-route{display:none!important}
@@ -35,6 +38,6 @@ function installOwnerRegateHud(){
 `;document.head.append(style);
 
   document.documentElement.dataset.m09OwnerHud='pass';
-  document.documentElement.dataset.m09HudMode='map-first-v62';
+  document.documentElement.dataset.m09HudMode='map-first-v62-1';
 }
 installOwnerRegateHud();
