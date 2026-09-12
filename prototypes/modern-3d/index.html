@@ -36,11 +36,11 @@ document.documentElement.dataset.m10PixelRatio=effectiveDpr.toFixed(2);
 document.documentElement.dataset.m10ShadowMapSize=practicalPreset?'1024':'2048';
 try{
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(effectiveDpr);renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=practicalPreset?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;document.body.prepend(renderer.domElement);
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x97b1ab);scene.fog=new THREE.FogExp2(0xa6bbb3,.0104);
+renderer.setPixelRatio(effectiveDpr);renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=practicalPreset?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.23;document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xb1c6b8);scene.fog=new THREE.FogExp2(0xb9c9b8,.0096);
 const camera=new THREE.PerspectiveCamera(34,innerWidth/innerHeight,.1,150);
-scene.add(new THREE.HemisphereLight(0xf0f4e8,0x20372a,1.18));
-const sun=new THREE.DirectionalLight(0xffd28c,4.05);sun.position.set(-16,36,8);sun.castShadow=true;const shadowSize=practicalPreset?1024:2048;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-26;sun.shadow.camera.right=26;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-.00022;sun.shadow.normalBias=.04;scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xfff3d8,0x294331,1.26));
+const sun=new THREE.DirectionalLight(0xffcf82,4.45);sun.position.set(-16,36,8);sun.castShadow=true;const shadowSize=practicalPreset?1024:2048;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-26;sun.shadow.camera.right=26;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-.00022;sun.shadow.normalBias=.04;scene.add(sun);
 const floorMat=new THREE.MeshStandardMaterial({color:0x344931,roughness:1});
 const underlay=new THREE.Mesh(new THREE.PlaneGeometry(86,86),floorMat);underlay.rotation.x=-Math.PI/2;underlay.position.y=-.72;underlay.receiveShadow=true;scene.add(underlay);
 function bank(seed,width,depth,x,y,z,facing,ry=0){const b=createTargetBankV4({seed,width,depth,facing});b.position.set(x,y,z);b.rotation.y=ry;scene.add(b);return b}

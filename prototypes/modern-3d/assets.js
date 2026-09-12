@@ -5,13 +5,13 @@ function canvasTexture(w,h,paint){const c=document.createElement('canvas');c.wid
 function shadow(o){o.traverse?.(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});return o}
 function beam(g,w,h,d,mat,x,y,z,rotZ=0){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.rotation.z=rotZ;g.add(m);return m}
 
-export function makeWoodTexture(seed=11){const r=seeded(seed);return canvasTexture(256,256,(x,w,h)=>{x.fillStyle='#8a582e';x.fillRect(0,0,w,h);for(let i=0;i<95;i++){const y=r()*h,amp=2+r()*8;x.strokeStyle=`rgba(${55+Math.floor(r()*35)},${28+Math.floor(r()*22)},${12+Math.floor(r()*14)},${.12+r()*.2})`;x.lineWidth=.5+r()*1.5;x.beginPath();for(let px=0;px<=w;px+=8)x.lineTo(px,y+Math.sin(px*.035+r()*5)*amp);x.stroke()}for(let i=0;i<12;i++){x.strokeStyle='rgba(54,28,14,.34)';x.lineWidth=1.2;x.beginPath();x.ellipse(r()*w,r()*h,5+r()*15,2+r()*5,r()*.5,0,Math.PI*2);x.stroke()}})}
+export function makeWoodTexture(seed=11){const r=seeded(seed);return canvasTexture(256,256,(x,w,h)=>{x.fillStyle='#8b6a45';x.fillRect(0,0,w,h);for(let i=0;i<95;i++){const y=r()*h,amp=2+r()*8;x.strokeStyle=`rgba(${55+Math.floor(r()*35)},${28+Math.floor(r()*22)},${12+Math.floor(r()*14)},${.12+r()*.2})`;x.lineWidth=.5+r()*1.5;x.beginPath();for(let px=0;px<=w;px+=8)x.lineTo(px,y+Math.sin(px*.035+r()*5)*amp);x.stroke()}for(let i=0;i<12;i++){x.strokeStyle='rgba(54,28,14,.34)';x.lineWidth=1.2;x.beginPath();x.ellipse(r()*w,r()*h,5+r()*15,2+r()*5,r()*.5,0,Math.PI*2);x.stroke()}})}
 export function makeBarkTexture(seed=29){const r=seeded(seed);return canvasTexture(128,256,(x,w,h)=>{x.fillStyle='#5d402a';x.fillRect(0,0,w,h);for(let i=0;i<75;i++){const xx=r()*w;x.strokeStyle=`rgba(${40+Math.floor(r()*35)},${24+Math.floor(r()*20)},${12+Math.floor(r()*12)},${.16+r()*.25})`;x.lineWidth=1+r()*3;x.beginPath();x.moveTo(xx,0);for(let y=0;y<h;y+=18)x.lineTo(xx+Math.sin(y*.05+r()*5)*(2+r()*4),y);x.stroke()}})}
 export function makeGrassTexture(seed=47){const r=seeded(seed);return canvasTexture(256,256,(x,w,h)=>{x.fillStyle='#617f3c';x.fillRect(0,0,w,h);for(let i=0;i<110;i++){const cx=r()*w,cy=r()*h,rr=4+r()*25;x.fillStyle=`rgba(${40+Math.floor(r()*55)},${75+Math.floor(r()*65)},${25+Math.floor(r()*35)},${.08+r()*.18})`;x.beginPath();x.arc(cx,cy,rr,0,Math.PI*2);x.fill()}for(let i=0;i<90;i++){x.strokeStyle=`rgba(210,200,120,${.04+r()*.1})`;x.beginPath();const cx=r()*w,cy=r()*h;x.moveTo(cx,cy+6);x.lineTo(cx+(r()-.5)*4,cy-5-r()*6);x.stroke()}})}
 export function makeCliffTexture(seed=73){const r=seeded(seed);return canvasTexture(256,256,(x,w,h)=>{x.fillStyle='#74766d';x.fillRect(0,0,w,h);for(let y=12;y<h;y+=18+r()*12){x.strokeStyle=`rgba(55,58,54,${.15+r()*.18})`;x.lineWidth=1+r()*2;x.beginPath();x.moveTo(0,y);for(let px=0;px<w;px+=16)x.lineTo(px,y+(r()-.5)*7);x.stroke()}for(let i=0;i<45;i++){x.fillStyle=`rgba(${90+Math.floor(r()*55)},${85+Math.floor(r()*45)},${70+Math.floor(r()*30)},${.06+r()*.15})`;x.fillRect(r()*w,r()*h,5+r()*30,2+r()*10)}})}
 
 const woodTex=makeWoodTexture();woodTex.repeat.set(2.2,.45);const barkTex=makeBarkTexture();barkTex.repeat.set(1.4,2.4);const grassTex=makeGrassTexture();grassTex.repeat.set(4,4);const cliffTex=makeCliffTexture();cliffTex.repeat.set(3,1.4);
-const woodMat=new THREE.MeshStandardMaterial({map:woodTex,color:0xb97a3f,roughness:.78,metalness:0}),woodDark=new THREE.MeshStandardMaterial({map:woodTex,color:0x70401f,roughness:.88,metalness:0}),ironMat=new THREE.MeshStandardMaterial({color:0x3b4143,roughness:.45,metalness:.68}),barkMat=new THREE.MeshStandardMaterial({map:barkTex,color:0x745038,roughness:1,metalness:0});
+const woodMat=new THREE.MeshStandardMaterial({map:woodTex,color:0xa98258,roughness:.82,metalness:0}),woodDark=new THREE.MeshStandardMaterial({map:woodTex,color:0x5e4935,roughness:.9,metalness:0}),ironMat=new THREE.MeshStandardMaterial({color:0x3b4143,roughness:.45,metalness:.68}),barkMat=new THREE.MeshStandardMaterial({map:barkTex,color:0x745038,roughness:1,metalness:0});
 const foliageMats=[0x184d34,0x21613e,0x2b7046].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.93,metalness:0})),rockMats=[0x777a73,0x686d68,0x85877e].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.94,metalness:0})),mossMat=new THREE.MeshStandardMaterial({color:0x566a37,roughness:1,metalness:0});
 
 export function createProductionBridge(){
@@ -19,8 +19,8 @@ export function createProductionBridge(){
   const boardCount=22,depth=6.8,step=depth/boardCount;
   const deckMats=[
     woodMat,
-    new THREE.MeshStandardMaterial({map:woodTex,color:0xa96a34,roughness:.84,metalness:0}),
-    new THREE.MeshStandardMaterial({map:woodTex,color:0xc58a4b,roughness:.8,metalness:0})
+    new THREE.MeshStandardMaterial({map:woodTex,color:0x96714b,roughness:.86,metalness:0}),
+    new THREE.MeshStandardMaterial({map:woodTex,color:0xb69063,roughness:.82,metalness:0})
   ];
   for(let i=0;i<boardCount;i++){
     const z=-depth/2+step*(i+.5),j=Math.sin(i*2.71)*.025;

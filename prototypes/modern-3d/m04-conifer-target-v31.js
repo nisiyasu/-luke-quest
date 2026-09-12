@@ -3,13 +3,13 @@ import * as THREE from 'three';
 function rng(seed=1){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
 function shadow(root){root.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});return root}
 
-const bark=new THREE.MeshStandardMaterial({color:0x513622,roughness:.98});
-const barkDark=new THREE.MeshStandardMaterial({color:0x332519,roughness:.99});
+const bark=new THREE.MeshStandardMaterial({color:0x68482e,roughness:.98});
+const barkDark=new THREE.MeshStandardMaterial({color:0x44301f,roughness:.99});
 const foliage=[
-  new THREE.MeshStandardMaterial({color:0x153f29,roughness:.96,side:THREE.DoubleSide}),
-  new THREE.MeshStandardMaterial({color:0x285f35,roughness:.94,side:THREE.DoubleSide}),
-  new THREE.MeshStandardMaterial({color:0x477f42,roughness:.92,side:THREE.DoubleSide}),
-  new THREE.MeshStandardMaterial({color:0x74a557,roughness:.90,side:THREE.DoubleSide})
+  new THREE.MeshStandardMaterial({color:0x245a34,roughness:.96,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x377744,roughness:.94,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x568f4f,roughness:.92,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x86b866,roughness:.90,side:THREE.DoubleSide})
 ];
 
 function fanGeo(){
