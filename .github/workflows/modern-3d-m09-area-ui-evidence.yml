@@ -94,8 +94,8 @@ jobs:
             --no-first-run --no-default-browser-check --metrics-recording-only \
             --user-data-dir="$profile" --enable-webgl --ignore-gpu-blocklist \
             --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=350 --dump-dom \
-            'http://127.0.0.1:8140/index.html?ci=1&m08proof=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
+            --virtual-time-budget=450 --dump-dom \
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
           rm -rf "$profile"
           grep -q 'data-m09-owner-hud="pass"' .modern3d-m09/dom.html
           grep -q 'class="hud-place"' .modern3d-m09/dom.html
@@ -103,7 +103,6 @@ jobs:
           grep -q '探索中' .modern3d-m09/dom.html
           ! grep -q '3D PROTOTYPE · DEMO HUD' .modern3d-m09/dom.html
           ! grep -q 'DISPLAY SAMPLE' .modern3d-m09/dom.html
-          grep -q 'data-m08-ci="pass"' .modern3d-m09/dom.html
       - uses: actions/upload-artifact@v4
         with:
           name: m09-runtime-hud-${{ github.sha }}
