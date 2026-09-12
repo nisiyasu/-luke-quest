@@ -1,0 +1,93 @@
+name: M07-P02 Lighting Cohesion Gate
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m07-p02-lighting-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighting-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m07-p02-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Capture HQ practical and moved-position lighting evidence
+        run: |
+          mkdir -p .m07-p02
+          cat > lighting-gate.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          const rows=[];
+          async function open(browser,quality){
+            const p=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const errors=[];p.on('pageerror',e=>errors.push(String(e)));
+            const started=Date.now();
+            await p.goto(`http://127.0.0.1:8140/index.html?quality=${quality}`,{waitUntil:'domcontentloaded',timeout:150000});
+            await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+            await p.waitForTimeout(900);
+            if(errors.length)throw new Error(`${quality} page errors=${JSON.stringify(errors)}`);
+            const meta=await p.evaluate(()=>({
+              scene:document.documentElement.dataset.lqModern3d,
+              lighting:document.documentElement.dataset.m07Lighting||'UNKNOWN',
+              camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',
+              player:document.documentElement.dataset.m08Player||'UNKNOWN',
+              preset:document.documentElement.dataset.m10QualityPreset||'UNKNOWN',
+              pixelRatio:document.documentElement.dataset.m10PixelRatio||'UNKNOWN',
+              shadowMap:document.documentElement.dataset.m10ShadowMapSize||'UNKNOWN'
+            }));
+            rows.push(`${quality}_ready_ms=${Date.now()-started} meta=${JSON.stringify(meta)}`);
+            return p;
+          }
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            try{
+              let p=await open(browser,'high');
+              await p.screenshot({path:'.m07-p02/high-canonical.png',timeout:150000});
+              const before=await p.evaluate(()=>document.documentElement.dataset.m08Player);
+              await p.keyboard.down('ArrowUp');await p.waitForTimeout(1300);await p.keyboard.up('ArrowUp');await p.waitForTimeout(650);
+              const after=await p.evaluate(()=>document.documentElement.dataset.m08Player);
+              await p.screenshot({path:'.m07-p02/high-moved.png',timeout:150000});
+              rows.push(`high_move before=${before} after=${after}`);
+              await p.close();
+              p=await open(browser,'practical');
+              await p.screenshot({path:'.m07-p02/practical-canonical.png',timeout:150000});
+              await p.close();
+              const source=fs.readFileSync('prototypes/modern-3d/index.html','utf8');
+              for(const token of ['toneMappingExposure=1.07','FogExp2(0xb4c8bd,.0074)','HemisphereLight(0xfff0d3,0x29483d,1.06)','DirectionalLight(0xffd7a1,4.18)','DirectionalLight(0xb7d7e8,.31)','dataset.m07Lighting=\'cohesion-v1\''])if(!source.includes(token))throw new Error(`lighting contract token missing: ${token}`);
+              rows.push('lighting_contract=PASS exposure=1.07 fog=0.0074 hemisphere=1.06 sun=4.18 skyFill=0.31');
+              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} page_errors=0`);
+              fs.writeFileSync('.m07-p02/lighting-audit.txt',rows.join('\n')+'\n');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node lighting-gate.cjs
+      - name: Add visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m07-p02/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m07-p02/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m07-p02-lighting-gate
+          path: .m07-p02
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
