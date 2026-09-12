@@ -39,12 +39,12 @@ try{
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
 function viewportSize(){const root=document.documentElement;return{w:Math.max(1,root.clientWidth||innerWidth),h:Math.max(1,root.clientHeight||innerHeight)}}
 const initialViewport=viewportSize();
-renderer.setPixelRatio(effectiveDpr);renderer.setSize(initialViewport.w,initialViewport.h,false);renderer.domElement.style.width='100vw';renderer.domElement.style.height='100dvh';renderer.shadowMap.enabled=true;renderer.shadowMap.type=practicalPreset?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;document.body.prepend(renderer.domElement);
-const scene=new THREE.Scene();scene.background=new THREE.Color(0xaec7bd);scene.fog=new THREE.FogExp2(0xb8cdc3,.0116);
+renderer.setPixelRatio(effectiveDpr);renderer.setSize(initialViewport.w,initialViewport.h,false);renderer.domElement.style.width='100vw';renderer.domElement.style.height='100dvh';renderer.shadowMap.enabled=true;renderer.shadowMap.type=practicalPreset?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.07;document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9fb7ae);scene.fog=new THREE.FogExp2(0xb4c8bd,.0074);
 const camera=new THREE.PerspectiveCamera(39,initialViewport.w/initialViewport.h,.1,150);
-scene.add(new THREE.HemisphereLight(0xfff1d2,0x355143,1.42));
-const sun=new THREE.DirectionalLight(0xffd493,3.82);sun.position.set(-18,38,10);sun.castShadow=true;const shadowSize=practicalPreset?1024:2048;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-26;sun.shadow.camera.right=26;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-.00022;sun.shadow.normalBias=.04;scene.add(sun);
-const skyFill=new THREE.DirectionalLight(0xb8d9e7,.34);skyFill.position.set(20,24,-20);skyFill.castShadow=false;scene.add(skyFill);
+scene.add(new THREE.HemisphereLight(0xfff0d3,0x29483d,1.06));
+const sun=new THREE.DirectionalLight(0xffd7a1,4.18);sun.position.set(-20,36,12);sun.castShadow=true;const shadowSize=practicalPreset?1024:2048;sun.shadow.mapSize.set(shadowSize,shadowSize);sun.shadow.camera.left=-26;sun.shadow.camera.right=26;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-.00018;sun.shadow.normalBias=.028;scene.add(sun);
+const skyFill=new THREE.DirectionalLight(0xb7d7e8,.31);skyFill.position.set(18,22,-22);skyFill.castShadow=false;scene.add(skyFill);document.documentElement.dataset.m07Lighting='cohesion-v1';
 const floorMat=new THREE.MeshStandardMaterial({color:0x344931,roughness:1});
 const underlay=new THREE.Mesh(new THREE.PlaneGeometry(86,86),floorMat);underlay.rotation.x=-Math.PI/2;underlay.position.y=-.72;underlay.receiveShadow=true;scene.add(underlay);
 function bank(seed,width,depth,x,y,z,facing,ry=0){const b=createTargetBankV4({seed,width,depth,facing});b.position.set(x,y,z);b.rotation.y=ry;scene.add(b);return b}
