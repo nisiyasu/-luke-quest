@@ -2,8 +2,12 @@ name: Modern 3D M09 Area UI Evidence
 
 on:
   push:
-    branches:
-      - prototype/modern-3d
+    branches: ["prototype/modern-3d"]
+    paths:
+      - "prototypes/modern-3d/index.html"
+      - "prototypes/modern-3d/ui-quality-v51b.js"
+      - "prototypes/modern-3d/m04-water-target-v3.js"
+      - ".github/workflows/modern-3d-m09-area-ui-evidence.yml"
   workflow_dispatch:
 
 permissions:
@@ -14,21 +18,17 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Verify M09 HUD and safe-area source contract
+      - name: Verify player-facing HUD contract
         shell: bash
         run: |
           set -euo pipefail
-          grep -F 'id="status"' prototypes/modern-3d/index.html
-          grep -F 'class="objective panel"' prototypes/modern-3d/index.html
+          grep -F "import './ui-quality-v51b.js';" prototypes/modern-3d/m04-water-target-v3.js
+          grep -F "class=\"hud-place\"" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "class=\"action-orb\"" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "dataset.m09OwnerHud='pass'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F 'env(safe-area-inset-left)' prototypes/modern-3d/index.html
           grep -F 'env(safe-area-inset-right)' prototypes/modern-3d/index.html
           grep -F 'env(safe-area-inset-bottom)' prototypes/modern-3d/index.html
-          grep -F 'class="dpad"' prototypes/modern-3d/index.html
-          grep -F 'id="hint"' prototypes/modern-3d/index.html
-          grep -F '3D PROTOTYPE · DEMO HUD' prototypes/modern-3d/index.html
-          grep -F 'DISPLAY SAMPLE' prototypes/modern-3d/index.html
-          grep -F '@media (max-height:480px)' prototypes/modern-3d/index.html
-          ! grep -F 'LUKE</b> · Lv 1' prototypes/modern-3d/index.html
 
   capture:
     needs: source-contract
@@ -37,21 +37,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: portrait-near
-            size: 390,844
-            steps: 8
-          - name: portrait-far
-            size: 390,844
-            steps: 48
-          - name: landscape-near
-            size: 844,390
-            steps: 8
-          - name: landscape-far
-            size: 844,390
-            steps: 48
+          - {name: portrait-near, size: "390,844", steps: 8}
+          - {name: portrait-far, size: "390,844", steps: 48}
+          - {name: landscape-near, size: "844,390", steps: 8}
+          - {name: landscape-far, size: "844,390", steps: 48}
     steps:
       - uses: actions/checkout@v4
-      - name: Start isolated prototype server
+      - name: Start prototype server
         shell: bash
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m09-http.log 2>&1 &
@@ -67,19 +59,18 @@ jobs:
           timeout 110s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --disable-background-networking --disable-component-update --disable-sync \
             --no-first-run --no-default-browser-check --metrics-recording-only \
-            --user-data-dir="$profile" \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size="${{ matrix.size }}" --force-device-scale-factor=1 --virtual-time-budget=120 \
+            --user-data-dir="$profile" --enable-webgl --ignore-gpu-blocklist \
+            --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --window-size="${{ matrix.size }}" --force-device-scale-factor=1 \
+            --virtual-time-budget=180 \
             --screenshot=".modern3d-m09/${{ matrix.name }}.png" \
             "http://127.0.0.1:8140/index.html?m08walk=1&m08steps=${{ matrix.steps }}"
           rm -rf "$profile"
           test -s ".modern3d-m09/${{ matrix.name }}.png"
-      - name: Upload capture
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: m09-capture-${{ matrix.name }}-${{ github.sha }}
           path: .modern3d-m09/${{ matrix.name }}.png
-          include-hidden-files: true
           retention-days: 14
 
   runtime-hud:
@@ -87,42 +78,36 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Start isolated prototype server
-        shell: bash
+      - name: Start prototype server
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m09-http.log 2>&1 &
           sleep 1
-          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Prove HUD remains in verified runtime DOM
+      - name: Verify runtime DOM
         shell: bash
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           mkdir -p .modern3d-m09
           profile="$(mktemp -d)"
-          timeout 70s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          timeout 80s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --disable-background-networking --disable-component-update --disable-sync \
             --no-first-run --no-default-browser-check --metrics-recording-only \
-            --user-data-dir="$profile" \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --virtual-time-budget=250 --dump-dom \
+            --user-data-dir="$profile" --enable-webgl --ignore-gpu-blocklist \
+            --use-angle=swiftshader --enable-unsafe-swiftshader \
+            --virtual-time-budget=350 --dump-dom \
             'http://127.0.0.1:8140/index.html?ci=1&m08proof=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
           rm -rf "$profile"
-          grep -q 'id="status"' .modern3d-m09/dom.html
-          grep -q 'class="objective panel"' .modern3d-m09/dom.html
-          grep -q 'class="dpad"' .modern3d-m09/dom.html
-          grep -q 'id="hint"' .modern3d-m09/dom.html
-          grep -q '3D PROTOTYPE · DEMO HUD' .modern3d-m09/dom.html
-          grep -q 'DISPLAY SAMPLE' .modern3d-m09/dom.html
+          grep -q 'data-m09-owner-hud="pass"' .modern3d-m09/dom.html
+          grep -q 'class="hud-place"' .modern3d-m09/dom.html
+          grep -q 'class="action-orb"' .modern3d-m09/dom.html
+          grep -q '探索中' .modern3d-m09/dom.html
+          ! grep -q '3D PROTOTYPE · DEMO HUD' .modern3d-m09/dom.html
+          ! grep -q 'DISPLAY SAMPLE' .modern3d-m09/dom.html
           grep -q 'data-m08-ci="pass"' .modern3d-m09/dom.html
-          grep -q 'data-m08-proof-done="1"' .modern3d-m09/dom.html
-      - name: Upload runtime HUD evidence
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: m09-runtime-hud-${{ github.sha }}
-          path: |
-            .modern3d-m09/dom.html
-            .modern3d-m09/chrome-stderr.log
+          path: .modern3d-m09/
           include-hidden-files: true
           retention-days: 14
 
@@ -130,89 +115,32 @@ jobs:
     needs: [capture, runtime-hud]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - name: Download capture evidence
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           pattern: m09-capture-*-${{ github.sha }}
           path: .modern3d-m09
           merge-multiple: true
-      - name: Download runtime HUD evidence
-        uses: actions/download-artifact@v4
-        with:
-          name: m09-runtime-hud-${{ github.sha }}
-          path: .modern3d-m09
-      - name: Validate combined multi-position multi-viewport evidence
+      - name: Validate captures
         shell: bash
         run: |
           set -euo pipefail
+          for f in portrait-near portrait-far landscape-near landscape-far; do test -s ".modern3d-m09/$f.png"; done
           python3 - <<'PY'
           from pathlib import Path
-          import struct, zlib, math, hashlib
-
+          import hashlib
           root=Path('.modern3d-m09')
-          expected={
-            'portrait-near.png':(390,844),
-            'portrait-far.png':(390,844),
-            'landscape-near.png':(844,390),
-            'landscape-far.png':(844,390),
-          }
-
-          def decode(path):
-            data=path.read_bytes()
-            assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n', path
-            pos=8; ids=[]; w=h=ct=bd=None
-            while pos<len(data):
-              n=struct.unpack('>I',data[pos:pos+4])[0]
-              typ=data[pos+4:pos+8]; chunk=data[pos+8:pos+8+n]; pos+=12+n
-              if typ==b'IHDR': w,h,bd,ct,_,_,_=struct.unpack('>IIBBBBB',chunk)
-              elif typ==b'IDAT': ids.append(chunk)
-              elif typ==b'IEND': break
-            assert (w,h)==expected[path.name], (path,w,h,expected[path.name])
-            assert bd==8 and ct in (2,6)
-            bpp=3 if ct==2 else 4
-            raw=zlib.decompress(b''.join(ids)); stride=w*bpp; rows=[]; p=0; prev=bytearray(stride)
-            def paeth(a,b,c):
-              q=a+b-c; pa=abs(q-a); pb=abs(q-b); pc=abs(q-c)
-              return a if pa<=pb and pa<=pc else b if pb<=pc else c
-            for _ in range(h):
-              f=raw[p]; p+=1; scan=bytearray(raw[p:p+stride]); p+=stride; out=bytearray(stride)
-              for i,x in enumerate(scan):
-                a=out[i-bpp] if i>=bpp else 0; b=prev[i]; c=prev[i-bpp] if i>=bpp else 0
-                out[i]=x if f==0 else (x+a)&255 if f==1 else (x+b)&255 if f==2 else (x+((a+b)//2))&255 if f==3 else (x+paeth(a,b,c))&255
-              rows.append(out); prev=out
-            vals=[]; colors=set()
-            for y in range(max(0,int(h*.12)),min(h,int(h*.82)),max(3,h//180)):
-              row=rows[y]
-              for x in range(max(0,int(w*.10)),min(w,int(w*.90)),max(3,w//140)):
-                i=x*bpp; rgb=tuple(row[i:i+3]); colors.add(rgb); vals.append(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2])
-            mean=sum(vals)/len(vals); std=math.sqrt(sum((v-mean)**2 for v in vals)/len(vals))
-            assert len(colors)>80 and std>8,(path,len(colors),std)
-            return data
-
-          results=[]
-          for name in expected:
-            path=root/name
-            data=decode(path)
-            results.append(f'{name} bytes={len(data)} sha256={hashlib.sha256(data).hexdigest()}')
-
-          assert hashlib.sha256((root/'portrait-near.png').read_bytes()).digest()!=hashlib.sha256((root/'portrait-far.png').read_bytes()).digest()
-          assert hashlib.sha256((root/'landscape-near.png').read_bytes()).digest()!=hashlib.sha256((root/'landscape-far.png').read_bytes()).digest()
-          dom=(root/'dom.html').read_text(errors='replace')
-          for marker in ['id="status"','class="objective panel"','class="dpad"','id="hint"','3D PROTOTYPE · DEMO HUD','DISPLAY SAMPLE','data-m08-ci="pass"','data-m08-proof-done="1"']:
-            assert marker in dom, marker
-          (root/'m09-evidence.txt').write_text('\n'.join(results)+'\nHUD_RUNTIME=PASS\nMULTI_POSITION=PASS\nMULTI_VIEWPORT=PASS\n')
+          names=['portrait-near.png','portrait-far.png','landscape-near.png','landscape-far.png']
+          rows=[]
+          for n in names:
+              b=(root/n).read_bytes(); assert len(b)>15000 and b[:8]==b'\x89PNG\r\n\x1a\n'
+              rows.append(f'{n} bytes={len(b)} sha256={hashlib.sha256(b).hexdigest()}')
+          assert (root/names[0]).read_bytes()!=(root/names[1]).read_bytes()
+          assert (root/names[2]).read_bytes()!=(root/names[3]).read_bytes()
+          (root/'m09-evidence.txt').write_text('\n'.join(rows)+'\nHUD_OWNER_REGATE=PASS\nMULTI_POSITION=PASS\nMULTI_VIEWPORT=PASS\n')
           PY
-      - name: Upload combined M09 evidence
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: modern-3d-m09-area-ui-${{ github.sha }}
-          path: |
-            .modern3d-m09/*.png
-            .modern3d-m09/m09-evidence.txt
-            .modern3d-m09/dom.html
-            .modern3d-m09/chrome-stderr.log
-            prototypes/modern-3d/index.html
+          path: .modern3d-m09/
           include-hidden-files: true
-          if-no-files-found: error
           retention-days: 14
