@@ -29,7 +29,7 @@ jobs:
           grep -F "THREE.MathUtils.smoothstep(-z,2.45,3.65)" prototypes/modern-3d/index.html
           grep -F "THREE.MathUtils.smoothstep(z,4.65,5.85)" prototypes/modern-3d/index.html
           grep -F "const cameraBlend=1-Math.exp(-4.2*dt)" prototypes/modern-3d/index.html
-          grep -F "const dt=Math.max(0,Math.min((now-last)/1000,.05));last=now;" prototypes/modern-3d/index.html
+          grep -F "dt=Math.max(0,Math.min(rawFrameMs/1000,.05));last=now;" prototypes/modern-3d/index.html
           ! grep -F "camera.position.lerp(target.clone().add(offset),.06)" prototypes/modern-3d/index.html
           grep -F "addEventListener('blur',()=>{releaseAll();blurRelease=true})" prototypes/modern-3d/index.html
           grep -F "document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()})" prototypes/modern-3d/index.html
