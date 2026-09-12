@@ -1,0 +1,46 @@
+name: M03 Layout Viewport v52
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-layout-viewport-v52.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Repair renderer CSS viewport ownership
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="renderer.setPixelRatio(effectiveDpr);renderer.setSize(initialViewport.w,initialViewport.h);renderer.shadowMap.enabled=true"
+          new="renderer.setPixelRatio(effectiveDpr);renderer.setSize(initialViewport.w,initialViewport.h,false);renderer.domElement.style.width='100vw';renderer.domElement.style.height='100dvh';renderer.shadowMap.enabled=true"
+          if old not in s:
+              raise SystemExit('initial renderer size anchor missing')
+          s=s.replace(old,new,1)
+          old2="function resize(){const v=viewportSize();renderer.setSize(v.w,v.h,false);camera.aspect=v.w/v.h;camera.updateProjectionMatrix();resizes++;window.LQ_MODERN_3D_M05.resizes=resizes}"
+          new2="function resize(){const v={w:Math.max(1,innerWidth||document.documentElement.clientWidth),h:Math.max(1,innerHeight||document.documentElement.clientHeight)};renderer.setSize(v.w,v.h,false);renderer.domElement.style.width='100vw';renderer.domElement.style.height='100dvh';camera.aspect=v.w/v.h;camera.updateProjectionMatrix();resizes++;window.LQ_MODERN_3D_M05.resizes=resizes}"
+          if old2 not in s:
+              raise SystemExit('resize anchor missing')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+      - name: Commit viewport repair only
+        shell: bash
+        run: |
+          git add prototypes/modern-3d/index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03): render full mobile viewport in landscape [m03-v52]"
+          git push origin HEAD:prototype/modern-3d
