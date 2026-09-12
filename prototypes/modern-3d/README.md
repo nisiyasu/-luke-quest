@@ -67,3 +67,17 @@ Prototype bootstrap pins `three@0.186.0`. This was selected as the npm `latest` 
 7. unavailable/unproven capability recorded honestly — PASS
 
 M00 is DONE. M01 may begin. Issue registration or file existence alone was not used as completion evidence.
+
+## M10 distribution and quality presets
+
+M10 keeps the editable source and packaged distribution side by side.
+
+- Source: `index.html` plus local JavaScript modules.
+- Single-HTML package: `dist/luke-quest-modern-3d.html`; HTML, CSS and local JavaScript are bundled into one HTML.
+- Three.js remains an explicit external CDN dependency pinned to `three@0.186.0` through the import map; offline Three.js is not claimed.
+- Supported launch is HTTP, for example `python3 -m http.server 8140 --directory prototypes/modern-3d`; direct `file://` is not the supported path.
+- High preset: `?quality=high` (default), DPR cap 2.0, 2048 shadow map.
+- iPhone practical preset: `?quality=practical`, DPR cap 1.25, 1024 shadow map. This does not redefine the Owner visual target downward.
+- CI uses simulated DPR 1.5 for the HIGH runtime path because Ubuntu SwiftShader at DPR 2.0 exceeded the bounded 120s capture window. HIGH still retains a runtime DPR cap of 2.0. Practical CI uses simulated DPR 2.0 and is capped to 1.25. These are CI proxy conditions, not physical-device measurements.
+- Browser CI statistics are proxy evidence only. After 8 warmup frames, statistics become publishable from 20 samples and continue updating up to 60 samples. Physical iPhone profiling remains `PENDING`.
+- Every material packaging change must reverify the packaged HTML itself; source success is not package success.
