@@ -1,0 +1,39 @@
+name: M03 Side Bridge Composition v56
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/m03-side-bridge-v56.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply v56 side bridge patch
+        run: python3 scripts/m03_v56_side_bridge_patch.py
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Capture v56 runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/lq-http.log 2>&1 &
+          sleep 2
+          node scripts/m03_v56_capture.js
+      - name: Commit v56 repair and evidence
+        run: |
+          git add prototypes/modern-3d/index.html prototypes/modern-3d/evidence/m03-v56-390x844.png prototypes/modern-3d/evidence/m03-v56-runtime.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03): surface side bridge in reference composition [m03-v56]"
+          git push origin HEAD:prototype/modern-3d
