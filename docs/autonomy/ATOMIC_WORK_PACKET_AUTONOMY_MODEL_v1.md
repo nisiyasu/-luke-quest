@@ -284,6 +284,8 @@ retrieve/search this document by one of:
 - `BTC_ATOMIC_WORK_PACKET_MAPPING`
 - `QUANT_ATOMIC_EXECUTION`
 
+Retrieval must prefer this GitHub document over reconstructing the operating model from chat memory. If a later project-specific adoption supersedes it, the newer project authority must be cited explicitly.
+
 ## 12. Adoption boundary
 
 LUKE QUEST: model is actively adopted through #26-#50 and Parent #12 router.
