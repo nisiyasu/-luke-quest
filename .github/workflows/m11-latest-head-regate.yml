@@ -5,6 +5,10 @@ on:
     branches: ["prototype/modern-3d"]
     paths:
       - ".github/workflows/m11-latest-head-regate.yml"
+      - "prototypes/modern-3d/index.html"
+      - "prototypes/modern-3d/assets.js"
+      - "prototypes/modern-3d/m04-*.js"
+  workflow_dispatch:
 
 permissions:
   contents: read
