@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v36</title>
+<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v37</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07130d;color:#fff;font-family:system-ui,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:10;background:linear-gradient(180deg,#071019e6,#0c1720c7);border:1px solid #d7b45f;border-radius:9px;box-shadow:0 3px 16px #0007}#status{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:11px}#status b,.objective b{color:#f0d177}.objective{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:10px;color:#f2ead4}.hp{margin-top:4px;width:72px;height:5px;border:1px solid #bfa65d;background:#18232a;border-radius:3px;overflow:hidden}.hp:after{content:"";display:block;width:82%;height:100%;background:#65c575}#loading{inset:0;display:grid;place-items:center;background:#07130d;z-index:40;position:fixed}#error{display:none;left:12px;right:12px;top:42%;padding:12px;color:#ffb9b9;border-color:#e06b6b}.dpad{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:118px;height:118px;z-index:20;opacity:.58}.move{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid #c5d0d2aa;background:#10242c73;color:#fff;font-size:17px}.up{left:37px;top:0}.down{left:37px;bottom:0}.left{left:0;top:37px}.right{right:0;top:37px}#hint{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:10;font-size:10px;padding:7px 9px;background:#071019b8;border:1px solid #d7b45f80;border-radius:8px}#ci-evidence{display:none}.demo-tag{display:block;margin-top:3px;font-size:8px;letter-spacing:.08em;color:#d9d1b9;opacity:.82}.hp-label{display:block;margin-top:4px;font-size:8px;color:#cfc7b3;opacity:.78}@media (max-height:480px){#status,.objective{padding:5px 7px;font-size:9px}.objective{max-width:132px}.dpad{width:96px;height:96px;bottom:max(8px,env(safe-area-inset-bottom))}.move{width:38px;height:38px;font-size:14px}.up,.down{left:29px}.left,.right{top:29px}#hint{bottom:max(8px,env(safe-area-inset-bottom));font-size:8px;padding:5px 7px}}
@@ -53,11 +53,17 @@ bank(557,8,8,4.8,2.45,14.0,-1,-.12);
 // M03 v33: make the hero bridge visibly terminate into a real southern bank, not a thin isolated landing slab.
 // The bank is intentionally broad enough to read as world terrain at portrait distance while preserving the river below/right.
 bank(631,7.0,5.4,-1.35,.18,7.35,-1,.02);
-// M03 v36 quality-regate: rebuild the near/southern frame as terrain masses instead of a broad empty lawn.
-// These banks stay outside the verified bridge lane and reuse accepted M04 assets; this is large world massing, not detail polish.
-bank(641,5.4,6.6,-6.35,.32,11.4,-1,.14);
-bank(647,5.0,6.2,4.55,.18,11.8,-1,-.16);
-bank(653,4.8,4.8,-5.8,.52,15.0,-1,.06);
+// M03 v37 quality-regate: cheap large-scale near-field terrain masses replace v36's expensive bank/meadow cluster.
+// The purpose is composition and elevation framing. Keep the central traversal lane open and preserve M04 detail assets.
+const nearMassTopMat=new THREE.MeshStandardMaterial({color:0x526a43,roughness:1,metalness:0});
+const nearMassSideMat=new THREE.MeshStandardMaterial({color:0x564b39,roughness:1,metalness:0});
+function nearFieldMass(x,z,radius,height,ry=0){
+ const geo=new THREE.CylinderGeometry(radius*.84,radius,height,7,1,false);
+ const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);
+ mesh.position.set(x,-.28+height/2,z);mesh.rotation.y=ry;mesh.receiveShadow=true;mesh.castShadow=true;scene.add(mesh);return mesh
+}
+nearFieldMass(-6.15,11.6,4.25,1.25,.18);
+nearFieldMass(4.85,12.0,3.65,.95,-.14);
 const waterMain=createTargetWaterV3({width:30,depth:6.2,seed:311});waterMain.position.set(-1.0,.02,1.0);scene.add(waterMain);
 const waterLower=createTargetWaterV3({width:7.2,depth:17.5,seed:317});waterLower.position.set(-1.35,.04,8.8);scene.add(waterLower);
 const waterUpperRight=createTargetWaterV3({width:7.0,depth:19,seed:331});waterUpperRight.position.set(7.2,.05,-8.3);waterUpperRight.rotation.y=-.34;scene.add(waterUpperRight);
@@ -107,9 +113,6 @@ bank(607,5.0,5.2,4.95,1.34,-8.5,1,-.20);
 bank(613,6.2,4.8,-1.0,2.28,-13.2,1,.04);
 const meadowA=createMeadowField({seed:901,width:13,depth:10,density:520,flowers:120});meadowA.position.set(-4.0,1.04,-9.0);scene.add(meadowA);
 const meadowB=createMeadowField({seed:919,width:12,depth:9,density:480,flowers:105});meadowB.position.set(3.0,-.28,10.0);scene.add(meadowB);
-// v36: break the near-field lawn with authored ground cover while keeping the central traversal corridor open.
-const meadowSouthL=createMeadowField({seed:1967,width:5.4,depth:6.2,density:330,flowers:84});meadowSouthL.position.set(-6.1,.30,11.8);scene.add(meadowSouthL);
-const meadowSouthR=createMeadowField({seed:1979,width:4.8,depth:5.8,density:290,flowers:72});meadowSouthR.position.set(4.6,.16,12.1);scene.add(meadowSouthR);
 function terrainY(x,z){if(x<-5)return z<0?1.05:1.65;if(x>5)return z<0?1.55:1.9;if(z<-11)return 2.2;if(z>11)return -.25;return z<0?1.02:-.28}
 const trees=[[-13,-14,1.28,11],[-11,-11,1.35,13],[-9,-14,1.22,17],[-12,-7,1.32,19],[-9,-8,1.18,23],[-7,-12,1.1,29],[-13,-2,1.32,31],[-10,-3,1.25,37],[-8,-5,1.12,41],[-12,4,1.34,43],[-10,7,1.28,47],[-8,4,1.16,53],[-11,11,1.32,59],[-8,13,1.2,61],[10,-14,1.22,67],[12,-10,1.34,71],[10,-7,1.18,73],[12,-3,1.28,79],[10,4,1.24,83],[12,7,1.34,89],[9,10,1.2,97],[11,13,1.28,101],[5,10,1.18,103],[6,13,1.22,107],[-4,-15,1.08,109],[-1,-15,1.12,113],[-5,5,1.06,127],[5,5,1.08,131]];
 const targetTreeIndices=new Set([0,1,3,4,6,7,9,10,12,14,15,17,18,20,21,24]);
@@ -119,7 +122,7 @@ for(let i=0;i<trees.length;i++){
  if(useTarget&&i%2===0){const f=createTargetFernPatch({seed:9000+seed,scale:.82,count:20});f.position.set(x+(i%3-.8)*.5,terrainY(x,z)+.03,z+.55);scene.add(f)}
 }
 const destinationTrees=[[-7.1,-8.3,.88,1701],[-6.0,-5.9,.82,1703],[-5.4,-9.5,.86,1709],[4.7,-7.5,.84,1721],[6.0,-9.5,.92,1723],[4.8,-11.0,.78,1733]];
-const southRightFrameTrees=[[4.2,7.4,.94,1811],[5.1,9.7,1.08,1817],[4.4,12.0,1.02,1823],[6.1,13.3,1.12,1831],[-6.8,10.6,.90,1843],[-7.1,13.3,1.02,1847]];
+const southRightFrameTrees=[[4.2,7.4,.94,1811],[5.1,9.7,1.08,1817],[4.4,12.0,1.02,1823],[6.1,13.3,1.12,1831]];
 for(const [x,z,sc,seed] of southRightFrameTrees){const t=createTargetConiferV31({seed,scale:sc});t.position.set(x,terrainY(x,z)+.24,z);scene.add(t);const f=createTargetFernPatch({seed:seed+6000,scale:.88,count:24});f.position.set(x-.25,terrainY(x,z)+.05,z+.45);scene.add(f)}
 for(const [x,z,s,seed] of destinationTrees){const t=createTargetConiferV31({seed,scale:s});t.position.set(x,terrainY(x,z)+.18,z);scene.add(t);const f=createTargetFernPatch({seed:seed+5000,scale:.82,count:22});f.position.set(x+.35,terrainY(x,z)+.08,z+.35);scene.add(f)}
 const corridorFerns=[[-5.2,-2.5,2601],[-4.8,-4.2,2603],[-3.9,-6.0,2609],[1.6,-5.4,2617],[2.6,-7.2,2621],[3.4,-9.8,2633]];
@@ -135,7 +138,7 @@ const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;sce
 const player=createLukeCharacter({scale:.92});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);
 const keys=new Set(),pointers=new Map();let last=performance.now(),blurRelease=false,resizes=0,blockedWater=0,blockedBounds=0,moving=false;
 const dirMap={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
-window.LQ_MODERN_3D_M05={ready:true,variant:'m03-composition-v36-nearfield-terrain-massing',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:9,compositionTrees:34,targetConifers:targetTreeIndices.size+destinationTrees.length,targetBanks:9,targetWaters:3,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
+window.LQ_MODERN_3D_M05={ready:true,variant:'m03-composition-v37-lowcost-nearfield-massing',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:9,compositionTrees:34,targetConifers:targetTreeIndices.size+destinationTrees.length,targetBanks:9,targetWaters:3,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
 function releaseAll(){keys.clear();pointers.clear()}
 function onKey(e,on){const d=keyMap[e.code];if(!d)return;e.preventDefault();on?keys.add(d):keys.delete(d)}
 addEventListener('keydown',e=>onKey(e,true));addEventListener('keyup',e=>onKey(e,false));
@@ -161,7 +164,7 @@ function runCi(){
  const groundingSmooth=groundSamples.every((v,i)=>i===0||Math.abs(v-groundSamples[i-1])<.43);
  const noHole=groundSamples.every(Number.isFinite);
  const pass=crossedBridge&&blockedAtShore&&pointerMoved&&released&&noHole&&groundingSmooth;
- document.documentElement.dataset.m02Ci='pass';document.documentElement.dataset.m03Ci=pass?'pass':'fail';document.documentElement.dataset.m08Ci=pass?'pass':'fail';document.documentElement.dataset.m05Scene=pass?'ready':'runtime-fail';document.documentElement.dataset.m05Variant='m03-composition-v36-nearfield-terrain-massing';
+ document.documentElement.dataset.m02Ci='pass';document.documentElement.dataset.m03Ci=pass?'pass':'fail';document.documentElement.dataset.m08Ci=pass?'pass':'fail';document.documentElement.dataset.m05Scene=pass?'ready':'runtime-fail';document.documentElement.dataset.m05Variant='m03-composition-v37-lowcost-nearfield-massing';
  const route=['start','bridge','south-bank','shore-block','pointer-move'];const routeText=route.join('|');document.documentElement.dataset.m03Route=routeText;window.LQ_MODERN_3D_M05.ci={crossedBridge,blockedAtShore,pointerMoved,released,noHole,groundingSmooth,groundSamples:groundSamples.map(v=>+v.toFixed(3)),route:routeText,pass};ciEvidence.textContent=JSON.stringify(window.LQ_MODERN_3D_M05.ci)
 }
 addEventListener('resize',resize,{passive:true});resize();syncState();camera.position.set(.35,26.9,13.5);camera.lookAt(-1.47,.4,-.2);const m08Proof=query.get('m08proof')==='1';if(m08Proof){document.documentElement.dataset.m08ProofStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));for(let i=0;i<96;i++)stepMovement(1/60);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));player.userData.animate(.9,1);syncState();document.documentElement.dataset.m08ProofEnd=document.documentElement.dataset.m08Player;document.documentElement.dataset.m08ProofDone='1';const proofTarget=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-3.4);camera.position.copy(proofTarget.clone().add(offset));camera.lookAt(proofTarget.x,proofTarget.y+.45,proofTarget.z);let proofFrames=0;const renderProof=()=>{renderer.render(scene,camera);proofFrames++;document.documentElement.dataset.m08ProofRendered=String(proofFrames);if(proofFrames<4)requestAnimationFrame(renderProof)};requestAnimationFrame(renderProof)}else{requestAnimationFrame(tick);if(query.get('m08walk')==='1'){const seedSteps=Math.max(0,Math.min(64,Number(query.get('m08steps')||0)));if(seedSteps){dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));for(let i=0;i<seedSteps;i++)stepMovement(1/60);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState()}document.documentElement.dataset.m08WalkSeedSteps=String(seedSteps);document.documentElement.dataset.m08WalkStart=document.documentElement.dataset.m08Player;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));setTimeout(()=>{dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState();document.documentElement.dataset.m08WalkEnd=document.documentElement.dataset.m08Player;document.documentElement.dataset.m08WalkDone='1'},1600)}}
