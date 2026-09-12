@@ -1,0 +1,137 @@
+name: M11-P01 Full Packaged VGA Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m11-p01-vga-first-pass.yml"
+      - "dist/luke-quest-modern-3d.html"
+      - "prototypes/modern-3d/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {profile: high, name: high-portrait-near, width: 390, height: 844, steps: 8}
+          - {profile: high, name: high-portrait-far, width: 390, height: 844, steps: 48}
+          - {profile: high, name: high-landscape-near, width: 844, height: 390, steps: 8}
+          - {profile: high, name: high-landscape-far, width: 844, height: 390, steps: 48}
+          - {profile: practical, name: practical-portrait-near, width: 390, height: 844, steps: 8}
+          - {profile: practical, name: practical-portrait-far, width: 390, height: 844, steps: 48}
+          - {profile: practical, name: practical-landscape-near, width: 844, height: 390, steps: 8}
+          - {profile: practical, name: practical-landscape-far, width: 844, height: 390, steps: 48}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start packaged distribution server
+        run: |
+          test -s dist/luke-quest-modern-3d.html
+          python3 -m http.server 8143 --directory . >/tmp/m11-p01-http.log 2>&1 &
+          sleep 1
+      - name: Install browser harness
+        run: npm install --no-save --no-package-lock puppeteer-core
+      - name: Capture ${{ matrix.name }} actual packaged runtime
+        env:
+          CAPTURE_NAME: ${{ matrix.name }}
+          QUALITY: ${{ matrix.profile }}
+          VIEW_W: ${{ matrix.width }}
+          VIEW_H: ${{ matrix.height }}
+          WALK_STEPS: ${{ matrix.steps }}
+        run: |
+          mkdir -p .m11-p01
+          export BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          node <<'NODE'
+          const puppeteer=require('puppeteer-core');
+          const fs=require('fs');
+          (async()=>{
+            const name=process.env.CAPTURE_NAME, quality=process.env.QUALITY;
+            const width=Number(process.env.VIEW_W),height=Number(process.env.VIEW_H),steps=Number(process.env.WALK_STEPS);
+            const browser=await puppeteer.launch({executablePath:process.env.BROWSER,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-webgl','--ignore-gpu-blocklist','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+            try{
+              const page=await browser.newPage(); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.setViewport({width,height,deviceScaleFactor:1});
+              const url=`http://127.0.0.1:8143/dist/luke-quest-modern-3d.html?quality=${quality}&m10dpr=3&m08walk=1&m08steps=${steps}`;
+              await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:90000});
+              await new Promise(r=>setTimeout(r,2600));
+              if(errors.length) throw new Error(`${name} pageerror ${errors.join(' | ')}`);
+              const runtime=await page.evaluate(()=>({
+                ready:document.documentElement.dataset.lqModern3d||null,
+                profile:document.documentElement.dataset.m10QualityPreset||null,
+                pixelRatio:document.documentElement.dataset.m10PixelRatio||null,
+                shadow:document.documentElement.dataset.m10ShadowMapSize||null,
+                hud:document.documentElement.dataset.m09OwnerHud||null,
+                hudMode:document.documentElement.dataset.m09HudMode||null,
+                cameraProfile:document.documentElement.dataset.m03CameraProfile||null,
+                player:document.documentElement.dataset.m08Player||null,
+                walkStart:document.documentElement.dataset.m08WalkStart||null,
+                walkEnd:document.documentElement.dataset.m08WalkEnd||null,
+                walkDone:document.documentElement.dataset.m08WalkDone||null,
+                viewport:{width:innerWidth,height:innerHeight}
+              }));
+              if(runtime.profile!==quality) throw new Error(`${name} quality marker ${runtime.profile}`);
+              if(runtime.walkDone!=='1') throw new Error(`${name} movement proof incomplete`);
+              await page.screenshot({path:`.m11-p01/${name}.png`,fullPage:false});
+              fs.writeFileSync(`.m11-p01/${name}.runtime.json`,JSON.stringify({url,...runtime},null,2)+'\n');
+            } finally { await browser.close(); }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-p01-${{ matrix.name }}-${{ github.sha }}
+          path: .m11-p01/
+          include-hidden-files: true
+          retention-days: 14
+
+  aggregate:
+    needs: capture
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m11-p01-*-${{ github.sha }}
+          path: .m11-p01
+          merge-multiple: true
+      - name: Validate all eight world renders
+        run: |
+          python3 -m pip install --disable-pip-version-check --quiet pillow
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import hashlib, json, statistics
+          root=Path('.m11-p01')
+          names=[
+            'high-portrait-near','high-portrait-far','high-landscape-near','high-landscape-far',
+            'practical-portrait-near','practical-portrait-far','practical-landscape-near','practical-landscape-far'
+          ]
+          rows=[]
+          for n in names:
+            p=root/f'{n}.png'; j=root/f'{n}.runtime.json'
+            assert p.exists() and p.stat().st_size>15000 and j.exists(), n
+            im=Image.open(p).convert('RGB'); w,h=im.size
+            crop=im.crop((int(w*.08),int(h*.15),int(w*.92),int(h*.82)))
+            px=list(crop.getdata()); gray=[sum(v)/(3*255) for v in px]
+            std=statistics.pstdev(gray); unique=len(set(px)); ordered=sorted(gray); dyn=ordered[int(len(ordered)*.95)]-ordered[int(len(ordered)*.05)]
+            assert std>=.025 and unique>=128 and dyn>=.08, f'{n}: invalid world render std={std} unique={unique} dyn={dyn}'
+            r=json.loads(j.read_text()); assert r['ready']=='m05-ready' and r['hud']=='pass' and r['walkDone']=='1'
+            assert r['walkStart']!=r['walkEnd'], f'{n}: no movement delta'
+            rows.append(f'{n} bytes={p.stat().st_size} sha256={hashlib.sha256(p.read_bytes()).hexdigest()} std={std:.6f} unique={unique} dynamic={dyn:.6f} player={r["player"]}')
+          (root/'evidence.txt').write_text('\n'.join(rows)+'\nWORLD_RENDER_NONBLANK=PASS\nHQ_PRACTICAL_SEPARATED=PASS\nMULTI_POSITION=PASS\nPORTRAIT_LANDSCAPE=PASS\nMOVEMENT_EVIDENCE=PASS\n')
+          PY
+      - name: Attach mandatory visual authorities
+        run: |
+          curl -L --fail --retry 3 -o .m11-p01/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m11-p01/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-p01-full-vga-${{ github.sha }}
+          path: .m11-p01/
+          include-hidden-files: true
+          retention-days: 14
