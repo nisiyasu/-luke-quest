@@ -1,0 +1,59 @@
+name: M09-P02 Runtime HUD Source Trace
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m09-p02-runtime-hud-source-trace.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Trace HUD generator across tracked runtime sources
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          needles=['hud-hp-row','hud-hp-track','FOREST BRIDGE','MONSTER FOREST','NEXT AREA','hud-name-row']
+          roots=[Path('prototypes/modern-3d')]
+          total=0
+          for root in roots:
+              for p in root.rglob('*'):
+                  if not p.is_file():
+                      continue
+                  try:
+                      s=p.read_text(errors='ignore')
+                  except Exception:
+                      continue
+                  matched=[]
+                  for n in needles:
+                      if n in s:
+                          matched.append(n)
+                  if not matched:
+                      continue
+                  total+=1
+                  print(f'FILE={p}')
+                  print('TOKENS='+'|'.join(matched))
+                  for n in matched:
+                      start=0
+                      while True:
+                          i=s.find(n,start)
+                          if i<0:
+                              break
+                          lo=max(0,i-350); hi=min(len(s),i+650)
+                          print(f'CONTEXT_BEGIN token={n}')
+                          print(s[lo:hi])
+                          print('CONTEXT_END')
+                          start=i+1
+          print(f'MATCHED_FILES={total}')
+          if total==0:
+              raise SystemExit('FAIL_CLOSED: no HUD generator token found under prototypes/modern-3d')
+          PY
