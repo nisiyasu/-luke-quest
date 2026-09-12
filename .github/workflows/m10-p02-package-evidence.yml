@@ -65,79 +65,35 @@ jobs:
           ];
           const summary={head:process.env.EXPECTED_HEAD,artifact:'dist/luke-quest-modern-3d.html',viewport:VIEW,profiles:{},ios_physical_verification:'PENDING'};
           const playerDistance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
-
           async function ready(page,url){
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));
             await page.goto(url,{waitUntil:'domcontentloaded',timeout:150000});
             await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&window.LQ_MODERN_3D_M08_GATE?.stepMovement,{timeout:150000});
             if(errors.length)throw new Error(`runtime page errors ${JSON.stringify(errors)}`);
-            return errors;
           }
           async function snapshotState(page){
             return page.evaluate(()=>{
               const box=q=>{const e=document.querySelector(q);if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,text:(e.innerText||'').trim()}};
               const player=(document.documentElement.dataset.m08Player||'').split(',').map(Number);
-              return{
-                quality:document.documentElement.dataset.m10QualityPreset,
-                pixelRatio:document.documentElement.dataset.m10PixelRatio,
-                shadow:document.documentElement.dataset.m10ShadowMapSize,
-                player,
-                activeInputs:Number(window.LQ_MODERN_3D_M05?.activeInputs ?? -1),
-                status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),
-                body:(document.body.innerText||'').trim()
-              };
+              return{quality:document.documentElement.dataset.m10QualityPreset,pixelRatio:document.documentElement.dataset.m10PixelRatio,shadow:document.documentElement.dataset.m10ShadowMapSize,player,activeInputs:Number(window.LQ_MODERN_3D_M05?.activeInputs??-1),status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),body:(document.body.innerText||'').trim()};
             });
           }
           async function drive(page,code,dt){
-            await page.keyboard.down(code);
-            await page.evaluate(dt=>window.LQ_MODERN_3D_M08_GATE.stepMovement(dt),dt);
-            const held=await snapshotState(page);
-            assert.ok(held.activeInputs>0,`${code} did not register as active input`);
-            await page.keyboard.up(code);
-            await page.evaluate(()=>window.LQ_MODERN_3D_M08_GATE.stepMovement(0.1));
-            const released=await snapshotState(page);
-            assert.strictEqual(released.activeInputs,0,`${code} remained active after key release`);
-            return released;
+            await page.keyboard.down(code);await page.evaluate(dt=>window.LQ_MODERN_3D_M08_GATE.stepMovement(dt),dt);const held=await snapshotState(page);assert.ok(held.activeInputs>0,`${code} did not register as active input`);await page.keyboard.up(code);await page.evaluate(()=>window.LQ_MODERN_3D_M08_GATE.stepMovement(0.1));const released=await snapshotState(page);assert.strictEqual(released.activeInputs,0,`${code} remained active after key release`);return released;
           }
-
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
             try{
               for(const profile of profiles){
-                const page=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});
-                const url=`http://127.0.0.1:8142/dist/luke-quest-modern-3d.html?${profile.query}`;
-                await ready(page,url);
-                const before=await snapshotState(page);
-                assert.strictEqual(before.quality,profile.name,'profile marker');
-                assert.strictEqual(before.pixelRatio,profile.pixelRatio,'pixel ratio marker');
-                assert.strictEqual(before.shadow,profile.shadow,'shadow marker');
-                assert.ok(before.player.length===3&&before.player.every(Number.isFinite),`${profile.name} player coordinate marker invalid`);
-                for(const [name,b] of Object.entries({status:before.status,objective:before.objective,dpad:before.dpad,hint:before.hint})) assert.ok(inside(b),`${profile.name} ${name} clipped ${JSON.stringify(b)}`);
-                for(const bad of ['DISPLAY SAMPLE','DEMO HUD','3D PROTOTYPE']) assert.ok(!before.body.toUpperCase().includes(bad),`${profile.name} prototype residue ${bad}`);
-
-                await page.screenshot({path:`.m10-p02/${profile.name}-packaged.png`,timeout:150000});
-                await drive(page,'ArrowUp',0.25);
-                const moved=await drive(page,'ArrowRight',0.25);
-                assert.ok(playerDistance(moved.player,before.player)>.2,`${profile.name} movement did not change runtime player coordinates`);
-                const release1=await snapshotState(page);
-                await page.evaluate(()=>window.LQ_MODERN_3D_M08_GATE.stepMovement(0.25));
-                const release2=await snapshotState(page);
-                assert.ok(playerDistance(release2.player,release1.player)<.02,`${profile.name} release drift detected`);
-                assert.strictEqual(release2.activeInputs,0,`${profile.name} active input drift after release`);
-                summary.profiles[profile.name]={url,settings:{pixelRatio:before.pixelRatio,shadowMapSize:before.shadow},player_before:before.player,player_after_path:moved.player,player_release_stable:release2.player,active_inputs_after_release:release2.activeInputs,ui_in_bounds:true,runtime_errors:[]};
-                await page.close();
+                const page=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});const url=`http://127.0.0.1:8142/dist/luke-quest-modern-3d.html?${profile.query}`;await ready(page,url);const before=await snapshotState(page);
+                assert.strictEqual(before.quality,profile.name,'profile marker');assert.strictEqual(before.pixelRatio,profile.pixelRatio,'pixel ratio marker');assert.strictEqual(before.shadow,profile.shadow,'shadow marker');assert.ok(before.player.length===3&&before.player.every(Number.isFinite),`${profile.name} player coordinate marker invalid`);
+                for(const [name,b] of Object.entries({status:before.status,objective:before.objective,dpad:before.dpad,hint:before.hint}))assert.ok(inside(b),`${profile.name} ${name} clipped ${JSON.stringify(b)}`);for(const bad of ['DISPLAY SAMPLE','DEMO HUD','3D PROTOTYPE'])assert.ok(!before.body.toUpperCase().includes(bad),`${profile.name} prototype residue ${bad}`);
+                await page.screenshot({path:`.m10-p02/${profile.name}-packaged.png`,timeout:150000});await drive(page,'ArrowUp',0.25);const moved=await drive(page,'ArrowRight',0.25);assert.ok(playerDistance(moved.player,before.player)>.2,`${profile.name} movement did not change runtime player coordinates`);const release1=await snapshotState(page);await page.evaluate(()=>window.LQ_MODERN_3D_M08_GATE.stepMovement(0.25));const release2=await snapshotState(page);assert.ok(playerDistance(release2.player,release1.player)<.02,`${profile.name} release drift detected`);assert.strictEqual(release2.activeInputs,0,`${profile.name} active input drift after release`);
+                summary.profiles[profile.name]={url,settings:{pixelRatio:before.pixelRatio,shadowMapSize:before.shadow},player_before:before.player,player_after_path:moved.player,player_release_stable:release2.player,active_inputs_after_release:release2.activeInputs,ui_in_bounds:true,runtime_errors:[]};await page.close();
               }
-
-              const source=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});
-              await ready(source,'http://127.0.0.1:8142/prototypes/modern-3d/index.html?quality=high&m10dpr=3&m08gate=1&ci=1');
-              await source.screenshot({path:'.m10-p02/high-source.png',timeout:150000});
-              const sourceState=await snapshotState(source);
-              summary.source_reference={quality:sourceState.quality,pixelRatio:sourceState.pixelRatio,shadowMapSize:sourceState.shadow};
-              await source.close();
-
-              fs.writeFileSync('.m10-p02/package-verification.json',JSON.stringify(summary,null,2)+'\n');
-              fs.copyFileSync('dist/README.md','.m10-p02/DISTRIBUTION_README.md');
-            } finally { await browser.close(); }
+              const source=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});await ready(source,'http://127.0.0.1:8142/prototypes/modern-3d/index.html?quality=high&m10dpr=3&m08gate=1&ci=1');await source.screenshot({path:'.m10-p02/high-source.png',timeout:150000});const sourceState=await snapshotState(source);summary.source_reference={quality:sourceState.quality,pixelRatio:sourceState.pixelRatio,shadowMapSize:sourceState.shadow};await source.close();
+              fs.writeFileSync('.m10-p02/package-verification.json',JSON.stringify(summary,null,2)+'\n');fs.copyFileSync('dist/README.md','.m10-p02/DISTRIBUTION_README.md');
+            }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node m10-package-check.cjs
@@ -150,7 +106,7 @@ jobs:
 
       - name: Commit generated distribution when changed
         run: |
-          if git diff --quiet -- dist/luke-quest-modern-3d.html dist/README.md && git diff --cached --quiet; then
+          if ! git status --porcelain -- dist/luke-quest-modern-3d.html dist/README.md | grep -q .; then
             echo "distribution already exact at HEAD"
             exit 0
           fi
