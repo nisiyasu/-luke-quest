@@ -13,19 +13,16 @@ const rockMats=[0x625f56,0x756f61,0x857d6d,0x68665e,0x777365,0x595c57].map(c=>ne
 const fernMats=[0x315d2e,0x6f984b].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.98,side:THREE.DoubleSide}));
 
 function makeFernPatch(r,scale=.7,count=14){
-  const g=new THREE.Group();
-  const blade=new THREE.PlaneGeometry(.17,1,1,3);
-  for(let i=0;i<count;i++){
-    const a=r()*Math.PI*2,rad=Math.sqrt(r())*.76*scale,h=(.55+r()*.65)*scale;
-    const m=new THREE.Mesh(blade,fernMats[i%2]);
-    m.position.set(Math.cos(a)*rad,h*.43,Math.sin(a)*rad);
-    m.rotation.set(-(.22+r()*.42),-a,0);
-    m.scale.set(.72+r()*.42,h,1);
-    m.castShadow=false;m.receiveShadow=true;g.add(m);
-  }
+  const g=new THREE.Group(),verts=[],idx=[];
+  const addTri=(a,b,c)=>{const n=verts.length/3;verts.push(...a,...b,...c);idx.push(n,n+1,n+2)};
+  const stemW=.028;verts.push(-stemW,0,0,stemW,0,0,stemW,0,1.05,-stemW,0,1.05);idx.push(0,1,2,0,2,3);
+  for(let j=0;j<6;j++){const z=.16+j+*.14,span=.22*(1-j*.07),tip=z+.17;addTri([-stemW,0,z],[-span,0,z+.055],[0,0,tip]);addTri([stemW,0,z],[span,0,z+.055],[0,0,tip])}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribut(verts,3));geo.setIndex(idx);geo.computeVertexNormals();
+  const groups=[[],[]],dummy=new THREE.Object3D();
+  for(let i=0;i<count;i++){const a=r()*Math.PI*2,rad=Math.sqrt(r())*.76*scale,h=(.55+r()*.55)*scale,w=(.65+r()*.35)*scale;groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,h,w,lean:.42+r()*.30,twist:r()-.5 })}
+  [fernMats[0],fernMats[1]].forEach((mat,mi)=>{const list=groups[mi],mesh=new THREE.InstancedMesh(geo,mat,list.length);list.forEach((v,i)=>{dummy.position.set(v.x,.02*scale,v.z);dummy.rotation.set(-v.lean,-v.a+Math.PI/2,v.twist);dummy.scale.set(v.w,1,v.h);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=false;mesh.receiveShadow=true;g.add(mesh)});
   return g;
 }
-
 function makeOrganicTop(r,seed,width,depth,facing){
   const cols=24;
   const vertices=[];
