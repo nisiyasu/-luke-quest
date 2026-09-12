@@ -1,0 +1,49 @@
+name: Modern 3D v43 Foreground Massing Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: ${{ !contains(github.event.head_commit.message, '[v43-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply material v43 foreground/world-massing repair
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old='<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v42</title>'
+          new='<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v43</title>'
+          if old not in s:
+              raise SystemExit('v43 title anchor missing')
+          s=s.replace(old,new,1)
+          anchor='nearFieldMass(-6.15,11.6,4.25,1.25,.18);nearFieldMass(4.85,12.0,3.65,.95,-.14);nearFieldMass(-5.2,7.7,2.75,.85,.31);nearFieldMass(7.4,7.8,3.45,1.08,-.18);nearFieldMass(-8.0,7.2,3.35,1.02,.16);'
+          repl=anchor+'\n// v43: strengthen the lower portrait enclosure without touching the playable bridge corridor.\nnearFieldMass(-7.25,16.2,4.15,1.18,.23);nearFieldMass(6.55,16.0,3.95,1.12,-.21);nearFieldMass(-8.75,12.8,2.65,.82,.12);nearFieldMass(8.35,12.7,2.55,.78,-.10);\nconst v43FernL=createTargetFernPatch({seed:943,count:30,radius:3.1});v43FernL.position.set(-6.7,.34,14.8);scene.add(v43FernL);\nconst v43FernR=createTargetFernPatch({seed:947,count:28,radius:3.0});v43FernR.position.set(6.25,.32,14.7);scene.add(v43FernR);\nfor(const [i,x,z,sc] of [[0,-7.8,14.2,.72],[1,-5.7,17.1,.62],[2,7.1,14.0,.70],[3,5.4,17.0,.60]]){const r=createRockCluster({seed:9480+i*17,scale:sc});r.position.set(x,.28,z);scene.add(r);}'
+          if anchor not in s:
+              raise SystemExit('v43 near-field anchor missing')
+          s=s.replace(anchor,repl,1)
+          p.write_text(s)
+          PY
+          node --check prototypes/modern-3d/natural-assets.js
+          grep -q 'Composition Rebuild v43' prototypes/modern-3d/index.html
+          grep -q 'v43: strengthen the lower portrait enclosure' prototypes/modern-3d/index.html
+      - name: Commit repair and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name nisiyasu
+          git config user.email yasunori.hashigami@gmail.com
+          git rm .github/workflows/modern-3d-v43-foreground-massing.yml
+          git add prototypes/modern-3d/index.html
+          git commit -m 'fix(modern-3d): strengthen v43 foreground enclosure [v43-applied]'
+          git push origin HEAD:prototype/modern-3d
