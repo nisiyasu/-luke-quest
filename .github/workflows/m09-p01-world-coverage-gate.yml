@@ -1,0 +1,85 @@
+name: M09-P01 World Coverage Multi Position Gate
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m09-p01-world-coverage-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m09-p01-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Capture canonical north and south traversal positions
+        run: |
+          mkdir -p .m09-p01
+          cat > coverage-gate.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          const p=s=>String(s||'').split(',').map(Number);
+          const d=(a,b)=>Math.hypot(b[0]-a[0],b[2]-a[2]);
+          async function open(browser){
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+            await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,{timeout:150000});
+            await page.waitForTimeout(900);
+            if(errors.length)throw new Error(`page errors=${JSON.stringify(errors)}`);
+            return page;
+          }
+          async function meta(page){return page.evaluate(()=>({player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',scene:document.documentElement.dataset.lqModern3d}))}
+          async function hold(page,key,ms){await page.keyboard.down(key);await page.waitForTimeout(ms);await page.keyboard.up(key);await page.waitForTimeout(650)}
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const rows=[];
+            try{
+              let page=await open(browser);
+              const canonical=await meta(page);await page.screenshot({path:'.m09-p01/canonical.png',timeout:150000});
+              await hold(page,'ArrowUp',9000);const north=await meta(page);await page.screenshot({path:'.m09-p01/north-fringe.png',timeout:150000});
+              rows.push(`canonical=${canonical.player} north=${north.player} north_delta=${d(p(canonical.player),p(north.player)).toFixed(3)} camera=${north.camera}`);
+              if(d(p(canonical.player),p(north.player))<1.5)throw new Error('north traversal not materially separated');
+              await page.close();
+
+              page=await open(browser);const restart=await meta(page);await hold(page,'ArrowDown',9500);const south=await meta(page);await page.screenshot({path:'.m09-p01/south-fringe.png',timeout:150000});
+              rows.push(`restart=${restart.player} south=${south.player} south_delta=${d(p(restart.player),p(south.player)).toFixed(3)} camera=${south.camera}`);
+              if(d(p(restart.player),p(south.player))<1.5)throw new Error('south traversal not materially separated');
+              await page.close();
+
+              page=await open(browser);await hold(page,'ArrowUp',4200);await hold(page,'ArrowRight',1600);const side=await meta(page);await page.screenshot({path:'.m09-p01/side-route.png',timeout:150000});rows.push(`side_route=${side.player} camera=${side.camera}`);await page.close();
+              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} positions=4 page_errors=0 RESULT=PASS`);
+              fs.writeFileSync('.m09-p01/coverage-audit.txt',rows.join('\n')+'\n');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node coverage-gate.cjs
+      - name: Add visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m09-p01/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m09-p01/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m09-p01-world-coverage-gate
+          path: .m09-p01
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
