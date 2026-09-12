@@ -1,71 +1,43 @@
 name: Modern 3D M04 v44 Compound Fern Repair
-
 on:
   push:
     branches: ["prototype/modern-3d"]
-
 permissions:
   contents: write
-
 jobs:
   repair:
-    if: ${{ !contains(github.event.head_commit.message, '[m04-v44-applied]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: prototype/modern-3d
           fetch-depth: 0
-      - name: Replace blade-like fern patch with compound fern geometry
+      - name: Apply compound fern asset repair
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import base64
           p=Path('prototypes/modern-3d/m04-target-assets.js')
           s=p.read_text()
           a=s.index('export function createTargetFernPatch')
           b=s.index('export function createTargetBank',a)
-          new=r'''export function createTargetFernPatch({seed=1,scale=1,count=18,radius=.72}={}){
-  const r=rng(seed),g=new THREE.Group(),dummy=new THREE.Object3D();
-  const verts=[],idx=[];
-  const addTri=(a,b,c)=>{const n=verts.length/3;verts.push(...a,...b,...c);idx.push(n,n+1,n+2)};
-  const stemW=.028;
-  verts.push(-stemW,0,0, stemW,0,0, stemW,0,1.05, -stemW,0,1.05);idx.push(0,1,2,0,2,3);
-  for(let j=0;j<6;j++){
-    const z=.16+j*.14,span=.22*(1-j*.07),tip=z+.17;
-    addTri([-stemW,0,z],[ -span,0,z+.055],[0,0,tip]);
-    addTri([ stemW,0,z],[  span,0,z+.055],[0,0,tip]);
-  }
-  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();
-  const groups=[[],[]];
-  for(let i=0;i<count;i++){
-    const a=r()*Math.PI*2,rad=Math.sqrt(r())*radius*scale;
-    const len=(.38+r()*.30)*scale,w=(.72+r()*.28)*scale;
-    groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,len,w,lean:.42+r()*.30,twist:(r()-.5)*.42});
-  }
-  [fernDark,fernLight].forEach((mat,mi)=>{
-    const list=groups[mi],mesh=new THREE.InstancedMesh(geo,mat,list.length);
-    list.forEach((v,i)=>{dummy.position.set(v.x,.025*scale,v.z);dummy.rotation.set(-v.lean,-v.a+Math.PI/2,v.twist);dummy.scale.set(v.w,1,v.len);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
-    mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=false;mesh.receiveShadow=true;g.add(mesh);
-  });
-  g.userData={assetId:'fern_patch_target_v3',version:'3.0.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'compound fern leaflets with configurable organic ground spread'};
-  return g;
-}
-'''
+          new=base64.b64decode('ZXhwb3J0IGZ1bmN0aW9uIGNyZWF0ZVRhcmdldEZlcm5QYXRjaCh7c2VlZD0xLHNjYWxlPTEsY291bnQ9MTgscmFkaXVzPS43Mn09e30pewogIGNvbnN0IHI9cm5nKHNlZWQpLGc9bmV3IFRIUkVFLkdyb3VwKCksZHVtbXk9bmV3IFRIUkVFLk9iamVjdDNEKCk7CiAgY29uc3QgdmVydHM9W10saWR4PVtdOwogIGNvbnN0IGFkZFRyaT0oYSxiLGMpPT57Y29uc3Qgbj12ZXJ0cy5sZW5ndGgvMzt2ZXJ0cy5wdXNoKC4uLmEsLi4uYiwuLi5jKTtpZHgucHVzaChuLG4rMSxuKzIpfTsKICBjb25zdCBzdGVtVz0uMDI4OwogIHZlcnRzLnB1c2goLXN0ZW1XLDAsMCwgc3RlbVcsMCwwLCBzdGVtVywwLDEuMDUsIC1zdGVtVywwLDEuMDUpO2lkeC5wdXNoKDAsMSwyLDAsMiwzKTsKICBmb3IobGV0IGo9MDtqPDY7aisrKXsKICAgIGNvbnN0IHo9LjE2K2oqLjE0LHNwYW49LjIyKigxLWoqLjA3KSx0aXA9eisuMTc7CiAgICBhZGRUcmkoWy1zdGVtVywwLHpdLFstc3BhbiwwLHorLjA1NV0sWzAsMCx0aXBdKTsKICAgIGFkZFRyaShbc3RlbVcsMCx6XSxbc3BhbiwwLHorLjA1NV0sWzAsMCx0aXBdKTsKICB9CiAgY29uc3QgZ2VvPW5ldyBUSFJFRS5CdWZmZXJHZW9tZXRyeSgpO2dlby5zZXRBdHRyaWJ1dGUoJ3Bvc2l0aW9uJyxuZXcgVEhSRUUuRmxvYXQzMkJ1ZmZlckF0dHJpYnV0ZSh2ZXJ0cywzKSk7Z2VvLnNldEluZGV4KGlkeCk7Z2VvLmNvbXB1dGVWZXJ0ZXhOb3JtYWxzKCk7CiAgY29uc3QgZ3JvdXBzPVtbXSxbXV07CiAgZm9yKGxldCBpPTA7aTxjb3VudDtpKyspewogICAgY29uc3QgYT1yKCkqTWF0aC5QSSoyLHJhZD1NYXRoLnNxcnQocigpKSpyYWRpdXMqc2NhbGU7CiAgICBjb25zdCBsZW49KC4zOCtyKCkqLjMwKSpzY2FsZSx3PSguNzIrcigpKi4yOCkqc2NhbGU7CiAgICBncm91cHNbaSUyXS5wdXNoKHt4Ok1hdGguY29zKGEpKnJhZCx6Ok1hdGguc2luKGEpKnJhZCxhLGxlbix3LGxlYW46LjQyK3IoKSouMzAsdHdpc3Q6KHIoKS0uNSkqLjQyfSk7CiAgfQogIFtmZXJuRGFyayxmZXJuTGlnaHRdLmZvckVhY2goKG1hdCxtaSk9PnsKICAgIGNvbnN0IGxpc3Q9Z3JvdXBzW21pXSxtZXNoPW5ldyBUSFJFRS5JbnN0YW5jZWRNZXNoKGdlbyxtYXQsbGlzdC5sZW5ndGgpOwogICAgbGlzdC5mb3JFYWNoKCh2LGkpPT57ZHVtbXkucG9zaXRpb24uc2V0KHYueCwuMDI1KnNjYWxlLHYueik7ZHVtbXkucm90YXRpb24uc2V0KC12LmxlYW4sLXYuYStNYXRoLlBJLzIsdi50d2lzdCk7ZHVtbXkuc2NhbGUuc2V0KHYudywxLHYubGVuKTtkdW1teS51cGRhdGVNYXRyaXgoKTttZXNoLnNldE1hdHJpeEF0KGksZHVtbXkubWF0cml4KX0pOwogICAgbWVzaC5pbnN0YW5jZU1hdHJpeC5uZWVkc1VwZGF0ZT10cnVlO21lc2guY2FzdFNoYWRvdz1mYWxzZTttZXNoLnJlY2VpdmVTaGFkb3c9dHJ1ZTtnLmFkZChtZXNoKTsKICB9KTsKICBnLnVzZXJEYXRhPXthc3NldElkOidmZXJuX3BhdGNoX3RhcmdldF92MycsdmVyc2lvbjonMy4wLjAnLHNlZWQsc3RhZ2U6J00wNF9QUk9EVUNUSU9OX0NBTkRJREFURScsc291cmNlOidyZXBvLXByb2NlZHVyYWwnLGludGVudDonY29tcG91bmQgZmVybiBsZWFmbGV0cyB3aXRoIGNvbmZpZ3VyYWJsZSBvcmdhbmljIGdyb3VuZCBzcHJlYWQnfTsKICByZXR1cm4gZzsKfQo=').decode()
           p.write_text(s[:a]+new+s[b:])
           q=Path('prototypes/modern-3d/index.html')
-          t=q.read_text().replace('Composition Rebuild v43','Composition Rebuild v44',1)
+          t=q.read_text()
+          if 'Composition Rebuild v43' in t:
+              t=t.replace('Composition Rebuild v43','Composition Rebuild v44',1)
           q.write_text(t)
           PY
           node --check prototypes/modern-3d/m04-target-assets.js
-          grep -q "fern_patch_target_v3" prototypes/modern-3d/m04-target-assets.js
-          grep -q "Composition Rebuild v44" prototypes/modern-3d/index.html
-      - name: Commit material repair and self-delete workflow
+          grep -q 'fern_patch_target_v3' prototypes/modern-3d/m04-target-assets.js
+      - name: Commit and remove temporary workflow
         shell: bash
         run: |
           git config user.name nisiyasu
           git config user.email yasunori.hashigami@gmail.com
           git rm .github/workflows/modern-3d-m04-v44-fern.yml
           git add prototypes/modern-3d/m04-target-assets.js prototypes/modern-3d/index.html
-          git commit -m 'fix(modern-3d): replace blade ferns with compound v44 asset [m04-v44-applied]'
+          git commit -m 'fix(modern-3d): replace blade ferns with compound v44 asset'
           git push origin HEAD:prototype/modern-3d
