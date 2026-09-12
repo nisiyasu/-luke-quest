@@ -13,7 +13,7 @@ permissions:
 jobs:
   profile-evidence:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -38,12 +38,13 @@ jobs:
             {name:'practical',query:'quality=practical&m10dpr=3'}
           ];
           const VIEW={width:390,height:844};
+          const SAMPLE_WINDOW_MS=5000;
           const inside=(b,w,h)=>b&&b.x>=-1&&b.y>=-1&&b.x+b.width<=w+1&&b.y+b.height<=h+1;
           const percentile=(a,p)=>{const s=[...a].sort((x,y)=>x-y);return s[Math.min(s.length-1,Math.max(0,Math.ceil(p*s.length)-1))]||0};
 
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
-            const summary={head:process.env.GITHUB_SHA||'UNKNOWN',runner:'GitHub-hosted ubuntu-24.04 / headless Chromium / SwiftShader proxy',viewport:VIEW,profiles:{}};
+            const summary={head:process.env.GITHUB_SHA||'UNKNOWN',runner:'GitHub-hosted ubuntu-24.04 / headless Chromium / SwiftShader proxy',viewport:VIEW,sample_window_ms:SAMPLE_WINDOW_MS,profiles:{}};
             try{
               for(const profile of PROFILES){
                 const p=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});
@@ -70,19 +71,22 @@ jobs:
                 await p.keyboard.down('ArrowUp'); await p.waitForTimeout(700); await p.keyboard.up('ArrowUp'); await p.waitForTimeout(250);
                 await p.keyboard.down('ArrowRight'); await p.waitForTimeout(700); await p.keyboard.up('ArrowRight'); await p.waitForTimeout(350);
 
-                const timing=await p.evaluate(async()=>{
-                  const frames=[];let prev=performance.now();
+                // Fixed wall-clock window: slow rendering produces fewer samples instead of extending CI indefinitely.
+                const timing=await p.evaluate(async sampleMs=>{
+                  const frames=[];let prev=performance.now(),first=prev,last=prev;
                   await new Promise(resolve=>{
-                    let n=0;
-                    const step=t=>{frames.push(t-prev);prev=t;if(++n>=180)resolve();else requestAnimationFrame(step)};
+                    const deadline=first+sampleMs;
+                    const step=t=>{frames.push(t-prev);prev=t;last=t;if(t>=deadline)resolve();else requestAnimationFrame(step)};
                     requestAnimationFrame(step);
                   });
-                  return frames.slice(1);
-                });
-                const avg=timing.reduce((a,b)=>a+b,0)/timing.length;
-                const p95=percentile(timing,.95);
-                const p99=percentile(timing,.99);
-                const over34=timing.filter(x=>x>34).length;
+                  return{deltas:frames.slice(1),elapsed:last-first};
+                },SAMPLE_WINDOW_MS);
+                if(timing.deltas.length<2)throw new Error(`${profile.name} insufficient rAF samples ${timing.deltas.length}`);
+                const avg=timing.deltas.reduce((a,b)=>a+b,0)/timing.deltas.length;
+                const p95=percentile(timing.deltas,.95);
+                const p99=percentile(timing.deltas,.99);
+                const over34=timing.deltas.filter(x=>x>34).length;
+                const proxyFps=1000/avg;
 
                 const ui=await p.evaluate(()=>{
                   const box=q=>{const e=document.querySelector(q);if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,text:(e.innerText||'').trim()}};
@@ -95,7 +99,9 @@ jobs:
                 summary.profiles[profile.name]={
                   query:profile.query,
                   ready_ms:readyMs,
-                  frame_samples:timing.length,
+                  sample_elapsed_ms:+timing.elapsed.toFixed(1),
+                  frame_samples:timing.deltas.length,
+                  proxy_fps:+proxyFps.toFixed(2),
                   raf_avg_ms:+avg.toFixed(3),
                   raf_p95_ms:+p95.toFixed(3),
                   raf_p99_ms:+p99.toFixed(3),
@@ -112,12 +118,13 @@ jobs:
                 pixel_ratio_practical:p.settings.pixelRatio,
                 shadow_map_high:h.settings.shadowMapSize,
                 shadow_map_practical:p.settings.shadowMapSize,
+                proxy_fps_delta:+(p.proxy_fps-h.proxy_fps).toFixed(2),
                 raf_avg_delta_ms:+(p.raf_avg_ms-h.raf_avg_ms).toFixed(3),
                 raf_p95_delta_ms:+(p.raf_p95_ms-h.raf_p95_ms).toFixed(3),
                 note:'CI/browser proxy only. Not physical iPhone performance.'
               };
               fs.writeFileSync('.m10-p01/metrics.json',JSON.stringify(summary,null,2)+'\n');
-              const md=`# M10-P01 profile settings and proxy evidence\n\nExact HEAD: \`${summary.head}\`\n\n| Setting | HQ | iPhone-practical |\n|---|---:|---:|\n| query | \`${h.query}\` | \`${p.query}\` |\n| simulated source DPR | ${h.settings.sourceDpr} | ${p.settings.sourceDpr} |\n| effective renderer DPR | ${h.settings.pixelRatio} | ${p.settings.pixelRatio} |\n| shadow map | ${h.settings.shadowMapSize} | ${p.settings.shadowMapSize} |\n| ready proxy (ms) | ${h.ready_ms} | ${p.ready_ms} |\n| rAF avg (ms) | ${h.raf_avg_ms} | ${p.raf_avg_ms} |\n| rAF p95 (ms) | ${h.raf_p95_ms} | ${p.raf_p95_ms} |\n| rAF p99 (ms) | ${h.raf_p99_ms} | ${p.raf_p99_ms} |\n| frames >34ms / ${h.frame_samples} samples | ${h.frames_over_34ms} | ${p.frames_over_34ms} |\n\nThe two profiles run the same representative portrait scene and the same north→release→east→release movement path. Measurements are GitHub-hosted Chromium/SwiftShader proxy signals only. They are not physical-iPhone measurements.\n\nIOS_PHYSICAL_VERIFICATION: PENDING\n`;
+              const md=`# M10-P01 profile settings and proxy evidence\n\nExact HEAD: \`${summary.head}\`\n\n| Setting | HQ | iPhone-practical |\n|---|---:|---:|\n| query | \`${h.query}\` | \`${p.query}\` |\n| simulated source DPR | ${h.settings.sourceDpr} | ${p.settings.sourceDpr} |\n| effective renderer DPR | ${h.settings.pixelRatio} | ${p.settings.pixelRatio} |\n| shadow map | ${h.settings.shadowMapSize} | ${p.settings.shadowMapSize} |\n| ready proxy (ms) | ${h.ready_ms} | ${p.ready_ms} |\n| fixed sample window (ms) | ${SAMPLE_WINDOW_MS} | ${SAMPLE_WINDOW_MS} |\n| collected rAF samples | ${h.frame_samples} | ${p.frame_samples} |\n| proxy FPS | ${h.proxy_fps} | ${p.proxy_fps} |\n| rAF avg (ms) | ${h.raf_avg_ms} | ${p.raf_avg_ms} |\n| rAF p95 (ms) | ${h.raf_p95_ms} | ${p.raf_p95_ms} |\n| rAF p99 (ms) | ${h.raf_p99_ms} | ${p.raf_p99_ms} |\n| frames >34ms | ${h.frames_over_34ms} | ${p.frames_over_34ms} |\n\nThe two profiles run the same representative portrait scene and the same north→release→east→release movement path. Measurements are GitHub-hosted Chromium/SwiftShader proxy signals only. They are not physical-iPhone measurements.\n\nIOS_PHYSICAL_VERIFICATION: PENDING\n`;
               fs.writeFileSync('.m10-p01/profile-settings.md',md);
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
