@@ -7,7 +7,7 @@
     "composition_baseline": "M03 quality-regate accepted large-composition baseline; fresh full-runtime evidence 52926c77b6fda6c7d32ee0a59a25704ff8fa9152",
     "conifer": "conifer_target_v31@3.4.0",
     "understory": "fern_patch_target_v2@2.0.0 + meadow_field_v1@1.1.0",
-    "bank": "bank_target_v4@4.4.0",
+    "bank": "bank_target_v4@4.5.0",
     "water": "water_target_v3@3.9.0",
     "bridge": "bridge_principal_v1@1.2.0",
     "character": "luke_player_v1@1.1.0",
@@ -237,8 +237,8 @@
       "origin": "top patch center",
       "forward": "facing parameter selects water-facing edge",
       "texture": "procedural grass CanvasTexture plus rough soil/moss/rock materials; no external texture dependency",
-      "features": ["continuous irregular top edge", "procedural macro/micro grass color breakup", "instanced bank-top grass tufts", "exposed-soil top patches", "four staggered smoother overlapping rock terrace bands", "higher-subdivision deformed rocks", "soil pockets", "moss caps", "fern lip", "embedded top stones", "micro pebble breakup", "shoreline toe rubble", "moss shelves", "exposed roots"],
-      "version": "4.4.0",
+      "features": ["continuous irregular top edge", "multi-row macro-relief grass heightfield", "procedural macro/micro grass color breakup", "denser instanced bank-top grass tufts", "exposed-soil top patches", "four staggered smoother overlapping rock terrace bands", "higher-subdivision deformed rocks", "soil pockets", "moss caps", "fern lip", "embedded top stones", "micro pebble breakup", "shoreline toe rubble", "moss shelves", "exposed roots"],
+      "version": "4.5.0",
       "inspection": "m04-bank-inspection.html RIGHT column; m06-finish-inspection.html CENTER panel"
     },
     {
