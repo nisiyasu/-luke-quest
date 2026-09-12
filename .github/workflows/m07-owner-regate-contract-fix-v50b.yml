@@ -1,0 +1,44 @@
+name: M07 Owner Regate Contract Fix v50b
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m07-owner-regate-contract-fix-v50b.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Restore canonical M07 stage contract only
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/m04-water-target-v3.js')
+          s=p.read_text()
+          old="stage:'M07_OWNER_REGATE_V50'"
+          new="stage:'M07_IN_PROGRESS'"
+          if old not in s:
+              print('stage already canonical or source advanced')
+              raise SystemExit(0)
+          p.write_text(s.replace(old,new,1))
+          PY
+      - name: Commit contract repair if changed
+        shell: bash
+        run: |
+          git add prototypes/modern-3d/m04-water-target-v3.js
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m07): restore canonical evidence stage contract [m07-v50b]"
+          git push origin HEAD:prototype/modern-3d
