@@ -5,7 +5,7 @@
   "license_policy": "Original procedural assets are project-owned. External assets require source/license/credit records before use.",
   "active_target_set": {
     "composition_baseline": "M03 quality-regate accepted large-composition baseline; fresh full-runtime evidence 52926c77b6fda6c7d32ee0a59a25704ff8fa9152",
-    "conifer": "conifer_target_v31@3.4.0",
+    "conifer": "conifer_target_v31@3.5.0",
     "understory": "fern_patch_target_v2@2.0.0 + meadow_field_v1@1.1.0",
     "bank": "bank_target_v4@4.5.0",
     "water": "water_target_v3@3.9.0",
@@ -165,7 +165,7 @@
       "texture": "instance colors across four grass greens plus four flower colors",
       "features": ["InstancedMesh grass blades", "seeded scale and lean variation", "instance color variation", "instanced flower heads", "high-density surface detail with low draw-call growth"],
       "performance_note": "Instanced draw groups avoid individual-mesh draw-call growth.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "layered_bank_v2",
@@ -221,9 +221,9 @@
       "origin": "trunk base",
       "forward": "radial seeded silhouette",
       "texture": "four foliage material tones plus bark materials; no external texture dependency",
-      "features": ["four seed-driven silhouette families", "varied height and breadth", "12-15 foliage levels", "short overlapping directional fan fronds", "tapered layered conical needle tuft masses", "instanced branch/frond/tuft batches", "deliberate sparse windows", "family-specific droop", "crown drift", "varied ground skirt density", "dead branch stubs", "root flare"],
-      "rendering": "instanced-fans-plus-layered-conical-tufts",
-      "version": "3.4.0",
+      "features": ["four seed-driven silhouette families", "varied height and breadth", "14-17 foliage levels", "denser short overlapping directional fan fronds", "fine terminal tip sprays", "smaller less-geometric layered conical needle tuft masses", "instanced branch/frond/tip/tuft batches", "deliberate sparse windows", "family-specific droop", "crown drift", "varied ground skirt density", "dead branch stubs", "root flare"],
+      "rendering": "instanced-directional-fans-plus-fine-tip-sprays-plus-small-layered-tufts",
+      "version": "3.5.0",
       "inspection": "m04-target-inspection.html RIGHT column; m06-finish-inspection.html RIGHT panel"
     },
     {
