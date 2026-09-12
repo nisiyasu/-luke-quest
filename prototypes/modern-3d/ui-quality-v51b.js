@@ -24,3 +24,4 @@ function installOwnerRegateHud(){
   queueMicrotask(enforcePlayerState);const state=document.querySelector('#state');if(state){enforcePlayerState();new MutationObserver(enforcePlayerState).observe(state,{childList:true,characterData:true,subtree:true});}
 }
 installOwnerRegateHud();
+// exact-head recapture trigger after m03-v52 viewport repair
