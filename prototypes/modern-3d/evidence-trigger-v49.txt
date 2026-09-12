@@ -1,0 +1,3 @@
+M03 owner quality regate v49 evidence trigger.
+Source implementation parent: 20d4102e896682dcf094ea70e5ea7c1ce64e7b34
+Purpose: trigger fresh runtime screenshot/evidence workflows after concave path triangulation repair.
