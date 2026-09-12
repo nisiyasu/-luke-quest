@@ -21,70 +21,44 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           bank=Path('prototypes/modern-3d/m04-bank-target-v4.js')
           s=bank.read_text()
-          old="""  // v4.5: a real interior heightfield replaces the old two-row ribbon. This keeps
-  // the v43 footprint while giving broad grass surfaces readable macro relief.
-  const cols=28,rows=6;
-  const vertices=[],indices=[],uvs=[];
-  for(let i=0;i<=cols;i++){
-    const tx=i/cols;
-    const x=-width*.5+tx*width;
-    const edgeWave=Math.sin(tx*Math.PI*3+seed*.19)*.42+Math.sin(tx*Math.PI*7+seed*.07)*.14+(r()-.5)*.10;
-    const front=facing*(depth*.5-.42+edgeWave);
-    const back=-facing*(depth*.5-(r()-.5)*.20);
-    for(let j=0;j<=rows;j++){
-      const tz=j/rows;
-      const z=THREE.MathUtils.lerp(back,front,tz);
-      const centerLift=Math.sin(Math.PI*tz)*(.10+.055*Math.sin(tx*Math.PI*4+seed*.11));
-      const crossRoll=Math.sin(tx*Math.PI*2.1+tz*Math.PI*1.7+seed*.13)*.055;
-      const micro=(r()-.5)*.035;
-      const frontLift=tz*tz*(.055+.035*Math.sin(tx*Math.PI*2.2));
-      const y=.015+centerLift+crossRoll+micro+frontLift;
-      vertices.push(x,y,z);uvs.push(tx,tz);
-    }
-  }
-"""
-          new="""  // v4.6 Owner re-gate: all four terrain edges now meander, not only the water-facing lip.
-  // A denser heightfield plus side/back scalloping removes the broad rectangular green-slab read.
-  const cols=32,rows=9;
-  const vertices=[],indices=[],uvs=[];
-  for(let i=0;i<=cols;i++){
-    const tx=i/cols;
-    const baseX=-width*.5+tx*width;
-    const frontWave=Math.sin(tx*Math.PI*3+seed*.19)*.42+Math.sin(tx*Math.PI*7+seed*.07)*.14+(r()-.5)*.08;
-    const backWave=Math.sin(tx*Math.PI*2.35+seed*.23)*.23+Math.sin(tx*Math.PI*5.2+seed*.09)*.09;
-    const front=facing*(depth*.5-.42+frontWave);
-    const back=-facing*(depth*.5-.18+backWave);
-    for(let j=0;j<=rows;j++){
-      const tz=j/rows;
-      const sideInfluence=Math.pow(Math.abs(tx-.5)*2,5.5);
-      const sideSign=tx<.5?-1:1;
-      const sideWave=(Math.sin(tz*Math.PI*3.1+seed*.17+sideSign*.8)*.22+Math.sin(tz*Math.PI*6.3+seed*.07)*.07);
-      const x=baseX+sideSign*sideInfluence*sideWave;
-      const z=THREE.MathUtils.lerp(back,front,tz);
-      const centerLift=Math.sin(Math.PI*tz)*(.14+.065*Math.sin(tx*Math.PI*4+seed*.11));
-      const crossRoll=Math.sin(tx*Math.PI*2.1+tz*Math.PI*1.7+seed*.13)*.075;
-      const macroRoll=Math.sin(tx*Math.PI*1.35+seed*.21)*Math.sin(tz*Math.PI)*.055;
-      const micro=(r()-.5)*.032;
-      const frontLift=tz*tz*(.045+.030*Math.sin(tx*Math.PI*2.2));
-      const y=.015+centerLift+crossRoll+macroRoll+micro+frontLift;
-      vertices.push(x,y,z);uvs.push(tx,tz);
-    }
-  }
-"""
-          if old not in s: raise SystemExit('bank v4.5 organic-top token missing')
-          s=s.replace(old,new)
+          replacement=(
+          "function makeOrganicTop(r,seed,width,depth,facing){\n"
+          "  // v4.6 Owner re-gate: all four terrain edges meander; denser relief removes rectangular slab reads.\n"
+          "  const cols=32,rows=9;\n"
+          "  const vertices=[],indices=[],uvs=[];\n"
+          "  for(let i=0;i<=cols;i++){\n"
+          "    const tx=i/cols,baseX=-width*.5+tx*width;\n"
+          "    const frontWave=Math.sin(tx*Math.PI*3+seed*.19)*.42+Math.sin(tx*Math.PI*7+seed*.07)*.14+(r()-.5)*.08;\n"
+          "    const backWave=Math.sin(tx*Math.PI*2.35+seed*.23)*.23+Math.sin(tx*Math.PI*5.2+seed*.09)*.09;\n"
+          "    const front=facing*(depth*.5-.42+frontWave),back=-facing*(depth*.5-.18+backWave);\n"
+          "    for(let j=0;j<=rows;j++){\n"
+          "      const tz=j/rows,sideInfluence=Math.pow(Math.abs(tx-.5)*2,5.5),sideSign=tx<.5?-1:1;\n"
+          "      const sideWave=Math.sin(tz*Math.PI*3.1+seed*.17+sideSign*.8)*.22+Math.sin(tz*Math.PI*6.3+seed*.07)*.07;\n"
+          "      const x=baseX+sideSign*sideInfluence*sideWave,z=THREE.MathUtils.lerp(back,front,tz);\n"
+          "      const centerLift=Math.sin(Math.PI*tz)*(.14+.065*Math.sin(tx*Math.PI*4+seed*.11));\n"
+          "      const crossRoll=Math.sin(tx*Math.PI*2.1+tz*Math.PI*1.7+seed*.13)*.075;\n"
+          "      const macroRoll=Math.sin(tx*Math.PI*1.35+seed*.21)*Math.sin(tz*Math.PI)*.055;\n"
+          "      const micro=(r()-.5)*.032,frontLift=tz*tz*(.045+.030*Math.sin(tx*Math.PI*2.2));\n"
+          "      const y=.015+centerLift+crossRoll+macroRoll+micro+frontLift;\n"
+          "      vertices.push(x,y,z);uvs.push(tx,tz);\n"
+          "    }\n"
+          "  }\n"
+          "  const stride=rows+1;"
+          )
+          s,n=re.subn(r"function makeOrganicTop\(r,seed,width,depth,facing\)\{.*?  const stride=rows\+1;",replacement,s,count=1,flags=re.S)
+          if n!=1: raise SystemExit('makeOrganicTop replacement failed')
           s=s.replace("// v4.5 re-gate: heightfield relief + denser authored microdetail makes the playable top read as terrain rather than a smooth green slab.","// v4.6 re-gate: four-edge scalloped heightfield + authored microdetail prevents rectangular terrain-slab silhouettes.")
           s=s.replace("version:'4.5.0'","version:'4.6.0'")
           bank.write_text(s)
 
           idx=Path('prototypes/modern-3d/index.html')
           h=idx.read_text()
-          old_loop="""for(let i=0;i<trees.length;i++){const [x,z,s,seed]=trees[i],useTarget=targetTreeIndices.has(i);const t=useTarget?createTargetConiferV31({seed,scale:s*.94}):createNaturalConifer({seed,scale:s});t.position.set(x,terrainY(x,z),z);scene.add(t);if(useTarget&&i%2===0){const f=createTargetFernPatch({seed:9000+seed,scale:.82,count:20});f.position.set(x+(i%3-.8)*.5,terrainY(x,z)+.03,z+.55);scene.add(f)}}"""
-          new_loop="""for(let i=0;i<trees.length;i++){const [x,z,s,seed]=trees[i];const scaleJitter=.86+(seed%7)*.026;const px=x+((seed%7)-3)*.10,pz=z+((seed%11)-5)*.065;const t=createTargetConiferV31({seed,scale:s*scaleJitter});t.position.set(px,terrainY(px,pz),pz);scene.add(t);if(i%2===0){const f=createTargetFernPatch({seed:9000+seed,scale:.78+(seed%4)*.045,count:18+(seed%4)*3});f.position.set(px+((seed%5)-2)*.22,terrainY(px,pz)+.03,pz+.42+((seed%3)-1)*.18);scene.add(f)}}"""
-          if old_loop not in h: raise SystemExit('main forest loop token missing')
-          h=h.replace(old_loop,new_loop)
+          new_loop="for(let i=0;i<trees.length;i++){const [x,z,s,seed]=trees[i];const scaleJitter=.86+(seed%7)*.026;const px=x+((seed%7)-3)*.10,pz=z+((seed%11)-5)*.065;const t=createTargetConiferV31({seed,scale:s*scaleJitter});t.position.set(px,terrainY(px,pz),pz);scene.add(t);if(i%2===0){const f=createTargetFernPatch({seed:9000+seed,scale:.78+(seed%4)*.045,count:18+(seed%4)*3});f.position.set(px+((seed%5)-2)*.22,terrainY(px,pz)+.03,pz+.42+((seed%3)-1)*.18);scene.add(f)}}"
+          h,n=re.subn(r"for\(let i=0;i<trees\.length;i\+\+\)\{const \[x,z,s,seed\]=trees\[i\],useTarget=.*?\}\}",new_loop,h,count=1)
+          if n!=1: raise SystemExit('main forest loop replacement failed')
           h=h.replace("targetConifers:targetTreeIndices.size+destinationTrees.length","targetConifers:trees.length+destinationTrees.length+southRightFrameTrees.length")
           h=h.replace("compositionTrees:37","compositionTrees:trees.length+destinationTrees.length+southRightFrameTrees.length+3")
           idx.write_text(h)
