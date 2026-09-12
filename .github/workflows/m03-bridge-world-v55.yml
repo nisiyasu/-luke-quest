@@ -1,0 +1,40 @@
+name: M03 Bridge World Continuity v55
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/m03-bridge-world-v55.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply M03 v55 patch
+        run: python3 scripts/m03_v55_bridge_world_patch.py
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Capture fresh runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/lq-http.log 2>&1 &
+          echo $! >/tmp/lq-http.pid
+          sleep 2
+          node scripts/m03_v55_capture.js
+      - name: Commit M03 v55 repair and evidence
+        run: |
+          git add prototypes/modern-3d/index.html prototypes/modern-3d/evidence/m03-v55-390x844.png prototypes/modern-3d/evidence/m03-v55-runtime.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03): integrate bridge landings into world massing [m03-v55]"
+          git push origin HEAD:prototype/modern-3d
