@@ -14,11 +14,13 @@ function shadows(root){root.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiv
 
 const grass=new THREE.MeshStandardMaterial({color:0xffffff,map:makeBankGrassMap(417),roughness:.99,side:THREE.DoubleSide});
 const soil=new THREE.MeshStandardMaterial({color:0x514332,roughness:1});
+const soilLight=new THREE.MeshStandardMaterial({color:0x70563a,roughness:1,side:THREE.DoubleSide});
 const moss=new THREE.MeshStandardMaterial({color:0x587941,roughness:1});
 const mossLight=new THREE.MeshStandardMaterial({color:0x719552,roughness:1});
 const rootMat=new THREE.MeshStandardMaterial({color:0x4b3427,roughness:1});
 const rockMats=[0x625f56,0x756f61,0x857d6d,0x68665e,0x777365,0x595c57].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.97,metalness:0}));
 const fernMats=[0x315d2e,0x6f984b].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.98,side:THREE.DoubleSide}));
+const topGrassMats=[0x355e2f,0x4e7b3b,0x79964d].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:1}));
 
 function makeFernPatch(r,scale=.7,count=14){
   const g=new THREE.Group(),verts=[],idx=[];
@@ -54,6 +56,22 @@ function makeOrganicTop(r,seed,width,depth,facing){
   const top=new THREE.Mesh(geo,grass);top.receiveShadow=true;
   return top;
 }
+function addTopMicrodetail(g,r,width,depth,facing){
+  const bladeGeo=new THREE.ConeGeometry(.045,.34,4,1,false),dummy=new THREE.Object3D();
+  const lists=[[],[],[]];
+  const count=Math.max(72,Math.floor(width*8));
+  for(let i=0;i<count;i++){
+    const x=(r()-.5)*width*.88,z=(r()-.5)*depth*.64-facing*.28;
+    if(r()<.16) continue;
+    lists[i%3].push({x,z,h:.55+r()*.80,s:.65+r()*.75,ry:r()*Math.PI});
+  }
+  lists.forEach((list,mi)=>{const mesh=new THREE.InstancedMesh(bladeGeo,topGrassMats[mi],list.length);list.forEach((v,i)=>{dummy.position.set(v.x,.15+v.h*.10,v.z);dummy.rotation.set((i%3-1)*.08,v.ry,(i%5-2)*.035);dummy.scale.set(v.s,v.h,v.s);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=false;mesh.receiveShadow=true;g.add(mesh)});
+  for(let i=0;i<14;i++){
+    const radius=.16+r()*.34;
+    const patch=new THREE.Mesh(new THREE.CircleGeometry(radius,10),i%3===0?soilLight:soil);
+    patch.rotation.x=-Math.PI/2;patch.position.set((r()-.5)*width*.80,.115,(r()-.5)*depth*.52-facing*.38);patch.scale.set(1.5,.65,1);g.add(patch);
+  }
+}
 
 export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
   const r=rng(seed),g=new THREE.Group();
@@ -61,6 +79,8 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
 
   // Continuous irregular top surface. The front edge itself meanders, eliminating the prior block/slab silhouette.
   g.add(makeOrganicTop(r,seed,width,depth,facing));
+  // v4.4 re-gate: authored grass tufts and exposed-soil patches make the playable top read as terrain rather than a smooth green slab.
+  addTopMicrodetail(g,r,width,depth,facing);
 
   // M06 finish: smaller overlapping terraces keep the cliff face organic while maintaining readable elevation.
   const bands=[
@@ -161,6 +181,6 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
     root.rotation.z=(r()-.5)*.28;root.rotation.x=facing*(.10+r()*.18);g.add(root);
   }
 
-  g.userData={assetId:'bank_target_v4',version:'4.3.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest bank with layered cliff terraces, soil and fern lip, shoreline toe rubble, moss shelves and exposed roots to remove water/cliff seams'};
+  g.userData={assetId:'bank_target_v4',version:'4.4.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest bank with layered cliff terraces, soil and fern lip, shoreline toe rubble, moss shelves, exposed roots, authored top grass tufts and exposed-soil breakup to remove smooth slab and water/cliff seam reads'};
   return shadows(g);
 }
