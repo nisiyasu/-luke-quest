@@ -1,0 +1,47 @@
+name: M09-P02 Remove Fake HP
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m09-p02-remove-fake-hp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Remove fake HP from live HUD source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          needle='<div class="hud-hp-row"><span>HP</span><div class="hud-hp-track"><i></i></div></div>'
+          count=s.count(needle)
+          print('fake_hp_markup_occurrences=',count)
+          if count != 1:
+              raise SystemExit(f'FAIL_CLOSED: expected exactly one production fake HP markup, found {count}')
+          s=s.replace(needle,'')
+          p.write_text(s)
+          if 'class="hud-hp-row"' in s:
+              raise SystemExit('FAIL_CLOSED: hud-hp-row markup remains')
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit product repair
+        run: |
+          git config user.name "LUKE QUEST Scheduled Engineer"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && { echo 'No patch produced'; exit 1; }
+          git commit -m "fix(m09-p02): remove fake HP from HUD"
+          git push origin HEAD:prototype/modern-3d
