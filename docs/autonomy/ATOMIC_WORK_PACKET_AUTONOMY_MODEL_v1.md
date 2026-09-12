@@ -86,11 +86,7 @@ The important point is not the names. The important point is that complex work i
 
 ## 4. Packet sizing rule
 
-A packet is too large if it asks the executor to:
-- redesign multiple unrelated subsystems;
-- hold many acceptance domains in mind at once;
-- perform implementation, broad integration, final QA and release approval together;
-- rely on a very long uninterrupted session to finish.
+A packet is too large if it asks the executor to redesign multiple unrelated subsystems, hold many acceptance domains in mind at once, or rely on a long uninterrupted session.
 
 A packet is too small if it only encodes a mechanical micro-edit with no meaningful independently testable outcome.
 
@@ -98,24 +94,9 @@ Preferred size:
 
 > One coherent outcome that can be implemented -> verified -> repaired -> accepted without requiring the executor to solve the whole project simultaneously.
 
-Examples in LUKE QUEST:
-- Camera & Macro Composition
-- Bridge, Shore & Path Continuity
-- Production Vegetation Assets
-- Water Look Development
-- HUD / Safe-Area Production Quality
-- Full Evidence Set & VGA First Pass
-- Adversarial Rejector & Owner-Handoff Gate
-
 ## 5. Completion rule
 
-A packet does not complete because:
-- one run ended;
-- one commit exists;
-- CI is green;
-- one screenshot exists;
-- the model says the direction improved;
-- a later stage is more interesting.
+A packet does not complete because one run ended, one commit exists, CI is green, one screenshot exists, or the model says the direction improved.
 
 A packet completes only when every mandatory acceptance condition and evidence requirement is satisfied.
 
@@ -171,76 +152,17 @@ This section is a preserved application candidate only. It does NOT alter or sup
 For a quant system, giant instructions such as 'build a profitable strategy' are especially unsafe because implementation correctness, statistical validity, execution realism and live-risk approval are different domains.
 
 A future BTC conversion should map the existing lifecycle / Promotion Gate into bounded packets such as:
-
 1. Hypothesis definition packet
-   - exact economic/market hypothesis
-   - falsifiable prediction
-   - target universe / time horizon
-   - leakage risks
-   - acceptance: hypothesis is testable, not just a narrative
-
 2. Data-quality packet
-   - source/lineage
-   - timestamps/timezone
-   - missingness/outliers
-   - survivorship/look-ahead controls
-   - reproducible snapshot
-
 3. Feature implementation packet
-   - formula/schema
-   - unit tests
-   - missing-value behavior
-   - point-in-time correctness
-   - no statistical profitability claim yet
-
 4. IS experiment packet
-   - experimental protocol
-   - cost assumptions
-   - metrics
-   - baseline comparison
-   - reproducibility
-
 5. Robustness / multiple-testing packet
-   - parameter sensitivity
-   - alternative windows
-   - DSR/PBO/CSCV or applicable controls
-   - failure routing to hypothesis/feature if fragile
-
 6. OOS packet
-   - frozen decisions before OOS
-   - no tuning on OOS
-   - explicit acceptance/rejection criteria
-
 7. Walk-forward packet
-   - retraining/recalibration rules
-   - rolling windows
-   - stability evidence
-
 8. Execution realism packet
-   - fees
-   - slippage
-   - latency
-   - fill model
-   - market impact / order constraints where relevant
-
 9. Risk / safety packet
-   - sizing
-   - exposure limits
-   - kill switches
-   - exchange/API failure behavior
-   - state reconciliation
-
 10. Paper-trading packet
-   - live data path
-   - order simulation / shadow execution
-   - operational observability
-   - divergence from backtest
-
 11. Live-promotion packet
-   - prior gates demonstrably passed
-   - Owner authority explicit
-   - rollback/kill path proven
-   - no automatic promotion because earlier packets passed
 
 Important separation:
 
@@ -254,19 +176,7 @@ This matches the existing Promotion Gate philosophy and can make the 360/369 pro
 
 ## 10. Why this helps multi-model handoff
 
-Atomic packets make model substitution safer:
-- ChatGPT -> Codex
-- Codex -> Claude
-- one reasoning level -> another
-- local -> scheduled/cloud executor
-
-The next executor does not need the full conversational history. It needs:
-1. canonical rules;
-2. router/current packet;
-3. packet inputs/evidence;
-4. current code/data state.
-
-That reduces context cost and makes handoff auditable.
+Atomic packets make model substitution safer. The next executor does not need the full conversational history. It needs canonical rules, the router/current packet, packet inputs/evidence, and current code/data state.
 
 ## 11. Retrieval contract
 
