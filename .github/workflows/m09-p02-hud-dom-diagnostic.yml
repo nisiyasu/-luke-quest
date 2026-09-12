@@ -39,7 +39,7 @@ jobs:
               await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
               await page.waitForTimeout(500);
               const data=await page.evaluate(()=>({status:document.querySelector('#status')?.outerHTML||'',objective:document.querySelector('.objective')?.outerHTML||'',hint:document.querySelector('#hint')?.outerHTML||'',bodyText:document.body.innerText||'',head:document.documentElement.dataset.m09OwnerHud}));
-              fs.writeFileSync('.huddiag/live-hud.txt',JSON.stringify(data,null,2));
+              const text=JSON.stringify(data,null,2);fs.writeFileSync('.huddiag/live-hud.txt',text);console.log('LIVE_HUD_JSON='+text);
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
@@ -48,4 +48,5 @@ jobs:
         with:
           name: m09-p02-live-hud-dom
           path: .huddiag
+          include-hidden-files: true
           retention-days: 7
