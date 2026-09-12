@@ -51,7 +51,7 @@ jobs:
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
           curl -fsS http://127.0.0.1:8140/three.module.js >/dev/null
           curl -fsS http://127.0.0.1:8140/three.core.js >/dev/null
-      - name: Measure canonical headless viewport
+      - name: Measure legacy Chrome CLI viewport
         shell: bash
         run: |
           set -euo pipefail
@@ -60,7 +60,7 @@ jobs:
           timeout 30s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --window-size=390,844 --force-device-scale-factor=1 --dump-dom \
             'http://127.0.0.1:8140/viewport.html' > .modern3d-fast/viewport-dom.html 2>.modern3d-fast/viewport-stderr.log
-          sed -n 's#.*<pre id="v">\(.*\)</pre>.*#HEADLESS_VIEWPORT=\1#p' .modern3d-fast/viewport-dom.html | tee .modern3d-fast/viewport.txt
+          sed -n 's#.*<pre id="v">\(.*\)</pre>.*#LEGACY_HEADLESS_VIEWPORT=\1#p' .modern3d-fast/viewport-dom.html | tee .modern3d-fast/viewport.txt
           test -s .modern3d-fast/viewport.txt
       - name: Verify traversal state with bootstrap retry
         shell: bash
@@ -86,20 +86,35 @@ jobs:
           grep -q 'data-m03-ci="pass"' .modern3d-fast/dom.html
           grep -q 'data-m05-scene="ready"' .modern3d-fast/dom.html
           grep -oE 'data-m03-route="[^"]*"' .modern3d-fast/dom.html > .modern3d-fast/route.txt
-      - name: Capture M03 canonical frames
+      - name: Install CDP viewport capture harness
         shell: bash
         run: |
-          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=2500 \
-            --screenshot=.modern3d-fast/m03-390x844.png \
-            'http://127.0.0.1:8140/index.html'
-          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size=864,1536 --force-device-scale-factor=1 --virtual-time-budget=2500 \
-            --screenshot=.modern3d-fast/m03-864x1536.png \
-            'http://127.0.0.1:8140/index.html'
+          set -euo pipefail
+          npm install --no-save --no-package-lock puppeteer-core
+      - name: Capture exact M03 canonical frames via CDP
+        shell: bash
+        run: |
+          set -euo pipefail
+          export BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          node <<'NODE'
+          const puppeteer=require('puppeteer-core');
+          const fs=require('fs');
+          async function capture(width,height,out){
+            const browser=await puppeteer.launch({executablePath:process.env.BROWSER,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-webgl','--ignore-gpu-blocklist','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+            try{
+              const page=await browser.newPage();
+              await page.setViewport({width,height,deviceScaleFactor:1});
+              await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:45000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',{timeout:45000});
+              await new Promise(r=>setTimeout(r,1800));
+              const dims=await page.evaluate(()=>({innerWidth,innerHeight,clientWidth:document.documentElement.clientWidth,clientHeight:document.documentElement.clientHeight,dpr:devicePixelRatio}));
+              if(dims.innerWidth!==width||dims.innerHeight!==height||dims.clientWidth!==width||dims.clientHeight!==height) throw new Error(`viewport mismatch ${JSON.stringify(dims)} expected ${width}x${height}`);
+              fs.appendFileSync('.modern3d-fast/cdp-viewport.txt',`${out}=${JSON.stringify(dims)}\n`);
+              await page.screenshot({path:`.modern3d-fast/${out}`,fullPage:false});
+            } finally { await browser.close(); }
+          }
+          (async()=>{await capture(390,844,'m03-390x844.png');await capture(864,1536,'m03-864x1536.png')})().catch(e=>{console.error(e);process.exit(1)});
+          NODE
           python3 - <<'PY'
           from pathlib import Path
           import struct
@@ -109,6 +124,7 @@ jobs:
               w,h=struct.unpack('>II',p[16:24])
               assert (w,h)==expected,(path,w,h)
               print(path,w,h,len(p))
+          print(Path('.modern3d-fast/cdp-viewport.txt').read_text())
           PY
       - name: Upload bounded M03 evidence
         if: always()
@@ -122,6 +138,7 @@ jobs:
             .modern3d-fast/viewport-dom.html
             .modern3d-fast/viewport-stderr.log
             .modern3d-fast/viewport.txt
+            .modern3d-fast/cdp-viewport.txt
             .modern3d-fast/m03-390x844.png
             .modern3d-fast/m03-864x1536.png
             /tmp/modern3d-fast-http.log
