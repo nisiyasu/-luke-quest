@@ -56,7 +56,7 @@ jobs:
           timeout 35s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=250 --dump-dom \
-            'http://127.0.0.1:8140/index.html?ci=1&m08proof=1' > .modern3d-m08/dom.html 2>.modern3d-m08/chrome-stderr.log
+            'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-m08/dom.html 2>.modern3d-m08/chrome-stderr.log
           grep -q 'data-lq-modern3d="m05-ready"' .modern3d-m08/dom.html
           grep -q 'data-m02-ci="pass"' .modern3d-m08/dom.html
           grep -q 'data-m03-ci="pass"' .modern3d-m08/dom.html
