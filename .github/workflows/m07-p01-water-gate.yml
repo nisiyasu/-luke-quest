@@ -52,7 +52,7 @@ jobs:
               const h0=hash('.m07-p01/high-still.png'),h1=hash('.m07-p01/motion-a.png'),h2=hash('.m07-p01/motion-b.png');
               if(new Set([h0,h1,h2]).size<2)throw new Error('time-separated runtime frames are byte-identical');
               const source=fs.readFileSync('prototypes/modern-3d/m04-water-target-v3.js','utf8');
-              const required=['single-pass analytic wave-normal Fresnel sky reflection','version:\'3.13.0\'','96:40','52:20'];
+              const required=['single-pass analytic wave-normal Fresnel sky reflection','version:\'3.13.0\'','segmentsX=practical?52:96','segmentsY=practical?20:40'];
               for(const token of required)if(!source.includes(token))throw new Error(`water contract token missing: ${token}`);
               fs.writeFileSync('.m07-p01/water-audit.txt',[
                 `head=${process.env.GITHUB_SHA||'UNKNOWN'}`,
