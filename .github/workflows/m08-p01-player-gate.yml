@@ -1,0 +1,70 @@
+name: M08-P01 Player Visual Quality Gate
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m08-p01-player-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  player-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m08-p01-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+          curl -fsS http://127.0.0.1:8140/m08-player-inspection.html >/dev/null
+      - name: Capture canonical walk and close-player evidence
+        run: |
+          mkdir -p .m08-p01
+          cat > player-gate.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const rows=[];
+            try{
+              let p=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+              const errs=[];p.on('pageerror',e=>errs.push(String(e)));
+              await p.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+              await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,{timeout:150000});
+              await p.waitForTimeout(900);if(errs.length)throw new Error(`runtime errors=${JSON.stringify(errs)}`);
+              const idle=await p.evaluate(()=>document.documentElement.dataset.m08Player);await p.screenshot({path:'.m08-p01/canonical-idle.png',timeout:150000});
+              await p.keyboard.down('ArrowUp');await p.waitForTimeout(420);const walk=await p.evaluate(()=>document.documentElement.dataset.m08Player);await p.screenshot({path:'.m08-p01/canonical-walk.png',timeout:150000});await p.keyboard.up('ArrowUp');
+              rows.push(`runtime idle=${idle} walk=${walk} page_errors=0`);await p.close();
+              p=await browser.newPage({viewport:{width:640,height:720},deviceScaleFactor:1});const ie=[];p.on('pageerror',e=>ie.push(String(e)));
+              await p.goto('http://127.0.0.1:8140/m08-player-inspection.html',{waitUntil:'domcontentloaded',timeout:150000});await p.waitForFunction(()=>document.documentElement.dataset.m08PlayerInspection==='ready',{timeout:150000});await p.waitForTimeout(900);if(ie.length)throw new Error(`inspection errors=${JSON.stringify(ie)}`);await p.screenshot({path:'.m08-p01/player-close.png',timeout:150000});await p.close();
+              const src=fs.readFileSync('prototypes/modern-3d/assets.js','utf8');for(const t of ['createLukeCharacter','0x1660d9','coatShade','const crest=','const buckle='])if(!src.includes(t))throw new Error(`player source token missing ${t}`);
+              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} close_inspection=PASS source_contract=PASS`);fs.writeFileSync('.m08-p01/player-audit.txt',rows.join('\n')+'\n');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node player-gate.cjs
+      - name: Add visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m08-p01/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m08-p01/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m08-p01-player-gate
+          path: .m08-p01
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
