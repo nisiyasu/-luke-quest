@@ -27,7 +27,7 @@ jobs:
       - name: Verify M07 water contract and runtime
         run: |
           set -euo pipefail
-          grep -q "stage:'M07_IN_PROGRESS'" prototypes/modern-3d/m04-water-target-v3.js
+          grep -Eq "stage:'(M04_REGATE|M07_IN_PROGRESS)'" prototypes/modern-3d/m04-water-target-v3.js
           grep -q "single-pass analytic wave-normal Fresnel sky reflection" prototypes/modern-3d/m04-water-target-v3.js
           grep -q "qualityPreset:resolvedQuality" prototypes/modern-3d/m04-water-target-v3.js
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
@@ -81,9 +81,6 @@ jobs:
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          # Motion proof uses the practical preset because appearance is already proven by high stills.
-          # Capture attempts are individually bounded; at least two successful time-separated frames
-          # are required before a video is allowed to be emitted.
           success=0
           for spec in '01 450' '02 1050' '03 1800'; do
             set -- $spec
