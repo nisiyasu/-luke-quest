@@ -8,6 +8,7 @@ on:
       - "prototypes/modern-3d/index.html"
       - "prototypes/modern-3d/assets.js"
       - "prototypes/modern-3d/m04-*.js"
+      - "prototypes/modern-3d/ui-quality-v51b.js"
   workflow_dispatch:
 
 permissions:
@@ -44,7 +45,7 @@ jobs:
               await page.goto(`http://127.0.0.1:8140/index.html?quality=high&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:60000});
               await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:60000});
               await page.waitForTimeout(1400); if(errors.length) throw new Error(`${name}: ${errors.join(' | ')}`);
-              const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,assets:document.documentElement.dataset.m04Assets,player:document.documentElement.dataset.m08Player,three:document.documentElement.dataset.threeRevision}));
+              const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,hudMode:document.documentElement.dataset.m09HudMode,assets:document.documentElement.dataset.m04Assets,player:document.documentElement.dataset.m08Player,three:document.documentElement.dataset.threeRevision}));
               await page.screenshot({path:`.m11-latest/${name}.png`,fullPage:true,timeout:60000});
               rows.push(`${name} ${JSON.stringify(meta)}`); await page.close();
             }
