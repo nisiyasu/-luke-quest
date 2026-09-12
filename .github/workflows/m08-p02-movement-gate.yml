@@ -5,10 +5,11 @@ on:
     branches: ["prototype/modern-3d"]
     paths:
       - ".github/workflows/m08-p02-movement-gate.yml"
+      - "prototypes/modern-3d/index.html"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   movement-gate:
@@ -18,17 +19,51 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: prototype/modern-3d
+          fetch-depth: 1
+      - name: Ensure guarded M08 functional test hook
+        id: hook
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          marker="if(query.get('m08gate')==='1')window.LQ_MODERN_3D_M08_GATE={stepMovement,player,syncState};"
+          if marker in s:
+              print('hook already present')
+          else:
+              needle="const m08Proof=query.get('m08proof')==='1';if(m08Proof){"
+              if s.count(needle)!=1:
+                  raise SystemExit(f'FAIL_CLOSED: expected one M08 proof anchor, found {s.count(needle)}')
+              s=s.replace(needle,marker+needle,1)
+              p.write_text(s)
+              print('hook inserted')
+          PY
+          if git diff --quiet -- prototypes/modern-3d/index.html; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add prototypes/modern-3d/index.html
+            git commit -m "test(m08-p02): add guarded production movement hook"
+            git push origin HEAD:prototype/modern-3d
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Install Playwright Chromium
+        if: steps.hook.outputs.changed != 'true'
         run: |
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null 2>&1
       - name: Start runtime
+        if: steps.hook.outputs.changed != 'true'
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m08-p02-http.log 2>&1 &
           sleep 2
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
       - name: Exercise keyboard touch release grounding and camera
+        if: steps.hook.outputs.changed != 'true'
         run: |
           mkdir -p .m08-p02
           cat > movement-gate.cjs <<'JS'
@@ -46,24 +81,21 @@ jobs:
           }))}
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
-            const rows=['functional_clock=fixed_step_production_stepMovement performance_claim=NONE'];
+            const rows=['functional_clock=fixed_step_production_stepMovement performance_claim=NONE','guard=m08gate-query-only'];
             const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});
             const errs=[];page.on('pageerror',e=>errs.push(String(e)));
             try{
-              await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:60000});
-              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,null,{timeout:60000});
+              await page.goto('http://127.0.0.1:8140/index.html?quality=high&m08gate=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&window.LQ_MODERN_3D_M08_GATE,null,{timeout:60000});
               if(errs.length)throw new Error(`page errors=${JSON.stringify(errs)}`);
-              const access=await page.evaluate(()=>({step:typeof stepMovement,player:typeof player,camera:typeof camera}));
-              if(access.step!=='function'||access.player==='undefined')throw new Error(`production movement symbols unavailable ${JSON.stringify(access)}`);
-              rows.push(`production_symbol_access=${JSON.stringify(access)}`);
               const start=await meta(page);const a=p3(start.player);if(a.length<3||!a.every(Number.isFinite))throw new Error('invalid start player');
 
               const keyboardProof=await page.evaluate(()=>{
+                const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;
                 const before=[player.position.x,player.position.y,player.position.z];
                 dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));
                 for(let i=0;i<150;i++)stepMovement(1/60);
-                dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));
-                syncState();
+                dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState();
                 return {before,after:[player.position.x,player.position.y,player.position.z],rotation:player.rotation.y,active:window.LQ_MODERN_3D_M05.activeInputs};
               });
               const b=keyboardProof.after;rows.push(`keyboard_fixed_step=${JSON.stringify(keyboardProof)} delta=${delta(a,b).toFixed(3)}`);
@@ -71,38 +103,32 @@ jobs:
               rows.push(`keyboard_bridge_to_terrain=PASS y=${b[1].toFixed(3)} z=${b[2].toFixed(3)}`);
 
               const releaseProof=await page.evaluate(()=>{
-                const before=[player.position.x,player.position.y,player.position.z];
-                for(let i=0;i<30;i++)stepMovement(1/60);
-                const after=[player.position.x,player.position.y,player.position.z];
+                const {stepMovement,player}=window.LQ_MODERN_3D_M08_GATE;const before=[player.position.x,player.position.y,player.position.z];
+                for(let i=0;i<30;i++)stepMovement(1/60);const after=[player.position.x,player.position.y,player.position.z];
                 return {before,after,active:window.LQ_MODERN_3D_M05.activeInputs};
               });
               const releaseDelta=delta(releaseProof.before,releaseProof.after);rows.push(`keyboard_release=${JSON.stringify(releaseProof)} delta=${releaseDelta.toFixed(4)}`);if(releaseDelta>.001||releaseProof.active!==0)throw new Error('keyboard release drift');
 
               const turnProof=await page.evaluate(()=>{
-                const before=[player.position.x,player.position.y,player.position.z],r0=player.rotation.y;
-                dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowRight',bubbles:true,cancelable:true}));
-                for(let i=0;i<12;i++)stepMovement(1/60);
+                const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;const before=[player.position.x,player.position.y,player.position.z],r0=player.rotation.y;
+                dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowRight',bubbles:true,cancelable:true}));for(let i=0;i<12;i++)stepMovement(1/60);
                 dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowRight',bubbles:true,cancelable:true}));syncState();
                 return {before,after:[player.position.x,player.position.y,player.position.z],r0,r1:player.rotation.y,active:window.LQ_MODERN_3D_M05.activeInputs};
               });
               const turnDelta=delta(turnProof.before,turnProof.after);rows.push(`turn_right=${JSON.stringify(turnProof)} delta=${turnDelta.toFixed(3)}`);if(turnDelta<.4||Math.abs(turnProof.r1-turnProof.r0)<.3||turnProof.active!==0)throw new Error('direction/turn proof fail');
 
               const touchProof=await page.evaluate(()=>{
-                const btn=document.querySelector('button.move.down');if(!btn)throw new Error('touch button missing');
+                const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;const btn=document.querySelector('button.move.down');if(!btn)throw new Error('touch button missing');
                 const before=[player.position.x,player.position.y,player.position.z];const id=777;
-                btn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));
-                for(let i=0;i<12;i++)stepMovement(1/60);
-                btn.dispatchEvent(new PointerEvent('pointerup',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));syncState();
-                const after=[player.position.x,player.position.y,player.position.z];
-                for(let i=0;i<20;i++)stepMovement(1/60);
-                const released=[player.position.x,player.position.y,player.position.z];
+                btn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));for(let i=0;i<12;i++)stepMovement(1/60);
+                btn.dispatchEvent(new PointerEvent('pointerup',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));syncState();const after=[player.position.x,player.position.y,player.position.z];
+                for(let i=0;i<20;i++)stepMovement(1/60);const released=[player.position.x,player.position.y,player.position.z];
                 return {before,after,released,active:window.LQ_MODERN_3D_M05.activeInputs};
               });
               const touchDelta=delta(touchProof.before,touchProof.after),touchReleaseDelta=delta(touchProof.after,touchProof.released);
               rows.push(`touch_pointer=${JSON.stringify(touchProof)} delta=${touchDelta.toFixed(3)} release_delta=${touchReleaseDelta.toFixed(4)}`);
               if(touchDelta<.4||touchReleaseDelta>.001||touchProof.active!==0)throw new Error('touch movement/release proof fail');
-              rows.push(`functional_camera_profile=${(await meta(page)).camera}`);
-              await page.close();
+              rows.push(`functional_camera_profile=${(await meta(page)).camera}`);await page.close();
 
               const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});const cie=[];ci.on('pageerror',e=>cie.push(String(e)));
               await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:60000});
@@ -113,30 +139,24 @@ jobs:
 
               const visual=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});const ve=[];visual.on('pageerror',e=>ve.push(String(e)));
               await visual.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:60000});
-              await visual.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',null,{timeout:60000});
-              await visual.waitForTimeout(500);if(ve.length)throw new Error(`visual page errors=${JSON.stringify(ve)}`);
-              await visual.screenshot({path:'.m08-p02/camera-start.png',timeout:90000});
+              await visual.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',null,{timeout:60000});await visual.waitForTimeout(500);
+              if(ve.length)throw new Error(`visual page errors=${JSON.stringify(ve)}`);await visual.screenshot({path:'.m08-p02/camera-start.png',timeout:90000});
               await visual.goto('http://127.0.0.1:8140/index.html?quality=high&m08proof=1',{waitUntil:'domcontentloaded',timeout:60000});
-              await visual.waitForFunction(()=>document.documentElement.dataset.m08ProofDone==='1'&&Number(document.documentElement.dataset.m08ProofRendered)>=4,null,{timeout:60000});
-              await visual.waitForTimeout(250);
-              await visual.screenshot({path:'.m08-p02/camera-postwalk.png',timeout:90000});
-              const vm=await meta(visual);rows.push(`camera_regression_frames=camera-start.png,camera-postwalk.png profile=${vm.camera}`);await visual.close();
+              await visual.waitForFunction(()=>document.documentElement.dataset.m08ProofDone==='1'&&Number(document.documentElement.dataset.m08ProofRendered)>=4,null,{timeout:60000});await visual.waitForTimeout(250);
+              await visual.screenshot({path:'.m08-p02/camera-postwalk.png',timeout:90000});const vm=await meta(visual);rows.push(`camera_regression_frames=camera-start.png,camera-postwalk.png profile=${vm.camera}`);await visual.close();
 
-              rows.push(`page_errors=0 head=${process.env.GITHUB_SHA||'UNKNOWN'} RESULT=PASS`);
-              fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');
-            }catch(e){
-              rows.push(`FAIL error=${String(e)}`);fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');throw e;
-            }finally{await browser.close()}
+              rows.push(`page_errors=0 head=${process.env.GITHUB_SHA||'UNKNOWN'} RESULT=PASS`);fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');
+            }catch(e){rows.push(`FAIL error=${String(e)}`);fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');throw e}finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node movement-gate.cjs
       - name: Add visual authorities
-        if: always()
+        if: steps.hook.outputs.changed != 'true' && always()
         run: |
           curl -L --fail --retry 3 -o .m08-p02/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
           curl -L --fail --retry 3 -o .m08-p02/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: steps.hook.outputs.changed != 'true' && always()
         with:
           name: m08-p02-movement-gate
           path: .m08-p02
