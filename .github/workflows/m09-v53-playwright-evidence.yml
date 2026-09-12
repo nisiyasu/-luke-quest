@@ -28,7 +28,7 @@ jobs:
       - name: Capture four actual views and verify truthful HUD
         run: |
           mkdir -p .m09-v53
-          cat > /tmp/capture-m09-v53.js <<'JS'
+          cat > capture-m09-v53.cjs <<'JS'
           const {chromium}=require('playwright');
           const fs=require('fs');
           (async()=>{
@@ -56,7 +56,7 @@ jobs:
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
-          node /tmp/capture-m09-v53.js
+          node capture-m09-v53.cjs
       - name: Add canonical references to same review bundle
         run: |
           curl -L --fail --retry 3 -o .m09-v53/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
