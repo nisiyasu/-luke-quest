@@ -1,0 +1,127 @@
+name: Modern 3D M10 Promote Verified Artifacts
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths: [.github/workflows/modern-3d-m10-promote-verified.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+      - name: Guard verified candidate lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 1d82ed62c3e60c7e2fed3052f8d0c33e5c0c3758 HEAD
+          test -z "$(git diff --name-only 1d82ed62c3e60c7e2fed3052f8d0c33e5c0c3758..HEAD -- prototypes/modern-3d)"
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '10289357959'
+          path: candidate
+          github-token: ${{ github.token }}
+          repository: nisiyasu/-luke-quest
+          run-id: '34666950635'
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '10288618648'
+          path: ev-source-high
+          github-token: ${{ github.token }}
+          repository: nisiyasu/-luke-quest
+          run-id: '34666950635'
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '10289188411'
+          path: ev-source-practical
+          github-token: ${{ github.token }}
+          repository: nisiyasu/-luke-quest
+          run-id: '34666950635'
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '10289393194'
+          path: ev-package-high
+          github-token: ${{ github.token }}
+          repository: nisiyasu/-luke-quest
+          run-id: '34666950635'
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '10289781695'
+          path: ev-package-practical
+          github-token: ${{ github.token }}
+          repository: nisiyasu/-luke-quest
+          run-id: '34666950635'
+      - name: Reconstruct and verify M10 measurement
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, struct
+          specs=[
+            ('source','high',Path('ev-source-high')),
+            ('source','practical',Path('ev-source-practical')),
+            ('package','high',Path('ev-package-high')),
+            ('package','practical',Path('ev-package-practical')),
+          ]
+          rows=[]
+          for surface,preset,root in specs:
+            htmls=list(root.rglob(f'{surface}-{preset}.html'))
+            pngs=list(root.rglob(f'{surface}-{preset}.png'))
+            assert len(htmls)==1,(surface,preset,htmls)
+            assert len(pngs)==1,(surface,preset,pngs)
+            dom=htmls[0].read_text(errors='replace')
+            def attr(n):
+              m=re.search(fr'data-{n}="([^"]+)"',dom); assert m,(surface,preset,n); return m.group(1)
+            v={k:attr(k) for k in ['m10-quality-preset','m10-dpr-source','m10-source-dpr','m10-pixel-ratio','m10-shadow-map-size','m10-perf-median-ms','m10-perf-p95-ms','m10-draw-calls','m10-triangles','m10-textures','m10-perf-samples','m10-perf-scope']}
+            assert v['m10-quality-preset']==preset
+            assert v['m10-dpr-source']=='simulated-query'
+            assert v['m10-perf-scope']=='browser-ci-proxy-not-physical-iphone'
+            assert int(v['m10-perf-samples'])>=20
+            data=pngs[0].read_bytes()
+            assert len(data)>15000 and data[:8]==b'\x89PNG\r\n\x1a\n'
+            assert struct.unpack('>II',data[16:24])==(390,844)
+            rows.append((surface,preset,v,len(data)))
+          assert all(v['m10-pixel-ratio']=='1.50' and v['m10-shadow-map-size']=='2048' for _,p,v,_ in rows if p=='high')
+          assert all(v['m10-pixel-ratio']=='1.25' and v['m10-shadow-map-size']=='1024' for _,p,v,_ in rows if p=='practical')
+          out=['# M10 Measurement — CI proxy and package verification','',
+               'Source run: `34666950635` at verified candidate `1d82ed62c3e60c7e2fed3052f8d0c33e5c0c3758`.',
+               'These are browser/GitHub-hosted CI proxy measurements, not physical iPhone measurements. `IOS_PHYSICAL_VERIFICATION` remains `PENDING`.','',
+               '| Surface | Preset | Source DPR | Effective DPR | Shadow map | Median ms | p95 ms | Draw calls | Triangles | Textures | Samples | PNG bytes |',
+               '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+          for surface,preset,v,n in rows:
+            out.append(f"| {surface} | {preset} | {v['m10-source-dpr']} | {v['m10-pixel-ratio']} | {v['m10-shadow-map-size']} | {v['m10-perf-median-ms']} | {v['m10-perf-p95-ms']} | {v['m10-draw-calls']} | {v['m10-triangles']} | {v['m10-textures']} | {v['m10-perf-samples']} | {n} |")
+          out += ['', '## Interpretation', '',
+                  '- High and practical are explicit presets; practical lowers DPR and shadow-map size without redefining the Owner visual target.',
+                  '- Source and bundled single-HTML package both booted, moved, rendered and produced 390×844 runtime screenshots.',
+                  '- CI values are software-renderer proxy evidence only.',
+                  '- Physical iPhone sustained movement, thermals and actual-device timing remain `PENDING`.', '']
+          Path('M10_MEASUREMENT.md').write_text('\n'.join(out))
+          PY
+      - name: Promote previously verified candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s candidate/index.html
+          test -s candidate/README.md
+          test -s candidate/dist/luke-quest-modern-3d.html
+          grep -F 'three@0.186.0' candidate/dist/luke-quest-modern-3d.html >/dev/null
+          mkdir -p prototypes/modern-3d/dist
+          cp candidate/index.html prototypes/modern-3d/index.html
+          cp candidate/README.md prototypes/modern-3d/README.md
+          cp candidate/dist/luke-quest-modern-3d.html prototypes/modern-3d/dist/luke-quest-modern-3d.html
+          cp M10_MEASUREMENT.md prototypes/modern-3d/M10_MEASUREMENT.md
+          git diff --check
+          git add prototypes/modern-3d/index.html prototypes/modern-3d/README.md prototypes/modern-3d/dist/luke-quest-modern-3d.html prototypes/modern-3d/M10_MEASUREMENT.md
+          git diff --cached --quiet && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(modern-3d): promote verified M10 package'
+          git push origin HEAD:prototype/modern-3d
