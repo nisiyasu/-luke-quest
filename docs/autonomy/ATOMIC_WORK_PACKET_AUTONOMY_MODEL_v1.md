@@ -4,6 +4,10 @@ Document ID: LQ-AUTONOMY-ATOMIC-WORK-PACKET-V1-20260912
 Status: CANONICAL REFERENCE / NOT A BTC IMPLEMENTATION AUTHORITY
 Origin: LUKE QUEST autonomous-development redesign, 2026-09-12
 
+## 0. Anti-drift invariant
+
+Parent #12 must not carry a manually maintained duplicate `CURRENT_STAGE` / `CURRENT_PACKET` as execution authority. Parent #12 is a static program index and points to one machine-managed `WORK_PACKET_ROUTER:v1` comment. The router is the sole current-work pointer. Issue Sync projections may mirror that state for chat/control visibility, but they are projections rather than execution authority.
+
 ## 1. Why this exists
 
 The previous LUKE QUEST operating pattern relied too heavily on one large boot/prompt plus a long-running model session to interpret the whole project, select the next action, implement it, verify it, and decide whether it was complete.
