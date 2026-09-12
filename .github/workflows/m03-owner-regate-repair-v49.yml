@@ -1,0 +1,53 @@
+name: M03 Owner Regate Repair v49
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-owner-regate-repair-v49.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prototype
+        uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Repair concave path triangulation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("prototypes/modern-3d/index.html")
+          s=p.read_text()
+          old_title="<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v48</title>"
+          if old_title not in s:
+              print("v49 already applied or source advanced")
+              raise SystemExit(0)
+          s=s.replace(old_title,"<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v49</title>",1)
+          old="function pathPatch(points,y){const geo=new THREE.BufferGeometry(),verts=[];for(const [x,z] of points)verts.push(x,y,z);const idx=[];for(let i=1;i<points.length-1;i++)idx.push(0,i,i+1);geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;scene.add(m)}"
+          new="function pathPatch(points,y){const shape=new THREE.Shape(points.map(([x,z])=>new THREE.Vector2(x,-z)));const geo=new THREE.ShapeGeometry(shape);geo.rotateX(-Math.PI/2);const m=new THREE.Mesh(geo,pathMat);m.position.y=y;m.receiveShadow=true;m.castShadow=false;scene.add(m)}"
+          if old not in s:
+              raise SystemExit("legacy pathPatch fan triangulation not found; refusing ambiguous v49 patch")
+          s=s.replace(old,new,1)
+          s=s.replace("m03-composition-v48-compact-bank-sills","m03-composition-v49-concave-path-fix",1)
+          p.write_text(s)
+          PY
+
+      - name: Commit repair if changed
+        shell: bash
+        run: |
+          git add prototypes/modern-3d/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03): triangulate concave path shapes without crossing slabs [m03-v49-applied]"
+          git push origin HEAD:prototype/modern-3d
