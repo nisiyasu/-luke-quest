@@ -69,7 +69,6 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
           sz:(.52+r()*.20)*scale*(outer?1.13:1)
         });
       }
-      // Narrow terminal sprays break the visible cone-stack outline and add fine branch-tip articulation.
       const tm=(lv+i+family)%3;
       tipData[tm].push({x:Math.cos(a)*len,y:y-len*droop,z:Math.sin(a)*len,rx:-.40-(1-n)*.08,ry:-a+Math.PI/2,rz:(r()-.5)*.18,sx:(.27+r()*.10)*scale,sz:(.44+r()*.14)*scale});
     }
@@ -91,7 +90,7 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
     mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
   });
 
-  // Smaller tapered needle masses preserve volume without reading as stacked geometric Christmas-tree cones.
+  // Small needle masses add volume, but the silhouette is led by articulated branch fans rather than stacked cones.
   const tuftGeo=new THREE.ConeGeometry(.29*scale,.58*scale,9,1,false),tuftData=[[],[],[]];
   branchData.forEach((v,bi)=>{
     for(const q of [.56,.80,.97]){
@@ -106,15 +105,25 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
     mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
   });
 
-  const crownGeo=new THREE.ConeGeometry(1,1,12),crownCount=family===3?7:9,crown=new THREE.InstancedMesh(crownGeo,foliage[1],crownCount);
+  // v3.6 crown: only a tiny core remains volumetric. A ragged fan crown now carries the visible top silhouette.
+  const crownGeo=new THREE.ConeGeometry(1,1,12),crownCount=3,crown=new THREE.InstancedMesh(crownGeo,foliage[1],crownCount);
   let crownDriftX=0,crownDriftZ=0;
   for(let i=0;i<crownCount;i++){
-    crownDriftX+=(r()-.5)*.034*scale;crownDriftZ+=(r()-.5)*.034*scale;
-    const rad=(.56-i*.043)*scale*crownBias;
-    dummy.position.set(crownDriftX,h-.88*scale+i*.135*scale,crownDriftZ);
-    dummy.rotation.set(0,r()*Math.PI,(r()-.5)*.035);dummy.scale.set(rad,.67*scale,rad);dummy.updateMatrix();crown.setMatrixAt(i,dummy.matrix);
+    crownDriftX+=(r()-.5)*.028*scale;crownDriftZ+=(r()-.5)*.028*scale;
+    const rad=(.36-i*.055)*scale*crownBias;
+    dummy.position.set(crownDriftX,h-.61*scale+i*.17*scale,crownDriftZ);
+    dummy.rotation.set(0,r()*Math.PI,(r()-.5)*.045);dummy.scale.set(rad,.48*scale,rad);dummy.updateMatrix();crown.setMatrixAt(i,dummy.matrix);
   }
   crown.instanceMatrix.needsUpdate=true;root.add(crown);
+  const crownFanCount=28+(seed%7),crownFans=new THREE.InstancedMesh(FAN,foliage[2],crownFanCount);
+  for(let i=0;i<crownFanCount;i++){
+    const t=i/Math.max(1,crownFanCount-1),a=i*2.3999632297+(r()-.5)*.22;
+    const vertical=.22+t*.92,rad=(.54*(1-t*.70)+.10)*scale*crownBias;
+    dummy.position.set(Math.cos(a)*rad,h-(1.18-vertical*.80)*scale,Math.sin(a)*rad);
+    dummy.rotation.set(-.56+(r()-.5)*.16,-a+Math.PI/2,(r()-.5)*.22);
+    dummy.scale.set((.24+r()*.11)*scale,1,(.43+r()*.18)*scale*(1-t*.22));dummy.updateMatrix();crownFans.setMatrixAt(i,dummy.matrix);
+  }
+  crownFans.instanceMatrix.needsUpdate=true;root.add(crownFans);
 
   const skirtCount=family===1?16:family===2?22:19;
   const skirt=new THREE.InstancedMesh(FAN,foliage[0],skirtCount);
@@ -132,6 +141,6 @@ export function createTargetConiferV31({seed=1,scale=1}={}){
   }
 
   root.rotation.y=r()*Math.PI*2;
-  root.userData={assetId:'conifer_target_v31',version:'3.5.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',rendering:'instanced-directional-fans-plus-fine-tip-sprays-plus-small-layered-tufts',variationFamily:family,intent:'seed-driven mature conifer families with denser directional branch articulation, finer terminal sprays, smaller less-geometric needle masses, varied height/breadth/windows/droop/crown drift/skirt density and dead-branch detail; designed to reduce repeated stacked-cone silhouette in actual portrait runtime'};
+  root.userData={assetId:'conifer_target_v31',version:'3.6.0',seed,stage:'M04_REGATE_CANDIDATE',source:'repo-procedural',rendering:'instanced-directional-fans-plus-fine-tip-sprays-plus-small-tufts-plus-ragged-fan-crown',variationFamily:family,intent:'seed-driven mature conifer families with branch-led silhouettes; v3.6 removes the dominant stacked-cone crown rhythm by replacing it with a small volumetric core and irregular articulated crown sprays while preserving prior height/breadth/windows/droop/skirt/dead-branch variation'};
   return shadow(root);
 }
