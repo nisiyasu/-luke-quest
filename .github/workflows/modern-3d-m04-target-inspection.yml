@@ -52,7 +52,7 @@ jobs:
           timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1200,900 --virtual-time-budget=2200 --dump-dom 'http://127.0.0.1:8140/m04-water-inspection.html' > .m04-target/water-dom.html 2>.m04-target/water-stderr.log
           grep -q 'data-m04-water-inspection="ready"' .m04-target/water-dom.html
           grep -q 'data-current-asset="water_rich_v2@2.1.0"' .m04-target/water-dom.html
-          grep -q 'data-candidate-asset="water_target_v3@3.10.0"' .m04-target/water-dom.html
+          grep -q 'data-candidate-asset="water_target_v3@3.11.0"' .m04-target/water-dom.html
           timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1200,900 --virtual-time-budget=2200 --screenshot=.m04-target/m04-water-1200x900.png 'http://127.0.0.1:8140/m04-water-inspection.html'
           test -s .m04-target/m04-water-1200x900.png
       - name: Upload M04 inspection evidence
