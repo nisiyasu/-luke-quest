@@ -1,0 +1,50 @@
+name: M07 Integrated Light Atmosphere v67
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m07-v67-light-color.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Rebalance warm key cool fill and atmosphere
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          reps={
+            "renderer.toneMappingExposure=1.23":"renderer.toneMappingExposure=1.15",
+            "scene.background=new THREE.Color(0xb1c6b8);scene.fog=new THREE.FogExp2(0xb9c9b8,.0096);":"scene.background=new THREE.Color(0xaec7bd);scene.fog=new THREE.FogExp2(0xb8cdc3,.0116);",
+            "scene.add(new THREE.HemisphereLight(0xfff3d8,0x294331,1.26));":"scene.add(new THREE.HemisphereLight(0xfff1d2,0x355143,1.42));",
+            "const sun=new THREE.DirectionalLight(0xffcf82,4.45);sun.position.set(-16,36,8);":"const sun=new THREE.DirectionalLight(0xffd493,3.82);sun.position.set(-18,38,10);"
+          }
+          for old,new in reps.items():
+            if old not in s: raise SystemExit(f'missing lighting token: {old}')
+            s=s.replace(old,new)
+          marker="scene.add(sun);"
+          add="scene.add(sun);\nconst skyFill=new THREE.DirectionalLight(0xb8d9e7,.34);skyFill.position.set(20,24,-20);skyFill.castShadow=false;scene.add(skyFill);"
+          if marker not in s: raise SystemExit('sun marker missing')
+          s=s.replace(marker,add,1)
+          p.write_text(s)
+          PY
+          git diff --check
+          grep -q 'toneMappingExposure=1.15' prototypes/modern-3d/index.html
+          grep -q 'skyFill' prototypes/modern-3d/index.html
+      - name: Commit v67 lookdev
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m07): rebalance warm key cool fill and atmosphere [m07-v67]"
+          git push origin HEAD:prototype/modern-3d
