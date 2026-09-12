@@ -1,0 +1,3 @@
+M04_QUALITY_REGATE_V35
+IMPLEMENTATION_HEAD_PARENT=d730544feb3db364f888d4823e028a3265796db5
+PURPOSE=trigger fresh runtime evidence after low-frond understory and shorter meadow repair
