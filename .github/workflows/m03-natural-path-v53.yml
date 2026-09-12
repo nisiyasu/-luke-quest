@@ -1,0 +1,48 @@
+name: M03 Natural Path v53
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-natural-path-v53.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Replace broad path slabs with narrow authored routes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old1="pathPatch([[-2.6,-2.2],[-.3,-2.1],[-2.2,-5.1],[-5.0,-7.6],[-6.7,-10.8],[-5.7,-14.8],[-8.2,-14.6],[-9.0,-10.1],[-7.3,-6.5],[-4.7,-3.8]],1.04);"
+          new1="pathRibbon([[-1.35,-2.0],[-2.15,-3.4],[-3.45,-5.2],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);"
+          old2="pathPatch([[-2.5,4.1],[-.2,4.0],[.1,6.2],[-.8,8.6],[-2.5,11.2],[-3.7,14.9],[-6.0,14.7],[-4.3,10.1],[-2.8,7.0]],-.25);"
+          new2="pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,14.6]],.76,-.18);"
+          if old1 not in s: raise SystemExit('north broad path anchor missing')
+          if old2 not in s: raise SystemExit('south broad path anchor missing')
+          s=s.replace(old1,new1,1).replace(old2,new2,1)
+          # Warm earth route rather than flat pale slab; preserve readability against green ground.
+          old3="const pathMat=new THREE.MeshStandardMaterial({color:0xb79a61,roughness:1});"
+          new3="const pathMat=new THREE.MeshStandardMaterial({color:0x8d7548,roughness:.98,metalness:0});"
+          if old3 not in s: raise SystemExit('path material anchor missing')
+          s=s.replace(old3,new3,1)
+          p.write_text(s)
+          PY
+      - name: Commit route repair only
+        shell: bash
+        run: |
+          git add prototypes/modern-3d/index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03): replace broad slabs with natural route ribbons [m03-v53]"
+          git push origin HEAD:prototype/modern-3d
