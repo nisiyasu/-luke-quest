@@ -1,0 +1,81 @@
+name: M09-P02 HUD Safe Area Visual Gate
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m09-p02-ui-safearea-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ui-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m09-p02-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Capture portrait and landscape rendered HUD
+        run: |
+          mkdir -p .m09-p02
+          cat > ui-gate.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          function inside(box,w,h){return !!box&&box.x>=-1&&box.y>=-1&&box.x+box.width<=w+1&&box.y+box.height<=h+1}
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const rows=[];
+            try{
+              for(const spec of [{name:'portrait',w:390,h:844},{name:'landscape',w:844,h:390}]){
+                const page=await browser.newPage({viewport:{width:spec.w,height:spec.h},deviceScaleFactor:1,hasTouch:true,isMobile:true});
+                const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+                await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+                await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+                await page.waitForTimeout(1000);
+                if(errors.length)throw new Error(`${spec.name} page errors=${JSON.stringify(errors)}`);
+                const data=await page.evaluate(()=>{
+                  const box=sel=>{const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect();const cs=getComputedStyle(el);return{x:r.x,y:r.y,width:r.width,height:r.height,display:cs.display,visibility:cs.visibility,opacity:cs.opacity,text:(el.innerText||el.getAttribute('aria-label')||'').trim()}};
+                  return {body:(document.body.innerText||'').trim(),status:box('#status'),objective:box('.objective'),dpad:box('.dpad'),hint:box('#hint'),canvas:box('canvas'),hud:document.documentElement.dataset.m09OwnerHud,quality:document.documentElement.dataset.m10QualityPreset};
+                });
+                const upper=data.body.toUpperCase();
+                for(const bad of ['DISPLAY SAMPLE','DEMO HUD','3D PROTOTYPE'])if(upper.includes(bad))throw new Error(`${spec.name} prototype residue visible: ${bad}`);
+                if(!inside(data.status,spec.w,spec.h)||!inside(data.objective,spec.w,spec.h)||!inside(data.dpad,spec.w,spec.h)||!inside(data.hint,spec.w,spec.h))throw new Error(`${spec.name} critical HUD/control clipping ${JSON.stringify(data)}`);
+                if(!data.canvas||data.canvas.width<spec.w*.95||data.canvas.height<spec.h*.95)throw new Error(`${spec.name} rendered world canvas not viewport-dominant`);
+                const lowerFootprint=(data.dpad.width*data.dpad.height)+(data.hint.width*data.hint.height);
+                if(lowerFootprint>(spec.w*spec.h)*.24)throw new Error(`${spec.name} control footprint too large ${lowerFootprint}`);
+                await page.screenshot({path:`.m09-p02/${spec.name}.png`,timeout:150000});
+                rows.push(`${spec.name} viewport=${spec.w}x${spec.h} hud=${data.hud} status=${JSON.stringify(data.status)} objective=${JSON.stringify(data.objective)} dpad=${JSON.stringify(data.dpad)} hint=${JSON.stringify(data.hint)} canvas=${JSON.stringify(data.canvas)} body=${JSON.stringify(data.body)}`);
+                await page.close();
+              }
+              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} page_errors=0 prototype_residue=NONE critical_clipping=NONE RESULT=PASS`);
+              fs.writeFileSync('.m09-p02/ui-audit.txt',rows.join('\n')+'\n');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node ui-gate.cjs
+      - name: Add visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m09-p02/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m09-p02/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m09-p02-ui-safearea-gate
+          path: .m09-p02
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
