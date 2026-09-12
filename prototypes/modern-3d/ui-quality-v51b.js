@@ -1,5 +1,5 @@
 // M09 Owner Quality Regate v51b: replace prototype/debug HUD with a restrained in-world exploration HUD.
-// This module is intentionally DOM-only so the verified 3D runtime, traversal and world assets remain untouched.
+// DOM-only: verified 3D runtime, traversal and world assets remain untouched.
 function installOwnerRegateHud(){
   const status=document.querySelector('#status');
   const objective=document.querySelector('.objective.panel');
@@ -26,10 +26,19 @@ function installOwnerRegateHud(){
 `;
   document.head.append(style);
 
-  // index.html later reacquires #state through the same DOM node. Keep the value player-facing.
+  const enforcePlayerState=()=>{
+    const state=document.querySelector('#state');
+    if(state&&state.textContent!=='探索中')state.textContent='探索中';
+    document.documentElement.dataset.m09OwnerHud='pass';
+  };
+  // Dependency modules execute before the parent module body. Re-apply once parent init finishes,
+  // then guard only the tiny status node against later debug-label writes.
+  queueMicrotask(enforcePlayerState);
   const state=document.querySelector('#state');
-  if(state)state.textContent='探索中';
-  document.documentElement.dataset.m09OwnerHud='pass';
+  if(state){
+    enforcePlayerState();
+    new MutationObserver(enforcePlayerState).observe(state,{childList:true,characterData:true,subtree:true});
+  }
 }
 
 installOwnerRegateHud();
