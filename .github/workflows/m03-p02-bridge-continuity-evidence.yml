@@ -1,0 +1,85 @@
+name: M03-P02 Bridge Continuity Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-p02-bridge-continuity-evidence.yml"
+      - "prototypes/modern-3d/index.html"
+      - "prototypes/modern-3d/assets.js"
+      - "prototypes/modern-3d/m04-*.js"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bridge-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m03-p02-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Capture canonical and both bridge endpoint views
+        run: |
+          mkdir -p .m03-p02
+          cat > bridge-proof.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const rows=[];
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            page.setDefaultTimeout(150000); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+            await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+            await page.waitForTimeout(1800);
+            const snap=async(name)=>{
+              const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,cameraProfile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'}));
+              if(meta.scene!=='m05-ready'||errors.length) throw new Error(`${name}: invalid ${JSON.stringify(meta)} errors=${JSON.stringify(errors)}`);
+              await page.screenshot({path:`.m03-p02/${name}.png`,fullPage:true,timeout:150000}); rows.push(`${name} ${JSON.stringify(meta)}`); return meta;
+            };
+            await snap('canonical-start');
+            await page.keyboard.down('ArrowUp'); await page.waitForTimeout(2300); await page.keyboard.up('ArrowUp'); await page.waitForTimeout(900);
+            const north=await snap('north-bank-endpoint');
+            await page.keyboard.down('ArrowDown'); await page.waitForTimeout(4300); await page.keyboard.up('ArrowDown'); await page.waitForTimeout(900);
+            const south=await snap('south-bank-endpoint');
+            rows.push(`north-bank-player=${north.player}`); rows.push(`south-bank-player=${south.player}`);
+            await page.close();
+
+            const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const ciErrors=[]; ci.on('pageerror',e=>ciErrors.push(String(e)));
+            await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:150000});
+            await ci.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m03Ci,{timeout:150000});
+            const result=await ci.evaluate(()=>({m03Ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route,ci:window.LQ_MODERN_3D_M05?.ci||null}));
+            if(ciErrors.length||result.m03Ci!=='pass'||!result.ci?.crossedBridge||!result.ci?.noHole||!result.ci?.groundingSmooth) throw new Error(`bridge CI failed ${JSON.stringify(result)} errors=${JSON.stringify(ciErrors)}`);
+            rows.push(`bridge-ci ${JSON.stringify(result)}`);
+            await ci.screenshot({path:'.m03-p02/bridge-ci-frame.png',fullPage:true,timeout:150000});
+            await ci.close();
+            fs.writeFileSync('.m03-p02/bridge-audit.txt',rows.join('\n')+'\n');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node bridge-proof.cjs
+      - name: Add canonical references
+        run: |
+          curl -L --fail --retry 3 -o .m03-p02/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m03-p02/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m03-p02-bridge-continuity-evidence
+          path: .m03-p02
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
