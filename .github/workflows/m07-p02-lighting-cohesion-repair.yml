@@ -1,0 +1,61 @@
+name: M07-P02 Lighting Cohesion Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m07-p02-lighting-cohesion-repair.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+
+      - name: Guard and apply scene-wide lighting cohesion repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          replacements={
+            "renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;document.body.prepend(renderer.domElement);":
+            "renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.07;document.body.prepend(renderer.domElement);",
+            "const scene=new THREE.Scene();scene.background=new THREE.Color(0xaec7bd);scene.fog=new THREE.FogExp2(0xb8cdc3,.0116);":
+            "const scene=new THREE.Scene();scene.background=new THREE.Color(0x9fb7ae);scene.fog=new THREE.FogExp2(0xb4c8bd,.0074);",
+            "scene.add(new THREE.HemisphereLight(0xfff1d2,0x355143,1.42));":
+            "scene.add(new THREE.HemisphereLight(0xfff0d3,0x29483d,1.06));",
+            "const sun=new THREE.DirectionalLight(0xffd493,3.82);sun.position.set(-18,38,10);sun.castShadow=true;":
+            "const sun=new THREE.DirectionalLight(0xffd7a1,4.18);sun.position.set(-20,36,12);sun.castShadow=true;",
+            "sun.shadow.bias=-.00022;sun.shadow.normalBias=.04;scene.add(sun);":
+            "sun.shadow.bias=-.00018;sun.shadow.normalBias=.028;scene.add(sun);",
+            "const skyFill=new THREE.DirectionalLight(0xb8d9e7,.34);skyFill.position.set(20,24,-20);skyFill.castShadow=false;scene.add(skyFill);":
+            "const skyFill=new THREE.DirectionalLight(0xb7d7e8,.31);skyFill.position.set(18,22,-22);skyFill.castShadow=false;scene.add(skyFill);document.documentElement.dataset.m07Lighting='cohesion-v1';"
+          }
+          for old,new in replacements.items():
+              n=s.count(old)
+              if n!=1:
+                  raise SystemExit(f'guard failed: expected exactly one match, got {n}: {old[:90]}')
+              s=s.replace(old,new)
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+
+      - name: Commit lighting repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "feat(m07-p02): strengthen grounded lighting and depth cohesion"
+          git push origin HEAD:prototype/modern-3d
