@@ -34,24 +34,23 @@ function makeFernPatch(r,scale=.7,count=14){
   return g;
 }
 function makeOrganicTop(r,seed,width,depth,facing){
-  // v4.5: a real interior heightfield replaces the old two-row ribbon. This keeps
-  // the v43 footprint while giving broad grass surfaces readable macro relief.
-  const cols=28,rows=6;
+  // v4.6 Owner re-gate: all four terrain edges meander; denser relief removes rectangular slab reads.
+  const cols=32,rows=9;
   const vertices=[],indices=[],uvs=[];
   for(let i=0;i<=cols;i++){
-    const tx=i/cols;
-    const x=-width*.5+tx*width;
-    const edgeWave=Math.sin(tx*Math.PI*3+seed*.19)*.42+Math.sin(tx*Math.PI*7+seed*.07)*.14+(r()-.5)*.10;
-    const front=facing*(depth*.5-.42+edgeWave);
-    const back=-facing*(depth*.5-(r()-.5)*.20);
+    const tx=i/cols,baseX=-width*.5+tx*width;
+    const frontWave=Math.sin(tx*Math.PI*3+seed*.19)*.42+Math.sin(tx*Math.PI*7+seed*.07)*.14+(r()-.5)*.08;
+    const backWave=Math.sin(tx*Math.PI*2.35+seed*.23)*.23+Math.sin(tx*Math.PI*5.2+seed*.09)*.09;
+    const front=facing*(depth*.5-.42+frontWave),back=-facing*(depth*.5-.18+backWave);
     for(let j=0;j<=rows;j++){
-      const tz=j/rows;
-      const z=THREE.MathUtils.lerp(back,front,tz);
-      const centerLift=Math.sin(Math.PI*tz)*(.10+.055*Math.sin(tx*Math.PI*4+seed*.11));
-      const crossRoll=Math.sin(tx*Math.PI*2.1+tz*Math.PI*1.7+seed*.13)*.055;
-      const micro=(r()-.5)*.035;
-      const frontLift=tz*tz*(.055+.035*Math.sin(tx*Math.PI*2.2));
-      const y=.015+centerLift+crossRoll+micro+frontLift;
+      const tz=j/rows,sideInfluence=Math.pow(Math.abs(tx-.5)*2,5.5),sideSign=tx<.5?-1:1;
+      const sideWave=Math.sin(tz*Math.PI*3.1+seed*.17+sideSign*.8)*.22+Math.sin(tz*Math.PI*6.3+seed*.07)*.07;
+      const x=baseX+sideSign*sideInfluence*sideWave,z=THREE.MathUtils.lerp(back,front,tz);
+      const centerLift=Math.sin(Math.PI*tz)*(.14+.065*Math.sin(tx*Math.PI*4+seed*.11));
+      const crossRoll=Math.sin(tx*Math.PI*2.1+tz*Math.PI*1.7+seed*.13)*.075;
+      const macroRoll=Math.sin(tx*Math.PI*1.35+seed*.21)*Math.sin(tz*Math.PI)*.055;
+      const micro=(r()-.5)*.032,frontLift=tz*tz*(.045+.030*Math.sin(tx*Math.PI*2.2));
+      const y=.015+centerLift+crossRoll+macroRoll+micro+frontLift;
       vertices.push(x,y,z);uvs.push(tx,tz);
     }
   }
@@ -90,7 +89,7 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
 
   // Continuous irregular top surface. The front edge itself meanders, eliminating the prior block/slab silhouette.
   g.add(makeOrganicTop(r,seed,width,depth,facing));
-  // v4.5 re-gate: heightfield relief + denser authored microdetail makes the playable top read as terrain rather than a smooth green slab.
+  // v4.6 re-gate: four-edge scalloped heightfield + authored microdetail prevents rectangular terrain-slab silhouettes.
   addTopMicrodetail(g,r,width,depth,facing);
 
   // M06 finish: smaller overlapping terraces keep the cliff face organic while maintaining readable elevation.
@@ -192,6 +191,6 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
     root.rotation.z=(r()-.5)*.28;root.rotation.x=facing*(.10+r()*.18);g.add(root);
   }
 
-  g.userData={assetId:'bank_target_v4',version:'4.5.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest bank with a multi-row macro-relief grass heightfield, layered cliff terraces, soil and fern lip, shoreline toe rubble, moss shelves, exposed roots, dense authored top grass tufts and exposed-soil breakup to remove smooth slab and water/cliff seam reads'};
+  g.userData={assetId:'bank_target_v4',version:'4.6.0',seed,stage:'M06_FINISH_CANDIDATE',source:'repo-procedural',intent:'continuous irregular forest bank with a multi-row macro-relief grass heightfield, layered cliff terraces, soil and fern lip, shoreline toe rubble, moss shelves, exposed roots, dense authored top grass tufts and exposed-soil breakup to remove smooth slab and water/cliff seam reads'};
   return shadows(g);
 }
