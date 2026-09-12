@@ -22,13 +22,21 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p=Path('.github/workflows/modern-3d-m10-bootstrap.yml')
           s=p.read_text()
-          old="        with: {name: 'm10-aggregate-${{ github.sha }}', path: 'all-evidence\\nM10_MEASUREMENT.md', retention-days: 14}"
-          new="""        with:\n          name: 'm10-aggregate-${{ github.sha }}'\n          path: |\n            all-evidence\n            M10_MEASUREMENT.md\n          retention-days: 14"""
-          if old not in s:
+          pattern=r"(?m)^        with: \{name: 'm10-aggregate-([^']+)', path: 'all-evidence\\nM10_MEASUREMENT\.md', retention-days: 14\}$"
+          m=re.search(pattern,s)
+          if not m:
               raise SystemExit('expected aggregate upload line not found; fail closed')
-          p.write_text(s.replace(old,new,1))
+          token=m.group(1)
+          new=("        with:\n"
+               f"          name: 'm10-aggregate-{token}'\n"
+               "          path: |\n"
+               "            all-evidence\n"
+               "            M10_MEASUREMENT.md\n"
+               "          retention-days: 14")
+          p.write_text(re.sub(pattern,new,s,count=1))
           PY
           git diff --check
           git diff -- .github/workflows/modern-3d-m10-bootstrap.yml
