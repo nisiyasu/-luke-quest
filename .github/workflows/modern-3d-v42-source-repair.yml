@@ -1,0 +1,67 @@
+name: Modern 3D v42 Full Source Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/modern-3d-v42-source-repair.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild v42 from last known complete v39 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=3aea2d6a39f6230995433ca6e31cf62fdde13f0f
+          TARGET=prototypes/modern-3d/index.html
+          git show "${BASE}:${TARGET}" > /tmp/index-v39.html
+          test "$(wc -c < /tmp/index-v39.html)" -gt 20000
+          python3 - <<'PY'
+          from pathlib import Path
+          src=Path('/tmp/index-v39.html').read_text()
+          replacements={
+            'M03 Composition Rebuild v39':'M03 Composition Rebuild v42',
+            "nearFieldMass(-6.15,11.6,4.25,1.25,.18);nearFieldMass(4.85,12.0,3.65,.95,-.14);nearFieldMass(-5.2,7.7,2.75,.85,.31);":"nearFieldMass(-6.15,11.6,4.25,1.25,.18);nearFieldMass(4.85,12.0,3.65,.95,-.14);nearFieldMass(-5.2,7.7,2.75,.85,.31);nearFieldMass(7.4,7.8,3.45,1.08,-.18);nearFieldMass(-8.0,7.2,3.35,1.02,.16);",
+            "const southRightFrameTrees=[[4.2,7.4,.94,1811],[5.1,9.7,1.08,1817],[4.4,12.0,1.02,1823],[6.1,13.3,1.12,1831]];":"const southRightFrameTrees=[[4.2,7.4,.94,1811],[5.1,9.7,1.08,1817],[4.4,12.0,1.02,1823],[6.1,13.3,1.12,1831],[7.5,10.8,1.02,1837],[8.4,13.8,1.12,1843],[8.1,7.6,.96,1847]];",
+            "variant:'m03-composition-v39-forward-framing'":"variant:'m03-composition-v42-wide-massing'",
+            "terrainMasses:9,compositionTrees:34":"terrainMasses:11,compositionTrees:37",
+            "const offset=new THREE.Vector3(1.6,22.8,12.4);":"const offset=new THREE.Vector3(1.6,25.6,16.8);",
+            "document.documentElement.dataset.m05Variant='m03-composition-v39-forward-framing';":"document.documentElement.dataset.m05Variant='m03-composition-v42-wide-massing';",
+            "camera.position.set(.25,23.1,13.2);camera.lookAt(-1.47,.4,-1.2);":"camera.position.set(.25,25.9,17.6);camera.lookAt(-1.47,.35,-1.4);",
+            "}else{requestAnimationFrame(tick);if(query.get('m08walk')==='1')":"}else{if(query.get('ci')!=='1')requestAnimationFrame(tick);else renderer.render(scene,camera);if(query.get('m08walk')==='1')",
+          }
+          for old,new in replacements.items():
+              count=src.count(old)
+              if count != 1:
+                  raise SystemExit(f'repair contract mismatch count={count}: {old[:96]}')
+              src=src.replace(old,new,1)
+          Path('prototypes/modern-3d/index.html').write_text(src)
+          if len(src.encode()) <= 20000 or not src.rstrip().endswith('</html>'):
+              raise SystemExit('rebuilt v42 source is incomplete')
+          module=src.split('<script type="module">',1)[1].split('</script>',1)[0]
+          Path('/tmp/v42-module.mjs').write_text(module)
+          print('V42_BYTES',len(src.encode()))
+          PY
+          node --check /tmp/v42-module.mjs
+          grep -q 'M03 Composition Rebuild v42' "$TARGET"
+          grep -q "m03-composition-v42-wide-massing" "$TARGET"
+          grep -q "const offset=new THREE.Vector3(1.6,25.6,16.8)" "$TARGET"
+          test "$(wc -c < "$TARGET")" -gt 20000
+      - name: Commit full v42 source repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --check
+          git commit -m 'fix(modern-3d): restore complete v42 source and wide composition'
+          git push origin HEAD:prototype/modern-3d
