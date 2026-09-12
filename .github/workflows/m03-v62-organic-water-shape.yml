@@ -1,0 +1,44 @@
+name: M03 Organic Upper Water Topology v62
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/m03-v62-organic-water-shape.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Replace rectangular upper-water footprint
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          s=s.replace('Composition Rebuild v61','Composition Rebuild v62')
+          old="const waterUpperRight=createTargetWaterV3({width:9.4,depth:18.5,seed:331});waterUpperRight.position.set(4.45,.05,-8.2);waterUpperRight.rotation.y=-.20;scene.add(waterUpperRight);"
+          new="const waterUpperRight=createTargetWaterV3({width:9.4,depth:18.5,seed:331});const waterUpperRightShape=new THREE.Shape();waterUpperRightShape.moveTo(-3.2,-9.2);waterUpperRightShape.lineTo(.7,-9.0);waterUpperRightShape.lineTo(3.9,-7.4);waterUpperRightShape.lineTo(4.65,-3.0);waterUpperRightShape.lineTo(4.45,9.2);waterUpperRightShape.lineTo(-4.1,9.2);waterUpperRightShape.lineTo(-3.55,5.2);waterUpperRightShape.lineTo(-4.65,1.0);waterUpperRightShape.lineTo(-4.15,-4.0);waterUpperRightShape.closePath();const waterUpperRightGeo=new THREE.ShapeGeometry(waterUpperRightShape);waterUpperRightGeo.rotateX(-Math.PI/2);waterUpperRight.geometry.dispose();waterUpperRight.geometry=waterUpperRightGeo;waterUpperRight.position.set(4.45,.05,-8.2);waterUpperRight.rotation.y=-.20;scene.add(waterUpperRight);"
+          if old not in s:
+              raise SystemExit('upper-water source token missing')
+          s=s.replace(old,new)
+          p.write_text(s)
+          PY
+          git diff --check
+          grep -q 'Composition Rebuild v62' prototypes/modern-3d/index.html
+          grep -q 'waterUpperRightShape' prototypes/modern-3d/index.html
+      - name: Commit v62 implementation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m03): reshape upper-water footprint [m03-v62]"
+          git push origin HEAD:prototype/modern-3d
