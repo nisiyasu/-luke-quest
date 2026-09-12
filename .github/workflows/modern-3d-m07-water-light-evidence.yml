@@ -1,4 +1,5 @@
 name: Modern 3D M07 Water Light Evidence
+# quality-regate-trigger-v67
 
 on:
   push:
@@ -69,7 +70,6 @@ jobs:
             echo "$quality $size file=$out result=FAIL_AFTER_RETRY" >> .m07-evidence/m07-performance.txt
             return 1
           }
-          # Capture the practical proof first so a late high/HQ timeout cannot erase preset comparison evidence.
           capture practical 390,844 900 practical-390x844.png
           capture high 390,844 900 high-390x844.png
           capture high 864,1536 900 high-864x1536.png
