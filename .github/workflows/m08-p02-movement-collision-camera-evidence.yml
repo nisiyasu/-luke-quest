@@ -1,0 +1,59 @@
+name: M08-P02 Movement Collision Camera Evidence
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - '.github/workflows/m08-p02-movement-collision-camera-evidence.yml'
+  workflow_dispatch:
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Exercise movement, release, grounding and camera
+        run: |
+          python3 -m http.server 4173 --directory prototypes/modern-3d >/tmp/lq-http.log 2>&1 &
+          cat > /tmp/m08-p02.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:844,height:390}});
+          const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+          await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+          await page.waitForTimeout(1500);
+          fs.mkdirSync('evidence/m08-p02',{recursive:true});
+          await page.screenshot({path:'evidence/m08-p02/early.png'});
+          const read=()=>page.evaluate(()=>({
+            player: window.player ? {x:window.player.position.x,y:window.player.position.y,z:window.player.position.z} : null,
+            camera: window.camera ? {x:window.camera.position.x,y:window.camera.position.y,z:window.camera.position.z} : null
+          }));
+          const early=await read();
+          await page.keyboard.down('ArrowUp'); await page.waitForTimeout(1800); await page.keyboard.up('ArrowUp');
+          const afterMove=await read(); await page.waitForTimeout(900); const afterRelease=await read();
+          await page.keyboard.down('ArrowRight'); await page.waitForTimeout(900); await page.keyboard.up('ArrowRight');
+          await page.keyboard.down('ArrowUp'); await page.waitForTimeout(2200); await page.keyboard.up('ArrowUp');
+          const late=await read();
+          await page.screenshot({path:'evidence/m08-p02/late.png'});
+          const dx=(a,b)=>a&&b?Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z):null;
+          const result={head:process.env.GITHUB_SHA,early,afterMove,afterRelease,late,moveDistance:dx(early.player,afterMove.player),releaseDrift:dx(afterMove.player,afterRelease.player),cameraDistance:dx(early.camera,late.camera),errors};
+          fs.writeFileSync('evidence/m08-p02/result.json',JSON.stringify(result,null,2));
+          if(errors.length) process.exit(2);
+          if(!early.player || !afterMove.player || result.moveDistance < 0.05) process.exit(3);
+          if(result.releaseDrift > 0.05) process.exit(4);
+          await browser.close();
+          EOF
+          node /tmp/m08-p02.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m08-p02-movement-camera-evidence
+          path: evidence/m08-p02
