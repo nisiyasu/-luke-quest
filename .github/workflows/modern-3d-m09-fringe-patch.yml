@@ -1,0 +1,55 @@
+name: Modern 3D M09 World Fringe Patch
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/modern-3d-m09-fringe-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-world-fringe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 2
+
+      - name: Expand visual world fringe and remove debug HUD state
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old_ground='const underlay=new THREE.Mesh(new THREE.PlaneGeometry(38,46),floorMat);'
+          new_ground='const underlay=new THREE.Mesh(new THREE.PlaneGeometry(86,86),floorMat);'
+          old_state='stateEl.textContent=`r${THREE.REVISION} · M03 composition v29`;'
+          new_state="stateEl.textContent='王都近郊 · FIELD PROTOTYPE';"
+          assert s.count(old_ground)==1, f'ground count={s.count(old_ground)}'
+          assert s.count(old_state)==1, f'state count={s.count(old_state)}'
+          s=s.replace(old_ground,new_ground).replace(old_state,new_state)
+          assert 'PlaneGeometry(38,46)' not in s
+          assert 'PlaneGeometry(86,86)' in s
+          assert '王都近郊 · FIELD PROTOTYPE' in s
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+
+      - name: Commit bounded M09 world-fringe patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && { echo 'No patch needed'; exit 0; }
+          git commit -m 'feat(modern-3d): expand M09 world fringe for landscape'
+          git push origin HEAD:prototype/modern-3d
