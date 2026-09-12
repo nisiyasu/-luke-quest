@@ -107,20 +107,30 @@ export function createTargetConifer({seed=1,scale=1}={}){
   return markShadows(g);
 }
 
-export function createTargetFernPatch({seed=1,scale=1,count=18}={}){
+export function createTargetFernPatch({seed=1,scale=1,count=18,radius=.72}={}){
   const r=rng(seed),g=new THREE.Group(),dummy=new THREE.Object3D();
+  const verts=[],idx=[];
+  const addTri=(a,b,c)=>{const n=verts.length/3;verts.push(...a,...b,...c);idx.push(n,n+1,n+2)};
+  const stemW=.028;
+  verts.push(-stemW,0,0, stemW,0,0, stemW,0,1.05, -stemW,0,1.05);idx.push(0,1,2,0,2,3);
+  for(let j=0;j<6;j++){
+    const z=.16+j*.14,span=.22*(1-j*.07),tip=z+.17;
+    addTri([-stemW,0,z],[-span,0,z+.055],[0,0,tip]);
+    addTri([stemW,0,z],[span,0,z+.055],[0,0,tip]);
+  }
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();
   const groups=[[],[]];
   for(let i=0;i<count;i++){
-    const a=r()*Math.PI*2,rad=Math.sqrt(r())*.72*scale;
-    const len=(.30+r()*.32)*scale,w=(.18+r()*.12)*scale;
-    groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,len,w,lean:.30+r()*.25,twist:(r()-.5)*.32});
+    const a=r()*Math.PI*2,rad=Math.sqrt(r())*radius*scale;
+    const len=(.38+r()*.30)*scale,w=(.72+r()*.28)*scale;
+    groups[i%2].push({x:Math.cos(a)*rad,z:Math.sin(a)*rad,a,len,w,lean:.42+r()*.30,twist:(r()-.5)*.42});
   }
   [fernDark,fernLight].forEach((mat,mi)=>{
-    const list=groups[mi],mesh=new THREE.InstancedMesh(FROND,mat,list.length);
+    const list=groups[mi],mesh=new THREE.InstancedMesh(geo,mat,list.length);
     list.forEach((v,i)=>{dummy.position.set(v.x,.025*scale,v.z);dummy.rotation.set(-v.lean,-v.a+Math.PI/2,v.twist);dummy.scale.set(v.w,1,v.len);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});
     mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=false;mesh.receiveShadow=true;g.add(mesh);
   });
-  g.userData={assetId:'fern_patch_target_v2',version:'2.0.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'low layered fern groundcover without vertical blade-wall silhouette'};
+  g.userData={assetId:'fern_patch_target_v3',version:'3.0.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'compound fern leaflets with configurable organic ground spread'};
   return g;
 }
 export function createTargetBank({seed=1,width=12,depth=8,facing=1}={}){
