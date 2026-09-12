@@ -1,0 +1,43 @@
+name: M09-P01 Landscape World Fill Repair V2
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m09-p01-landscape-worldfill-repair-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Remove residual landscape world edge exposure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old='offsetLandscape=new THREE.Vector3(.8,18.0,12.0)'
+          new='offsetLandscape=new THREE.Vector3(.8,16.2,10.8)'
+          if s.count(old)!=1:
+              raise SystemExit(f'FAIL_CLOSED expected one v1 landscape offset, found {s.count(old)}')
+          p.write_text(s.replace(old,new))
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit focused repair
+        run: |
+          git config user.name "LUKE QUEST Scheduled Engineer"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git diff --cached --quiet && { echo 'No repair produced'; exit 1; }
+          git commit -m "fix(m09-p01): eliminate landscape world-edge band"
+          git push origin HEAD:prototype/modern-3d
