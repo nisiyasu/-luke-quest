@@ -109,14 +109,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s candidate/index.html
-          test -s candidate/README.md
-          test -s candidate/dist/luke-quest-modern-3d.html
-          grep -F 'three@0.186.0' candidate/dist/luke-quest-modern-3d.html >/dev/null
+          CANDIDATE_ROOT="$(dirname "$(find candidate -type f -name index.html -print -quit)")"
+          test -n "$CANDIDATE_ROOT"
+          test -s "$CANDIDATE_ROOT/index.html"
+          test -s "$CANDIDATE_ROOT/README.md"
+          test -s "$CANDIDATE_ROOT/dist/luke-quest-modern-3d.html"
+          grep -F 'three@0.186.0' "$CANDIDATE_ROOT/dist/luke-quest-modern-3d.html" >/dev/null
           mkdir -p prototypes/modern-3d/dist
-          cp candidate/index.html prototypes/modern-3d/index.html
-          cp candidate/README.md prototypes/modern-3d/README.md
-          cp candidate/dist/luke-quest-modern-3d.html prototypes/modern-3d/dist/luke-quest-modern-3d.html
+          cp "$CANDIDATE_ROOT/index.html" prototypes/modern-3d/index.html
+          cp "$CANDIDATE_ROOT/README.md" prototypes/modern-3d/README.md
+          cp "$CANDIDATE_ROOT/dist/luke-quest-modern-3d.html" prototypes/modern-3d/dist/luke-quest-modern-3d.html
           cp M10_MEASUREMENT.md prototypes/modern-3d/M10_MEASUREMENT.md
           git diff --check
           git add prototypes/modern-3d/index.html prototypes/modern-3d/README.md prototypes/modern-3d/dist/luke-quest-modern-3d.html prototypes/modern-3d/M10_MEASUREMENT.md
