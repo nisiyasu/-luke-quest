@@ -1,0 +1,68 @@
+name: M03 Quality Regate Repair
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - .github/workflows/m03-quality-regate-repair.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Patch bridge landings and canonical camera
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          s=s.replace('M03 Composition Rebuild v29','M03 Composition Rebuild v30')
+          needle="const pathMat=new THREE.MeshStandardMaterial({color:0xb79a61,roughness:1});\n"
+          insert="""const pathMat=new THREE.MeshStandardMaterial({color:0xb79a61,roughness:1});
+          // M03 v30 quality re-gate: explicit bridge-to-terrain landing geometry.
+          // Traversal interpolation already existed, but visible world geometry did not carry the hero deck into both banks.
+          const landingTopMat=new THREE.MeshStandardMaterial({color:0x8d8a6e,roughness:.98,metalness:0});
+          const landingSideMat=new THREE.MeshStandardMaterial({color:0x5f6255,roughness:1,metalness:0});
+          function bridgeLanding(zDeck,zLand,yDeck,yLand){
+            const x0=-1.35,w=4.05,half=w/2,bottom=Math.min(yDeck,yLand)-.46;
+            const verts=[
+              x0-half,yDeck,zDeck, x0+half,yDeck,zDeck, x0+half,yLand,zLand, x0-half,yLand,zLand,
+              x0-half,bottom,zDeck, x0+half,bottom,zDeck, x0+half,bottom,zLand, x0-half,bottom,zLand
+            ];
+            const idx=[0,1,2,0,2,3, 4,6,5,4,7,6, 0,4,5,0,5,1, 3,2,6,3,6,7, 0,3,7,0,7,4, 1,5,6,1,6,2];
+            const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();
+            const ramp=new THREE.Mesh(geo,landingTopMat);ramp.receiveShadow=true;ramp.castShadow=true;scene.add(ramp);
+            const supportLen=Math.abs(zLand-zDeck),support=new THREE.Mesh(new THREE.BoxGeometry(w+.26,.36,supportLen+.18),landingSideMat);
+            support.position.set(x0,bottom+.05,(zDeck+zLand)/2);support.receiveShadow=true;support.castShadow=true;scene.add(support);
+            for(const sx of[-1,1]){const r=createRockCluster({seed:7000+Math.round((zLand+20)*31)+(sx>0?11:0),scale:.48});r.position.set(x0+sx*2.05,Math.min(yDeck,yLand)-.08,(zDeck+zLand)/2);scene.add(r)}
+            return ramp
+          }
+          bridgeLanding(-2.28,-4.05,.40,1.04);
+          bridgeLanding(4.48,6.12,.40,-.28);
+          """
+          if needle not in s:
+              raise SystemExit('pathMat anchor missing')
+          s=s.replace(needle,insert,1)
+          s=s.replace("variant:'m03-composition-v29-island-corridor'","variant:'m03-composition-v30-connected-landings'")
+          s=s.replace("const offset=new THREE.Vector3(2.8,30.0,19.2);","const offset=new THREE.Vector3(7.6,29.2,18.0);")
+          s=s.replace("camera.position.set(1.45,30.4,16.7);camera.lookAt(-1.47,.4,-2.5);","camera.position.set(6.25,29.6,15.2);camera.lookAt(-1.47,.4,-2.5);")
+          s=s.replace("dataset.m03Return='composition-rebuild-v29-island-corridor'","dataset.m03Return='composition-rebuild-v30-connected-landings'")
+          s=s.replace("dataset.m05Variant='m03-composition-v29-island-corridor'","dataset.m05Variant='m03-composition-v30-connected-landings'")
+          if s.count('bridgeLanding(') != 3 or 'm03-composition-v30-connected-landings' not in s:
+              raise SystemExit('patch verification failed')
+          p.write_text(s)
+          PY
+          rm .github/workflows/m03-quality-regate-repair.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html .github/workflows/m03-quality-regate-repair.yml
+          git commit -m "fix(modern-3d): connect hero bridge to terrain"
+          git push origin HEAD:prototype/modern-3d
