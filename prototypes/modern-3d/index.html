@@ -65,7 +65,8 @@ const v43FernL=createTargetFernPatch({seed:943,count:30,radius:3.1});v43FernL.po
 const v43FernR=createTargetFernPatch({seed:947,count:28,radius:3.0});v43FernR.position.set(6.25,.32,14.7);scene.add(v43FernR);
 for(const [i,x,z,sc] of [[0,-7.8,14.2,.72],[1,-5.7,17.1,.62],[2,7.1,14.0,.70],[3,5.4,17.0,.60]]){const r=createRockCluster({seed:9480+i*17,scale:sc});r.position.set(x,.28,z);scene.add(r);}
 const waterMain=createTargetWaterV3({width:30,depth:6.2,seed:311});waterMain.position.set(-1.0,.02,1.0);scene.add(waterMain);
-const waterLower=createTargetWaterV3({width:8.6,depth:20.5,seed:317});waterLower.position.set(-4.65,.04,9.6);waterLower.rotation.y=.08;scene.add(waterLower);
+// v62 M03-P02: preserve the existing north join while extending the lower river south beyond the follow-camera envelope so its rectangular mesh termination cannot read as a world hole.
+const waterLower=createTargetWaterV3({width:8.6,depth:28.5,seed:317});waterLower.position.set(-4.65,.04,13.6);waterLower.rotation.y=.08;scene.add(waterLower);
 const waterUpperRight=createTargetWaterV3({width:9.4,depth:18.5,seed:331});waterUpperRight.position.set(4.45,.05,-8.2);waterUpperRight.rotation.y=-.20;scene.add(waterUpperRight);
 function bridgeAt(x,z,ry=0,shadow=true){const b=createProductionBridge();b.position.set(x,.05,z);b.rotation.y=ry;if(!shadow)b.traverse(n=>{if(n.isMesh)n.castShadow=false});scene.add(b);return b}
 const bridgeMain=bridgeAt(-1.35,1.1,0,true);const bridgeRight=bridgeAt(3.25,-7.0,Math.PI/2-.16,false);bridgeRight.position.y=.72;bank(880,2.5,2.7,.35,1.02,-7.0,1,.05);bank(887,2.8,2.9,6.20,1.48,-7.1,1,-.04);
