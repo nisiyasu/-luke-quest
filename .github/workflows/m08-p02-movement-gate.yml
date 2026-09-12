@@ -51,7 +51,7 @@ jobs:
             const rows=[];
             try{
               await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:90000});
-              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,{timeout:90000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,null,{timeout:90000});
               await page.waitForTimeout(900);
               if(errs.length)throw new Error(`page errors=${JSON.stringify(errs)}`);
               const start=await meta(page);await page.screenshot({path:'.m08-p02/start.png',timeout:45000});
@@ -63,7 +63,7 @@ jobs:
               await page.waitForFunction(()=>{
                 const p=String(document.documentElement.dataset.m08Player||'').split(',').map(Number);
                 return p.length===3&&p.every(Number.isFinite)&&p[2]<-3.72&&p[1]>.90;
-              },{timeout:90000,polling:250});
+              },null,{timeout:90000,polling:250});
               await page.keyboard.up('ArrowUp');await page.waitForTimeout(250);
               const north=await meta(page);const b=p3(north.player);rows.push(`keyboard start=${start.player} north_shore=${north.player} delta=${delta(a,b).toFixed(3)}`);
               if(delta(a,b)<6.7||b[2]>=-3.65||b[1]<.90)throw new Error(`keyboard did not cross bridge-to-terrain transition ${north.player}`);
@@ -82,7 +82,7 @@ jobs:
               // Touch/pointer path through actual on-screen down button; pointerup must release.
               const down=page.locator('button.move.down');const box=await down.boundingBox();if(!box)throw new Error('touch down button missing');
               const cx=box.x+box.width/2,cy=box.y+box.height/2;
-              await page.touchscreen.tap(cx,cy); // prove actual control is hittable
+              await page.touchscreen.tap(cx,cy);
               await page.evaluate(({x,y})=>{
                 const el=document.elementFromPoint(x,y);if(!el)throw new Error('no touch target');
                 const id=777;el.dispatchEvent(new PointerEvent('pointerdown',{pointerId:id,pointerType:'touch',bubbles:true,clientX:x,clientY:y,isPrimary:true}));
@@ -99,7 +99,7 @@ jobs:
               // Machine bridge grounding/collision oracle, secondary to the real-input traversal above.
               const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});const cie=[];ci.on('pageerror',e=>cie.push(String(e)));
               await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:90000});
-              await ci.waitForFunction(()=>document.documentElement.dataset.m03Ci,{timeout:90000});
+              await ci.waitForFunction(()=>document.documentElement.dataset.m03Ci,null,{timeout:90000});
               const ciResult=await ci.evaluate(()=>({m03Ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route,ci:window.LQ_MODERN_3D_M05?.ci||null}));
               if(cie.length||ciResult.m03Ci!=='pass'||!ciResult.ci?.crossedBridge||!ciResult.ci?.noHole||!ciResult.ci?.groundingSmooth)throw new Error(`CI route fail ${JSON.stringify(ciResult)} errors=${JSON.stringify(cie)}`);
               rows.push(`bridge_ci=${JSON.stringify(ciResult)}`);await ci.close();
