@@ -9,7 +9,7 @@ on:
       - "prototypes/modern-3d/**"
   workflow_dispatch:
 
-# M03-P01 exact-head recapture trigger after macro composition repair.
+# M03-P01 exact-head recapture trigger after rebuilt distribution.
 permissions:
   contents: read
 
