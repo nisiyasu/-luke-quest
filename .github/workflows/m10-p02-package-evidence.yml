@@ -60,8 +60,8 @@ jobs:
           const VIEW={width:390,height:844};
           const inside=(b)=>b&&b.x>=-1&&b.y>=-1&&b.x+b.width<=VIEW.width+1&&b.y+b.height<=VIEW.height+1;
           const profiles=[
-            {name:'high',query:'quality=high&m10dpr=3&m08gate=1',pixelRatio:'2.00',shadow:'2048'},
-            {name:'practical',query:'quality=practical&m10dpr=3&m08gate=1',pixelRatio:'1.25',shadow:'1024'}
+            {name:'high',query:'quality=high&m10dpr=3&m08gate=1&ci=1',pixelRatio:'2.00',shadow:'2048'},
+            {name:'practical',query:'quality=practical&m10dpr=3&m08gate=1&ci=1',pixelRatio:'1.25',shadow:'1024'}
           ];
           const summary={head:process.env.EXPECTED_HEAD,artifact:'dist/luke-quest-modern-3d.html',viewport:VIEW,profiles:{},ios_physical_verification:'PENDING'};
           const playerDistance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
@@ -129,7 +129,7 @@ jobs:
               }
 
               const source=await browser.newPage({viewport:VIEW,deviceScaleFactor:1,hasTouch:true,isMobile:true});
-              await ready(source,'http://127.0.0.1:8142/prototypes/modern-3d/index.html?quality=high&m10dpr=3&m08gate=1');
+              await ready(source,'http://127.0.0.1:8142/prototypes/modern-3d/index.html?quality=high&m10dpr=3&m08gate=1&ci=1');
               await source.screenshot({path:'.m10-p02/high-source.png',timeout:150000});
               const sourceState=await snapshotState(source);
               summary.source_reference={quality:sourceState.quality,pixelRatio:sourceState.pixelRatio,shadowMapSize:sourceState.shadow};
