@@ -12,7 +12,7 @@ permissions:
 jobs:
   m09-area-ui:
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -48,11 +48,16 @@ jobs:
 
           capture() {
             name="$1"; size="$2"; steps="$3"
-            timeout 55s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            profile="$(mktemp -d)"
+            timeout 80s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --disable-background-networking --disable-component-update --disable-sync \
+              --no-first-run --no-default-browser-check --metrics-recording-only \
+              --user-data-dir="$profile" \
               --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-              --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=160 \
+              --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=120 \
               --screenshot=".modern3d-m09/${name}.png" \
               "http://127.0.0.1:8140/index.html?m08walk=1&m08steps=${steps}"
+            rm -rf "$profile"
           }
 
           capture portrait-near 390,844 8
@@ -119,10 +124,15 @@ jobs:
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          timeout 35s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+          profile="$(mktemp -d)"
+          timeout 45s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --disable-background-networking --disable-component-update --disable-sync \
+            --no-first-run --no-default-browser-check --metrics-recording-only \
+            --user-data-dir="$profile" \
             --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
             --virtual-time-budget=250 --dump-dom \
             'http://127.0.0.1:8140/index.html?ci=1&m08proof=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
+          rm -rf "$profile"
           grep -q 'id="status"' .modern3d-m09/dom.html
           grep -q 'class="objective panel"' .modern3d-m09/dom.html
           grep -q 'class="dpad"' .modern3d-m09/dom.html
