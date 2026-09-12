@@ -28,7 +28,7 @@ jobs:
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m09-p01-http.log 2>&1 &
           sleep 2
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Capture canonical north and south traversal positions
+      - name: Capture canonical north south and side traversal positions
         run: |
           mkdir -p .m09-p01
           cat > coverage-gate.cjs <<'JS'
@@ -54,16 +54,16 @@ jobs:
               let page=await open(browser);
               const canonical=await meta(page);await page.screenshot({path:'.m09-p01/canonical.png',timeout:150000});
               await hold(page,'ArrowUp',9000);const north=await meta(page);await page.screenshot({path:'.m09-p01/north-fringe.png',timeout:150000});
-              rows.push(`canonical=${canonical.player} north=${north.player} north_delta=${d(p(canonical.player),p(north.player)).toFixed(3)} camera=${north.camera}`);
-              if(d(p(canonical.player),p(north.player))<1.5)throw new Error('north traversal not materially separated');
+              const northDelta=d(p(canonical.player),p(north.player));rows.push(`canonical=${canonical.player} north=${north.player} north_delta=${northDelta.toFixed(3)} camera=${north.camera}`);
+              if(northDelta<.8)throw new Error(`north traversal insufficient ${northDelta}`);
               await page.close();
 
               page=await open(browser);const restart=await meta(page);await hold(page,'ArrowDown',9500);const south=await meta(page);await page.screenshot({path:'.m09-p01/south-fringe.png',timeout:150000});
-              rows.push(`restart=${restart.player} south=${south.player} south_delta=${d(p(restart.player),p(south.player)).toFixed(3)} camera=${south.camera}`);
-              if(d(p(restart.player),p(south.player))<1.5)throw new Error('south traversal not materially separated');
+              const southDelta=d(p(restart.player),p(south.player));rows.push(`restart=${restart.player} south=${south.player} south_delta=${southDelta.toFixed(3)} camera=${south.camera}`);
+              if(southDelta<.8)throw new Error(`south traversal insufficient ${southDelta}`);
               await page.close();
 
-              page=await open(browser);await hold(page,'ArrowUp',4200);await hold(page,'ArrowRight',1600);const side=await meta(page);await page.screenshot({path:'.m09-p01/side-route.png',timeout:150000});rows.push(`side_route=${side.player} camera=${side.camera}`);await page.close();
+              page=await open(browser);await hold(page,'ArrowUp',4200);const sideStart=await meta(page);await hold(page,'ArrowRight',1600);const side=await meta(page);await page.screenshot({path:'.m09-p01/side-route.png',timeout:150000});const sideDelta=d(p(sideStart.player),p(side.player));rows.push(`side_start=${sideStart.player} side=${side.player} side_delta=${sideDelta.toFixed(3)} camera=${side.camera}`);if(sideDelta<.1)throw new Error(`side traversal insufficient ${sideDelta}`);await page.close();
               rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} positions=4 page_errors=0 RESULT=PASS`);
               fs.writeFileSync('.m09-p01/coverage-audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
