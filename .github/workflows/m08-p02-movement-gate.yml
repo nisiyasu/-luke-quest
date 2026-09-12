@@ -1,0 +1,120 @@
+name: M08-P02 Movement Collision Camera Gate
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m08-p02-movement-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  movement-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m08-p02-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Exercise keyboard touch release grounding and camera
+        run: |
+          mkdir -p .m08-p02
+          cat > movement-gate.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          const p3=s=>String(s||'').split(',').map(Number);
+          const delta=(a,b)=>Math.hypot(b[0]-a[0],b[2]-a[2]);
+          async function meta(page){return page.evaluate(()=>({
+            player:document.documentElement.dataset.m08Player,
+            camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',
+            scene:document.documentElement.dataset.lqModern3d,
+            active:window.LQ_MODERN_3D_M05?.activeInputs,
+            blockedWater:window.LQ_MODERN_3D_M05?.blockedWater,
+            blockedBounds:window.LQ_MODERN_3D_M05?.blockedBounds
+          }))}
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});
+            const errs=[];page.on('pageerror',e=>errs.push(String(e)));
+            const rows=[];
+            try{
+              await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player,{timeout:150000});
+              await page.waitForTimeout(900);
+              if(errs.length)throw new Error(`page errors=${JSON.stringify(errs)}`);
+              const start=await meta(page);await page.screenshot({path:'.m08-p02/start.png',timeout:150000});
+              const a=p3(start.player);if(a.length<3||!a.every(Number.isFinite))throw new Error('invalid start player');
+
+              // Keyboard route: cross north landing far enough to exercise bridge height transition.
+              await page.keyboard.down('ArrowUp');await page.waitForTimeout(7200);await page.keyboard.up('ArrowUp');await page.waitForTimeout(250);
+              const north=await meta(page);const b=p3(north.player);rows.push(`keyboard start=${start.player} north=${north.player} delta=${delta(a,b).toFixed(3)}`);
+              if(delta(a,b)<1.0)throw new Error('keyboard movement too small');
+              await page.screenshot({path:'.m08-p02/keyboard-north.png',timeout:150000});
+
+              // Release proof: position must remain stable after keyup.
+              const releaseA=p3((await meta(page)).player);await page.waitForTimeout(850);const releaseB=p3((await meta(page)).player);
+              const releaseDelta=delta(releaseA,releaseB);rows.push(`keyboard_release_delta=${releaseDelta.toFixed(4)}`);if(releaseDelta>.035)throw new Error(`keyboard release drift ${releaseDelta}`);
+
+              // Turn coherently and move laterally.
+              await page.keyboard.down('ArrowRight');await page.waitForTimeout(800);await page.keyboard.up('ArrowRight');await page.waitForTimeout(180);
+              const right=await meta(page);const c=p3(right.player);rows.push(`turn_right from=${north.player} to=${right.player} delta=${delta(b,c).toFixed(3)}`);
+              if(delta(b,c)<.15)throw new Error('right turn/movement too small');
+
+              // Touch/pointer path through actual on-screen down button; pointerup must release.
+              const down=page.locator('button.move.down');const box=await down.boundingBox();if(!box)throw new Error('touch down button missing');
+              const cx=box.x+box.width/2,cy=box.y+box.height/2;
+              await page.touchscreen.tap(cx,cy); // prove actual control is hittable
+              await page.evaluate(({x,y})=>{
+                const el=document.elementFromPoint(x,y);if(!el)throw new Error('no touch target');
+                const id=777;el.dispatchEvent(new PointerEvent('pointerdown',{pointerId:id,pointerType:'touch',bubbles:true,clientX:x,clientY:y,isPrimary:true}));
+              },{x:cx,y:cy});
+              const touchStart=p3((await meta(page)).player);await page.waitForTimeout(900);
+              await page.evaluate(({x,y})=>{
+                const el=document.elementFromPoint(x,y);const id=777;el?.dispatchEvent(new PointerEvent('pointerup',{pointerId:id,pointerType:'touch',bubbles:true,clientX:x,clientY:y,isPrimary:true}));
+              },{x:cx,y:cy});
+              await page.waitForTimeout(160);const touchEndMeta=await meta(page);const touchEnd=p3(touchEndMeta.player);
+              const touchDelta=delta(touchStart,touchEnd);rows.push(`touch_down delta=${touchDelta.toFixed(3)} start=${touchStart.join(',')} end=${touchEnd.join(',')}`);if(touchDelta<.12)throw new Error(`touch movement too small ${touchDelta}`);
+              const touchReleaseA=p3((await meta(page)).player);await page.waitForTimeout(750);const touchReleaseB=p3((await meta(page)).player);const touchReleaseDelta=delta(touchReleaseA,touchReleaseB);rows.push(`touch_release_delta=${touchReleaseDelta.toFixed(4)}`);if(touchReleaseDelta>.035)throw new Error(`touch release drift ${touchReleaseDelta}`);
+              await page.screenshot({path:'.m08-p02/touch-after.png',timeout:150000});
+
+              // Machine bridge grounding/collision oracle already embedded by runtime CI path, verified on exact same HEAD.
+              const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});const cie=[];ci.on('pageerror',e=>cie.push(String(e)));
+              await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:150000});
+              await ci.waitForFunction(()=>document.documentElement.dataset.m03Ci,{timeout:150000});
+              const ciResult=await ci.evaluate(()=>({m03Ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route,ci:window.LQ_MODERN_3D_M05?.ci||null}));
+              if(cie.length||ciResult.m03Ci!=='pass'||!ciResult.ci?.crossedBridge||!ciResult.ci?.noHole||!ciResult.ci?.groundingSmooth)throw new Error(`CI route fail ${JSON.stringify(ciResult)} errors=${JSON.stringify(cie)}`);
+              rows.push(`bridge_ci=${JSON.stringify(ciResult)}`);await ci.close();
+
+              if((await meta(page)).camera==='UNKNOWN')throw new Error('camera profile missing');
+              rows.push(`camera_start=${start.camera} camera_end=${touchEndMeta.camera}`);
+              rows.push(`page_errors=0 head=${process.env.GITHUB_SHA||'UNKNOWN'} RESULT=PASS`);
+              fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node movement-gate.cjs
+      - name: Add visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m08-p02/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m08-p02/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m08-p02-movement-gate
+          path: .m08-p02
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
