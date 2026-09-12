@@ -1,0 +1,31 @@
+name: M03 v55 Visual Audit Bundle
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/m03-v55-visual-audit-bundle.yml
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Assemble audit bundle
+        run: |
+          mkdir -p audit-bundle
+          cp prototypes/modern-3d/evidence/m03-v55-390x844.png audit-bundle/CURRENT_M03_V55.png
+          cp prototypes/modern-3d/evidence/m03-v55-runtime.json audit-bundle/runtime.json
+          curl -L --fail --retry 3 -o audit-bundle/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o audit-bundle/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m03-v55-visual-audit-bundle
+          path: audit-bundle
+          if-no-files-found: error
