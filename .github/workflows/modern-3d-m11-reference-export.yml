@@ -1,0 +1,32 @@
+name: Modern 3D M11 Reference Export
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths: [.github/workflows/modern-3d-m11-reference-export.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify canonical reference ladder
+        run: |
+          set -euo pipefail
+          R=assets/reference/owner_2026-09-11_ps1_visual_target
+          test -s "$R/MINIMUM_QUALITY_LINE.png"
+          test -s "$R/TARGET_PS1_FINAL.png"
+          test -s "$R/CURRENT_BAD.png"
+          test -s "$R/README.md"
+          sha256sum "$R/MINIMUM_QUALITY_LINE.png" "$R/TARGET_PS1_FINAL.png" "$R/CURRENT_BAD.png" > reference-sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m11-canonical-visual-references
+          path: |
+            assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/CURRENT_BAD.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/README.md
+            reference-sha256.txt
+          retention-days: 14
