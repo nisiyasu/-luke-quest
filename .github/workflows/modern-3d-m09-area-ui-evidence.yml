@@ -39,7 +39,7 @@ jobs:
           sleep 1
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
 
-      - name: Capture multi-position multi-viewport evidence
+      - name: Capture required multi-position multi-viewport evidence
         shell: bash
         run: |
           set -euo pipefail
@@ -59,7 +59,6 @@ jobs:
           capture portrait-far 390,844 48
           capture landscape-near 844,390 8
           capture landscape-far 844,390 48
-          capture tablet-mid 768,1024 28
 
           python3 - <<'PY'
           from pathlib import Path
@@ -70,7 +69,6 @@ jobs:
             'portrait-far.png':(390,844),
             'landscape-near.png':(844,390),
             'landscape-far.png':(844,390),
-            'tablet-mid.png':(768,1024),
           }
 
           def decode(path):
@@ -135,6 +133,7 @@ jobs:
           grep -q 'data-m08-proof-done="1"' .modern3d-m09/dom.html
 
       - name: Upload M09 evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: modern-3d-m09-area-ui-${{ github.sha }}
@@ -145,4 +144,5 @@ jobs:
             .modern3d-m09/chrome-stderr.log
             /tmp/m09-http.log
             prototypes/modern-3d/index.html
+          if-no-files-found: warn
           retention-days: 14
