@@ -1,0 +1,3 @@
+M03_QUALITY_REGATE_V30
+IMPLEMENTATION_HEAD_PARENT=0a3064a78f87c17d0dd2df2a449f53cbfe868487
+PURPOSE=trigger existing runtime evidence workflows after material bridge/camera repair

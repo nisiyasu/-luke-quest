@@ -1,0 +1,3 @@
+M03_QUALITY_REGATE_V31
+IMPLEMENTATION_HEAD_PARENT=7e369203f6ed76f524997ada59b1de9de47de9ec
+PURPOSE=trigger runtime evidence after centered hero composition repair

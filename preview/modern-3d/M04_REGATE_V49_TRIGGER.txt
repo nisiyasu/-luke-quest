@@ -1,0 +1,5 @@
+M04 quality re-gate v49
+material_head=fc10dabb33a2bd6f9eef81cd8585bcc851e10ed1
+branch_head_before_trigger=37ec1b81af8f1702ae56584d98652584dd856862
+bank_target_v4=4.4.0
+purpose=fresh full-runtime capture after bank top microdetail and exposed-soil repair

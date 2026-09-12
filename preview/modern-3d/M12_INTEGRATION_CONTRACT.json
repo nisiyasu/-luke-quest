@@ -1,0 +1,68 @@
+{
+  "contractVersion": "LQ-M12-GOLD-MODERN3D-v1",
+  "documentId": "LQ-MODERN-3D-VISUAL-PROTOTYPE-20260911-V2",
+  "defaultRendererMode": "legacy",
+  "eligibleInitialMaps": ["field"],
+  "authorities": {
+    "gameState": "gold",
+    "saveLoad": "gold:lukeQuestV2",
+    "inputIntent": "gold-single-gateway",
+    "battle": "gold",
+    "dialogue": "gold",
+    "storyFlags": "gold",
+    "gameplayCollisionInitial": "gold-logical-grid",
+    "renderer": "modern3d",
+    "cameraLightingMaterials": "modern3d"
+  },
+  "snapshot": {
+    "required": [
+      "screen",
+      "mapId",
+      "player.logicalX",
+      "player.logicalY",
+      "player.direction",
+      "player.hp",
+      "player.maxHp",
+      "player.level",
+      "storyFlags",
+      "dialogueOpen",
+      "battleActive",
+      "movementLocked",
+      "qualityPreset"
+    ],
+    "rendererCanonicalWritesAllowed": false
+  },
+  "rendererLifecycle": ["mount", "sync", "pause", "resume", "dispose"],
+  "input": {
+    "prototypeOwnedListenersAllowedWhenIntegrated": false,
+    "normalizedEvents": ["MOVE_START", "MOVE_STOP", "ACTION", "MENU"],
+    "releaseSafety": ["pointerup", "pointercancel", "blur", "visibilitychange"]
+  },
+  "coordinates": {
+    "logicalNamespace": "gold-map-grid",
+    "renderNamespace": "three-world-xzy",
+    "scaleStoredInSave": false,
+    "originStoredInSave": false,
+    "visualInterpolationMayAdvanceCanonicalState": false
+  },
+  "rollback": {
+    "primary": "rendererMode=legacy",
+    "saveReverseMigrationRequired": false,
+    "storyReverseMigrationRequired": false
+  },
+  "firstBoundedUnit": {
+    "id": "M12-G01",
+    "name": "Modern3D passive adapter",
+    "featureFlagDefault": "off",
+    "mayWriteSave": false,
+    "mayOwnInput": false,
+    "mayReplaceCollision": false,
+    "mayReplaceBattle": false,
+    "mayMergeMain": false
+  },
+  "pendingHumanGates": {
+    "ownerExperiencePass": "PENDING",
+    "iosPhysicalVerification": "PENDING",
+    "finalEquivalentOrBetter": "NOT_CLAIMED"
+  }
+}
