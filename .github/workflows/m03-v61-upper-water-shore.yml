@@ -28,14 +28,7 @@ jobs:
           marker='const trees=[[-13,-14,1.28,11]'
           if marker not in s:
               raise SystemExit('tree marker missing')
-          insert="""
-// v61 rejector repair: conceal the geometric upper-right water termination with a receiving shore mass.
-bank(911,10.2,5.4,4.7,2.16,-17.05,-1,.03);
-bank(919,5.8,4.3,9.15,1.92,-16.0,-1,-.12);
-for(const [i,x,z,sc] of [[0,1.2,-16.3,.92],[1,3.4,-16.7,.78],[2,6.0,-16.5,.88],[3,8.3,-15.8,.82]]){const r=createRockCluster({seed:11100+i*37,scale:sc});r.position.set(x,2.08,z);scene.add(r)}
-for(const [i,x,z,rad] of [[0,1.8,-16.0,1.7],[1,4.7,-16.1,1.9],[2,7.4,-15.5,1.65]]){const f=createTargetFernPatch({seed:11200+i*41,count:30,radius:rad});f.position.set(x,2.20,z);scene.add(f)}
-for(const [i,x,z,sc] of [[0,2.0,-17.0,.94],[1,5.6,-17.1,1.02],[2,8.6,-16.4,.98]]){const t=createTargetConiferV31({seed:11300+i*43,scale:sc});t.position.set(x,2.20,z);scene.add(t)}
-"""
+          insert="// v61 rejector repair: conceal the geometric upper-right water termination with a receiving shore mass.\nbank(911,10.2,5.4,4.7,2.16,-17.05,-1,.03);\nbank(919,5.8,4.3,9.15,1.92,-16.0,-1,-.12);\nfor(const [i,x,z,sc] of [[0,1.2,-16.3,.92],[1,3.4,-16.7,.78],[2,6.0,-16.5,.88],[3,8.3,-15.8,.82]]){const r=createRockCluster({seed:11100+i*37,scale:sc});r.position.set(x,2.08,z);scene.add(r)}\nfor(const [i,x,z,rad] of [[0,1.8,-16.0,1.7],[1,4.7,-16.1,1.9],[2,7.4,-15.5,1.65]]){const f=createTargetFernPatch({seed:11200+i*41,count:30,radius:rad});f.position.set(x,2.20,z);scene.add(f)}\nfor(const [i,x,z,sc] of [[0,2.0,-17.0,.94],[1,5.6,-17.1,1.02],[2,8.6,-16.4,.98]]){const t=createTargetConiferV31({seed:11300+i*43,scale:sc});t.position.set(x,2.20,z);scene.add(t)}\n"
           s=s.replace(marker,insert+marker)
           p.write_text(s)
           PY
