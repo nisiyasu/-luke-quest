@@ -1,0 +1,64 @@
+name: M07 Owner Regate Water v50
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m07-owner-regate-water-v50.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prototype
+        uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tighten water depth shore and palette
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("prototypes/modern-3d/m04-water-target-v3.js")
+          s=p.read_text()
+          replacements={
+            "uDeep:{value:new THREE.Color(0x07547c)}":"uDeep:{value:new THREE.Color(0x063d5e)}",
+            "uMid:{value:new THREE.Color(0x168eb8)}":"uMid:{value:new THREE.Color(0x0b7092)}",
+            "uShallow:{value:new THREE.Color(0x78d8d2)}":"uShallow:{value:new THREE.Color(0x4fb8b5)}",
+            "uSky:{value:new THREE.Color(0xb9d2d7)}":"uSky:{value:new THREE.Color(0x7896a2)}",
+            "uReflectionStrength:{value:practical?.22:.42}":"uReflectionStrength:{value:practical?.20:.36}",
+            "uSparkleStrength:{value:practical?.36:.72}":"uSparkleStrength:{value:practical?.38:.62}",
+            "uCausticStrength:{value:practical?.15:.26}":"uCausticStrength:{value:practical?.18:.32}",
+            "uFoamStrength:{value:practical?.58:.90}":"uFoamStrength:{value:practical?.62:1.00}",
+            "uDepthContrast:{value:practical?1.04:1.18}":"uDepthContrast:{value:practical?1.12:1.32}",
+            "float shore=1.-smoothstep(.020,.225,edge);":"float shore=1.-smoothstep(.018,.130,edge);",
+            "c=mix(c,uDeep,depthMix*.58);":"c=mix(c,uDeep,depthMix*.72);",
+            "c=mix(c,uShallow,clamp(shore*.52+abs(vWave)*.78,0.,.62));":"c=mix(c,uShallow,clamp(shore*.34+abs(vWave)*.58,0.,.46));",
+            "float skyMix=clamp((.022+fresnel*.80)*uReflectionStrength,0.,.31);":"float skyMix=clamp((.018+fresnel*.72)*uReflectionStrength,0.,.24);",
+            "float alpha=.955+shore*.030+clamp(basin*.010,0.,.010);":"float alpha=.972+shore*.018+clamp(basin*.008,0.,.008);",
+            "version:'3.9.0'":"version:'3.10.0'",
+            "stage:'M07_IN_PROGRESS'":"stage:'M07_OWNER_REGATE_V50'"
+          }
+          for old,new in replacements.items():
+              if old not in s:
+                  raise SystemExit(f"expected water anchor missing: {old}")
+              s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+
+      - name: Commit repair if changed
+        shell: bash
+        run: |
+          git add prototypes/modern-3d/m04-water-target-v3.js
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m07): deepen water and tighten shoreline response [m07-v50-applied]"
+          git push origin HEAD:prototype/modern-3d
