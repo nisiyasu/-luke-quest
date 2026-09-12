@@ -1,0 +1,60 @@
+name: M03 Macro Composition Reframe v60
+
+on:
+  push:
+    branches:
+      - prototype/modern-3d
+    paths:
+      - .github/workflows/m03-v60-composition-reframe.yml
+
+permissions:
+  contents: write
+
+jobs:
+  reframe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply target-derived macro composition changes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          reps={
+            '<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v59</title>':'<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v60</title>',
+            'const camera=new THREE.PerspectiveCamera(34,initialViewport.w/initialViewport.h,.1,150);':'const camera=new THREE.PerspectiveCamera(39,initialViewport.w/initialViewport.h,.1,150);',
+            'const offset=new THREE.Vector3(1.6,25.6,16.8);':'const offset=new THREE.Vector3(1.2,30.2,20.4);',
+            'const target=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-4.4);':'const target=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.9);',
+            "document.documentElement.dataset.m05Variant='m03-quality-regate-v59-water-topology';":"document.documentElement.dataset.m05Variant='m03-quality-regate-v60-macro-reframe';",
+            'camera.position.set(.25,25.9,17.6);camera.lookAt(-1.47,.35,-1.4);':'camera.position.set(-.15,30.6,20.6);camera.lookAt(-1.47,.35,-2.9);',
+            "const proofTarget=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-4.4);":"const proofTarget=new THREE.Vector3(player.position.x-.12,player.position.y*.1,player.position.z-5.9);"
+          }
+          for old,new in reps.items():
+              if old not in s:
+                  raise SystemExit(f'missing expected token: {old[:90]}')
+              s=s.replace(old,new)
+          marker="const meadowA=createMeadowField({seed:901,width:13,depth:10,density:520,flowers:120});"
+          if marker not in s:
+              raise SystemExit('meadow marker missing')
+          insert="""
+// v60 macro composition reframe: break the central lawn into a target-like layered path corridor.
+for(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[1,2.9,-7.5,.70],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}
+for(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[1,2.0,-8.4,1.55],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}
+"""
+          s=s.replace(marker,insert+marker)
+          p.write_text(s)
+          PY
+          git diff --check
+          grep -q 'Composition Rebuild v60' prototypes/modern-3d/index.html
+          grep -q 'PerspectiveCamera(39' prototypes/modern-3d/index.html
+      - name: Commit v60 implementation
+        run: |
+          git config user.name "nisiyasu"
+          git config user.email "yasunori.hashigami@gmail.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m03): macro reframe toward visual floor [m03-v60]"
+          git push origin HEAD:prototype/modern-3d
