@@ -1,0 +1,3 @@
+M03 owner quality regate v48 evidence trigger.
+Source implementation parent: 59396e76c679a0761aca793926b4b507bc813c11
+Purpose: trigger fresh runtime screenshot/evidence workflows after compact bridge-bank sill repair.
