@@ -27,6 +27,10 @@ jobs:
           grep -F 'env(safe-area-inset-bottom)' prototypes/modern-3d/index.html
           grep -F 'class="dpad"' prototypes/modern-3d/index.html
           grep -F 'id="hint"' prototypes/modern-3d/index.html
+          grep -F '3D PROTOTYPE · DEMO HUD' prototypes/modern-3d/index.html
+          grep -F 'DISPLAY SAMPLE' prototypes/modern-3d/index.html
+          grep -F '@media (max-height:480px)' prototypes/modern-3d/index.html
+          ! grep -F 'LUKE</b> · Lv 1' prototypes/modern-3d/index.html
 
       - name: Start isolated prototype server
         shell: bash
@@ -125,9 +129,11 @@ jobs:
           grep -q 'class="objective panel"' .modern3d-m09/dom.html
           grep -q 'class="dpad"' .modern3d-m09/dom.html
           grep -q 'id="hint"' .modern3d-m09/dom.html
+          grep -q '3D PROTOTYPE · DEMO HUD' .modern3d-m09/dom.html
+          grep -q 'DISPLAY SAMPLE' .modern3d-m09/dom.html
           grep -q 'data-m08-ci="pass"' .modern3d-m09/dom.html
 
-      - name: Upload M09 baseline evidence
+      - name: Upload M09 evidence
         uses: actions/upload-artifact@v4
         with:
           name: modern-3d-m09-area-ui-${{ github.sha }}
