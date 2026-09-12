@@ -1,0 +1,76 @@
+name: Modern 3D M11 Visual Repair 1
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths: [.github/workflows/modern-3d-m11-visual-repair-1.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 10}
+      - name: Apply bounded target-gap material repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          patches={
+            'prototypes/modern-3d/assets.js':[
+              ("x.fillStyle='#8a582e'","x.fillStyle='#8b6a45'"),
+              ("color:0xb97a3f,roughness:.78","color:0xa98258,roughness:.82"),
+              ("color:0x70401f,roughness:.88","color:0x5e4935,roughness:.9"),
+              ("color:0xa96a34,roughness:.84","color:0x96714b,roughness:.86"),
+              ("color:0xc58a4b,roughness:.8","color:0xb69063,roughness:.82"),
+            ],
+            'prototypes/modern-3d/m04-conifer-target-v31.js':[
+              ("color:0x513622,roughness:.98","color:0x68482e,roughness:.98"),
+              ("color:0x332519,roughness:.99","color:0x44301f,roughness:.99"),
+              ("color:0x153f29,roughness:.96","color:0x245a34,roughness:.96"),
+              ("color:0x285f35,roughness:.94","color:0x377744,roughness:.94"),
+              ("color:0x477f42,roughness:.92","color:0x568f4f,roughness:.92"),
+              ("color:0x74a557,roughness:.90","color:0x86b866,roughness:.90"),
+            ],
+            'prototypes/modern-3d/m04-water-target-v3.js':[
+              ("uDeep:{value:new THREE.Color(0x064b76)}","uDeep:{value:new THREE.Color(0x086a9a)}"),
+              ("uMid:{value:new THREE.Color(0x087fa4)}","uMid:{value:new THREE.Color(0x159ac3)}"),
+              ("uShallow:{value:new THREE.Color(0x54c4c0)}","uShallow:{value:new THREE.Color(0x7fd5cf)}"),
+              ("uSky:{value:new THREE.Color(0x9cb9c4)}","uSky:{value:new THREE.Color(0xb9d2d7)}"),
+              ("uReflectionStrength:{value:practical?.18:.34}","uReflectionStrength:{value:practical?.22:.42}"),
+              ("uSparkleStrength:{value:practical?.29:.56}","uSparkleStrength:{value:practical?.36:.72}"),
+              ("uCausticStrength:{value:practical?.11:.19}","uCausticStrength:{value:practical?.15:.26}"),
+              ("uFoamStrength:{value:practical?.46:.73}","uFoamStrength:{value:practical?.58:.90}"),
+              ("g.add(shoreRibbon(width,depth*.47,seed+1,practical?.40:.58),shoreRibbon(width,-depth*.47,seed+2,practical?.40:.58));","g.add(shoreRibbon(width,depth*.47,seed+1,practical?.50:.72),shoreRibbon(width,-depth*.47,seed+2,practical?.50:.72));"),
+              ("const rockCount=practical?4:7;","const rockCount=practical?5:9;"),
+            ],
+            'prototypes/modern-3d/index.html':[
+              ("renderer.toneMappingExposure=1.16","renderer.toneMappingExposure=1.23"),
+              ("scene.background=new THREE.Color(0x97b1ab);scene.fog=new THREE.FogExp2(0xa6bbb3,.0104);","scene.background=new THREE.Color(0xb1c6b8);scene.fog=new THREE.FogExp2(0xb9c9b8,.0096);"),
+              ("scene.add(new THREE.HemisphereLight(0xf0f4e8,0x20372a,1.18));","scene.add(new THREE.HemisphereLight(0xfff3d8,0x294331,1.26));"),
+              ("const sun=new THREE.DirectionalLight(0xffd28c,4.05);","const sun=new THREE.DirectionalLight(0xffcf82,4.45);"),
+            ]
+          }
+          for fn,repls in patches.items():
+            p=Path(fn); s=p.read_text()
+            for old,new in repls:
+              n=s.count(old)
+              if n != 1: raise SystemExit(f'{fn}: expected exactly 1 match for {old!r}, got {n}')
+              s=s.replace(old,new,1)
+            p.write_text(s)
+          PY
+          git diff --check
+          git diff --stat
+          git diff -- prototypes/modern-3d/assets.js prototypes/modern-3d/m04-conifer-target-v31.js prototypes/modern-3d/m04-water-target-v3.js prototypes/modern-3d/index.html
+      - name: Commit material repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add prototypes/modern-3d/assets.js prototypes/modern-3d/m04-conifer-target-v31.js prototypes/modern-3d/m04-water-target-v3.js prototypes/modern-3d/index.html
+          git diff --cached --quiet && exit 1
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(modern-3d): repair M11 target material gap'
+          git push origin HEAD:prototype/modern-3d
