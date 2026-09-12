@@ -1,0 +1,3 @@
+M07 owner quality regate v50 evidence trigger.
+Source implementation parent: 5c7c737fcdcbc3217af124509f8946871b2142b9
+Purpose: trigger fresh runtime screenshot/evidence workflows after water depth/shore/palette repair.
