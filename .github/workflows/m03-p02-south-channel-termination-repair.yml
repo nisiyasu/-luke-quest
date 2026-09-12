@@ -1,0 +1,46 @@
+name: M03-P02 South Channel Termination Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-p02-south-channel-termination-repair.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Extend lower river beyond southern camera envelope
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="const waterLower=createTargetWaterV3({width:8.6,depth:20.5,seed:317});waterLower.position.set(-4.65,.04,9.6);waterLower.rotation.y=.08;scene.add(waterLower);"
+          new="// v62 M03-P02: preserve the existing north join while extending the lower river south beyond the follow-camera envelope so its rectangular mesh termination cannot read as a world hole.\nconst waterLower=createTargetWaterV3({width:8.6,depth:28.5,seed:317});waterLower.position.set(-4.65,.04,13.6);waterLower.rotation.y=.08;scene.add(waterLower);"
+          count=s.count(old)
+          if count != 1:
+              raise SystemExit(f'expected exactly one waterLower anchor, found {count}')
+          p.write_text(s.replace(old,new,1))
+          PY
+          git diff --check
+          git diff -- prototypes/modern-3d/index.html
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo 'No change required'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git commit -m 'fix(m03-p02): extend south river beyond camera envelope'
+          git push origin HEAD:prototype/modern-3d
