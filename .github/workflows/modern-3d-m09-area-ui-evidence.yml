@@ -23,7 +23,8 @@ jobs:
         run: |
           set -euo pipefail
           grep -F "import './ui-quality-v51b.js';" prototypes/modern-3d/m04-water-target-v3.js
-          grep -F "class=\"hud-place\"" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "class=\"hud-title-row\"" prototypes/modern-3d/ui-quality-v51b.js
+          grep -F "class=\"hud-hp-track\"" prototypes/modern-3d/ui-quality-v51b.js
           grep -F "class=\"action-orb\"" prototypes/modern-3d/ui-quality-v51b.js
           grep -F "dataset.m09OwnerHud='pass'" prototypes/modern-3d/ui-quality-v51b.js
           grep -F 'env(safe-area-inset-left)' prototypes/modern-3d/index.html
@@ -98,9 +99,11 @@ jobs:
             'http://127.0.0.1:8140/index.html?ci=1' > .modern3d-m09/dom.html 2>.modern3d-m09/chrome-stderr.log
           rm -rf "$profile"
           grep -q 'data-m09-owner-hud="pass"' .modern3d-m09/dom.html
-          grep -q 'class="hud-place"' .modern3d-m09/dom.html
+          grep -q 'class="hud-title-row"' .modern3d-m09/dom.html
+          grep -q 'class="hud-hp-track"' .modern3d-m09/dom.html
           grep -q 'class="action-orb"' .modern3d-m09/dom.html
-          grep -q '探索中' .modern3d-m09/dom.html
+          grep -q 'FOREST BRIDGE' .modern3d-m09/dom.html
+          grep -q 'MONSTER FOREST' .modern3d-m09/dom.html
           ! grep -q '3D PROTOTYPE · DEMO HUD' .modern3d-m09/dom.html
           ! grep -q 'DISPLAY SAMPLE' .modern3d-m09/dom.html
       - uses: actions/upload-artifact@v4
