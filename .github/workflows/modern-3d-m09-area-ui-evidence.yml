@@ -44,44 +44,81 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {name: portrait-near, size: "390,844", steps: 8}
-          - {name: portrait-far, size: "390,844", steps: 48}
-          - {name: landscape-near, size: "844,390", steps: 8}
-          - {name: landscape-far, size: "844,390", steps: 48}
+          - {name: portrait-near, width: 390, height: 844, steps: 8}
+          - {name: portrait-far, width: 390, height: 844, steps: 48}
+          - {name: landscape-near, width: 844, height: 390, steps: 8}
+          - {name: landscape-far, width: 844, height: 390, steps: 48}
     steps:
       - uses: actions/checkout@v4
-      - name: Start prototype server
-        shell: bash
-        run: |
-          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m09-http.log 2>&1 &
-          sleep 1
-          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Capture ${{ matrix.name }}
+      - name: Build deterministic local browser fixture
         shell: bash
         run: |
           set -euo pipefail
-          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          rm -rf .modern3d-ci
+          cp -a prototypes/modern-3d .modern3d-ci
+          curl -fL --retry 4 --retry-all-errors --connect-timeout 10 \
+            'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' \
+            -o .modern3d-ci/three.module.js
+          curl -fL --retry 4 --retry-all-errors --connect-timeout 10 \
+            'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.core.js' \
+            -o .modern3d-ci/three.core.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.modern3d-ci/index.html')
+          s=p.read_text()
+          old='https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js'
+          assert old in s
+          p.write_text(s.replace(old,'./three.module.js',1))
+          PY
+      - name: Start prototype server
+        shell: bash
+        run: |
+          python3 -m http.server 8140 --directory .modern3d-ci >/tmp/m09-http.log 2>&1 &
+          sleep 1
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+          curl -fsS http://127.0.0.1:8140/three.module.js >/dev/null
+      - name: Install CDP capture harness
+        run: npm install --no-save --no-package-lock puppeteer-core
+      - name: Capture ${{ matrix.name }} through live RAF runtime
+        shell: bash
+        env:
+          CAPTURE_NAME: ${{ matrix.name }}
+          VIEW_W: ${{ matrix.width }}
+          VIEW_H: ${{ matrix.height }}
+          WALK_STEPS: ${{ matrix.steps }}
+        run: |
+          set -euo pipefail
+          export BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           mkdir -p .modern3d-m09
-          profile="$(mktemp -d)"
-          # Visual capture MUST NOT use ci=1. In index.html ci=1 intentionally renders only one
-          # static WebGL frame and then mutates CI state without an animation loop. Headless Chrome
-          # can therefore produce a HUD-only compositor screenshot. Let the normal RAF/tick loop run
-          # for actual visual evidence; CI/DOM assertions remain in the separate runtime-hud job.
-          timeout 100s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --disable-background-networking --disable-component-update --disable-sync \
-            --no-first-run --no-default-browser-check --metrics-recording-only \
-            --user-data-dir="$profile" --enable-webgl --ignore-gpu-blocklist \
-            --use-angle=swiftshader --enable-unsafe-swiftshader \
-            --window-size="${{ matrix.size }}" --force-device-scale-factor=1 \
-            --virtual-time-budget=6000 \
-            --screenshot=".modern3d-m09/${{ matrix.name }}.png" \
-            "http://127.0.0.1:8140/index.html?quality=practical&m08walk=1&m08steps=${{ matrix.steps }}"
-          rm -rf "$profile"
-          test -s ".modern3d-m09/${{ matrix.name }}.png"
+          node <<'NODE'
+          const puppeteer=require('puppeteer-core');
+          const fs=require('fs');
+          (async()=>{
+            const name=process.env.CAPTURE_NAME;
+            const width=Number(process.env.VIEW_W), height=Number(process.env.VIEW_H), steps=Number(process.env.WALK_STEPS);
+            const browser=await puppeteer.launch({executablePath:process.env.BROWSER,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-webgl','--ignore-gpu-blocklist','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+            try{
+              const page=await browser.newPage();
+              const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.setViewport({width,height,deviceScaleFactor:1});
+              await page.goto(`http://127.0.0.1:8140/index.html?quality=practical&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:45000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready' && document.documentElement.dataset.m09OwnerHud==='pass',{timeout:45000});
+              await new Promise(r=>setTimeout(r,2600));
+              if(errors.length) throw new Error(`${name}: pageerror ${errors.join(' | ')}`);
+              const runtime=await page.evaluate(()=>({mode:document.documentElement.dataset.m09HudMode,ready:document.documentElement.dataset.lqModern3d,walkDone:document.documentElement.dataset.m08WalkDone||null,player:document.documentElement.dataset.m08Player||null}));
+              if(runtime.mode!=='map-first-v64') throw new Error(`${name}: HUD mode ${runtime.mode}`);
+              await page.screenshot({path:`.modern3d-m09/${name}.png`,fullPage:false});
+              fs.writeFileSync(`.modern3d-m09/${name}.runtime.json`,JSON.stringify(runtime,null,2)+'\n');
+            } finally { await browser.close(); }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+          test -s ".modern3d-m09/${CAPTURE_NAME}.png"
       - uses: actions/upload-artifact@v4
         with:
           name: m09-capture-${{ matrix.name }}-${{ github.sha }}
-          path: .modern3d-m09/${{ matrix.name }}.png
+          path: |
+            .modern3d-m09/${{ matrix.name }}.png
+            .modern3d-m09/${{ matrix.name }}.runtime.json
           retention-days: 14
 
   runtime-hud:
@@ -145,7 +182,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in portrait-near portrait-far landscape-near landscape-far; do test -s ".modern3d-m09/$f.png"; done
+          for f in portrait-near portrait-far landscape-near landscape-far; do test -s ".modern3d-m09/$f.png"; test -s ".modern3d-m09/$f.runtime.json"; done
           python3 - <<'PY'
           from pathlib import Path
           import hashlib, statistics
@@ -178,7 +215,7 @@ jobs:
               '\n'.join(rows)
               +'\nHUD_OWNER_REGATE=PASS\nHUD_MODE=MAP_FIRST_V64\n'
               +'STATIC_VIEWPORT_CAPTURE=PASS\nWORLD_RENDER_NONBLANK=PASS\n'
-              +'POSITION_VARIATION=NOT_ASSERTED_IN_STATIC_UI_JOB\nMULTI_VIEWPORT=PASS\n'
+              +'POSITION_VARIATION=CAPTURED_BY_M08WALK_SEE_RUNTIME_JSON\nMULTI_VIEWPORT=PASS\n'
           )
           PY
       - uses: actions/upload-artifact@v4
