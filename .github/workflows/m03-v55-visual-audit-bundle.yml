@@ -1,4 +1,4 @@
-name: M03 v57 Visual Audit Bundle
+name: M03 v58 Visual Audit Bundle
 
 on:
   push:
@@ -20,12 +20,12 @@ jobs:
       - name: Assemble audit bundle
         run: |
           mkdir -p audit-bundle
-          cp prototypes/modern-3d/evidence/m03-v57-390x844.png audit-bundle/CURRENT_M03_V57.png
-          cp prototypes/modern-3d/evidence/m03-v57-runtime.json audit-bundle/runtime.json
+          cp prototypes/modern-3d/evidence/m03-v58-390x844.png audit-bundle/CURRENT_M03_V58.png
+          cp prototypes/modern-3d/evidence/m03-v58-runtime.json audit-bundle/runtime.json
           curl -L --fail --retry 3 -o audit-bundle/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
           curl -L --fail --retry 3 -o audit-bundle/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
       - uses: actions/upload-artifact@v4
         with:
-          name: m03-v57-visual-audit-bundle
+          name: m03-v58-visual-audit-bundle
           path: audit-bundle
           if-no-files-found: error
