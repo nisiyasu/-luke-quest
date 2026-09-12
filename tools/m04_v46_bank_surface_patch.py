@@ -1,0 +1,44 @@
+from pathlib import Path
+
+p = Path('prototypes/modern-3d/m04-bank-target-v4.js')
+s = p.read_text()
+anchor = "function rng(seed=1){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}\n"
+add = '''function makeBankGrassMap(seed=417){
+  const r=rng(seed),c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  x.fillStyle='#668b43';x.fillRect(0,0,256,256);
+  for(let i=0;i<95;i++){const px=r()*256,py=r()*256,rad=7+r()*29,g=x.createRadialGradient(px,py,0,px,py,rad);g.addColorStop(0,i%4===0?'rgba(202,194,104,.18)':i%3===0?'rgba(38,82,39,.22)':'rgba(121,156,66,.20)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.beginPath();x.arc(px,py,rad,0,Math.PI*2);x.fill()}
+  for(let i=0;i<3000;i++){const px=r()*256,py=r()*256,l=.7+r()*2.8;x.strokeStyle=i%7===0?'rgba(222,214,126,.30)':i%3===0?'rgba(41,79,35,.36)':'rgba(113,151,65,.34)';x.lineWidth=.4+r()*.75;x.beginPath();x.moveTo(px,py);x.lineTo(px+(r()-.5)*2.3,py-l);x.stroke()}
+  for(let i=0;i<150;i++){x.fillStyle=i%4===0?'rgba(82,63,39,.22)':'rgba(234,225,159,.20)';x.beginPath();x.arc(r()*256,r()*256,.5+r()*1.25,0,Math.PI*2);x.fill()}
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(4.5,3.5);t.anisotropy=4;return t;
+}
+'''
+if 'function makeBankGrassMap' not in s:
+    if anchor not in s:
+        raise SystemExit('rng anchor missing')
+    s = s.replace(anchor, anchor + add, 1)
+old = "const grass=new THREE.MeshStandardMaterial({color:0x668947,roughness:.99,side:THREE.DoubleSide});"
+new = "const grass=new THREE.MeshStandardMaterial({color:0xffffff,map:makeBankGrassMap(417),roughness:.99,side:THREE.DoubleSide});"
+if old not in s:
+    raise SystemExit('grass material anchor missing')
+s = s.replace(old, new, 1)
+old2 = "const vertices=[];\n  const indices=[];"
+new2 = "const vertices=[];\n  const indices=[];\n  const uvs=[];"
+if old2 not in s:
+    raise SystemExit('organic top arrays anchor missing')
+s = s.replace(old2, new2, 1)
+old3 = "vertices.push(x,yBack,back,x,yFront,front);"
+new3 = "vertices.push(x,yBack,back,x,yFront,front);uvs.push(t,0,t,1);"
+if old3 not in s:
+    raise SystemExit('organic top vertex anchor missing')
+s = s.replace(old3, new3, 1)
+old4 = "geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));\n  geo.setIndex(indices);geo.computeVertexNormals();"
+new4 = "geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));\n  geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));\n  geo.setIndex(indices);geo.computeVertexNormals();"
+if old4 not in s:
+    raise SystemExit('organic top geometry anchor missing')
+s = s.replace(old4, new4, 1)
+p.write_text(s)
+q = Path('prototypes/modern-3d/index.html')
+t = q.read_text()
+if 'Composition Rebuild v45' in t:
+    t = t.replace('Composition Rebuild v45', 'Composition Rebuild v46', 1)
+q.write_text(t)
