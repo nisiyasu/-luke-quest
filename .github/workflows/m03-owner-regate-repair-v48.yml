@@ -1,0 +1,63 @@
+name: M03 Owner Regate Repair v48
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-owner-regate-repair-v48.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prototype
+        uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Replace slab-like bridge weld with compact bank sills
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("prototypes/modern-3d/index.html")
+          s=p.read_text()
+          old_title="<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v47</title>"
+          if old_title not in s:
+              print("v48 already applied or source advanced")
+              raise SystemExit(0)
+          s=s.replace(old_title,"<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v48</title>",1)
+          old='''// v47 Owner quality regate: visually weld both bridge ends into continuous terrain.
+          function bridgeThreshold(z,yTop,seed){const base=new THREE.Mesh(new THREE.BoxGeometry(4.85,.58,2.35),landingSideMat);base.position.set(-1.35,yTop-.31,z);base.receiveShadow=true;base.castShadow=true;scene.add(base);const cap=new THREE.Mesh(new THREE.BoxGeometry(4.55,.12,2.12),landingTopMat);cap.position.set(-1.35,yTop+.01,z);cap.receiveShadow=true;scene.add(cap);for(const [i,x] of [[0,-3.42],[1,.72]]){const r=createRockCluster({seed:seed+i*19,scale:.72});r.position.set(x,yTop+.04,z+(i?-.22:.18));scene.add(r)}return base}
+          bridgeThreshold(-4.08,1.02,7601);bridgeThreshold(6.16,-.27,7641);
+          nearFieldMass(-5.05,5.95,2.45,.92,.12);nearFieldMass(2.38,6.05,2.25,.84,-.10);
+          const bridgeFernL=createTargetFernPatch({seed:7681,count:24,radius:1.7});bridgeFernL.position.set(-4.35,-.18,6.25);scene.add(bridgeFernL);
+          const bridgeFernR=createTargetFernPatch({seed:7691,count:22,radius:1.6});bridgeFernR.position.set(1.75,-.18,6.15);scene.add(bridgeFernR);'''
+          new='''// v48 Owner quality regate: compact stone/earth sills at the actual bank edges; no broad slab may cover the bridge approach.
+          function bridgeBankSill(z,yTop,seed){const base=new THREE.Mesh(new THREE.BoxGeometry(4.15,.64,.86),landingSideMat);base.position.set(-1.35,yTop-.36,z);base.receiveShadow=true;base.castShadow=true;scene.add(base);const cap=new THREE.Mesh(new THREE.BoxGeometry(3.92,.12,.68),landingTopMat);cap.position.set(-1.35,yTop-.01,z);cap.receiveShadow=true;scene.add(cap);for(const [i,x] of [[0,-3.34],[1,.64]]){const r=createRockCluster({seed:seed+i*19,scale:.58});r.position.set(x,yTop-.03,z+(i?-.08:.08));scene.add(r)}return base}
+          bridgeBankSill(-4.03,1.03,7601);bridgeBankSill(6.10,-.26,7641);
+          // Side-only vegetation hides the seam without intruding into the traversal/readability corridor.
+          const bridgeFernL=createTargetFernPatch({seed:7681,count:22,radius:1.35});bridgeFernL.position.set(-4.65,-.18,6.15);scene.add(bridgeFernL);
+          const bridgeFernR=createTargetFernPatch({seed:7691,count:20,radius:1.25});bridgeFernR.position.set(2.05,-.18,6.05);scene.add(bridgeFernR);'''
+          if old not in s:
+              raise SystemExit("v47 repair block not found; refusing ambiguous v48 patch")
+          s=s.replace(old,new,1)
+          s=s.replace("m03-composition-v47-bridge-world-weld","m03-composition-v48-compact-bank-sills",1)
+          p.write_text(s)
+          PY
+
+      - name: Commit repair if changed
+        shell: bash
+        run: |
+          git add prototypes/modern-3d/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03): replace slab weld with compact bridge bank sills [m03-v48-applied]"
+          git push origin HEAD:prototype/modern-3d
