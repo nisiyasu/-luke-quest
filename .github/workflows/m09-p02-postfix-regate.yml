@@ -1,5 +1,6 @@
 name: M09-P02 Postfix Regate
 # re-entry exact-head gate after M09-P01 landscape repair
+# rerun after v65 landscape objective safe-area repair
 
 on:
   push:
