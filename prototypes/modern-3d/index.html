@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v61</title>
+<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v65</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07130d;color:#fff;font-family:system-ui,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:10;background:linear-gradient(180deg,#071019e6,#0c1720c7);border:1px solid #d7b45f;border-radius:9px;box-shadow:0 3px 16px #0007}#status{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:11px}#status b,.objective b{color:#f0d177}.objective{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:10px;color:#f2ead4}.hp{margin-top:4px;width:72px;height:5px;border:1px solid #bfa65d;background:#18232a;border-radius:3px;overflow:hidden}.hp:after{content:"";display:block;width:82%;height:100%;background:#65c575}#loading{inset:0;display:grid;place-items:center;background:#07130d;z-index:40;position:fixed}#error{display:none;left:12px;right:12px;top:42%;padding:12px;color:#ffb9b9;border-color:#e06b6b}.dpad{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:118px;height:118px;z-index:20;opacity:.58}.move{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid #c5d0d2aa;background:#10242c73;color:#fff;font-size:17px}.up{left:37px;top:0}.down{left:37px;bottom:0}.left{left:0;top:37px}.right{right:0;top:37px}#hint{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:10;font-size:10px;padding:7px 9px;background:#071019b8;border:1px solid #d7b45f80;border-radius:8px}#ci-evidence{display:none}.demo-tag{display:block;margin-top:3px;font-size:8px;letter-spacing:.08em;color:#d9d1b9;opacity:.82}.hp-label{display:block;margin-top:4px;font-size:8px;color:#cfc7b3;opacity:.78}@media (max-height:480px){#status,.objective{padding:5px 7px;font-size:9px}.objective{max-width:132px}.dpad{width:96px;height:96px;bottom:max(8px,env(safe-area-inset-bottom))}.move{width:38px;height:38px;font-size:14px}.up,.down{left:29px}.left,.right{top:29px}#hint{bottom:max(8px,env(safe-area-inset-bottom));font-size:8px;padding:5px 7px}}
@@ -78,95 +78,46 @@ for(const [i,x,z,sc] of [[0,-.15,11.8,.54],[1,.55,15.2,.62],[2,1.55,18.0,.58]]){
 const waterUpperRight=createTargetWaterV3({width:9.4,depth:18.5,seed:331});waterUpperRight.position.set(4.45,.05,-8.2);waterUpperRight.rotation.y=-.20;scene.add(waterUpperRight);
 function bridgeAt(x,z,ry=0,shadow=true){const b=createProductionBridge();b.position.set(x,.05,z);b.rotation.y=ry;if(!shadow)b.traverse(n=>{if(n.isMesh)n.castShadow=false});scene.add(b);return b}
 const bridgeMain=bridgeAt(-1.35,1.1,0,true);
-// M06-P02 bridge-continuity-v3: a dedicated structural wearing deck owns the full principal bridge span.
-// It sits above any receiving terrain so grass/bank geometry cannot visually replace the wooden crossing surface.
 const bridgeClearDeckMat=new THREE.MeshStandardMaterial({color:0x825837,roughness:.88,metalness:0});
 const bridgeClearDeckDark=new THREE.MeshStandardMaterial({color:0x49382d,roughness:.94,metalness:0});
-function bridgeClearDeck(){
-  const count=22,depth=6.80,step=depth/count,z0=1.10-depth/2;
-  for(let i=0;i<count;i++){
-    const z=z0+step*(i+.5);
-    const plank=new THREE.Mesh(new THREE.BoxGeometry(3.46,.115,step*.90),i%4===1?bridgeClearDeckDark:bridgeClearDeckMat);
-    plank.position.set(-1.35,.505,z);
-    plank.rotation.y=Math.sin(i*1.73)*.007;
-    plank.receiveShadow=true;plank.castShadow=true;scene.add(plank);
-  }
-}
+function bridgeClearDeck(){const count=22,depth=6.80,step=depth/count,z0=1.10-depth/2;for(let i=0;i<count;i++){const z=z0+step*(i+.5);const plank=new THREE.Mesh(new THREE.BoxGeometry(3.46,.115,step*.90),i%4===1?bridgeClearDeckDark:bridgeClearDeckMat);plank.position.set(-1.35,.505,z);plank.rotation.y=Math.sin(i*1.73)*.007;plank.receiveShadow=true;plank.castShadow=true;scene.add(plank)}}
 bridgeClearDeck();
 const bridgeRight=bridgeAt(3.25,-7.0,Math.PI/2-.16,false);bridgeRight.position.y=.72;
-// M06-P01 secondary-bridge-clearance-v2: pull receiving terrain fully outside the rotated production bridge deck/abutment envelope.
 bank(880,1.80,1.85,-2.30,.92,-7.34,1,.05);bank(887,1.90,1.90,8.82,1.00,-6.76,1,-.04);
 document.documentElement.dataset.m06SecondaryBridgeClearance='terrain-and-object-free-v4';
 const pathMat=new THREE.MeshStandardMaterial({color:0x8d7548,roughness:.98,metalness:0});
 const landingTopMat=new THREE.MeshStandardMaterial({color:0x8d8a6e,roughness:.98,metalness:0});const landingSideMat=new THREE.MeshStandardMaterial({color:0x5f6255,roughness:1,metalness:0});
 function bridgeLanding(zDeck,zLand,yDeck,yLand,showTop=true){const x0=-1.35,w=4.05,half=w/2,bottom=Math.min(yDeck,yLand)-.46;const verts=[x0-half,yDeck,zDeck,x0+half,yDeck,zDeck,x0+half,yLand,zLand,x0-half,yLand,zLand,x0-half,bottom,zDeck,x0+half,bottom,zDeck,x0+half,bottom,zLand,x0-half,bottom,zLand];const idx=[0,1,2,0,2,3,4,6,5,4,7,6,0,4,5,0,5,1,3,2,6,3,6,7,0,3,7,0,7,4,1,5,6,1,6,2];const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();let ramp=null;if(showTop){ramp=new THREE.Mesh(geo,landingTopMat);ramp.receiveShadow=true;ramp.castShadow=true;scene.add(ramp)}const supportLen=Math.abs(zLand-zDeck),support=new THREE.Mesh(new THREE.BoxGeometry(w+.26,.36,supportLen+.18),landingSideMat);support.position.set(x0,bottom+.05,(zDeck+zLand)/2);support.receiveShadow=true;support.castShadow=true;scene.add(support);for(const sx of[-1,1]){const r=createRockCluster({seed:7000+Math.round((zLand+20)*31)+(sx>0?11:0),scale:.48});r.position.set(x0+sx*2.05,Math.min(yDeck,yLand)-.08,(zDeck+zLand)/2);scene.add(r)}return ramp||support}
-// M06-P01 north-landing-top-clearance-v2: the engineered timber approach owns the visible north crossing surface; retain only the structural landing support below so field-colored terrain cannot overlay the bridge.
 bridgeLanding(-2.28,-4.05,.40,1.04,false);bridgeLanding(4.48,6.12,.40,-.28);
-// v48 Owner quality regate: compact stone/earth sills at the actual bank edges; no broad slab may cover the bridge approach.
 function bridgeBankSill(z,yTop,seed){const base=new THREE.Mesh(new THREE.BoxGeometry(4.15,.64,.86),landingSideMat);base.position.set(-1.35,yTop-.36,z);base.receiveShadow=true;base.castShadow=true;scene.add(base);const cap=new THREE.Mesh(new THREE.BoxGeometry(3.92,.12,.68),landingTopMat);cap.position.set(-1.35,yTop-.01,z);cap.receiveShadow=true;scene.add(cap);for(const [i,x] of [[0,-3.34],[1,.64]]){const r=createRockCluster({seed:seed+i*19,scale:.58});r.position.set(x,yTop-.03,z+(i?-.08:.08));scene.add(r)}return base}
 bridgeBankSill(-4.03,1.03,7601);bridgeBankSill(6.10,-.26,7641);
-// M06-P02 bridge-continuity-v2: hard-clear the structural corridor and make the north landing visibly continuous.
-// Side terrain receives the bridge, while an engineered timber approach remains visibly above vegetation/ground.
-bank(771,3.55,4.8,-5.72,1.05,-4.72,1,.10);
-bank(779,3.15,4.5,3.05,1.00,-4.62,1,-.10);
-bank(787,4.15,4.6,-5.42,-.22,6.72,-1,.08);
-bank(797,3.70,4.3,2.78,-.24,6.64,-1,-.09);
+bank(771,3.55,4.8,-5.72,1.05,-4.72,1,.10);bank(779,3.15,4.5,3.05,1.00,-4.62,1,-.10);bank(787,4.15,4.6,-5.42,-.22,6.72,-1,.08);bank(797,3.70,4.3,2.78,-.24,6.64,-1,-.09);
 const bridgeThresholdMat=new THREE.MeshStandardMaterial({color:0x704c31,roughness:.88,metalness:0});
 const bridgeThresholdIron=new THREE.MeshStandardMaterial({color:0x343b3d,roughness:.50,metalness:.62});
-function bridgeThreshold(z,y,dir){
-  for(let i=-2;i<=2;i++){
-    const plank=new THREE.Mesh(new THREE.BoxGeometry(3.76,.12,.27),bridgeThresholdMat);
-    plank.position.set(-1.35,y,z+i*.285*dir);plank.receiveShadow=true;plank.castShadow=true;scene.add(plank);
-  }
-  for(const x of[-3.18,.48]){
-    const curb=new THREE.Mesh(new THREE.BoxGeometry(.14,.30,1.55),bridgeThresholdIron);
-    curb.position.set(x,y+.08,z);curb.receiveShadow=true;curb.castShadow=true;scene.add(curb);
-  }
-}
-function bridgeApproachDeck(z0,z1,y0,y1){
-  const count=11,span=Math.abs(z1-z0),midZ=(z0+z1)/2,midY=(y0+y1)/2;
-  for(let i=0;i<count;i++){
-    const t=i/(count-1),z=THREE.MathUtils.lerp(z0,z1,t),y=THREE.MathUtils.lerp(y0,y1,t);
-    const plank=new THREE.Mesh(new THREE.BoxGeometry(3.90,.15,.31),bridgeThresholdMat);
-    plank.position.set(-1.35,y+.075,z);plank.receiveShadow=true;plank.castShadow=true;scene.add(plank);
-  }
-  const slope=Math.atan2(y1-y0,z1-z0);
-  for(const x of[-3.22,.52]){
-    const stringer=new THREE.Mesh(new THREE.BoxGeometry(.17,.24,span+.24),bridgeThresholdIron);
-    stringer.position.set(x,midY-.01,midZ);stringer.rotation.x=-slope;stringer.receiveShadow=true;stringer.castShadow=true;scene.add(stringer);
-  }
-}
-// M06-P02 north-approach-v4: raise the structural timber approach above the intrusive bank skin while preserving the accepted route.
-bridgeApproachDeck(-2.22,-4.28,.55,1.18);
-bridgeThreshold(-4.30,1.195,-1);bridgeThreshold(5.72,-.195,1);
-const landingFernN1=createTargetFernPatch({seed:801,count:26,radius:1.55});landingFernN1.position.set(-4.15,1.10,-4.15);scene.add(landingFernN1);
-const landingFernN2=createTargetFernPatch({seed:809,count:24,radius:1.45});landingFernN2.position.set(1.45,1.08,-4.12);scene.add(landingFernN2);
-const landingFernS1=createTargetFernPatch({seed:821,count:24,radius:1.50});landingFernS1.position.set(-4.10,-.14,6.30);scene.add(landingFernS1);
-const landingFernS2=createTargetFernPatch({seed:827,count:22,radius:1.42});landingFernS2.position.set(1.40,-.14,6.24);scene.add(landingFernS2);
-for(const [i,x,z,y,sc] of [[0,-3.82,-3.92,1.05,.48],[1,1.12,-3.94,1.03,.46],[2,-3.86,6.12,-.20,.50],[3,1.16,6.08,-.20,.47]]){const r=createRockCluster({seed:8300+i*23,scale:sc});r.position.set(x,y,z);scene.add(r);}
-// Side-only vegetation hides the seam without intruding into the traversal/readability corridor.
-const bridgeFernL=createTargetFernPatch({seed:7681,count:22,radius:1.35});bridgeFernL.position.set(-4.65,-.18,6.15);scene.add(bridgeFernL);
-const bridgeFernR=createTargetFernPatch({seed:7691,count:20,radius:1.25});bridgeFernR.position.set(2.05,-.18,6.05);scene.add(bridgeFernR);
+function bridgeThreshold(z,y,dir){for(let i=-2;i<=2;i++){const plank=new THREE.Mesh(new THREE.BoxGeometry(3.76,.12,.27),bridgeThresholdMat);plank.position.set(-1.35,y,z+i*.285*dir);plank.receiveShadow=true;plank.castShadow=true;scene.add(plank)}for(const x of[-3.18,.48]){const curb=new THREE.Mesh(new THREE.BoxGeometry(.14,.30,1.55),bridgeThresholdIron);curb.position.set(x,y+.08,z);curb.receiveShadow=true;curb.castShadow=true;scene.add(curb)}}
+function bridgeApproachDeck(z0,z1,y0,y1){const count=11,span=Math.abs(z1-z0),midZ=(z0+z1)/2,midY=(y0+y1)/2;for(let i=0;i<count;i++){const t=i/(count-1),z=THREE.MathUtils.lerp(z0,z1,t),y=THREE.MathUtils.lerp(y0,y1,t);const plank=new THREE.Mesh(new THREE.BoxGeometry(3.90,.15,.31),bridgeThresholdMat);plank.position.set(-1.35,y+.075,z);plank.receiveShadow=true;plank.castShadow=true;scene.add(plank)}const slope=Math.atan2(y1-y0,z1-z0);for(const x of[-3.22,.52]){const stringer=new THREE.Mesh(new THREE.BoxGeometry(.17,.24,span+.24),bridgeThresholdIron);stringer.position.set(x,midY-.01,midZ);stringer.rotation.x=-slope;stringer.receiveShadow=true;stringer.castShadow=true;scene.add(stringer)}}
+bridgeApproachDeck(-2.22,-4.28,.55,1.18);bridgeThreshold(-4.30,1.195,-1);bridgeThreshold(5.72,-.195,1);
+const landingFernN1=createTargetFernPatch({seed:801,count:26,radius:1.55});landingFernN1.position.set(-4.15,1.10,-4.15);scene.add(landingFernN1);const landingFernN2=createTargetFernPatch({seed:809,count:24,radius:1.45});landingFernN2.position.set(1.45,1.08,-4.12);scene.add(landingFernN2);const landingFernS1=createTargetFernPatch({seed:821,count:24,radius:1.50});landingFernS1.position.set(-4.10,-.14,6.30);scene.add(landingFernS1);const landingFernS2=createTargetFernPatch({seed:827,count:22,radius:1.42});landingFernS2.position.set(1.40,-.14,6.24);scene.add(landingFernS2);
+for(const [i,x,z,y,sc] of [[0,-3.82,-3.92,1.05,.48],[1,1.12,-3.94,1.03,.46],[2,-3.86,6.12,-.20,.50],[3,1.16,6.08,-.20,.47]]){const r=createRockCluster({seed:8300+i*23,scale:sc});r.position.set(x,y,z);scene.add(r)}
+const bridgeFernL=createTargetFernPatch({seed:7681,count:22,radius:1.35});bridgeFernL.position.set(-4.65,-.18,6.15);scene.add(bridgeFernL);const bridgeFernR=createTargetFernPatch({seed:7691,count:20,radius:1.25});bridgeFernR.position.set(2.05,-.18,6.05);scene.add(bridgeFernR);
 function pathPatch(points,y){const shape=new THREE.Shape(points.map(([x,z])=>new THREE.Vector2(x,-z)));const geo=new THREE.ShapeGeometry(shape);geo.rotateX(-Math.PI/2);const m=new THREE.Mesh(geo,pathMat);m.position.y=y;m.receiveShadow=true;m.castShadow=false;scene.add(m)}
 function pathRibbon(points,width=.95,y=1.08){const verts=[],idx=[];for(let i=0;i<points.length;i++){const [x,z]=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];const dx=next[0]-prev[0],dz=next[1]-prev[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len,w=width*(i===0||i===points.length-1?.78:1);verts.push(x+nx*w,y,z+nz*w,x-nx*w,y,z-nz*w);if(i<points.length-1){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,c,d,b)}}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;scene.add(m);return m}
-// M06-P01 north-path-origin-clearance-v3: start the forest trail beyond the engineered bridge threshold; no terrain/path polygon may originate on top of the wooden crossing.
-pathRibbon([[-1.35,-4.45],[-2.25,-4.9],[-3.45,-5.8],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);
-pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,14.6]],.76,-.18);
-pathRibbon([[-2.2,-10.35],[-1.0,-11.2],[.2,-12.1],[1.0,-13.0]],.64,2.28);
+pathRibbon([[-1.35,-4.45],[-2.25,-4.9],[-3.45,-5.8],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,14.6]],.76,-.18);pathRibbon([[-2.2,-10.35],[-1.0,-11.2],[.2,-12.1],[1.0,-13.0]],.64,2.28);
 bank(601,5.4,5.7,-6.15,1.42,-6.8,1,.16);bank(607,2.4,2.8,8.0,1.42,-9.5,1,-.20);bank(613,6.2,4.8,-1.0,2.28,-13.2,1,.04);
-// v60 macro composition reframe: break the central lawn into a target-like layered path corridor.
-// M06-P01 secondary-bridge-object-clearance-v4: no rock/moss cluster may occupy the rotated bridge deck envelope.
 for(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}
-// Keep destination vegetation outside the secondary deck/rail silhouette.
 for(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}
 const meadowA=createMeadowField({seed:901,width:13,depth:10,density:520,flowers:120});meadowA.position.set(-4.0,1.04,-9.0);scene.add(meadowA);const meadowB=createMeadowField({seed:919,width:12,depth:9,density:480,flowers:105});meadowB.position.set(3.0,-.28,10.0);scene.add(meadowB);
 function terrainY(x,z){if(x<-5)return z<0?1.05:1.65;if(x>5)return z<0?1.55:1.9;if(z<-11)return 2.2;if(z>11)return -.25;return z<0?1.02:-.28}
-// v61 rejector repair: conceal the geometric upper-right water termination with a receiving shore mass.
-bank(911,10.2,5.4,4.7,2.16,-17.05,-1,.03);
-bank(919,5.8,4.3,9.15,1.92,-16.0,-1,-.12);
+bank(911,10.2,5.4,4.7,2.16,-17.05,-1,.03);bank(919,5.8,4.3,9.15,1.92,-16.0,-1,-.12);
 for(const [i,x,z,sc] of [[0,1.2,-16.3,.92],[1,3.4,-16.7,.78],[2,6.0,-16.5,.88],[3,8.3,-15.8,.82]]){const r=createRockCluster({seed:11100+i*37,scale:sc});r.position.set(x,2.08,z);scene.add(r)}
 for(const [i,x,z,rad] of [[0,1.8,-16.0,1.7],[1,4.7,-16.1,1.9],[2,7.4,-15.5,1.65]]){const f=createTargetFernPatch({seed:11200+i*41,count:30,radius:rad});f.position.set(x,2.20,z);scene.add(f)}
 for(const [i,x,z,sc] of [[0,2.0,-17.0,.94],[1,5.6,-17.1,1.02],[2,8.6,-16.4,.98]]){const t=createTargetConiferV31({seed:11300+i*43,scale:sc});t.position.set(x,2.20,z);scene.add(t)}
+// M03-P03 north-fringe-visual-continuation-v1: extend visible terrain/forest beyond the z=-17.5 traversal bound so the follow camera never exposes a sparse stage edge.
+bank(1201,13.5,7.8,-9.8,1.70,-22.0,1,.10);bank(1207,12.8,7.4,9.5,1.72,-22.4,1,-.10);bank(1213,10.6,6.8,-4.8,1.95,-27.0,1,.04);bank(1217,10.8,6.9,5.0,1.98,-27.2,1,-.04);
+for(const [i,x,z,sc] of [[0,-12.8,-19.2,1.10],[1,-9.4,-21.8,1.22],[2,-6.2,-24.0,1.05],[3,-2.8,-27.0,1.12],[4,2.8,-27.2,1.10],[5,6.4,-24.2,1.08],[6,9.6,-21.6,1.24],[7,12.7,-19.0,1.12]]){const t=createTargetConiferV31({seed:12000+i*53,scale:sc});t.position.set(x,terrainY(x,z)+.12,z);scene.add(t)}
+for(const [i,x,z,rad] of [[0,-10.8,-20.0,2.0],[1,-6.4,-23.0,1.8],[2,-1.8,-26.2,1.9],[3,2.0,-26.3,1.9],[4,6.6,-23.1,1.8],[5,10.9,-20.0,2.0]]){const f=createTargetFernPatch({seed:12400+i*47,count:32,radius:rad});f.position.set(x,terrainY(x,z)+.05,z);scene.add(f)}
+for(const [i,x,z,sc] of [[0,-11.0,-18.8,.78],[1,-5.2,-22.8,.72],[2,-.8,-26.0,.68],[3,4.8,-23.0,.74],[4,10.8,-18.8,.80]]){const r=createRockCluster({seed:12700+i*59,scale:sc});r.position.set(x,terrainY(x,z)-.10,z);scene.add(r)}
+document.documentElement.dataset.m03NorthFringe='visual-continuation-v1';
 const trees=[[-13,-14,1.28,11],[-11,-11,1.35,13],[-9,-14,1.22,17],[-12,-7,1.32,19],[-9,-8,1.18,23],[-7,-12,1.1,29],[-13,-2,1.32,31],[-10,-3,1.25,37],[-8,-5,1.12,41],[-12,4,1.34,43],[-10,7,1.28,47],[-8,4,1.16,53],[-11,11,1.32,59],[-8,13,1.2,61],[10,-14,1.22,67],[12,-10,1.34,71],[10,-7,1.18,73],[12,-3,1.28,79],[10,4,1.24,83],[12,7,1.34,89],[9,10,1.2,97],[11,13,1.28,101],[5,10,1.18,103],[6,13,1.22,107],[-4,-15,1.08,109],[-1,-15,1.12,113],[-5,5,1.06,127],[5,5,1.08,131]];
 const backgroundNaturalIndices=new Set([2,5,11,13,19,22,23,25]);
 for(let i=0;i<trees.length;i++){const [x,z,s,seed]=trees[i];const scaleJitter=.86+(seed%7)*.026;const px=x+((seed%7)-3)*.10,pz=z+((seed%11)-5)*.065;const background=backgroundNaturalIndices.has(i);const t=background?createNaturalConifer({seed,scale:s*(.91+(seed%4)*.025)}):createTargetConiferV31({seed,scale:s*scaleJitter});t.position.set(px,terrainY(px,pz),pz);scene.add(t);if(!background&&i%2===0){const f=createTargetFernPatch({seed:9000+seed,scale:.78+(seed%4)*.045,count:18+(seed%4)*3});f.position.set(px+((seed%5)-2)*.22,terrainY(px,pz)+.03,pz+.42+((seed%3)-1)*.18);scene.add(f)}}
@@ -177,7 +128,7 @@ const nearMeadow=createMeadowField({seed:1941,width:6.8,depth:5.2,density:360,fl
 const rocks=[[-8,-5,1.25,201],[-6,-9,1.05,203],[-9,2,1.3,211],[-7,8,1.12,223],[-5,12,1.0,227],[8,-4,1.32,233],[7,5,1.18,239],[8,10,1.3,241],[4,8,1.05,257],[-5.1,-2.7,.92,271],[-4.0,-4.6,.78,277],[-5.8,-1.3,.82,293],[-4.6,-.6,.66,307],[-3.7,-2.0,.72,311]];for(const [x,z,s,seed] of rocks){const r=createRockCluster({seed,scale:s});r.position.set(x,terrainY(x,z)-.14,z);scene.add(r)}
 const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:1.18});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);document.documentElement.dataset.m08PlayerVisual='hero-presence-v2';
 const keys=new Set(),pointers=new Map();let last=performance.now(),blurRelease=false,resizes=0,blockedWater=0,blockedBounds=0,moving=false;const dirMap={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
-window.LQ_MODERN_3D_M05={ready:true,variant:'m03-composition-v49-concave-path-fix',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:11,compositionTrees:trees.length+destinationTrees.length+southRightFrameTrees.length+3,targetConifers:trees.length-backgroundNaturalIndices.size+destinationTrees.length+southRightFrameTrees.length+3,targetBanks:9,targetWaters:3,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
+window.LQ_MODERN_3D_M05={ready:true,variant:'m03-composition-v49-concave-path-fix',threeRevision:THREE.REVISION,webglVersion:renderer.capabilities.isWebGL2?'WebGL2':'WebGL1',player:[-1.35,3.2],activeInputs:0,resizes:0,blockedWater:0,blockedBounds:0,meadowInstances:1225,terrainMasses:15,compositionTrees:trees.length+destinationTrees.length+southRightFrameTrees.length+11,targetConifers:trees.length-backgroundNaturalIndices.size+destinationTrees.length+southRightFrameTrees.length+11,targetBanks:13,targetWaters:3,riverLayout:'branching-target-layout',bridgeLayout:'main-plus-right-branch'};
 function releaseAll(){keys.clear();pointers.clear()}function onKey(e,on){const d=keyMap[e.code];if(!d)return;e.preventDefault();on?keys.add(d):keys.delete(d)}addEventListener('keydown',e=>onKey(e,true));addEventListener('keyup',e=>onKey(e,false));for(const b of document.querySelectorAll('.move')){b.addEventListener('pointerdown',e=>{e.preventDefault();pointers.set(e.pointerId,b.dataset.dir);try{b.setPointerCapture?.(e.pointerId)}catch{}});for(const ev of['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,e=>pointers.delete(e.pointerId))}addEventListener('blur',()=>{releaseAll();blurRelease=true});addEventListener('pagehide',releaseAll);document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()});function activeDirs(){return[...keys,...pointers.values()]}
 function walkable(x,z){if(Math.abs(x)>13.6||Math.abs(z)>17.5){blockedBounds++;return false}const crossRiver=Math.abs(z-1.0)<2.95;const onMainBridge=Math.abs(x+1.35)<1.55&&z>-2.45&&z<4.65;if(crossRiver&&!onMainBridge){blockedWater++;return false}return true}
 function playerGroundY(x,z){const onBridgeLane=Math.abs(x+1.35)<1.55;if(onBridgeLane&&z>-2.45&&z<4.65)return .42;if(onBridgeLane&&z<=-2.45&&z>-3.65){const t=THREE.MathUtils.smoothstep(-z,2.45,3.65);return THREE.MathUtils.lerp(.50,1.12,t)}if(onBridgeLane&&z>=4.65&&z<5.85){const t=THREE.MathUtils.smoothstep(z,4.65,5.85);return THREE.MathUtils.lerp(.42,-.28,t)}if(z<=-3.65)return 1.12;if(z>=5.85)return -.28;return z<0?1.12:-.28}
