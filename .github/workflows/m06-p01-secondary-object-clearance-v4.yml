@@ -1,0 +1,101 @@
+name: M06-P01 Secondary Bridge Object Clearance v4
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p01-secondary-object-clearance-v4.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply exact secondary deck object clearance
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text(encoding='utf-8')
+          old_rocks="for(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[1,2.9,-7.5,.70],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}"
+          new_rocks="// M06-P01 secondary-bridge-object-clearance-v4: no rock/moss cluster may occupy the rotated bridge deck envelope.\nfor(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}"
+          old_ferns="for(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[1,2.0,-8.4,1.55],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}"
+          new_ferns="// Keep destination vegetation outside the secondary deck/rail silhouette.\nfor(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}"
+          old_marker="document.documentElement.dataset.m06SecondaryBridgeClearance='terrain-free-v3';"
+          new_marker="document.documentElement.dataset.m06SecondaryBridgeClearance='terrain-and-object-free-v4';"
+          for old,new,label in [(old_rocks,new_rocks,'rock'),(old_ferns,new_ferns,'fern'),(old_marker,new_marker,'marker')]:
+              n=s.count(old)
+              if n!=1:
+                  raise SystemExit(f'FAIL_CLOSED {label} replacement count={n}')
+              s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+      - name: Validate exact causal removals
+        run: |
+          git diff --check
+          grep -F "secondary-bridge-object-clearance-v4" prototypes/modern-3d/index.html
+          grep -F "terrain-and-object-free-v4" prototypes/modern-3d/index.html
+          if grep -F "[1,2.9,-7.5,.70]" prototypes/modern-3d/index.html; then exit 1; fi
+          if grep -F "[1,2.0,-8.4,1.55]" prototypes/modern-3d/index.html; then exit 1; fi
+      - name: Create material repair commit
+        run: |
+          git config user.name 'luke-quest-autonomous'
+          git config user.email 'luke-quest-autonomous@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git commit -m 'fix(m06-p01): clear secondary bridge deck objects'
+          git rev-parse HEAD | tee /tmp/m06-p01-v4-head.txt
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Capture repaired secondary bridge exact-commit evidence
+        run: |
+          python3 -m http.server 8143 --directory prototypes/modern-3d >/tmp/m06-p01-v4-http.log 2>&1 &
+          sleep 2
+          mkdir -p .m06-p01-v4
+          cat > v4.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8143/index.html?quality=high&m08gate=1',{waitUntil:'domcontentloaded',timeout:150000});
+            await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&window.LQ_MODERN_3D_M08_GATE,{timeout:150000});
+            async function place(x,z,label){
+              await page.evaluate(({x,z})=>{const g=window.LQ_MODERN_3D_M08_GATE;g.player.position.x=x;g.player.position.z=z;g.syncState();},{x,z});
+              await page.waitForTimeout(1700);
+              await page.screenshot({path:`.m06-p01-v4/${label}.png`,fullPage:true,timeout:150000});
+              const state=await page.evaluate(()=>({player:document.documentElement.dataset.m08Player,clearance:document.documentElement.dataset.m06SecondaryBridgeClearance,camera:document.documentElement.dataset.m03CameraProfile}));
+              fs.appendFileSync('.m06-p01-v4/runtime-audit.txt',`${label}=${JSON.stringify(state)}\n`);
+            }
+            await place(3.25,-7.00,'secondary-center');
+            await place(-1.80,-7.15,'secondary-west');
+            await place(8.30,-6.85,'secondary-east');
+            if(errors.length)throw new Error(`page errors=${JSON.stringify(errors)}`);
+            fs.appendFileSync('.m06-p01-v4/runtime-audit.txt','page_errors=0\n');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node v4.cjs
+          cp /tmp/m06-p01-v4-head.txt .m06-p01-v4/commit.txt
+      - name: Push exact repaired commit
+        run: |
+          git push origin HEAD:prototype/modern-3d
+      - name: Upload repair evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m06-p01-secondary-object-clearance-v4
+          path: .m06-p01-v4
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
