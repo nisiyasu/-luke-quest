@@ -1,0 +1,52 @@
+name: M06-P01 North Corridor Repair V1
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p01-north-corridor-repair-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Guarded terrain corridor patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='M06-P01 north-corridor-clearance-v1'
+          if tag in s:
+              print('repair already present')
+              raise SystemExit(0)
+          old='bank(501,16,16,-8.8,1.0,-7.2,1,Math.PI/2);'
+          new='''// M06-P01 north-corridor-clearance-v1: keep the north-west bank mass while removing its grass top from the principal bridge structural corridor.\n// With ry=PI/2, local bank depth becomes world-X reach; 10 keeps the bank left of the bridge lane instead of burying the timber approach.\nbank(501,16,10,-8.8,1.0,-7.2,1,Math.PI/2);'''
+          count=s.count(old)
+          if count != 1:
+              raise SystemExit(f'FAIL_CLOSED bank501 marker count={count}')
+          s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          print('patched north-corridor-clearance-v1')
+          PY
+          git diff --check
+          grep -n "north-corridor-clearance-v1" prototypes/modern-3d/index.html
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo "No diff to commit"
+            exit 0
+          fi
+          git config user.name "luke-quest-autonomy"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m06-p01): clear north bank from bridge corridor"
+          git push origin HEAD:prototype/modern-3d
