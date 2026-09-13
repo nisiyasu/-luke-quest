@@ -1,0 +1,52 @@
+name: M06-P02 Fast Visual Probe
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p02-fast-visual-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Capture canonical and north endpoint visual probe
+        run: |
+          python3 -m http.server 8141 --directory prototypes/modern-3d >/tmp/lq-fast.log 2>&1 &
+          sleep 2
+          mkdir -p .m06-fast
+          cat > fast.cjs <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+            const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            await p.goto('http://127.0.0.1:8141/index.html?quality=high&m08gate=1',{waitUntil:'domcontentloaded',timeout:120000});
+            await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&window.LQ_MODERN_3D_M08_GATE,{timeout:120000});
+            await p.waitForTimeout(1000);
+            await p.screenshot({path:'.m06-fast/canonical.png',fullPage:true});
+            await p.evaluate(()=>{const g=window.LQ_MODERN_3D_M08_GATE;g.player.position.x=-1.35;g.player.position.z=-4.113;g.player.position.y=1.12;g.syncState();});
+            await p.waitForTimeout(1800);
+            await p.screenshot({path:'.m06-fast/north-endpoint.png',fullPage:true});
+            await b.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node fast.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m06-p02-fast-visual-probe
+          path: .m06-fast
+          if-no-files-found: error
+          retention-days: 7
