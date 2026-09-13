@@ -1,0 +1,4 @@
+M06-P01 secondary bridge terrain clearance repair
+Source packet: #37
+Causal observation: terrain/vegetation/rock intrusion into secondary bridge structural footprint on exact-head evidence.
+One-shot workflow: .github/workflows/m06-p01-one-shot-clearance-repair.yml
