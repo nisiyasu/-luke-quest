@@ -3,7 +3,7 @@ name: M06-P01 One Shot Terrain Bridge Clearance Repair
 on:
   push:
     branches:
-      - prototype/modern-3d
+      - repair/m06-p01-secondary-v3
     paths:
       - .ci/m06-p01-clearance-repair-trigger.txt
 
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout exact triggering branch
         uses: actions/checkout@v4
         with:
-          ref: prototype/modern-3d
+          ref: repair/m06-p01-secondary-v3
           fetch-depth: 0
 
       - name: Apply exact M06-P01 secondary bridge clearance repair v3
@@ -69,4 +69,4 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add prototypes/modern-3d/index.html
           git commit -m "fix(m06-p01): clear secondary bridge endpoint envelope"
-          git push origin HEAD:prototype/modern-3d
+          git push origin HEAD:repair/m06-p01-secondary-v3
