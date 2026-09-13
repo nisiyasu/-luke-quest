@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
 
+# Fresh M08-v1.3 return revalidation trigger. Runtime/product files intentionally unchanged.
 jobs:
   coverage-gate:
     runs-on: ubuntu-24.04
