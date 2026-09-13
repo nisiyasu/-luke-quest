@@ -96,7 +96,7 @@ bridgeClearDeck();
 const bridgeRight=bridgeAt(3.25,-7.0,Math.PI/2-.16,false);bridgeRight.position.y=.72;
 // M06-P01 secondary-bridge-clearance-v2: pull receiving terrain fully outside the rotated production bridge deck/abutment envelope.
 bank(880,1.80,1.85,-2.30,.92,-7.34,1,.05);bank(887,1.90,1.90,8.82,1.00,-6.76,1,-.04);
-document.documentElement.dataset.m06SecondaryBridgeClearance='terrain-free-v3';
+document.documentElement.dataset.m06SecondaryBridgeClearance='terrain-and-object-free-v4';
 const pathMat=new THREE.MeshStandardMaterial({color:0x8d7548,roughness:.98,metalness:0});
 const landingTopMat=new THREE.MeshStandardMaterial({color:0x8d8a6e,roughness:.98,metalness:0});const landingSideMat=new THREE.MeshStandardMaterial({color:0x5f6255,roughness:1,metalness:0});
 function bridgeLanding(zDeck,zLand,yDeck,yLand,showTop=true){const x0=-1.35,w=4.05,half=w/2,bottom=Math.min(yDeck,yLand)-.46;const verts=[x0-half,yDeck,zDeck,x0+half,yDeck,zDeck,x0+half,yLand,zLand,x0-half,yLand,zLand,x0-half,bottom,zDeck,x0+half,bottom,zDeck,x0+half,bottom,zLand,x0-half,bottom,zLand];const idx=[0,1,2,0,2,3,4,6,5,4,7,6,0,4,5,0,5,1,3,2,6,3,6,7,0,3,7,0,7,4,1,5,6,1,6,2];const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();let ramp=null;if(showTop){ramp=new THREE.Mesh(geo,landingTopMat);ramp.receiveShadow=true;ramp.castShadow=true;scene.add(ramp)}const supportLen=Math.abs(zLand-zDeck),support=new THREE.Mesh(new THREE.BoxGeometry(w+.26,.36,supportLen+.18),landingSideMat);support.position.set(x0,bottom+.05,(zDeck+zLand)/2);support.receiveShadow=true;support.castShadow=true;scene.add(support);for(const sx of[-1,1]){const r=createRockCluster({seed:7000+Math.round((zLand+20)*31)+(sx>0?11:0),scale:.48});r.position.set(x0+sx*2.05,Math.min(yDeck,yLand)-.08,(zDeck+zLand)/2);scene.add(r)}return ramp||support}
@@ -155,8 +155,10 @@ pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,
 pathRibbon([[-2.2,-10.35],[-1.0,-11.2],[.2,-12.1],[1.0,-13.0]],.64,2.28);
 bank(601,5.4,5.7,-6.15,1.42,-6.8,1,.16);bank(607,2.4,2.8,8.0,1.42,-9.5,1,-.20);bank(613,6.2,4.8,-1.0,2.28,-13.2,1,.04);
 // v60 macro composition reframe: break the central lawn into a target-like layered path corridor.
-for(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[1,2.9,-7.5,.70],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}
-for(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[1,2.0,-8.4,1.55],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}
+// M06-P01 secondary-bridge-object-clearance-v4: no rock/moss cluster may occupy the rotated bridge deck envelope.
+for(const [i,x,z,sc] of [[0,-3.8,-6.2,.78],[2,-4.7,-10.3,.86],[3,3.8,-11.7,.76],[4,-2.1,-13.5,.64],[5,4.9,-14.0,.72]]){const r=createRockCluster({seed:10600+i*29,scale:sc});r.position.set(x,terrainY(x,z)+.02,z);scene.add(r)}
+// Keep destination vegetation outside the secondary deck/rail silhouette.
+for(const [i,x,z,rad] of [[0,-2.7,-6.8,1.7],[2,-3.5,-11.2,1.9],[3,2.9,-12.5,1.75]]){const f=createTargetFernPatch({seed:10700+i*31,count:24+i*2,radius:rad});f.position.set(x,terrainY(x,z)+.04,z);scene.add(f)}
 const meadowA=createMeadowField({seed:901,width:13,depth:10,density:520,flowers:120});meadowA.position.set(-4.0,1.04,-9.0);scene.add(meadowA);const meadowB=createMeadowField({seed:919,width:12,depth:9,density:480,flowers:105});meadowB.position.set(3.0,-.28,10.0);scene.add(meadowB);
 function terrainY(x,z){if(x<-5)return z<0?1.05:1.65;if(x>5)return z<0?1.55:1.9;if(z<-11)return 2.2;if(z>11)return -.25;return z<0?1.02:-.28}
 // v61 rejector repair: conceal the geometric upper-right water termination with a receiving shore mass.
