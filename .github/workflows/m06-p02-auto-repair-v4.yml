@@ -1,0 +1,57 @@
+name: M06-P02 Auto Repair V4
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p02-auto-repair-v4.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Guarded north-approach patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='M06-P02 north-approach-v4'
+          if tag in s:
+              print('repair already present')
+              raise SystemExit(0)
+          old_call='bridgeApproachDeck(-2.22,-4.28,.43,1.10);bridgeThreshold(-4.30,1.115,-1);'
+          new_call='''// M06-P02 north-approach-v4: raise the structural timber approach above the intrusive bank skin while preserving the accepted route.\nbridgeApproachDeck(-2.22,-4.28,.55,1.18);bridgeThreshold(-4.30,1.195,-1);'''
+          old_ground="if(onBridgeLane&&z<=-2.45&&z>-3.65){const t=THREE.MathUtils.smoothstep(-z,2.45,3.65);return THREE.MathUtils.lerp(.42,1.04,t)}if(onBridgeLane&&z>=4.65&&z<5.85)"
+          new_ground="if(onBridgeLane&&z<=-2.45&&z>-3.65){const t=THREE.MathUtils.smoothstep(-z,2.45,3.65);return THREE.MathUtils.lerp(.50,1.12,t)}if(onBridgeLane&&z>=4.65&&z<5.85)"
+          old_north="if(z<=-3.65)return 1.04;if(z>=5.85)return -.28;return z<0?1.04:-.28"
+          new_north="if(z<=-3.65)return 1.12;if(z>=5.85)return -.28;return z<0?1.12:-.28"
+          for old,new,label in [(old_call,new_call,'approach'),(old_ground,new_ground,'transition'),(old_north,new_north,'north ground')]:
+              count=s.count(old)
+              if count != 1:
+                  raise SystemExit(f'FAIL_CLOSED {label} marker count={count}')
+              s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+          print('patched north-approach-v4')
+          PY
+          git diff --check
+          grep -n "north-approach-v4" prototypes/modern-3d/index.html
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo "No diff to commit"
+            exit 0
+          fi
+          git config user.name "luke-quest-autonomy"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m06-p02): clear north bridge approach above terrain skin"
+          git push origin HEAD:prototype/modern-3d
