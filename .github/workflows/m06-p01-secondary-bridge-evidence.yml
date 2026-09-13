@@ -1,0 +1,72 @@
+name: M06-P01 Secondary Bridge Visual Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p01-secondary-bridge-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  secondary-bridge-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Capture exact-head secondary bridge views
+        run: |
+          python3 -m http.server 8142 --directory prototypes/modern-3d >/tmp/m06-p01-secondary-http.log 2>&1 &
+          sleep 2
+          mkdir -p .m06-p01-secondary
+          cat > secondary.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8142/index.html?quality=high&m08gate=1',{waitUntil:'domcontentloaded',timeout:150000});
+            await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&window.LQ_MODERN_3D_M08_GATE,{timeout:150000});
+            async function place(x,z,label){
+              await page.evaluate(({x,z})=>{const g=window.LQ_MODERN_3D_M08_GATE;g.player.position.x=x;g.player.position.z=z;g.syncState();},{x,z});
+              await page.waitForTimeout(1800);
+              await page.screenshot({path:`.m06-p01-secondary/${label}-portrait.png`,fullPage:true,timeout:150000});
+              const state=await page.evaluate(()=>({player:document.documentElement.dataset.m08Player,clearance:document.documentElement.dataset.m06SecondaryBridgeClearance||'UNKNOWN',camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'}));
+              fs.appendFileSync('.m06-p01-secondary/audit.txt',`${label}=${JSON.stringify(state)}\n`);
+            }
+            await place(3.25,-7.00,'center');
+            await place(-1.80,-7.15,'west-end');
+            await place(8.30,-6.85,'east-end');
+            await page.setViewportSize({width:844,height:390});
+            await page.evaluate(()=>{const g=window.LQ_MODERN_3D_M08_GATE;g.player.position.x=3.25;g.player.position.z=-7.0;g.syncState();});
+            await page.waitForTimeout(1500);
+            await page.screenshot({path:'.m06-p01-secondary/center-landscape.png',fullPage:true,timeout:150000});
+            if(errors.length) throw new Error(`page errors=${JSON.stringify(errors)}`);
+            fs.appendFileSync('.m06-p01-secondary/audit.txt',`head=${process.env.GITHUB_SHA||'UNKNOWN'}\npage_errors=0\n`);
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node secondary.cjs
+      - name: Add visual authorities
+        if: always()
+        run: |
+          curl -L --fail --retry 3 -o .m06-p01-secondary/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m06-p01-secondary/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m06-p01-secondary-bridge-evidence
+          path: .m06-p01-secondary
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
