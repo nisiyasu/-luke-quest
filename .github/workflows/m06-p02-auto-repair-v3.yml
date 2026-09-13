@@ -1,0 +1,51 @@
+name: M06-P02 Auto Repair V3
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p02-auto-repair-v3.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Guarded exact-marker patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text(encoding='utf-8')
+          marker="const bridgeMain=bridgeAt(-1.35,1.1,0,true);const bridgeRight=bridgeAt(3.25,-7.0,Math.PI/2-.16,false);"
+          tag='M06-P02 bridge-continuity-v3'
+          if tag in s:
+              print('repair already present')
+              raise SystemExit(0)
+          if s.count(marker) != 1:
+              raise SystemExit(f'FAIL_CLOSED marker count={s.count(marker)}')
+          patch='''const bridgeMain=bridgeAt(-1.35,1.1,0,true);\n// M06-P02 bridge-continuity-v3: a dedicated structural wearing deck owns the full principal bridge span.\n// It sits above any receiving terrain so grass/bank geometry cannot visually replace the wooden crossing surface.\nconst bridgeClearDeckMat=new THREE.MeshStandardMaterial({color:0x825837,roughness:.88,metalness:0});\nconst bridgeClearDeckDark=new THREE.MeshStandardMaterial({color:0x49382d,roughness:.94,metalness:0});\nfunction bridgeClearDeck(){\n  const count=22,depth=6.80,step=depth/count,z0=1.10-depth/2;\n  for(let i=0;i<count;i++){\n    const z=z0+step*(i+.5);\n    const plank=new THREE.Mesh(new THREE.BoxGeometry(3.46,.115,step*.90),i%4===1?bridgeClearDeckDark:bridgeClearDeckMat);\n    plank.position.set(-1.35,.505,z);\n    plank.rotation.y=Math.sin(i*1.73)*.007;\n    plank.receiveShadow=true;plank.castShadow=true;scene.add(plank);\n  }\n}\nbridgeClearDeck();\nconst bridgeRight=bridgeAt(3.25,-7.0,Math.PI/2-.16,false);'''
+          s=s.replace(marker,patch)
+          p.write_text(s,encoding='utf-8')
+          print('patched bridge-continuity-v3')
+          PY
+          git diff --check
+          grep -n "bridge-continuity-v3" prototypes/modern-3d/index.html
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo "No diff to commit"
+            exit 0
+          fi
+          git config user.name "luke-quest-autonomy"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m06-p02): enforce wood deck clearance across principal bridge"
+          git push origin HEAD:prototype/modern-3d
