@@ -8,7 +8,7 @@ on:
       - .ci/m06-p01-clearance-repair-trigger.txt
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   repair:
@@ -59,14 +59,18 @@ jobs:
           if grep -F "[3.4,-9.8,2633]" prototypes/modern-3d/index.html; then exit 1; fi
           if grep -F "[6,-8,1.18,229]" prototypes/modern-3d/index.html; then exit 1; fi
 
-      - name: Commit repair
+      - name: Package exact patched index
         run: |
-          if git diff --quiet; then
-            echo "No repair diff produced"
-            exit 1
-          fi
-          git config user.name "luke-quest-autonomous"
-          git config user.email "actions@users.noreply.github.com"
-          git add prototypes/modern-3d/index.html
-          git commit -m "fix(m06-p01): clear secondary bridge endpoint envelope"
-          git push origin HEAD:prototype/modern-3d
+          mkdir -p .m06-p01-v3
+          cp prototypes/modern-3d/index.html .m06-p01-v3/index.html
+          git diff -- prototypes/modern-3d/index.html > .m06-p01-v3/index.patch
+          sha256sum .m06-p01-v3/index.html > .m06-p01-v3/index.sha256
+          wc -c .m06-p01-v3/index.html > .m06-p01-v3/index.bytes
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m06-p01-secondary-clearance-v3-patched-index
+          path: .m06-p01-v3
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
