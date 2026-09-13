@@ -26,41 +26,25 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          idx = Path('prototypes/modern-3d/index.html')
-          s = idx.read_text()
+          idx=Path('prototypes/modern-3d/index.html'); s=idx.read_text()
           if "m08PlayerVisual='hero-presence-v2'" in s:
               print('hero-presence-v2 already applied')
               raise SystemExit(0)
-          old = "const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:.92});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);"
-          new = "const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:1.18});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);document.documentElement.dataset.m08PlayerVisual='hero-presence-v2';"
+          old="const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:.92});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);"
+          new="const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:1.18});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);document.documentElement.dataset.m08PlayerVisual='hero-presence-v2';"
           if old not in s: raise SystemExit('index player anchor not found')
           idx.write_text(s.replace(old,new,1))
-
-          p = Path('prototypes/modern-3d/assets.js')
-          s = p.read_text()
-          changes = [
-            ("const hips=new THREE.Group();hips.position.y=.91*scale;g.add(hips);","const hips=new THREE.Group();hips.position.y=.50*scale;g.add(hips);"),
-            ("g.userData={assetId:'luke_player_v1',version:'1.2.0',stage:'M08_CHARACTER_MOTION_CANDIDATE'","g.userData={assetId:'luke_player_v1',version:'1.3.0',stage:'M08_TARGET_PRESENCE_V2'"),
-            ("hips.position.y=(.91+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;","hips.position.y=(.50+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;"),
-            ("player:'luke_player_v1@1.2.0'","player:'luke_player_v1@1.3.0'")
-          ]
+          p=Path('prototypes/modern-3d/assets.js'); s=p.read_text()
+          changes=[("const hips=new THREE.Group();hips.position.y=.91*scale;g.add(hips);","const hips=new THREE.Group();hips.position.y=.50*scale;g.add(hips);"),("g.userData={assetId:'luke_player_v1',version:'1.2.0',stage:'M08_CHARACTER_MOTION_CANDIDATE'","g.userData={assetId:'luke_player_v1',version:'1.3.0',stage:'M08_TARGET_PRESENCE_V2'"),("hips.position.y=(.91+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;","hips.position.y=(.50+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;"),("player:'luke_player_v1@1.2.0'","player:'luke_player_v1@1.3.0'")]
           for old,new in changes:
-              if old not in s: raise SystemExit(f'asset anchor not found: {old[:48]}')
+              if old not in s: raise SystemExit('asset anchor not found')
               s=s.replace(old,new,1)
-          old = "const shoulderGeo=new THREE.SphereGeometry(.13*scale,10,8);for(const x of[-.35,.35]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.05,.72,.82);s.position.set(x,.90*scale,0);hips.add(s)}"
-          new = """const shoulderGeo=new THREE.SphereGeometry(.145*scale,12,9);for(const x of[-.36,.36]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.16,.78,.90);s.position.set(x,.90*scale,0);hips.add(s)}
-  // M08 target-pursuit v2: stronger back-view/gameplay hero silhouette while retaining the accepted rig.
-  const mantle=new THREE.Mesh(new THREE.BoxGeometry(.58*scale,.30*scale,.075*scale),navy);mantle.position.set(0,.82*scale,.19*scale);mantle.rotation.x=.08;hips.add(mantle);
-  const mantleTrim=new THREE.Mesh(new THREE.BoxGeometry(.50*scale,.045*scale,.085*scale),gold);mantleTrim.position.set(0,.69*scale,.205*scale);hips.add(mantleTrim);
-  const backCrest=new THREE.Mesh(new THREE.OctahedronGeometry(.105*scale,0),gold);backCrest.scale.set(.72,1.10,.28);backCrest.position.set(0,.83*scale,.235*scale);hips.add(backCrest);
-  const sashMat=new THREE.MeshStandardMaterial({color:0x174d9b,roughness:.70});
-  for(const x of[-.13,.13]){const sash=new THREE.Mesh(new THREE.BoxGeometry(.15*scale,.50*scale,.055*scale),sashMat);sash.position.set(x,.18*scale,.19*scale);sash.rotation.x=-.10;sash.rotation.z=x<0?-.07:.07;hips.add(sash)}"""
+          old="const shoulderGeo=new THREE.SphereGeometry(.13*scale,10,8);for(const x of[-.35,.35]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.05,.72,.82);s.position.set(x,.90*scale,0);hips.add(s)}"
+          new="const shoulderGeo=new THREE.SphereGeometry(.145*scale,12,9);for(const x of[-.36,.36]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.16,.78,.90);s.position.set(x,.90*scale,0);hips.add(s)}const mantle=new THREE.Mesh(new THREE.BoxGeometry(.58*scale,.30*scale,.075*scale),navy);mantle.position.set(0,.82*scale,.19*scale);mantle.rotation.x=.08;hips.add(mantle);const mantleTrim=new THREE.Mesh(new THREE.BoxGeometry(.50*scale,.045*scale,.085*scale),gold);mantleTrim.position.set(0,.69*scale,.205*scale);hips.add(mantleTrim);const backCrest=new THREE.Mesh(new THREE.OctahedronGeometry(.105*scale,0),gold);backCrest.scale.set(.72,1.10,.28);backCrest.position.set(0,.83*scale,.235*scale);hips.add(backCrest);const sashMat=new THREE.MeshStandardMaterial({color:0x174d9b,roughness:.70});for(const x of[-.13,.13]){const sash=new THREE.Mesh(new THREE.BoxGeometry(.15*scale,.50*scale,.055*scale),sashMat);sash.position.set(x,.18*scale,.19*scale);sash.rotation.x=-.10;sash.rotation.z=x<0?-.07:.07;hips.add(sash)}"
           if old not in s: raise SystemExit('shoulder anchor not found')
           p.write_text(s.replace(old,new,1))
           PY
-          if git diff --quiet -- prototypes/modern-3d/index.html prototypes/modern-3d/assets.js; then
-            exit 0
-          fi
+          if git diff --quiet -- prototypes/modern-3d/index.html prototypes/modern-3d/assets.js; then exit 0; fi
           git diff --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -92,49 +76,21 @@ jobs:
           cat > capture-m11-latest.cjs <<'JS'
           const {chromium}=require('playwright');
           const fs=require('fs');
-          const parsePlayer=(s)=>s.split(',').map(Number);
+          const parsePlayer=s=>s.split(',').map(Number);
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
-            const rows=[];
-            const captures=[];
-            const configs=[
-              ['portrait-near',{width:390,height:844},8],
-              ['portrait-far',{width:390,height:844},48],
-              ['landscape-near',{width:844,height:390},8],
-              ['landscape-far',{width:844,height:390},48],
-            ];
+            const rows=[],captures=[];
+            const configs=[['portrait-near',{width:390,height:844},8],['portrait-far',{width:390,height:844},48],['landscape-near',{width:844,height:390},8],['landscape-far',{width:844,height:390},48]];
             for(const [name,viewport,steps] of configs){
-              const page=await browser.newPage({viewport,deviceScaleFactor:1});
-              page.setDefaultTimeout(150000); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              const page=await browser.newPage({viewport,deviceScaleFactor:1});page.setDefaultTimeout(150000);const errors=[];page.on('pageerror',e=>errors.push(String(e)));
               await page.goto(`http://127.0.0.1:8140/index.html?quality=high&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:150000});
-              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
-              await page.waitForTimeout(1800);
-              const meta=await page.evaluate(()=>({
-                scene:document.documentElement.dataset.lqModern3d,
-                hud:document.documentElement.dataset.m09OwnerHud,
-                hudMode:document.documentElement.dataset.m09HudMode,
-                assets:document.documentElement.dataset.m04Assets,
-                player:document.documentElement.dataset.m08Player,
-                playerVisual:document.documentElement.dataset.m08PlayerVisual||'legacy',
-                three:document.documentElement.dataset.threeRevision,
-                cameraProfile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'
-              }));
-              if(meta.scene!=='m05-ready'||meta.hud!=='pass'||errors.length) throw new Error(`${name}: runtime invalid meta=${JSON.stringify(meta)} errors=${JSON.stringify(errors)}`);
-              await page.screenshot({path:`.m11-latest/${name}.png`,fullPage:true,timeout:150000});
-              rows.push(`${name} ${JSON.stringify(meta)} pageerrors=[]`);
-              captures.push({name,viewport,steps,meta});
-              await page.close();
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});await page.waitForTimeout(1800);
+              const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,hudMode:document.documentElement.dataset.m09HudMode,assets:document.documentElement.dataset.m04Assets,player:document.documentElement.dataset.m08Player,playerVisual:document.documentElement.dataset.m08PlayerVisual||'legacy',three:document.documentElement.dataset.threeRevision,cameraProfile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'}));
+              if(meta.scene!=='m05-ready'||meta.hud!=='pass'||errors.length)throw new Error(`${name}: runtime invalid ${JSON.stringify(meta)} ${JSON.stringify(errors)}`);
+              await page.screenshot({path:`.m11-latest/${name}.png`,fullPage:true,timeout:150000});rows.push(`${name} ${JSON.stringify(meta)} pageerrors=[]`);captures.push({name,meta});await page.close();
             }
-            for(const prefix of ['portrait','landscape']){
-              const near=captures.find(x=>x.name===`${prefix}-near`);
-              const far=captures.find(x=>x.name===`${prefix}-far`);
-              const a=parsePlayer(near.meta.player), b=parsePlayer(far.meta.player);
-              const dist=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);
-              if(!Number.isFinite(dist)||dist<1.0) throw new Error(`${prefix}: traversal regression distance=${dist}`);
-              rows.push(`${prefix}-traversal PASS distance=${dist.toFixed(3)} near=${near.meta.player} far=${far.meta.player}`);
-            }
-            fs.writeFileSync('.m11-latest/runtime-audit.txt',rows.join('\n')+'\n');
-            await browser.close();
+            for(const prefix of ['portrait','landscape']){const near=captures.find(x=>x.name===`${prefix}-near`),far=captures.find(x=>x.name===`${prefix}-far`),a=parsePlayer(near.meta.player),b=parsePlayer(far.meta.player),dist=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);if(!Number.isFinite(dist)||dist<1)throw new Error(`${prefix}: traversal regression ${dist}`);rows.push(`${prefix}-traversal PASS distance=${dist.toFixed(3)} near=${near.meta.player} far=${far.meta.player}`)}
+            fs.writeFileSync('.m11-latest/runtime-audit.txt',rows.join('\n')+'\n');await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node capture-m11-latest.cjs
@@ -149,5 +105,3 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
-
-# M08-P01 target-presence v2 routed repair + exact visual evidence
