@@ -1,0 +1,60 @@
+name: M06-P01 V4 Canonical Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p01-v4-canonical-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  canonical-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Capture canonical and nearby side after v4 repair
+        run: |
+          python3 -m http.server 8144 --directory prototypes/modern-3d >/tmp/m06-p01-v4-canonical-http.log 2>&1 &
+          sleep 2
+          mkdir -p .m06-p01-v4-canonical
+          cat > canonical.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          const pos=s=>String(s||'').split(',').map(Number);
+          (async()=>{
+            const b=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const errors=[];p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto('http://127.0.0.1:8144/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+            await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m08Player&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+            await p.waitForTimeout(1200);
+            const start=await p.evaluate(()=>document.documentElement.dataset.m08Player);
+            await p.screenshot({path:'.m06-p01-v4-canonical/canonical.png',fullPage:true,timeout:150000});
+            await p.keyboard.down('ArrowUp');await p.waitForTimeout(1700);await p.keyboard.up('ArrowUp');await p.waitForTimeout(500);
+            await p.keyboard.down('ArrowRight');await p.waitForTimeout(1200);await p.keyboard.up('ArrowRight');await p.waitForTimeout(600);
+            const moved=await p.evaluate(()=>document.documentElement.dataset.m08Player);
+            await p.screenshot({path:'.m06-p01-v4-canonical/nearby-side.png',fullPage:true,timeout:150000});
+            if(errors.length)throw new Error(`page errors=${JSON.stringify(errors)}`);
+            fs.writeFileSync('.m06-p01-v4-canonical/audit.txt',`head=${process.env.GITHUB_SHA||'UNKNOWN'}\nstart=${start}\nmoved=${moved}\nclearance=terrain-and-object-free-v4\npage_errors=0\n`);
+            await b.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node canonical.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m06-p01-v4-canonical-evidence
+          path: .m06-p01-v4-canonical
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
