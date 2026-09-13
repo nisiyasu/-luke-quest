@@ -50,11 +50,26 @@ jobs:
               p=await browser.newPage({viewport:{width:640,height:720},deviceScaleFactor:1});const ie=[];p.on('pageerror',e=>ie.push(String(e)));
               await p.goto('http://127.0.0.1:8140/m08-player-inspection.html',{waitUntil:'domcontentloaded',timeout:150000});await p.waitForFunction(()=>document.documentElement.dataset.m08PlayerInspection==='ready',{timeout:150000});await p.waitForTimeout(900);if(ie.length)throw new Error(`inspection errors=${JSON.stringify(ie)}`);await p.screenshot({path:'.m08-p01/player-close.png',timeout:150000});await p.close();
               const src=fs.readFileSync('prototypes/modern-3d/assets.js','utf8');for(const t of ['createLukeCharacter','0x1660d9','coatShade','const crest=','const buckle='])if(!src.includes(t))throw new Error(`player source token missing ${t}`);
-              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} close_inspection=PASS source_contract=PASS`);fs.writeFileSync('.m08-p01/player-audit.txt',rows.join('\n')+'\n');
+              rows.push(`event_sha=${process.env.GITHUB_SHA||'UNKNOWN'} close_inspection=PASS source_contract=PASS`);fs.writeFileSync('.m08-p01/player-audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node player-gate.cjs
+      - name: Assert M08 target-presence v1.3 contract and exact checkout
+        run: |
+          set -euo pipefail
+          CHECKED_OUT_HEAD="$(git rev-parse HEAD)"
+          grep -Fq "M08_TARGET_PRESENCE_V2" prototypes/modern-3d/assets.js
+          grep -Fq "version:'1.3.0'" prototypes/modern-3d/assets.js
+          grep -Fq "const mantle=" prototypes/modern-3d/assets.js
+          grep -Fq "const mantleTrim=" prototypes/modern-3d/assets.js
+          grep -Fq "const backCrest=" prototypes/modern-3d/assets.js
+          grep -Fq "const sash=" prototypes/modern-3d/assets.js
+          {
+            echo "checked_out_head=${CHECKED_OUT_HEAD}"
+            echo "m08_target_presence_v2=PASS"
+            echo "player_asset_version_1_3_0=PASS"
+          } >> .m08-p01/player-audit.txt
       - name: Add visual authorities
         if: always()
         run: |
