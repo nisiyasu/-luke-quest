@@ -1,4 +1,6 @@
-M06-P01 secondary bridge terrain clearance repair
+M06-P01 secondary bridge terrain clearance repair v2
 Source packet: #37
-Causal observation: terrain/vegetation/rock intrusion into secondary bridge structural footprint on exact-head evidence.
+Fresh failure head: 5f34973331354417430c0fef0bda176cc1314965
+Causal observation: remaining rock/terrain mass still intrudes into the secondary/right bridge footprint after clearance v1.
+Repair intent: remove bridge-adjacent rock cluster and move/shrink both receiving bank masses outside the production bridge deck/abutment envelope.
 One-shot workflow: .github/workflows/m06-p01-one-shot-clearance-repair.yml
