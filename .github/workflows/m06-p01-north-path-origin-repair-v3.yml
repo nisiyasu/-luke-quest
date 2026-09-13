@@ -1,0 +1,52 @@
+name: M06-P01 North Path Origin Repair V3
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p01-north-path-origin-repair-v3.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Guarded path origin repair
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='M06-P01 north-path-origin-clearance-v3'
+          if tag in s:
+              print('repair already present')
+              raise SystemExit(0)
+          old="pathRibbon([[-1.35,-2.0],[-2.15,-3.4],[-3.45,-5.2],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);"
+          new="// M06-P01 north-path-origin-clearance-v3: start the forest trail beyond the engineered bridge threshold; no terrain/path polygon may originate on top of the wooden crossing.\npathRibbon([[-1.35,-4.45],[-2.25,-4.9],[-3.45,-5.8],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);"
+          count=s.count(old)
+          if count!=1:
+              raise SystemExit(f'FAIL_CLOSED north path marker count={count}')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          print('patched north-path-origin-clearance-v3')
+          PY
+          git diff --check
+          grep -n "north-path-origin-clearance-v3" prototypes/modern-3d/index.html
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo "No diff to commit"
+            exit 0
+          fi
+          git config user.name "luke-quest-autonomy"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m06-p01): start north trail beyond bridge threshold"
+          git push origin HEAD:prototype/modern-3d
