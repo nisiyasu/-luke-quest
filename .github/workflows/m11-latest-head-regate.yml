@@ -12,10 +12,64 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
+  repair-player:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply M08-P01 hero-presence v2 once
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          idx = Path('prototypes/modern-3d/index.html')
+          s = idx.read_text()
+          if "m08PlayerVisual='hero-presence-v2'" in s:
+              print('hero-presence-v2 already applied')
+              raise SystemExit(0)
+          old = "const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:.92});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);"
+          new = "const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:1.18});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);document.documentElement.dataset.m08PlayerVisual='hero-presence-v2';"
+          if old not in s: raise SystemExit('index player anchor not found')
+          idx.write_text(s.replace(old,new,1))
+
+          p = Path('prototypes/modern-3d/assets.js')
+          s = p.read_text()
+          changes = [
+            ("const hips=new THREE.Group();hips.position.y=.91*scale;g.add(hips);","const hips=new THREE.Group();hips.position.y=.50*scale;g.add(hips);"),
+            ("g.userData={assetId:'luke_player_v1',version:'1.2.0',stage:'M08_CHARACTER_MOTION_CANDIDATE'","g.userData={assetId:'luke_player_v1',version:'1.3.0',stage:'M08_TARGET_PRESENCE_V2'"),
+            ("hips.position.y=(.91+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;","hips.position.y=(.50+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;"),
+            ("player:'luke_player_v1@1.2.0'","player:'luke_player_v1@1.3.0'")
+          ]
+          for old,new in changes:
+              if old not in s: raise SystemExit(f'asset anchor not found: {old[:48]}')
+              s=s.replace(old,new,1)
+          old = "const shoulderGeo=new THREE.SphereGeometry(.13*scale,10,8);for(const x of[-.35,.35]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.05,.72,.82);s.position.set(x,.90*scale,0);hips.add(s)}"
+          new = """const shoulderGeo=new THREE.SphereGeometry(.145*scale,12,9);for(const x of[-.36,.36]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.16,.78,.90);s.position.set(x,.90*scale,0);hips.add(s)}
+  // M08 target-pursuit v2: stronger back-view/gameplay hero silhouette while retaining the accepted rig.
+  const mantle=new THREE.Mesh(new THREE.BoxGeometry(.58*scale,.30*scale,.075*scale),navy);mantle.position.set(0,.82*scale,.19*scale);mantle.rotation.x=.08;hips.add(mantle);
+  const mantleTrim=new THREE.Mesh(new THREE.BoxGeometry(.50*scale,.045*scale,.085*scale),gold);mantleTrim.position.set(0,.69*scale,.205*scale);hips.add(mantleTrim);
+  const backCrest=new THREE.Mesh(new THREE.OctahedronGeometry(.105*scale,0),gold);backCrest.scale.set(.72,1.10,.28);backCrest.position.set(0,.83*scale,.235*scale);hips.add(backCrest);
+  const sashMat=new THREE.MeshStandardMaterial({color:0x174d9b,roughness:.70});
+  for(const x of[-.13,.13]){const sash=new THREE.Mesh(new THREE.BoxGeometry(.15*scale,.50*scale,.055*scale),sashMat);sash.position.set(x,.18*scale,.19*scale);sash.rotation.x=-.10;sash.rotation.z=x<0?-.07:.07;hips.add(sash)}"""
+          if old not in s: raise SystemExit('shoulder anchor not found')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if git diff --quiet -- prototypes/modern-3d/index.html prototypes/modern-3d/assets.js; then
+            exit 0
+          fi
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html prototypes/modern-3d/assets.js
+          git commit -m "fix(m08-p01): strengthen Luke hero presence and grounding"
+          git push origin HEAD:prototype/modern-3d
+
   audit:
+    needs: repair-player
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
@@ -61,6 +115,7 @@ jobs:
                 hudMode:document.documentElement.dataset.m09HudMode,
                 assets:document.documentElement.dataset.m04Assets,
                 player:document.documentElement.dataset.m08Player,
+                playerVisual:document.documentElement.dataset.m08PlayerVisual||'legacy',
                 three:document.documentElement.dataset.threeRevision,
                 cameraProfile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'
               }));
@@ -95,4 +150,4 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-# M03-P01 depth-staging v2 evidence trigger: 2026-09-13
+# M08-P01 target-presence v2 routed repair + exact visual evidence
