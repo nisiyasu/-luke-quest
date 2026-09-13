@@ -82,11 +82,25 @@ bridgeLanding(-2.28,-4.05,.40,1.04);bridgeLanding(4.48,6.12,.40,-.28);
 // v48 Owner quality regate: compact stone/earth sills at the actual bank edges; no broad slab may cover the bridge approach.
 function bridgeBankSill(z,yTop,seed){const base=new THREE.Mesh(new THREE.BoxGeometry(4.15,.64,.86),landingSideMat);base.position.set(-1.35,yTop-.36,z);base.receiveShadow=true;base.castShadow=true;scene.add(base);const cap=new THREE.Mesh(new THREE.BoxGeometry(3.92,.12,.68),landingTopMat);cap.position.set(-1.35,yTop-.01,z);cap.receiveShadow=true;scene.add(cap);for(const [i,x] of [[0,-3.34],[1,.64]]){const r=createRockCluster({seed:seed+i*19,scale:.58});r.position.set(x,yTop-.03,z+(i?-.08:.08));scene.add(r)}return base}
 bridgeBankSill(-4.03,1.03,7601);bridgeBankSill(6.10,-.26,7641);
-// v55 quality-regate: terrain shoulders receive both bridge landings.
-bank(771,5.3,4.8,-4.55,1.05,-4.65,1,.10);
-bank(779,4.8,4.5,1.88,1.00,-4.55,1,-.10);
-bank(787,5.5,4.6,-4.65,-.22,6.70,-1,.08);
-bank(797,5.0,4.3,1.95,-.24,6.62,-1,-.09);
+// M06-P02 bridge-clearance-v1: keep receiving terrain outside the engineered deck envelope.
+// The landings still meet the banks, but grass/terrain may not visually bury the structural span.
+bank(771,4.35,4.8,-5.20,1.05,-4.65,1,.10);
+bank(779,3.95,4.5,2.55,1.00,-4.55,1,-.10);
+bank(787,4.45,4.6,-5.22,-.22,6.70,-1,.08);
+bank(797,3.95,4.3,2.58,-.24,6.62,-1,-.09);
+const bridgeThresholdMat=new THREE.MeshStandardMaterial({color:0x704c31,roughness:.88,metalness:0});
+const bridgeThresholdIron=new THREE.MeshStandardMaterial({color:0x343b3d,roughness:.50,metalness:.62});
+function bridgeThreshold(z,y,dir){
+  for(let i=-2;i<=2;i++){
+    const plank=new THREE.Mesh(new THREE.BoxGeometry(3.76,.12,.27),bridgeThresholdMat);
+    plank.position.set(-1.35,y,z+i*.285*dir);plank.receiveShadow=true;plank.castShadow=true;scene.add(plank);
+  }
+  for(const x of[-3.18,.48]){
+    const curb=new THREE.Mesh(new THREE.BoxGeometry(.14,.30,1.55),bridgeThresholdIron);
+    curb.position.set(x,y+.08,z);curb.receiveShadow=true;curb.castShadow=true;scene.add(curb);
+  }
+}
+bridgeThreshold(-3.62,1.085,-1);bridgeThreshold(5.72,-.195,1);
 const landingFernN1=createTargetFernPatch({seed:801,count:26,radius:1.55});landingFernN1.position.set(-4.15,1.10,-4.15);scene.add(landingFernN1);
 const landingFernN2=createTargetFernPatch({seed:809,count:24,radius:1.45});landingFernN2.position.set(1.45,1.08,-4.12);scene.add(landingFernN2);
 const landingFernS1=createTargetFernPatch({seed:821,count:24,radius:1.50});landingFernS1.position.set(-4.10,-.14,6.30);scene.add(landingFernS1);
