@@ -48,7 +48,9 @@ const skyFill=new THREE.DirectionalLight(0xb7d7e8,.31);skyFill.position.set(18,2
 const floorMat=new THREE.MeshStandardMaterial({color:0x344931,roughness:1});
 const underlay=new THREE.Mesh(new THREE.PlaneGeometry(86,86),floorMat);underlay.rotation.x=-Math.PI/2;underlay.position.y=-.72;underlay.receiveShadow=true;scene.add(underlay);
 function bank(seed,width,depth,x,y,z,facing,ry=0){const b=createTargetBankV4({seed,width,depth,facing});b.position.set(x,y,z);b.rotation.y=ry;scene.add(b);return b}
-bank(501,16,16,-8.8,1.0,-7.2,1,Math.PI/2);
+// M06-P01 north-corridor-clearance-v1: keep the north-west bank mass while removing its grass top from the principal bridge structural corridor.
+// With ry=PI/2, local bank depth becomes world-X reach; 10 keeps the bank left of the bridge lane instead of burying the timber approach.
+bank(501,16,10,-8.8,1.0,-7.2,1,Math.PI/2);
 bank(509,14,13,-9.8,1.65,7.0,-1,Math.PI/2);
 bank(521,12,10,-4.8,2.2,-15.0,1,.08);
 bank(533,6.8,9.0,9.8,1.55,-11.4,1,-Math.PI/2);
