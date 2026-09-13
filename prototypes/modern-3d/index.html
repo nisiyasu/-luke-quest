@@ -145,7 +145,8 @@ const bridgeFernL=createTargetFernPatch({seed:7681,count:22,radius:1.35});bridge
 const bridgeFernR=createTargetFernPatch({seed:7691,count:20,radius:1.25});bridgeFernR.position.set(2.05,-.18,6.05);scene.add(bridgeFernR);
 function pathPatch(points,y){const shape=new THREE.Shape(points.map(([x,z])=>new THREE.Vector2(x,-z)));const geo=new THREE.ShapeGeometry(shape);geo.rotateX(-Math.PI/2);const m=new THREE.Mesh(geo,pathMat);m.position.y=y;m.receiveShadow=true;m.castShadow=false;scene.add(m)}
 function pathRibbon(points,width=.95,y=1.08){const verts=[],idx=[];for(let i=0;i<points.length;i++){const [x,z]=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];const dx=next[0]-prev[0],dz=next[1]-prev[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len,w=width*(i===0||i===points.length-1?.78:1);verts.push(x+nx*w,y,z+nz*w,x-nx*w,y,z-nz*w);if(i<points.length-1){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,c,d,b)}}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;scene.add(m);return m}
-pathRibbon([[-1.35,-2.0],[-2.15,-3.4],[-3.45,-5.2],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);
+// M06-P01 north-path-origin-clearance-v3: start the forest trail beyond the engineered bridge threshold; no terrain/path polygon may originate on top of the wooden crossing.
+pathRibbon([[-1.35,-4.45],[-2.25,-4.9],[-3.45,-5.8],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);
 pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,14.6]],.76,-.18);
 pathRibbon([[-2.2,-10.35],[-1.0,-11.2],[.2,-12.1],[1.0,-13.0]],.64,2.28);
 bank(601,5.4,5.7,-6.15,1.42,-6.8,1,.16);bank(607,2.4,2.8,8.0,1.42,-9.5,1,-.20);bank(613,6.2,4.8,-1.0,2.28,-13.2,1,.04);
