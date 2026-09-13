@@ -11,7 +11,7 @@ on:
       - "dist/README.md"
   workflow_dispatch:
 
-# M03-P01 rebuild trigger: current depth-staging v2 source must be promoted into dist and reverified.
+# M10-P02 post-dist exact verification: prove refreshed current-source distribution is stable and executable.
 permissions:
   contents: write
 
