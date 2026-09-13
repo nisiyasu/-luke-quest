@@ -1,0 +1,83 @@
+name: M08-P01 Player Target Presence Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m08-p01-player-target-repair.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply player target-presence repair
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          idx = Path('prototypes/modern-3d/index.html')
+          s = idx.read_text()
+          old = "const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:.92});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);"
+          new = "const sign=createSign();sign.position.set(-5.8,1.05,-3.6);sign.rotation.y=.7;scene.add(sign);const player=createLukeCharacter({scale:1.18});player.position.set(-1.35,.42,3.2);player.rotation.y=Math.PI;scene.add(player);document.documentElement.dataset.m08PlayerVisual='hero-presence-v2';"
+          if old not in s:
+              raise SystemExit('index player instantiation anchor not found')
+          idx.write_text(s.replace(old,new,1))
+
+          p = Path('prototypes/modern-3d/assets.js')
+          s = p.read_text()
+          old = "const hips=new THREE.Group();hips.position.y=.91*scale;g.add(hips);"
+          new = "const hips=new THREE.Group();hips.position.y=.50*scale;g.add(hips);"
+          if old not in s:
+              raise SystemExit('hips anchor not found')
+          s=s.replace(old,new,1)
+
+          old = "const shoulderGeo=new THREE.SphereGeometry(.13*scale,10,8);for(const x of[-.35,.35]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.05,.72,.82);s.position.set(x,.90*scale,0);hips.add(s)}"
+          new = """const shoulderGeo=new THREE.SphereGeometry(.145*scale,12,9);for(const x of[-.36,.36]){const s=new THREE.Mesh(shoulderGeo,navy);s.scale.set(1.16,.78,.90);s.position.set(x,.90*scale,0);hips.add(s)}
+  // M08 target-pursuit v2: strengthen the gameplay/back-view hero read without replacing the accepted rig.
+  const mantle=new THREE.Mesh(new THREE.BoxGeometry(.58*scale,.30*scale,.075*scale),navy);mantle.position.set(0,.82*scale,.19*scale);mantle.rotation.x=.08;hips.add(mantle);
+  const mantleTrim=new THREE.Mesh(new THREE.BoxGeometry(.50*scale,.045*scale,.085*scale),gold);mantleTrim.position.set(0,.69*scale,.205*scale);hips.add(mantleTrim);
+  const backCrest=new THREE.Mesh(new THREE.OctahedronGeometry(.105*scale,0),gold);backCrest.scale.set(.72,1.10,.28);backCrest.position.set(0,.83*scale,.235*scale);hips.add(backCrest);
+  const sashMat=new THREE.MeshStandardMaterial({color:0x174d9b,roughness:.70});
+  for(const x of[-.13,.13]){const sash=new THREE.Mesh(new THREE.BoxGeometry(.15*scale,.50*scale,.055*scale),sashMat);sash.position.set(x,.18*scale,.19*scale);sash.rotation.x=-.10;sash.rotation.z=x<0?-.07:.07;hips.add(sash)}"""
+          if old not in s:
+              raise SystemExit('shoulder anchor not found')
+          s=s.replace(old,new,1)
+
+          old = "g.userData={assetId:'luke_player_v1',version:'1.2.0',stage:'M08_CHARACTER_MOTION_CANDIDATE'"
+          new = "g.userData={assetId:'luke_player_v1',version:'1.3.0',stage:'M08_TARGET_PRESENCE_V2'"
+          if old not in s:
+              raise SystemExit('metadata anchor not found')
+          s=s.replace(old,new,1)
+
+          old = "hips.position.y=(.91+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;"
+          new = "hips.position.y=(.50+.024*Math.abs(Math.sin(walkPhase))*move+.007*breath*(1-move))*scale;"
+          if old not in s:
+              raise SystemExit('animation ground anchor not found')
+          s=s.replace(old,new,1)
+
+          old = "player:'luke_player_v1@1.2.0'"
+          new = "player:'luke_player_v1@1.3.0'"
+          if old not in s:
+              raise SystemExit('asset metadata player anchor not found')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          git diff --check
+          grep -q "createLukeCharacter({scale:1.18})" prototypes/modern-3d/index.html
+          grep -q "hero-presence-v2" prototypes/modern-3d/index.html
+          grep -q "version:'1.3.0'" prototypes/modern-3d/assets.js
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html prototypes/modern-3d/assets.js
+          git commit -m "fix(m08-p01): strengthen Luke hero presence and grounding"
+          git push origin HEAD:prototype/modern-3d
