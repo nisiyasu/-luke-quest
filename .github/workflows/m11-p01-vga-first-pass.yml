@@ -9,7 +9,7 @@ on:
       - "prototypes/modern-3d/**"
   workflow_dispatch:
 
-# M03-P01 exact-head recapture trigger after rebuilt distribution.
+# M11-P01 exact-head recapture trigger after current-head regate.
 permissions:
   contents: read
 
