@@ -82,12 +82,12 @@ bridgeLanding(-2.28,-4.05,.40,1.04);bridgeLanding(4.48,6.12,.40,-.28);
 // v48 Owner quality regate: compact stone/earth sills at the actual bank edges; no broad slab may cover the bridge approach.
 function bridgeBankSill(z,yTop,seed){const base=new THREE.Mesh(new THREE.BoxGeometry(4.15,.64,.86),landingSideMat);base.position.set(-1.35,yTop-.36,z);base.receiveShadow=true;base.castShadow=true;scene.add(base);const cap=new THREE.Mesh(new THREE.BoxGeometry(3.92,.12,.68),landingTopMat);cap.position.set(-1.35,yTop-.01,z);cap.receiveShadow=true;scene.add(cap);for(const [i,x] of [[0,-3.34],[1,.64]]){const r=createRockCluster({seed:seed+i*19,scale:.58});r.position.set(x,yTop-.03,z+(i?-.08:.08));scene.add(r)}return base}
 bridgeBankSill(-4.03,1.03,7601);bridgeBankSill(6.10,-.26,7641);
-// M06-P02 bridge-clearance-v1: keep receiving terrain outside the engineered deck envelope.
-// The landings still meet the banks, but grass/terrain may not visually bury the structural span.
-bank(771,4.35,4.8,-5.20,1.05,-4.65,1,.10);
-bank(779,3.95,4.5,2.55,1.00,-4.55,1,-.10);
-bank(787,4.45,4.6,-5.22,-.22,6.70,-1,.08);
-bank(797,3.95,4.3,2.58,-.24,6.62,-1,-.09);
+// M06-P02 bridge-continuity-v2: hard-clear the structural corridor and make the north landing visibly continuous.
+// Side terrain receives the bridge, while an engineered timber approach remains visibly above vegetation/ground.
+bank(771,3.55,4.8,-5.72,1.05,-4.72,1,.10);
+bank(779,3.15,4.5,3.05,1.00,-4.62,1,-.10);
+bank(787,4.15,4.6,-5.42,-.22,6.72,-1,.08);
+bank(797,3.70,4.3,2.78,-.24,6.64,-1,-.09);
 const bridgeThresholdMat=new THREE.MeshStandardMaterial({color:0x704c31,roughness:.88,metalness:0});
 const bridgeThresholdIron=new THREE.MeshStandardMaterial({color:0x343b3d,roughness:.50,metalness:.62});
 function bridgeThreshold(z,y,dir){
@@ -100,7 +100,21 @@ function bridgeThreshold(z,y,dir){
     curb.position.set(x,y+.08,z);curb.receiveShadow=true;curb.castShadow=true;scene.add(curb);
   }
 }
-bridgeThreshold(-3.62,1.085,-1);bridgeThreshold(5.72,-.195,1);
+function bridgeApproachDeck(z0,z1,y0,y1){
+  const count=11,span=Math.abs(z1-z0),midZ=(z0+z1)/2,midY=(y0+y1)/2;
+  for(let i=0;i<count;i++){
+    const t=i/(count-1),z=THREE.MathUtils.lerp(z0,z1,t),y=THREE.MathUtils.lerp(y0,y1,t);
+    const plank=new THREE.Mesh(new THREE.BoxGeometry(3.90,.15,.31),bridgeThresholdMat);
+    plank.position.set(-1.35,y+.075,z);plank.receiveShadow=true;plank.castShadow=true;scene.add(plank);
+  }
+  const slope=Math.atan2(y1-y0,z1-z0);
+  for(const x of[-3.22,.52]){
+    const stringer=new THREE.Mesh(new THREE.BoxGeometry(.17,.24,span+.24),bridgeThresholdIron);
+    stringer.position.set(x,midY-.01,midZ);stringer.rotation.x=-slope;stringer.receiveShadow=true;stringer.castShadow=true;scene.add(stringer);
+  }
+}
+bridgeApproachDeck(-2.22,-4.28,.43,1.10);
+bridgeThreshold(-4.30,1.115,-1);bridgeThreshold(5.72,-.195,1);
 const landingFernN1=createTargetFernPatch({seed:801,count:26,radius:1.55});landingFernN1.position.set(-4.15,1.10,-4.15);scene.add(landingFernN1);
 const landingFernN2=createTargetFernPatch({seed:809,count:24,radius:1.45});landingFernN2.position.set(1.45,1.08,-4.12);scene.add(landingFernN2);
 const landingFernS1=createTargetFernPatch({seed:821,count:24,radius:1.50});landingFernS1.position.set(-4.10,-.14,6.30);scene.add(landingFernS1);
