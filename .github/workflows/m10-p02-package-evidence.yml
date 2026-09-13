@@ -11,7 +11,7 @@ on:
       - "dist/README.md"
   workflow_dispatch:
 
-# M03-P01 rebuild trigger: source composition repair must be promoted into dist before visual recapture.
+# M03-P01 rebuild trigger: current depth-staging v2 source must be promoted into dist and reverified.
 permissions:
   contents: write
 
