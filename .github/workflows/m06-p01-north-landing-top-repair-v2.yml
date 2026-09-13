@@ -1,0 +1,68 @@
+name: M06-P01 North Landing Top Repair V2
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p01-north-landing-top-repair-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Guarded north landing surface repair
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('prototypes/modern-3d/index.html')
+          s = p.read_text(encoding='utf-8')
+          tag = 'M06-P01 north-landing-top-clearance-v2'
+          if tag in s:
+              print('repair already present')
+              raise SystemExit(0)
+
+          old_sig = 'function bridgeLanding(zDeck,zLand,yDeck,yLand){'
+          new_sig = 'function bridgeLanding(zDeck,zLand,yDeck,yLand,showTop=true){'
+          old_top = 'const ramp=new THREE.Mesh(geo,landingTopMat);ramp.receiveShadow=true;ramp.castShadow=true;scene.add(ramp);const supportLen='
+          new_top = "let ramp=null;if(showTop){ramp=new THREE.Mesh(geo,landingTopMat);ramp.receiveShadow=true;ramp.castShadow=true;scene.add(ramp)}const supportLen="
+          old_return = 'return ramp}'
+          new_return = 'return ramp||support}'
+          old_calls = 'bridgeLanding(-2.28,-4.05,.40,1.04);bridgeLanding(4.48,6.12,.40,-.28);'
+          new_calls = "// M06-P01 north-landing-top-clearance-v2: the engineered timber approach owns the visible north crossing surface; retain only the structural landing support below so field-colored terrain cannot overlay the bridge.\nbridgeLanding(-2.28,-4.05,.40,1.04,false);bridgeLanding(4.48,6.12,.40,-.28);"
+
+          replacements = [
+              (old_sig, new_sig, 'signature'),
+              (old_top, new_top, 'top mesh'),
+              (old_return, new_return, 'return'),
+              (old_calls, new_calls, 'north call'),
+          ]
+          for old, new, label in replacements:
+              count = s.count(old)
+              if count != 1:
+                  raise SystemExit(f'FAIL_CLOSED {label} marker count={count}')
+              s = s.replace(old, new, 1)
+
+          p.write_text(s, encoding='utf-8')
+          print('patched north-landing-top-clearance-v2')
+          PY
+          git diff --check
+          grep -n "north-landing-top-clearance-v2" prototypes/modern-3d/index.html
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo "No diff to commit"
+            exit 0
+          fi
+          git config user.name "luke-quest-autonomy"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m06-p01): remove terrain-colored north landing top"
+          git push origin HEAD:prototype/modern-3d
