@@ -1613,9 +1613,9 @@ try {
   }, syncCameraOffset = function() {
     const a = Math.max(0.1, camera.aspect || 1), landscape = a > 1.25;
     offset.copy(landscape ? offsetLandscape : offsetPortrait);
-    camera.fov = landscape ? 34 : 39;
+    camera.fov = landscape ? 33 : 39;
     camera.updateProjectionMatrix();
-    document.documentElement.dataset.m03CameraProfile = landscape ? "landscape-target-depth" : "portrait-canonical";
+    document.documentElement.dataset.m03CameraProfile = landscape ? "landscape-target-depth-v2" : "portrait-canonical";
   }, publishM10Perf = function() {
     if (m10PerfSamples.length < 20) return;
     const a = [...m10PerfSamples].sort((x, y) => x - y), median = a[Math.floor(a.length * 0.5)], p95 = a[Math.min(a.length - 1, Math.floor(a.length * 0.95))];
@@ -1953,7 +1953,7 @@ try {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) releaseAll();
   });
-  const offsetPortrait = new THREE7.Vector3(1.2, 30.2, 20.4), offsetLandscape = new THREE7.Vector3(0.8, 14.8, 13.8), offset = new THREE7.Vector3();
+  const offsetPortrait = new THREE7.Vector3(1.2, 30.2, 20.4), offsetLandscape = new THREE7.Vector3(0.8, 11.6, 15.8), offset = new THREE7.Vector3();
   syncCameraOffset();
   const m10PerfSamples = [];
   let m10PerfWarmup = 8;
