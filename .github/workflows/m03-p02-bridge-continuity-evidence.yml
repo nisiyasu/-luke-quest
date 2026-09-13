@@ -1,6 +1,7 @@
 # m06-p02 fresh revalidation trigger: 2026-09-13 after bridge-continuity-v3
 # m06-p02 refresh: exact-head bridge endpoint and traversal evidence
 # evidence-v11: force fresh exact-head proof after v3 structural deck repair
+# evidence-v12: force fresh exact-head proof after north approach v4
 name: M03-P02 Bridge Continuity Evidence
 
 on:
