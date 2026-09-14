@@ -1,3 +1,4 @@
+# evidence-v21: deterministic production-step bridge proof after live-key RAF throttling false failure at product 64a7e3e8
 # evidence-v20: fresh exact-head M06-P02 proof after deterministic M06-P01 seam gate
 # evidence-v19: fresh exact-head M06-P02 proof after M06-P01 current-head revalidation 4452322c
 # evidence-v18: force fresh exact-head M06-P02 proof after M06-P01 v4 bridge clearance PASS
@@ -32,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: prototype/modern-3d
+          ref: ${{ github.sha }}
       - name: Install Playwright Chromium
         run: |
           npm init -y >/dev/null 2>&1
@@ -56,28 +57,42 @@ jobs:
             const open=async(label)=>{
               const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
               page.setDefaultTimeout(150000); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
-              await page.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
-              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
-              await page.waitForTimeout(1200);
-              const meta=()=>page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,cameraProfile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'}));
+              await page.goto('http://127.0.0.1:8140/index.html?quality=high&m08gate=1',{waitUntil:'domcontentloaded',timeout:150000});
+              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&window.LQ_MODERN_3D_M08_GATE,{timeout:150000});
+              await page.waitForTimeout(800);
+              const meta=()=>page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,cameraProfile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',blockedWater:window.LQ_MODERN_3D_M05?.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05?.blockedBounds}));
               const snap=async(name)=>{const m=await meta();if(errors.length)throw new Error(`${label} page errors=${JSON.stringify(errors)}`);await page.screenshot({path:`.m03-p02/${name}.png`,fullPage:true,timeout:150000});rows.push(`${name} ${JSON.stringify(m)}`);persist();return m;};
-              const drive=async(key,predicate,name,timeoutMs)=>{await page.keyboard.down(key);const started=Date.now();let last='UNKNOWN';try{while(Date.now()-started<timeoutMs){const m=await meta();last=m.player;if(predicate(z(m.player)))return m;await page.waitForTimeout(1200)}throw new Error(`${name} traversal timeout last=${last}`)}finally{await page.keyboard.up(key)}};
+              const drive=async(key,predicate,name,maxSteps)=>{
+                await page.keyboard.down(key);
+                let last='UNKNOWN';
+                try{
+                  for(let i=0;i<maxSteps;i++){
+                    await page.evaluate(()=>{window.LQ_MODERN_3D_M08_GATE.stepMovement(.1);window.LQ_MODERN_3D_M08_GATE.syncState()});
+                    const m=await meta();last=m.player;if(predicate(z(m.player)))return m;
+                  }
+                  throw new Error(`${name} deterministic traversal failed last=${last}`);
+                } finally { await page.keyboard.up(key); }
+              };
               return {page,meta,snap,drive};
             };
             try{
               const northPage=await open('north');
               const start=await northPage.snap('canonical-start');
-              await northPage.drive('ArrowUp',v=>v<=-3.80,'north',150000); await northPage.page.waitForTimeout(600);
+              const northBefore=await northPage.meta();
+              await northPage.drive('ArrowUp',v=>v<=-3.80,'north',30); await northPage.page.waitForTimeout(300);
               const north=await northPage.snap('north-bank-endpoint');
               if(!(z(north.player)<=-3.80))throw new Error(`north bank not reached ${north.player}`);
+              if((north.blockedWater-northBefore.blockedWater)!==0||(north.blockedBounds-northBefore.blockedBounds)!==0)throw new Error(`north collision regression water=${north.blockedWater-northBefore.blockedWater} bounds=${north.blockedBounds-northBefore.blockedBounds}`);
               await northPage.page.close();
 
               const southPage=await open('south');
               const southStart=await southPage.meta(); rows.push(`south-start ${JSON.stringify(southStart)}`);persist();
-              await southPage.drive('ArrowDown',v=>v>=6.00,'south',90000); await southPage.page.waitForTimeout(600);
+              const southBefore=await southPage.meta();
+              await southPage.drive('ArrowDown',v=>v>=6.00,'south',20); await southPage.page.waitForTimeout(300);
               const south=await southPage.snap('south-bank-endpoint');
               if(!(z(south.player)>=6.00))throw new Error(`south bank not reached ${south.player}`);
-              rows.push(`live-key-traversal PASS canonical=${start.player} north=${north.player} south=${south.player}`);persist();
+              if((south.blockedWater-southBefore.blockedWater)!==0||(south.blockedBounds-southBefore.blockedBounds)!==0)throw new Error(`south collision regression water=${south.blockedWater-southBefore.blockedWater} bounds=${south.blockedBounds-southBefore.blockedBounds}`);
+              rows.push(`deterministic-production-traversal PASS canonical=${start.player} north=${north.player} south=${south.player}`);persist();
               await southPage.page.close();
 
               const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
@@ -88,6 +103,7 @@ jobs:
               if(ciErrors.length||result.m03Ci!=='pass'||!result.ci?.crossedBridge||!result.ci?.noHole||!result.ci?.groundingSmooth)throw new Error(`bridge CI failed ${JSON.stringify(result)} errors=${JSON.stringify(ciErrors)}`);
               rows.push(`bridge-ci ${JSON.stringify(result)}`);persist();
               await ci.screenshot({path:'.m03-p02/bridge-ci-frame.png',fullPage:true,timeout:150000}); await ci.close();
+              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'}`);rows.push('page_errors=0');persist();
             }catch(e){rows.push(`FAIL ${String(e)}`);persist();throw e}finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
