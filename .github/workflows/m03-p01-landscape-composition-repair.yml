@@ -17,7 +17,7 @@ jobs:
         with:
           ref: prototype/modern-3d
           fetch-depth: 0
-      - name: Replace elevated north ribbon with terrain-following route
+      - name: Rebuild secondary crossing as a target-family junction
         shell: bash
         run: |
           set -euo pipefail
@@ -25,21 +25,33 @@ jobs:
           from pathlib import Path
           p=Path('prototypes/modern-3d/index.html')
           s=p.read_text()
-          old="pathRibbon([[-4.95,-9.2],[-3.65,-8.75],[-2.25,-8.15],[-.75,-7.45],[.85,-6.85],[2.35,-6.35],[3.45,-6.0]],.72,2.28);"
-          helper="function terrainPathRibbon(points,width=.76,lift=.055){const verts=[],idx=[];for(let i=0;i<points.length;i++){const [x,z]=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];const dx=next[0]-prev[0],dz=next[1]-prev[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len,w=width*(i===0||i===points.length-1?.78:1),y=terrainY(x,z)+lift;verts.push(x+nx*w,y,z+nz*w,x-nx*w,y,z-nz*w);if(i<points.length-1){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,c,d,b)}}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;m.castShadow=false;scene.add(m);return m}"
-          route="terrainPathRibbon([[-5.2,-9.6],[-4.55,-9.05],[-3.7,-8.55],[-2.75,-8.0],[-1.7,-7.45],[-.55,-6.95],[.65,-6.55],[1.8,-6.25],[2.75,-6.05],[3.35,-5.98]],.72,.06);"
-          if old not in s: raise SystemExit('v67 elevated route anchor not found')
-          s=s.replace(old,helper+'\n'+route,1)
-          if 'M03 Composition Rebuild v67' not in s: raise SystemExit('v67 title anchor not found')
-          s=s.replace('M03 Composition Rebuild v67','M03 Composition Rebuild v68',1)
-          if "bridgeLayout:'main-plus-diagonal-target-crossing-v3-midground'" not in s: raise SystemExit('v67 layout anchor not found')
-          s=s.replace("bridgeLayout:'main-plus-diagonal-target-crossing-v3-midground'","bridgeLayout:'main-plus-diagonal-target-crossing-v4-grounded-route'",1)
+
+          old_bridge="const bridgeRight=bridgeAt(4.05,-5.95,Math.PI/2-.58,false);bridgeRight.position.y=.82;"
+          new_bridge="const bridgeRight=bridgeAt(2.10,-4.82,Math.PI/2+.33,false);bridgeRight.position.y=.82;bridgeRight.scale.z=1.06;"
+          if old_bridge not in s: raise SystemExit('v68 secondary bridge anchor not found')
+          s=s.replace(old_bridge,new_bridge,1)
+
+          helper_start=s.find('function terrainPathRibbon(points,width=.76,lift=.055)')
+          route_start=s.find('terrainPathRibbon([[-5.2,-9.6]',helper_start)
+          if helper_start < 0 or route_start < 0: raise SystemExit('v68 temporary grounded-route block not found')
+          route_end=s.find(';',route_start)
+          if route_end < 0: raise SystemExit('v68 temporary route terminator not found')
+          s=s[:helper_start]+s[route_end+1:]
+
+          if 'M03 Composition Rebuild v68' not in s: raise SystemExit('v68 title anchor not found')
+          s=s.replace('M03 Composition Rebuild v68','M03 Composition Rebuild v69',1)
+          if "bridgeLayout:'main-plus-diagonal-target-crossing-v4-grounded-route'" not in s: raise SystemExit('v68 layout marker not found')
+          s=s.replace("bridgeLayout:'main-plus-diagonal-target-crossing-v4-grounded-route'","bridgeLayout:'main-plus-diagonal-target-crossing-v5-connected-junction'",1)
           p.write_text(s)
           PY
           git diff --check
-          grep -q "function terrainPathRibbon" prototypes/modern-3d/index.html
-          grep -q "M03 Composition Rebuild v68" prototypes/modern-3d/index.html
-          grep -q "main-plus-diagonal-target-crossing-v4-grounded-route" prototypes/modern-3d/index.html
+          grep -q "M03 Composition Rebuild v69" prototypes/modern-3d/index.html
+          grep -q "bridgeAt(2.10,-4.82,Math.PI/2+.33,false)" prototypes/modern-3d/index.html
+          grep -q "main-plus-diagonal-target-crossing-v5-connected-junction" prototypes/modern-3d/index.html
+          if grep -q "terrainPathRibbon" prototypes/modern-3d/index.html; then
+            echo "temporary v68 route still present" >&2
+            exit 1
+          fi
       - name: Commit repair
         shell: bash
         run: |
@@ -48,5 +60,5 @@ jobs:
           git config user.name "lq-scheduled-bot"
           git config user.email "actions@users.noreply.github.com"
           git add prototypes/modern-3d/index.html
-          git commit -m "fix(m03-p01): ground north route into terrain"
+          git commit -m "fix(m03-p01): connect secondary bridge to main route"
           git push origin HEAD:prototype/modern-3d
