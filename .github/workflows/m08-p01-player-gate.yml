@@ -85,3 +85,4 @@ jobs:
           retention-days: 14
 
 # fresh revalidation after coherent-shadow repair 2026-09-14
+# fresh revalidation after M07 exact-head water/lighting completion 2026-09-14
