@@ -1042,10 +1042,20 @@ function makeBankGrassMap(seed = 417) {
       x.fill();
     }
   }
+  for (let i = 0; i < 34; i++) {
+    const x0 = r() * 512, y0 = r() * 512, len = 55 + r() * 155, ang = r() * Math.PI * 2;
+    x.strokeStyle = i % 3 === 0 ? "rgba(91,68,43,.22)" : i % 3 === 1 ? "rgba(32,65,31,.20)" : "rgba(196,181,112,.13)";
+    x.lineWidth = 6 + r() * 18;
+    x.lineCap = "round";
+    x.beginPath();
+    x.moveTo(x0, y0);
+    x.bezierCurveTo(x0 + Math.cos(ang + 0.45) * len * 0.33, y0 + Math.sin(ang + 0.45) * len * 0.33, x0 + Math.cos(ang - 0.35) * len * 0.68, y0 + Math.sin(ang - 0.35) * len * 0.68, x0 + Math.cos(ang) * len, y0 + Math.sin(ang) * len);
+    x.stroke();
+  }
   const t = new THREE5.CanvasTexture(c);
   t.colorSpace = THREE5.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE5.RepeatWrapping;
-  t.repeat.set(5.2, 4.2);
+  t.repeat.set(3.65, 3.1);
   t.anisotropy = 8;
   return t;
 }
@@ -1212,7 +1222,7 @@ function createTargetBankV4({ seed = 1, width = 12, depth = 8, facing = 1 } = {}
   g.name = `bank_target_v4_${seed}`;
   g.add(makeOrganicTop(r, seed, width, depth, facing));
   addTopMicrodetail(g, r, width, depth, facing);
-  const bands = [{ z: depth * 0.5 - 0.28, y: -0.34, scale: 0.9 }, { z: depth * 0.5 - 0.53, y: -0.76, scale: 0.72 }, { z: depth * 0.5 - 0.76, y: -1.13, scale: 0.54 }, { z: depth * 0.5 - 0.94, y: -1.42, scale: 0.38 }];
+  const bands = [{ z: depth * 0.5 - 0.25, y: -0.28, scale: 0.96 }, { z: depth * 0.5 - 0.46, y: -0.58, scale: 0.83 }, { z: depth * 0.5 - 0.66, y: -0.89, scale: 0.68 }, { z: depth * 0.5 - 0.84, y: -1.18, scale: 0.53 }, { z: depth * 0.5 - 1, y: -1.44, scale: 0.38 }];
   bands.forEach((band, bi) => {
     const count = Math.max(10, Math.ceil(width / (bi === 0 ? 0.62 : 0.78)));
     for (let i = 0; i < count; i++) {
@@ -1231,6 +1241,15 @@ function createTargetBankV4({ seed = 1, width = 12, depth = 8, facing = 1 } = {}
       }
     }
   });
+  const ledgeMat = [soilLight, rockMats3[1], rockMats3[4], moss2];
+  const ledgeCount = Math.max(7, Math.ceil(width / 1.65));
+  for (let i = 0; i < ledgeCount; i++) {
+    const t = (i + 0.45) / ledgeCount, edgeWave = Math.sin(t * Math.PI * 3 + seed * 0.19) * 0.42 + Math.sin(t * Math.PI * 7 + seed * 0.07) * 0.14, w = 0.55 + r() * 1.05, h = 0.12 + r() * 0.16, d = 0.22 + r() * 0.38, ledge = new THREE5.Mesh(deform2(new THREE5.BoxGeometry(w, h, d, 3, 1, 2), r, 0.22), ledgeMat[(i + seed) % ledgeMat.length]);
+    ledge.position.set(-width * 0.5 + t * width + (r() - 0.5) * 0.38, -0.58 - r() * 0.78, facing * (depth * 0.5 - 0.58 + edgeWave) + (r() - 0.5) * 0.2);
+    ledge.rotation.set((r() - 0.5) * 0.1, (r() - 0.5) * 0.32, (r() - 0.5) * 0.1);
+    ledge.scale.x *= 0.82 + r() * 0.46;
+    g.add(ledge);
+  }
   for (let i = 0; i < 8; i++) {
     const patch = new THREE5.Mesh(deform2(new THREE5.IcosahedronGeometry(0.44 + r() * 0.22, 2), r, 0.17), soil2);
     patch.scale.set(1.42, 0.3, 0.74);
@@ -1285,7 +1304,7 @@ function createTargetBankV4({ seed = 1, width = 12, depth = 8, facing = 1 } = {}
     root.rotation.x = facing * (0.1 + r() * 0.18);
     g.add(root);
   }
-  g.userData = { assetId: "bank_target_v4", version: "4.7.0", seed, stage: "M04_QUALITY_REGATE", source: "repo-procedural", intent: "target-facing forest bank with multi-scale mottled ground texture, clustered flower and fern understory, irregular macro-relief, layered cliff terraces, shoreline rubble, moss shelves and roots; v4.7 specifically removes pale-lawn/repeated-spike reads while preserving the v4.6 world silhouette and collision-neutral visual geometry" };
+  g.userData = { assetId: "bank_target_v4", version: "4.8.0", seed, stage: "M04_QUALITY_REGATE", source: "repo-procedural", intent: "target-facing forest bank with multi-scale mottled ground texture, clustered flower and fern understory, irregular macro-relief, layered cliff terraces, shoreline rubble, moss shelves and roots; v4.8 preserves the accepted world silhouette while adding broad erosion/soil veins, denser cliff layering and broken strata ledges so the bank reads as one eroded natural mass rather than stacked procedural bands" };
   return shadows2(g);
 }
 
@@ -1507,6 +1526,34 @@ try {
       plank.castShadow = true;
       scene.add(plank);
     }
+  }, makePathTexture = function() {
+    const c = document.createElement("canvas");
+    c.width = c.height = 384;
+    const x = c.getContext("2d"), r = /* @__PURE__ */ (() => {
+      let s = 90421;
+      return () => (s = s * 1664525 + 1013904223 >>> 0) / 4294967296;
+    })();
+    x.fillStyle = "#8d7548";
+    x.fillRect(0, 0, 384, 384);
+    for (let i = 0; i < 86; i++) {
+      const px = r() * 384, py = r() * 384, rx = 7 + r() * 42, ry = 3 + r() * 17;
+      x.fillStyle = i % 4 === 0 ? "rgba(70,55,38,.24)" : i % 3 === 0 ? "rgba(178,150,91,.18)" : "rgba(104,83,50,.18)";
+      x.beginPath();
+      x.ellipse(px, py, rx, ry, r() * Math.PI, 0, Math.PI * 2);
+      x.fill();
+    }
+    for (let i = 0; i < 520; i++) {
+      x.fillStyle = i % 5 === 0 ? "rgba(205,181,126,.30)" : "rgba(64,55,43,.22)";
+      x.beginPath();
+      x.arc(r() * 384, r() * 384, 0.45 + r() * 1.7, 0, Math.PI * 2);
+      x.fill();
+    }
+    const t = new THREE7.CanvasTexture(c);
+    t.colorSpace = THREE7.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE7.RepeatWrapping;
+    t.repeat.set(2.8, 5.2);
+    t.anisotropy = 8;
+    return t;
   }, bridgeLanding = function(zDeck, zLand, yDeck, yLand, showTop = true) {
     const x0 = -1.35, w = 4.05, half = w / 2, bottom = Math.min(yDeck, yLand) - 0.46;
     const verts = [x0 - half, yDeck, zDeck, x0 + half, yDeck, zDeck, x0 + half, yLand, zLand, x0 - half, yLand, zLand, x0 - half, bottom, zDeck, x0 + half, bottom, zDeck, x0 + half, bottom, zLand, x0 - half, bottom, zLand];
@@ -1838,6 +1885,14 @@ try {
   waterLower.rotation.y = 0.08;
   scene.add(waterLower);
   bank(905, 8.8, 13.8, 3.45, -0.22, 14.4, -1, -0.05);
+  nearFieldMass(-6.05, 17.2, 4.55, 1.02, 0.19);
+  nearFieldMass(4.75, 17.5, 4.1, 1, -0.16);
+  const southFringeFernL = createTargetFernPatch({ seed: 9661, count: 26, radius: 2.35 });
+  southFringeFernL.position.set(-4.85, -0.02, 16.7);
+  scene.add(southFringeFernL);
+  const southFringeFernR = createTargetFernPatch({ seed: 9667, count: 24, radius: 2.2 });
+  southFringeFernR.position.set(3.95, -0.02, 17);
+  scene.add(southFringeFernR);
   const southShoreFern = createTargetFernPatch({ seed: 913, count: 34, radius: 2.45 });
   southShoreFern.position.set(0.95, -0.1, 13.8);
   scene.add(southShoreFern);
@@ -1859,7 +1914,8 @@ try {
   bank(880, 1.8, 1.85, -2.3, 0.92, -7.34, 1, 0.05);
   bank(887, 1.9, 1.9, 8.82, 1, -6.76, 1, -0.04);
   document.documentElement.dataset.m06SecondaryBridgeClearance = "terrain-and-object-free-v4";
-  const pathMat = new THREE7.MeshStandardMaterial({ color: 9270600, roughness: 0.98, metalness: 0 });
+  const pathMat = new THREE7.MeshStandardMaterial({ color: 14206106, map: makePathTexture(), roughness: 0.97, metalness: 0 });
+  document.documentElement.dataset.m04PathMaterial = "m04-path-material-v2";
   const landingTopMat = new THREE7.MeshStandardMaterial({ color: 9276014, roughness: 0.98, metalness: 0 });
   const landingSideMat = new THREE7.MeshStandardMaterial({ color: 6251093, roughness: 1, metalness: 0 });
   bridgeLanding(-2.28, -4.05, 0.4, 1.04, false);
