@@ -11,9 +11,8 @@ on:
       - "dist/README.md"
   workflow_dispatch:
 
-# M10-P02 post-dist exact verification: prove refreshed current-source distribution is stable and executable.
-# Fresh router regate trigger: verify the current packaged artifact after later prototype repairs.
-# Second exact-head trigger: distribution bytes were refreshed by the first regate; now verify the stable post-refresh HEAD itself.
+# M10-P02 fresh router regate after M09 world repair + M10-P01 profile acceptance, 2026-09-14.
+# Build from current source, persist changed distribution, then require exact post-refresh rerun evidence.
 permissions:
   contents: write
 
