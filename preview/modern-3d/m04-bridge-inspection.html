@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M04-P03 Bridge Inspection</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101710;color:#fff;font-family:system-ui,sans-serif}canvas{display:block}#legend{position:fixed;left:14px;top:12px;right:14px;background:#071019df;border:1px solid #caa85f;border-radius:8px;padding:9px 12px;font-size:12px;z-index:3}#legend b{color:#f2d172}.tag{margin-right:18px;display:inline-block}</style></head>
-<body><div id="legend"><span class="tag"><b>BRIDGE</b> bridge_principal_v1@1.2.0</span><span class="tag"><b>CONTEXT</b> conifer_target_v31@3.8.0 + bank_target_v4@4.7.0 + rock_cluster_v1@1.1.0</span><span class="tag"><b>CHECK</b> boards / thickness / supports / rails / wood variation / family coherence</span></div>
+<body><div id="legend"><span class="tag"><b>BRIDGE</b> bridge_principal_v1@1.2.0</span><span class="tag"><b>CONTEXT</b> <span id="context-assets">loading current asset authority…</span></span><span class="tag"><b>CHECK</b> boards / thickness / supports / rails / wood variation / family coherence</span></div>
 <script type="module">
 import * as THREE from 'three';
 import {createProductionBridge,createRockCluster} from './assets.js';
@@ -19,7 +19,9 @@ for(const [x,z,s,seed] of [[-5.1,-2.8,1.0,31],[-5.5,3.4,.86,42],[5.5,-3.7,.92,53
 for(const [x,z,s,seed] of [[-3.9,-.5,1.0,17],[4.1,.5,.92,24],[3.7,3.4,.72,29]]){const r=createRockCluster({seed,scale:s});r.position.set(x,-1.53,z);scene.add(r)}
 const bankL=createTargetBankV4({seed:81,width:5.2,depth:5.0,facing:1});bankL.position.set(-5.2,-.18,0);scene.add(bankL);
 const bankR=createTargetBankV4({seed:91,width:5.2,depth:5.0,facing:-1});bankR.position.set(5.2,-.18,0);bankR.rotation.y=Math.PI;scene.add(bankR);
+const bankAuthority=`${bankL.userData.assetId}@${bankL.userData.version}`;
+document.querySelector('#context-assets').textContent=`conifer_target_v31@3.8.0 + ${bankAuthority} + rock_cluster_v1@1.1.0`;
 function tick(){requestAnimationFrame(tick);renderer.render(scene,camera)}tick();
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize,{passive:true});
-document.documentElement.dataset.m04BridgeInspection='ready';document.documentElement.dataset.bridgeAsset='bridge_principal_v1@1.2.0';document.documentElement.dataset.vegetationAsset='conifer_target_v31@3.8.0';document.documentElement.dataset.bankAsset='bank_target_v4@4.7.0';document.documentElement.dataset.rockAsset='rock_cluster_v1@1.1.0';
+document.documentElement.dataset.m04BridgeInspection='ready';document.documentElement.dataset.bridgeAsset='bridge_principal_v1@1.2.0';document.documentElement.dataset.vegetationAsset='conifer_target_v31@3.8.0';document.documentElement.dataset.bankAsset=bankAuthority;document.documentElement.dataset.rockAsset='rock_cluster_v1@1.1.0';
 </script></body></html>
