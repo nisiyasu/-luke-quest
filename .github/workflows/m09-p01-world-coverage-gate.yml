@@ -14,6 +14,7 @@ permissions:
 # M03-P03 2026-09-14 evidence refresh: reuse this four-position capture harness only as packet #31 visual evidence tooling.
 # M03-P03 exact-head refresh after north-fringe visual continuation implementation.
 # M09-P01 fresh exact-head revalidation after M08 movement/camera pass 2026-09-14.
+# M09-P01 fresh re-gate after south fringe receiving-terrain repair v66 2026-09-14.
 jobs:
   coverage-gate:
     runs-on: ubuntu-24.04
