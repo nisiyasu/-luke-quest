@@ -80,4 +80,4 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-# evidence trigger: north-corridor right-crossing v71 exact-head
+# evidence trigger: organic-junction v72 exact-head
