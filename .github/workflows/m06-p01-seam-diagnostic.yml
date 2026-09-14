@@ -33,10 +33,10 @@ jobs:
           root.mkdir(exist_ok=True)
           variants={
             'baseline':None,
-            'no-bank-905':'bank(905,8.8,13.8,3.45,-.22,14.4,-1,-.05);',
-            'no-bank-9661':'bank(9661,6.8,6.0,-8.2,-.42,19.0,-1,.14);',
-            'no-bank-9667':'bank(9667,7.0,6.0,6.7,-.40,19.1,-1,-.14);',
-            'no-nearmass-left':'nearFieldMass(-9.0,16.4,2.45,.86,.23);',
+            'no-bank-509':'bank(509,14,13,-9.8,1.65,7.0,-1,Math.PI/2);',
+            'no-bank-631':'bank(631,7.0,5.4,-1.35,.18,7.35,-1,.02);',
+            'no-bank-541':'bank(541,11,12,9.6,1.9,8.5,-1,-Math.PI/2);',
+            'no-bank-557':'bank(557,8,8,4.8,2.45,14.0,-1,-.12);',
           }
           for name,needle in variants.items():
             dst=root/name
@@ -58,7 +58,7 @@ jobs:
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
             const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
-            const cases=['baseline','no-bank-905','no-bank-9661','no-bank-9667','no-nearmass-left'];
+            const cases=['baseline','no-bank-509','no-bank-631','no-bank-541','no-bank-557'];
             const audit=[];
             for(const name of cases){
               const errors=[]; const h=e=>errors.push(String(e)); page.on('pageerror',h);
