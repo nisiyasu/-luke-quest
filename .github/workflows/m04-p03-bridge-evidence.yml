@@ -1,4 +1,4 @@
-# fresh exact-head revalidation trigger: 2026-09-14 after routed M04-P02 target-depth v4.8 repair
+# fresh exact-head revalidation trigger: 2026-09-14 after bridge inspection authority sync to bank v4.8
 name: M04-P03 Bridge Evidence
 
 on:
@@ -43,7 +43,7 @@ jobs:
               const inspect=await browser.newPage({viewport:{width:1280,height:760},deviceScaleFactor:1});
               const ie=[];inspect.on('pageerror',e=>ie.push(String(e)));
               await inspect.goto('http://127.0.0.1:8140/m04-bridge-inspection.html',{waitUntil:'domcontentloaded',timeout:150000});
-              await inspect.waitForFunction(()=>document.documentElement.dataset.m04BridgeInspection==='ready'&&document.documentElement.dataset.bridgeAsset==='bridge_principal_v1@1.2.0',{timeout:150000});
+              await inspect.waitForFunction(()=>document.documentElement.dataset.m04BridgeInspection==='ready'&&document.documentElement.dataset.bridgeAsset==='bridge_principal_v1@1.2.0'&&document.documentElement.dataset.bankAsset==='bank_target_v4@4.8.0',{timeout:150000});
               await inspect.waitForTimeout(1400);
               const im=await inspect.evaluate(()=>({ready:document.documentElement.dataset.m04BridgeInspection,bridge:document.documentElement.dataset.bridgeAsset,vegetation:document.documentElement.dataset.vegetationAsset,bank:document.documentElement.dataset.bankAsset,rock:document.documentElement.dataset.rockAsset}));
               if(ie.length)throw new Error(`inspection errors=${JSON.stringify(ie)}`);
@@ -65,9 +65,10 @@ jobs:
               const manifest=JSON.parse(fs.readFileSync('prototypes/modern-3d/ASSET_MANIFEST.json','utf8'));
               const bridge=manifest.assets.find(x=>x.id==='bridge_principal_v1');
               if(manifest.active_target_set.bridge!=='bridge_principal_v1@1.2.0'||!bridge||bridge.version!=='1.2.0')throw new Error('bridge authority mismatch');
+              if(manifest.active_target_set.bank!=='bank_target_v4@4.8.0'||im.bank!==manifest.active_target_set.bank)throw new Error(`bank inspection authority mismatch: inspection=${im.bank} manifest=${manifest.active_target_set.bank}`);
               const required=['individual varied boards','deck thickness','side beams','cross-beams','trestle piers','diagonal structural braces','capped posts','dual rails','wood grain variation'];
               for(const f of required)if(!bridge.features.includes(f))throw new Error(`bridge manifest feature missing: ${f}`);
-              rows.push(`manifest bridge=${manifest.active_target_set.bridge} source=${bridge.source} version=${bridge.version} features=${bridge.features.length}`);
+              rows.push(`manifest bridge=${manifest.active_target_set.bridge} bank=${manifest.active_target_set.bank} source=${bridge.source} version=${bridge.version} features=${bridge.features.length}`);
               fs.writeFileSync('.m04-p03/bridge-audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
