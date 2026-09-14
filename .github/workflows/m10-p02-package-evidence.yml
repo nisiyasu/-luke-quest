@@ -13,6 +13,7 @@ on:
 
 # M10-P02 post-dist exact verification: prove refreshed current-source distribution is stable and executable.
 # Fresh router regate trigger: verify the current packaged artifact after later prototype repairs.
+# Second exact-head trigger: distribution bytes were refreshed by the first regate; now verify the stable post-refresh HEAD itself.
 permissions:
   contents: write
 
