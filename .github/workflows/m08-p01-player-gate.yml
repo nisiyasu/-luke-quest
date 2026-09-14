@@ -83,3 +83,5 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
+
+# fresh revalidation after coherent-shadow repair 2026-09-14
