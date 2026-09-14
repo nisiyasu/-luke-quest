@@ -28,11 +28,14 @@ jobs:
           p=Path('prototypes/modern-3d/index.html')
           s=p.read_text()
           anchor="bank(905,8.8,13.8,3.45,-.22,14.4,-1,-.05);"
-          insertion="""bank(905,8.8,13.8,3.45,-.22,14.4,-1,-.05);
-// v66 M09-P01: mask the finite downstream-water side edges in the south follow-camera fringe with authored receiving terrain. These masses stay outside the playable bridge lane and keep a narrow organic river opening instead of exposing a rectangular blue plane.
-nearFieldMass(-6.05,17.2,4.55,1.02,.19);nearFieldMass(4.75,17.5,4.10,1.00,-.16);
-const southFringeFernL=createTargetFernPatch({seed:9661,count:26,radius:2.35});southFringeFernL.position.set(-4.85,-.02,16.7);scene.add(southFringeFernL);
-const southFringeFernR=createTargetFernPatch({seed:9667,count:24,radius:2.20});southFringeFernR.position.set(3.95,-.02,17.0);scene.add(southFringeFernR);"""
+          lines=[
+            anchor,
+            "// v66 M09-P01: mask the finite downstream-water side edges in the south follow-camera fringe with authored receiving terrain. These masses stay outside the playable bridge lane and keep a narrow organic river opening instead of exposing a rectangular blue plane.",
+            "nearFieldMass(-6.05,17.2,4.55,1.02,.19);nearFieldMass(4.75,17.5,4.10,1.00,-.16);",
+            "const southFringeFernL=createTargetFernPatch({seed:9661,count:26,radius:2.35});southFringeFernL.position.set(-4.85,-.02,16.7);scene.add(southFringeFernL);",
+            "const southFringeFernR=createTargetFernPatch({seed:9667,count:24,radius:2.20});southFringeFernR.position.set(3.95,-.02,17.0);scene.add(southFringeFernR);"
+          ]
+          insertion='\n'.join(lines)
           if 'v66 M09-P01' in s:
               print('repair already present')
           else:
