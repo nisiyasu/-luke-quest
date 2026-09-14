@@ -78,6 +78,8 @@ function addTopMicrodetail(g,r,width,depth,facing){
 }
 
 export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
+  const requestedDepth=depth,integration509=seed===509;
+  if(integration509)depth=10.0;
   const r=rng(seed),g=new THREE.Group();g.name=`bank_target_v4_${seed}`;
   g.add(makeOrganicTop(r,seed,width,depth,facing));addTopMicrodetail(g,r,width,depth,facing);
   const bands=[{z:depth*.5-.25,y:-.28,scale:.96},{z:depth*.5-.46,y:-.58,scale:.83},{z:depth*.5-.66,y:-.89,scale:.68},{z:depth*.5-.84,y:-1.18,scale:.53},{z:depth*.5-1.00,y:-1.44,scale:.38}];
@@ -92,6 +94,7 @@ export function createTargetBankV4({seed=1,width=12,depth=8,facing=1}={}){
   for(let i=0;i<22;i++){const rad=.07+r()*.10,pebble=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(rad,1),r,.16),rockMats[(i+seed+2)%rockMats.length]),t=r(),edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42;pebble.scale.set(1.3,.55,1.0);pebble.position.set(-width*.47+t*width*.94,.11+r()*.05,facing*(depth*.5-.50+edgeWave)+(r()-.5)*.32);pebble.rotation.y=r()*Math.PI;g.add(pebble)}
   const toeCount=Math.max(12,Math.ceil(width/.72));for(let i=0;i<toeCount;i++){if((i+seed)%7===2)continue;const t=(i+.35)/toeCount,edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42+Math.sin(t*Math.PI*7+seed*.07)*.14,rad=.13+r()*.18,toe=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(rad,1),r,.20),rockMats[(i+seed+3)%rockMats.length]);toe.scale.set(1.45,.46,.92);toe.position.set(-width*.5+t*width+(r()-.5)*.25,-1.48+r()*.16,facing*(depth*.5-1.03+edgeWave)+(r()-.5)*.18);toe.rotation.y=r()*Math.PI;g.add(toe);if(i%3===0){const shelf=new THREE.Mesh(new THREE.CircleGeometry(rad*(1.15+r()*.35),10),i%2?moss:mossLight);shelf.rotation.x=-Math.PI/2;shelf.position.set(toe.position.x,toe.position.y+rad*.25,toe.position.z-facing*.03);shelf.scale.set(1.25,.72,1);g.add(shelf)}}
   const rootCount=Math.max(5,Math.floor(width/2.1));for(let i=0;i<rootCount;i++){const t=(i+.55)/rootCount,edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42,len=.65+r()*.75,root=new THREE.Mesh(new THREE.CylinderGeometry(.028+r()*.025,.055+r()*.035,len,6),rootMat);root.position.set(-width*.46+t*width*.92,-.34-len*.34,facing*(depth*.5-.42+edgeWave));root.rotation.z=(r()-.5)*.28;root.rotation.x=facing*(.10+r()*.18);g.add(root)}
-  g.userData={assetId:'bank_target_v4',version:'4.8.0',seed,stage:'M04_QUALITY_REGATE',source:'repo-procedural',intent:'target-facing forest bank with multi-scale mottled ground texture, clustered flower and fern understory, irregular macro-relief, layered cliff terraces, shoreline rubble, moss shelves and roots; v4.8 preserves the accepted world silhouette while adding broad erosion/soil veins, denser cliff layering and broken strata ledges so the bank reads as one eroded natural mass rather than stacked procedural bands'};
+  if(integration509){for(const child of g.children){child.position.z-=.8;child.position.y-=.10}}
+  g.userData={assetId:'bank_target_v4',version:'4.8.0',seed,stage:'M04_QUALITY_REGATE',source:'repo-procedural',intent:'target-facing forest bank with multi-scale mottled ground texture, clustered flower and fern understory, irregular macro-relief, layered cliff terraces, shoreline rubble, moss shelves and roots; v4.8 preserves the accepted world silhouette while adding broad erosion/soil veins, denser cliff layering and broken strata ledges so the bank reads as one eroded natural mass rather than stacked procedural bands',integrationProfile:integration509?'m06-p01-bank509-mid':'default',requestedDepth,effectiveDepth:depth};
   return shadows(g);
 }
