@@ -1,0 +1,56 @@
+name: M03-P01 Macro Layout Rebuild
+
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths:
+      - '.github/workflows/m03-p01-macro-layout-rebuild.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Rebuild secondary crossing river and route as one macro unit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          old="const waterUpperRight=createTargetWaterV3({width:9.4,depth:18.5,seed:331});waterUpperRight.position.set(4.45,.05,-8.2);waterUpperRight.rotation.y=-.20;scene.add(waterUpperRight);"
+          new="const waterUpperRight=createTargetWaterV3({width:8.2,depth:22.0,seed:331});waterUpperRight.position.set(5.25,.05,-9.0);waterUpperRight.rotation.y=-.34;scene.add(waterUpperRight);"
+          if old not in s: raise SystemExit('upper river anchor not found')
+          s=s.replace(old,new,1)
+          old="const bridgeRight=bridgeAt(3.25,-7.0,Math.PI/2-.16,false);bridgeRight.position.y=.72;\nbank(880,1.80,1.85,-2.30,.92,-7.34,1,.05);bank(887,1.90,1.90,8.82,1.00,-6.76,1,-.04);"
+          new="const bridgeRight=bridgeAt(4.35,-8.65,Math.PI/2-.48,false);bridgeRight.position.y=.82;\nbank(880,2.15,2.20,-1.05,1.02,-10.25,1,.18);bank(887,2.15,2.20,9.15,1.05,-6.05,1,-.18);"
+          if old not in s: raise SystemExit('secondary bridge anchor not found')
+          s=s.replace(old,new,1)
+          old="pathRibbon([[-2.2,-10.35],[-1.0,-11.2],[.2,-12.1],[1.0,-13.0]],.64,2.28);"
+          new="pathRibbon([[-4.95,-9.2],[-3.7,-10.1],[-2.15,-10.85],[-.55,-11.15],[1.15,-10.65],[2.55,-9.75],[3.55,-8.95]],.72,2.28);"
+          if old not in s: raise SystemExit('north route anchor not found')
+          s=s.replace(old,new,1)
+          s=s.replace('M03 Composition Rebuild v65','M03 Composition Rebuild v66',1)
+          s=s.replace("bridgeLayout:'main-plus-right-branch'","bridgeLayout:'main-plus-diagonal-target-crossing-v2'",1)
+          p.write_text(s)
+          PY
+          git diff --check
+          grep -q "bridgeAt(4.35,-8.65,Math.PI/2-.48,false)" prototypes/modern-3d/index.html
+          grep -q "main-plus-diagonal-target-crossing-v2" prototypes/modern-3d/index.html
+      - name: Commit bounded macro rebuild
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then exit 0; fi
+          git config user.name "lq-scheduled-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m03-p01): rebuild diagonal secondary crossing"
+          git push origin HEAD:prototype/modern-3d
