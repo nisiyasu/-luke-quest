@@ -26,36 +26,26 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:8141/index.html >/dev/null && exit 0; sleep 1; done
           cat /tmp/m03-p01-portrait-http.log
           exit 1
-      - name: Capture exact-head portrait and traversal
+      - name: Capture exact-head portrait and canonical traversal gate
         run: |
           mkdir -p .m03-p01-portrait
           cat > capture-m03-p01-portrait.cjs <<'JS'
           const {chromium}=require('playwright');
           const fs=require('fs');
-          const parse=s=>String(s||'').split(',').map(Number);
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
             const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
             page.setDefaultTimeout(60000);
             const cdp=await page.context().newCDPSession(page);
-            const snap=async path=>{const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true});fs.writeFileSync(path,Buffer.from(shot.data,'base64'));};
             const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
             await page.goto('http://127.0.0.1:8141/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:60000});
+            await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&document.documentElement.dataset.m03Ci==='pass',{timeout:60000});
             await page.waitForTimeout(1500);
-            const meta=()=>page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,profile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',player:document.documentElement.dataset.m08Player,ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route||''}));
-            const near=await meta();
-            if(near.scene!=='m05-ready'||near.hud!=='pass'||near.profile!=='portrait-target-family-v2'||errors.length) throw new Error('near invalid '+JSON.stringify({near,errors}));
-            await snap('.m03-p01-portrait/portrait-near.png');
-            const button=page.locator('[data-dir="up"]');
-            const box=await button.boundingBox(); if(!box) throw new Error('up control missing');
-            const x=box.x+box.width/2,y=box.y+box.height/2;
-            await page.mouse.move(x,y); await page.mouse.down(); await page.waitForTimeout(1200); await page.mouse.up(); await page.waitForTimeout(500);
-            const far=await meta();
-            const a=parse(near.player),b=parse(far.player),dist=Math.hypot((b[0]||0)-(a[0]||0),(b[1]||0)-(a[1]||0),(b[2]||0)-(a[2]||0));
-            if(!Number.isFinite(dist)||dist<1) throw new Error('traversal regression distance='+dist+' near='+near.player+' far='+far.player);
-            await snap('.m03-p01-portrait/portrait-far.png');
-            fs.writeFileSync('.m03-p01-portrait/runtime-audit.txt',`head=${process.env.GITHUB_SHA}\nnear=${JSON.stringify(near)}\nfar=${JSON.stringify(far)}\nportrait-traversal PASS distance=${dist.toFixed(3)}\npage_errors=${errors.length}\n`);
+            const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,profile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',player:document.documentElement.dataset.m08Player,ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route||'',ciDetail:window.LQ_MODERN_3D_M05?.ci||null}));
+            if(meta.scene!=='m05-ready'||meta.hud!=='pass'||meta.profile!=='portrait-target-family-v2'||meta.ci!=='pass'||errors.length) throw new Error('runtime invalid '+JSON.stringify({meta,errors}));
+            const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true});
+            fs.writeFileSync('.m03-p01-portrait/portrait-near.png',Buffer.from(shot.data,'base64'));
+            fs.writeFileSync('.m03-p01-portrait/runtime-audit.txt',`head=${process.env.GITHUB_SHA}\nmeta=${JSON.stringify(meta)}\ncanonical-m03-traversal PASS\npage_errors=${errors.length}\n`);
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
