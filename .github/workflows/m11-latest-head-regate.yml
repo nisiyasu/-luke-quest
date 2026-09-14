@@ -80,4 +80,4 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-# evidence trigger: connected target junction v69 exact-head
+# evidence trigger: right-midground grounded junction v70 exact-head
