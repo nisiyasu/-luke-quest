@@ -11,8 +11,8 @@ on:
       - "dist/README.md"
   workflow_dispatch:
 
-# M10-P02 fresh router regate after M09 world repair + M10-P01 profile acceptance, 2026-09-14.
-# Build from current source, persist changed distribution, then require exact post-refresh rerun evidence.
+# M10-P02 exact post-refresh stable-head rerun after distribution commit 4b4582b6, 2026-09-14.
+# Build from current source and require the persisted distribution to remain byte-stable while actual package executes.
 permissions:
   contents: write
 
