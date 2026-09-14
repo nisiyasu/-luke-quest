@@ -60,7 +60,31 @@ bank(557,8,8,4.8,2.45,14.0,-1,-.12);
 bank(631,7.0,5.4,-1.35,.18,7.35,-1,.02);
 const nearMassTopMat=new THREE.MeshStandardMaterial({color:0x526a43,roughness:1,metalness:0});
 const nearMassSideMat=new THREE.MeshStandardMaterial({color:0x564b39,roughness:1,metalness:0});
-function nearFieldMass(x,z,radius,height,ry=0){const geo=new THREE.CylinderGeometry(radius*.84,radius,height,7,1,false);const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);mesh.position.set(x,-.28+height/2,z);mesh.rotation.y=ry;mesh.receiveShadow=true;mesh.castShadow=true;scene.add(mesh);return mesh}
+function nearFieldMass(x,z,radius,height,ry=0){
+  // M06-P01 v1: preserve the proven footprint while removing the regular heptagonal slab read.
+  const segments=18;
+  const geo=new THREE.CylinderGeometry(radius*.88,radius,height,segments,2,false);
+  const pos=geo.attributes.position;
+  const phase=x*.173+z*.119+radius*.311;
+  for(let i=0;i<pos.count;i++){
+    const px=pos.getX(i),py=pos.getY(i),pz=pos.getZ(i);
+    const a=Math.atan2(pz,px);
+    const radial=1+.055*Math.sin(a*3+phase)+.028*Math.sin(a*7-phase*.63)+.016*Math.sin(a*11+phase*.37);
+    const yNorm=(py/Math.max(height,.001))+.5;
+    const edgeBias=.96+.04*Math.sin(Math.PI*Math.max(0,Math.min(1,yNorm)));
+    const crown=(yNorm>.80?(.035+.018*Math.sin(a*4+phase))*radius:0);
+    pos.setXYZ(i,px*radial*edgeBias,py+crown,pz*radial*edgeBias);
+  }
+  pos.needsUpdate=true;
+  geo.computeVertexNormals();
+  const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);
+  mesh.position.set(x,-.30+height/2,z);
+  mesh.rotation.y=ry;
+  mesh.receiveShadow=true;
+  mesh.castShadow=true;
+  scene.add(mesh);
+  return mesh
+}
 nearFieldMass(-8.1,12.4,2.55,.92,.18);nearFieldMass(5.15,12.0,4.15,1.10,-.14);nearFieldMass(-7.6,7.9,1.85,.70,.31);nearFieldMass(7.1,7.8,4.05,1.18,-.18);nearFieldMass(-9.4,7.0,2.05,.76,.16);
 // v43: strengthen the lower portrait enclosure without touching the playable bridge corridor.
 nearFieldMass(-9.0,16.4,2.45,.86,.23);nearFieldMass(6.45,16.0,4.35,1.18,-.21);nearFieldMass(-10.0,12.9,1.75,.66,.12);nearFieldMass(8.15,12.7,3.05,.88,-.10);
