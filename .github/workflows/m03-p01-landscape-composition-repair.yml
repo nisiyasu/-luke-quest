@@ -17,7 +17,7 @@ jobs:
         with:
           ref: prototype/modern-3d
           fetch-depth: 0
-      - name: Reposition secondary crossing and reconnect with grounded trail
+      - name: Rebuild north corridor and right-midground crossing
         shell: bash
         run: |
           set -euo pipefail
@@ -26,36 +26,27 @@ jobs:
           p=Path('prototypes/modern-3d/index.html')
           s=p.read_text()
 
-          old_bridge="const bridgeRight=bridgeAt(2.10,-4.82,Math.PI/2+.33,false);bridgeRight.position.y=.82;bridgeRight.scale.z=1.06;"
-          new_bridge="const bridgeRight=bridgeAt(4.55,-6.55,1.10,false);bridgeRight.position.y=.82;bridgeRight.scale.z=.92;"
-          if old_bridge not in s: raise SystemExit('v69 secondary bridge anchor not found')
+          old_bridge="const bridgeRight=bridgeAt(4.55,-6.55,1.10,false);bridgeRight.position.y=.82;bridgeRight.scale.z=.92;"
+          new_bridge="const bridgeRight=bridgeAt(5.00,-5.10,1.12,false);bridgeRight.position.y=.82;bridgeRight.scale.z=.85;"
+          if old_bridge not in s: raise SystemExit('v70 secondary bridge anchor not found')
           s=s.replace(old_bridge,new_bridge,1)
 
-          anchor="function pathRibbon(points,width=.95,y=1.08){"
-          idx=s.find(anchor)
-          if idx < 0: raise SystemExit('pathRibbon anchor not found')
-          end=s.find("\npathRibbon([[-1.35,-4.45]",idx)
-          if end < 0: raise SystemExit('main path call anchor not found')
-          helper="\nfunction terrainPathRibbon(points,width=.72,lift=.055){const verts=[],idx=[];for(let i=0;i<points.length;i++){const [x,z]=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];const dx=next[0]-prev[0],dz=next[1]-prev[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len,w=width*(i===0||i===points.length-1?.78:1),y=terrainY(x,z)+lift;verts.push(x+nx*w,y,z+nz*w,x-nx*w,y,z-nz*w);if(i<points.length-1){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,c,d,b)}}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;m.castShadow=false;scene.add(m);return m}\n"
-          if 'function terrainPathRibbon(' not in s:
-              s=s[:end]+helper+s[end:]
+          old_routes="pathRibbon([[-1.35,-4.45],[-2.25,-4.9],[-3.45,-5.8],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,14.6]],.76,-.18);terrainPathRibbon([[-3.45,-5.80],[-2.55,-6.05],[-1.55,-6.35],[-.35,-6.75],[.75,-7.20],[1.65,-7.75]],.64,.06);"
+          new_routes="terrainPathRibbon([[-1.35,-4.45],[-1.55,-5.35],[-1.85,-6.35],[-2.10,-7.55],[-2.25,-8.95],[-2.45,-10.55],[-2.80,-12.35],[-3.20,-14.45]],.72,.06);pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,14.6]],.76,-.18);terrainPathRibbon([[-1.80,-6.05],[-.75,-6.15],[.35,-6.20],[1.35,-6.30],[2.30,-6.40]],.62,.065);"
+          if old_routes not in s: raise SystemExit('v70 route block not found')
+          s=s.replace(old_routes,new_routes,1)
 
-          route_anchor="pathRibbon([[-1.35,-4.45],[-2.25,-4.9],[-3.45,-5.8],[-4.55,-7.0],[-5.25,-9.0],[-5.8,-11.1],[-5.55,-13.4],[-6.4,-14.6]],.70,1.08);pathRibbon([[-1.35,5.95],[-.75,7.35],[-1.45,9.0],[-2.3,10.7],[-2.8,12.6],[-3.35,14.6]],.76,-.18);"
-          if route_anchor not in s: raise SystemExit('v69 main path calls not found')
-          route_new=route_anchor+"terrainPathRibbon([[-3.45,-5.80],[-2.55,-6.05],[-1.55,-6.35],[-.35,-6.75],[.75,-7.20],[1.65,-7.75]],.64,.06);"
-          s=s.replace(route_anchor,route_new,1)
-
-          if 'M03 Composition Rebuild v69' not in s: raise SystemExit('v69 title anchor not found')
-          s=s.replace('M03 Composition Rebuild v69','M03 Composition Rebuild v70',1)
-          if "bridgeLayout:'main-plus-diagonal-target-crossing-v5-connected-junction'" not in s: raise SystemExit('v69 layout marker not found')
-          s=s.replace("bridgeLayout:'main-plus-diagonal-target-crossing-v5-connected-junction'","bridgeLayout:'main-plus-diagonal-target-crossing-v6-grounded-side-junction'",1)
+          if 'M03 Composition Rebuild v70' not in s: raise SystemExit('v70 title anchor not found')
+          s=s.replace('M03 Composition Rebuild v70','M03 Composition Rebuild v71',1)
+          if "bridgeLayout:'main-plus-diagonal-target-crossing-v6-grounded-side-junction'" not in s: raise SystemExit('v70 layout marker not found')
+          s=s.replace("bridgeLayout:'main-plus-diagonal-target-crossing-v6-grounded-side-junction'","bridgeLayout:'main-plus-diagonal-target-crossing-v7-north-corridor'",1)
           p.write_text(s)
           PY
           git diff --check
-          grep -q "M03 Composition Rebuild v70" prototypes/modern-3d/index.html
-          grep -q "bridgeAt(4.55,-6.55,1.10,false)" prototypes/modern-3d/index.html
-          grep -q "terrainPathRibbon" prototypes/modern-3d/index.html
-          grep -q "main-plus-diagonal-target-crossing-v6-grounded-side-junction" prototypes/modern-3d/index.html
+          grep -q "M03 Composition Rebuild v71" prototypes/modern-3d/index.html
+          grep -q "bridgeAt(5.00,-5.10,1.12,false)" prototypes/modern-3d/index.html
+          grep -q "terrainPathRibbon(\[\[-1.35,-4.45\]" prototypes/modern-3d/index.html
+          grep -q "main-plus-diagonal-target-crossing-v7-north-corridor" prototypes/modern-3d/index.html
       - name: Commit repair
         shell: bash
         run: |
@@ -64,5 +55,5 @@ jobs:
           git config user.name "lq-scheduled-bot"
           git config user.email "actions@users.noreply.github.com"
           git add prototypes/modern-3d/index.html
-          git commit -m "fix(m03-p01): move secondary crossing into right midground"
+          git commit -m "fix(m03-p01): open north corridor and stage right crossing"
           git push origin HEAD:prototype/modern-3d
