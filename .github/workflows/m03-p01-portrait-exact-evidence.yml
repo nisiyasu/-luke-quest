@@ -38,11 +38,10 @@ jobs:
             page.setDefaultTimeout(60000);
             const cdp=await page.context().newCDPSession(page);
             const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
-            await page.goto('http://127.0.0.1:8141/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.goto('http://127.0.0.1:8141/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:60000});
             await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&document.documentElement.dataset.m03Ci==='pass',{timeout:60000});
-            await page.waitForTimeout(1500);
             const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,hud:document.documentElement.dataset.m09OwnerHud,profile:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',player:document.documentElement.dataset.m08Player,ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route||'',ciDetail:window.LQ_MODERN_3D_M05?.ci||null}));
-            if(meta.scene!=='m05-ready'||meta.hud!=='pass'||meta.profile!=='portrait-target-family-v2'||meta.ci!=='pass'||errors.length) throw new Error('runtime invalid '+JSON.stringify({meta,errors}));
+            if(meta.scene!=='m05-ready'||meta.hud!=='pass'||meta.profile!=='portrait-target-family-v2'||meta.ci!=='pass'||!meta.ciDetail?.pass||errors.length) throw new Error('runtime invalid '+JSON.stringify({meta,errors}));
             const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true});
             fs.writeFileSync('.m03-p01-portrait/portrait-near.png',Buffer.from(shot.data,'base64'));
             fs.writeFileSync('.m03-p01-portrait/runtime-audit.txt',`head=${process.env.GITHUB_SHA}\nmeta=${JSON.stringify(meta)}\ncanonical-m03-traversal PASS\npage_errors=${errors.length}\n`);
