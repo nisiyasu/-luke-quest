@@ -73,6 +73,10 @@ const waterLower=createTargetWaterV3({width:14.8,depth:38.5,seed:317});waterLowe
 // v63 M03-P02: continue the south receiving terrain beyond the bridge approach so the lower camera cannot expose a flat rectangular underlay/world-hole edge beside the downstream river.
 // v64 M03-P02: widen/deepen the downstream water envelope so its finite rectangular mesh boundary stays outside the south endpoint follow-camera view while preserving bridge/camera composition.
 bank(905,8.8,13.8,3.45,-.22,14.4,-1,-.05);
+// v66 M09-P01: mask the finite downstream-water side edges in the south follow-camera fringe with authored receiving terrain. These masses stay outside the playable bridge lane and keep a narrow organic river opening instead of exposing a rectangular blue plane.
+nearFieldMass(-6.05,17.2,4.55,1.02,.19);nearFieldMass(4.75,17.5,4.10,1.00,-.16);
+const southFringeFernL=createTargetFernPatch({seed:9661,count:26,radius:2.35});southFringeFernL.position.set(-4.85,-.02,16.7);scene.add(southFringeFernL);
+const southFringeFernR=createTargetFernPatch({seed:9667,count:24,radius:2.20});southFringeFernR.position.set(3.95,-.02,17.0);scene.add(southFringeFernR);
 const southShoreFern=createTargetFernPatch({seed:913,count:34,radius:2.45});southShoreFern.position.set(.95,-.10,13.8);scene.add(southShoreFern);
 for(const [i,x,z,sc] of [[0,-.15,11.8,.54],[1,.55,15.2,.62],[2,1.55,18.0,.58]]){const r=createRockCluster({seed:9200+i*29,scale:sc});r.position.set(x,-.15,z);scene.add(r);}
 const waterUpperRight=createTargetWaterV3({width:9.4,depth:18.5,seed:331});waterUpperRight.position.set(4.45,.05,-8.2);waterUpperRight.rotation.y=-.20;scene.add(waterUpperRight);
