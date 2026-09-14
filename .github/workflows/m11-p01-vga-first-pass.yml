@@ -10,6 +10,7 @@ on:
   workflow_dispatch:
 
 # M11-P01 exact-head recapture trigger after current-head regate.
+# Fresh router-selected M11-P01 trigger after M10-P02 exact-head package PASS.
 permissions:
   contents: read
 
