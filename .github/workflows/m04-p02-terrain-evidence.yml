@@ -1,4 +1,4 @@
-# fresh exact-head revalidation trigger: 2026-09-13 after M04-P01
+# fresh exact-head revalidation trigger: 2026-09-14 M11 adversarial target-depth return
 name: M04-P02 Terrain Evidence
 
 on:
@@ -43,7 +43,7 @@ jobs:
               const inspect=await browser.newPage({viewport:{width:1280,height:760},deviceScaleFactor:1});
               const ie=[];inspect.on('pageerror',e=>ie.push(String(e)));
               await inspect.goto('http://127.0.0.1:8140/m04-bank-inspection.html',{waitUntil:'domcontentloaded',timeout:150000});
-              await inspect.waitForFunction(()=>document.documentElement.dataset.m04BankInspection==='ready'&&document.documentElement.dataset.candidateAsset==='bank_target_v4@4.7.0',{timeout:150000});
+              await inspect.waitForFunction(()=>document.documentElement.dataset.m04BankInspection==='ready'&&document.documentElement.dataset.candidateAsset==='bank_target_v4@4.8.0',{timeout:150000});
               await inspect.waitForTimeout(1200);
               const im=await inspect.evaluate(()=>({ready:document.documentElement.dataset.m04BankInspection,current:document.documentElement.dataset.currentAsset,previous:document.documentElement.dataset.previousCandidate,candidate:document.documentElement.dataset.candidateAsset}));
               if(ie.length)throw new Error(`inspection errors=${JSON.stringify(ie)}`);
@@ -54,9 +54,9 @@ jobs:
               const scene=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
               const se=[];scene.on('pageerror',e=>se.push(String(e)));
               await scene.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
-              await scene.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+              await scene.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&document.documentElement.dataset.m04PathMaterial==='m04-path-material-v2',{timeout:150000});
               await scene.waitForTimeout(1200);
-              const sm=await scene.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN'}));
+              const sm=await scene.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',pathMaterial:document.documentElement.dataset.m04PathMaterial||'UNKNOWN'}));
               if(se.length)throw new Error(`scene errors=${JSON.stringify(se)}`);
               await scene.screenshot({path:'.m04-p02/integrated-canonical.png',fullPage:true,timeout:150000});
               rows.push(`scene ${JSON.stringify(sm)}`);
@@ -65,8 +65,9 @@ jobs:
               const manifest=JSON.parse(fs.readFileSync('prototypes/modern-3d/ASSET_MANIFEST.json','utf8'));
               const bank=manifest.assets.find(x=>x.id==='bank_target_v4');
               const rock=manifest.assets.find(x=>x.id==='rock_cluster_v1');
-              if(manifest.active_target_set.bank!=='bank_target_v4@4.7.0'||!bank||bank.version!=='4.7.0'||!rock||rock.version!=='1.1.0')throw new Error('terrain authority mismatch');
+              if(manifest.active_target_set.bank!=='bank_target_v4@4.8.0'||!bank||bank.version!=='4.8.0'||!rock||rock.version!=='1.1.0')throw new Error('terrain authority mismatch');
               rows.push(`manifest bank=${manifest.active_target_set.bank} bankVersion=${bank.version} rockVersion=${rock.version} sources=${bank.source}/${rock.source}`);
+              rows.push('targetDepthRepair=erosion-veins+five-step-cliff-cadence+broken-strata-ledges+path-material-v2');
               fs.writeFileSync('.m04-p02/terrain-audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
