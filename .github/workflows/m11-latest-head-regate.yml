@@ -80,4 +80,4 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-# evidence trigger: diagonal macro rebuild v66
+# evidence trigger: diagonal macro rebuild v67 exact-head
