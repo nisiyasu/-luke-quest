@@ -99,7 +99,8 @@ const waterLower=createTargetWaterV3({width:14.8,depth:38.5,seed:317});waterLowe
 bank(905,8.8,13.8,3.45,-.22,14.4,-1,-.05);
 // v66 M09-P01: mask the finite downstream-water side edges in the south follow-camera fringe with authored receiving terrain. These masses stay outside the playable bridge lane and keep a narrow organic river opening instead of exposing a rectangular blue plane.
 // M06-P01 v2: use authored eroded banks for the downstream screen-edge mask instead of two visible terrain slabs.
-bank(9661,8.4,7.2,-6.05,-.18,17.2,-1,.08);bank(9667,7.8,6.8,4.75,-.18,17.5,-1,-.10);
+// M06-P01 v3: recess the south fringe banks outward, lower and south so their finite top/side boundaries stay outside the portrait foreground while still masking the downstream water envelope.
+bank(9661,6.8,6.0,-8.2,-.42,19.0,-1,.14);bank(9667,7.0,6.0,6.7,-.40,19.1,-1,-.14);
 const southFringeFernL=createTargetFernPatch({seed:9661,count:26,radius:2.35});southFringeFernL.position.set(-4.85,-.02,16.7);scene.add(southFringeFernL);
 const southFringeFernR=createTargetFernPatch({seed:9667,count:24,radius:2.20});southFringeFernR.position.set(3.95,-.02,17.0);scene.add(southFringeFernR);
 const southShoreFern=createTargetFernPatch({seed:913,count:34,radius:2.45});southShoreFern.position.set(.95,-.10,13.8);scene.add(southShoreFern);
