@@ -1,11 +1,11 @@
-name: M06-P01 South Fringe Bank Repair v2
+name: M06-P01 South Fringe Bank Repair v3
 
 on:
   push:
     branches:
       - prototype/modern-3d
     paths:
-      - .ci/m06-p01-south-fringe-bank-v2.txt
+      - .ci/m06-p01-south-fringe-bank-v3.txt
 
 permissions:
   contents: write
@@ -19,27 +19,27 @@ jobs:
         with:
           ref: prototype/modern-3d
           fetch-depth: 0
-      - name: Replace only south fringe masking slabs with authored banks
+      - name: Recess south fringe banks beyond foreground seam
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('prototypes/modern-3d/index.html')
           t=p.read_text(encoding='utf-8')
-          old="nearFieldMass(-6.05,17.2,4.55,1.02,.19);nearFieldMass(4.75,17.5,4.10,1.00,-.16);"
-          new="// M06-P01 v2: use authored eroded banks for the downstream screen-edge mask instead of two visible terrain slabs.\nbank(9661,8.4,7.2,-6.05,-.18,17.2,-1,.08);bank(9667,7.8,6.8,4.75,-.18,17.5,-1,-.10);"
+          old="bank(9661,8.4,7.2,-6.05,-.18,17.2,-1,.08);bank(9667,7.8,6.8,4.75,-.18,17.5,-1,-.10);"
+          new="// M06-P01 v3: recess the south fringe banks outward, lower and south so their finite top/side boundaries stay outside the portrait foreground while still masking the downstream water envelope.\nbank(9661,6.8,6.0,-8.2,-.42,19.0,-1,.14);bank(9667,7.0,6.0,6.7,-.40,19.1,-1,-.14);"
           if t.count(old)!=1:
-            raise SystemExit(f'FAIL_CLOSED south fringe pair count={t.count(old)}')
+            raise SystemExit(f'FAIL_CLOSED current south fringe bank pair count={t.count(old)}')
           p.write_text(t.replace(old,new,1),encoding='utf-8')
           PY
       - name: Validate bounded diff
         run: |
           git diff --check
-          grep -F "M06-P01 v2: use authored eroded banks" prototypes/modern-3d/index.html
+          grep -F "M06-P01 v3: recess the south fringe banks" prototypes/modern-3d/index.html
           test "$(git diff --name-only)" = "prototypes/modern-3d/index.html"
       - name: Commit exact repair
         run: |
           git config user.name "LUKE QUEST Autonomous Builder"
           git config user.email "actions@users.noreply.github.com"
           git add prototypes/modern-3d/index.html
-          git commit -m "fix(m06-p01): replace south fringe slabs with authored banks"
+          git commit -m "fix(m06-p01): recess south fringe banks from foreground"
           git push origin HEAD:prototype/modern-3d
