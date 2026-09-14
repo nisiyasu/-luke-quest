@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 
 # M10-P02 post-dist exact verification: prove refreshed current-source distribution is stable and executable.
+# Fresh router regate trigger: verify the current packaged artifact after later prototype repairs.
 permissions:
   contents: write
 
