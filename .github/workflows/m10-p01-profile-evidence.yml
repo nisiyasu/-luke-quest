@@ -1,5 +1,5 @@
 name: M10-P01 HQ vs Practical Profile Evidence
-# Fresh exact-head regate after M09/M08 acceptance chain, 2026-09-14.
+# Fresh exact-head regate after M09-P02 post-world-repair acceptance, 2026-09-14.
 
 on:
   push:
