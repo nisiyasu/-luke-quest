@@ -50,7 +50,7 @@ jobs:
         run: |
           python3 -m http.server 8141 --bind 127.0.0.1 >/tmp/m06diag-http.log 2>&1 &
           sleep 2
-      - name: Capture same-camera variants
+      - name: Capture static same-camera variants
         run: |
           cat > m06diag.cjs <<'JS'
           const {chromium}=require('playwright');
@@ -62,9 +62,9 @@ jobs:
             const audit=[];
             for(const name of cases){
               const errors=[]; const h=e=>errors.push(String(e)); page.on('pageerror',h);
-              await page.goto(`http://127.0.0.1:8141/.m06-diagnostic/${name}/index.html?quality=high&m08gate=1`,{waitUntil:'domcontentloaded',timeout:150000});
+              await page.goto(`http://127.0.0.1:8141/.m06-diagnostic/${name}/index.html?quality=high&m08gate=1&ci=1`,{waitUntil:'domcontentloaded',timeout:150000});
               await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',{timeout:150000});
-              await page.waitForTimeout(900);
+              await page.waitForTimeout(120);
               await page.screenshot({path:`.m06-diagnostic/${name}.png`,fullPage:true,timeout:150000});
               audit.push(`${name}: page_errors=${errors.length}`); page.off('pageerror',h);
             }
