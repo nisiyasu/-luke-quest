@@ -1,0 +1,93 @@
+name: M04-P02 Target Depth Repair
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m04-p02-target-depth-repair.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+
+      - name: Apply target-facing terrain asset refinement
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          bank_path=Path('prototypes/modern-3d/m04-bank-target-v4.js')
+          bank=bank_path.read_text()
+          if "version:'4.8.0'" not in bank:
+            old="const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5.2,4.2);t.anisotropy=8;return t;"
+            new="""// v4.8 M11 return: broad erosion/soil veins break the remaining regular lawn/patch read before micro detail is layered on top.\n  for(let i=0;i<34;i++){const x0=r()*512,y0=r()*512,len=55+r()*155,ang=r()*Math.PI*2;x.strokeStyle=i%3===0?'rgba(91,68,43,.22)':i%3===1?'rgba(32,65,31,.20)':'rgba(196,181,112,.13)';x.lineWidth=6+r()*18;x.lineCap='round';x.beginPath();x.moveTo(x0,y0);x.bezierCurveTo(x0+Math.cos(ang+.45)*len*.33,y0+Math.sin(ang+.45)*len*.33,x0+Math.cos(ang-.35)*len*.68,y0+Math.sin(ang-.35)*len*.68,x0+Math.cos(ang)*len,y0+Math.sin(ang)*len);x.stroke()}\n  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(3.65,3.10);t.anisotropy=8;return t;"""
+            assert old in bank, 'grass texture anchor changed'
+            bank=bank.replace(old,new,1)
+
+            old="const bands=[{z:depth*.5-.28,y:-.34,scale:.90},{z:depth*.5-.53,y:-.76,scale:.72},{z:depth*.5-.76,y:-1.13,scale:.54},{z:depth*.5-.94,y:-1.42,scale:.38}];"
+            new="const bands=[{z:depth*.5-.25,y:-.28,scale:.96},{z:depth*.5-.46,y:-.58,scale:.83},{z:depth*.5-.66,y:-.89,scale:.68},{z:depth*.5-.84,y:-1.18,scale:.53},{z:depth*.5-1.00,y:-1.44,scale:.38}];"
+            assert old in bank, 'cliff band anchor changed'
+            bank=bank.replace(old,new,1)
+
+            anchor="  for(let i=0;i<8;i++){const patch=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(.44+r()*.22,2),r,.17),soil);"
+            strata="""  // v4.8 target-depth strata: broken ledges bridge the rock rows into a continuous eroded cliff face instead of visible bead-like terraces.\n  const ledgeMat=[soilLight,rockMats[1],rockMats[4],moss];\n  const ledgeCount=Math.max(7,Math.ceil(width/1.65));\n  for(let i=0;i<ledgeCount;i++){const t=(i+.45)/ledgeCount,edgeWave=Math.sin(t*Math.PI*3+seed*.19)*.42+Math.sin(t*Math.PI*7+seed*.07)*.14,w=.55+r()*1.05,h=.12+r()*.16,d=.22+r()*.38,ledge=new THREE.Mesh(deform(new THREE.BoxGeometry(w,h,d,3,1,2),r,.22),ledgeMat[(i+seed)%ledgeMat.length]);ledge.position.set(-width*.5+t*width+(r()-.5)*.38,-.58-r()*.78,facing*(depth*.5-.58+edgeWave)+(r()-.5)*.20);ledge.rotation.set((r()-.5)*.10,(r()-.5)*.32,(r()-.5)*.10);ledge.scale.x*=.82+r()*.46;g.add(ledge)}\n"""
+            assert anchor in bank, 'strata insertion anchor changed'
+            bank=bank.replace(anchor,strata+anchor,1)
+            bank=bank.replace("version:'4.7.0'","version:'4.8.0'",1)
+            bank=bank.replace("v4.7 specifically removes pale-lawn/repeated-spike reads while preserving the v4.6 world silhouette and collision-neutral visual geometry","v4.8 preserves the accepted world silhouette while adding broad erosion/soil veins, denser cliff layering and broken strata ledges so the bank reads as one eroded natural mass rather than stacked procedural bands")
+            bank_path.write_text(bank)
+
+          index_path=Path('prototypes/modern-3d/index.html')
+          index=index_path.read_text()
+          marker='m04-path-material-v2'
+          if marker not in index:
+            old="const pathMat=new THREE.MeshStandardMaterial({color:0x8d7548,roughness:.98,metalness:0});"
+            new="""// m04-path-material-v2: macro/micro earth breakup keeps the authored trail distinct without a flat single-color strip.\nfunction makePathTexture(){const c=document.createElement('canvas');c.width=c.height=384;const x=c.getContext('2d'),r=(()=>{let s=90421;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)})();x.fillStyle='#8d7548';x.fillRect(0,0,384,384);for(let i=0;i<86;i++){const px=r()*384,py=r()*384,rx=7+r()*42,ry=3+r()*17;x.fillStyle=i%4===0?'rgba(70,55,38,.24)':i%3===0?'rgba(178,150,91,.18)':'rgba(104,83,50,.18)';x.beginPath();x.ellipse(px,py,rx,ry,r()*Math.PI,0,Math.PI*2);x.fill()}for(let i=0;i<520;i++){x.fillStyle=i%5===0?'rgba(205,181,126,.30)':'rgba(64,55,43,.22)';x.beginPath();x.arc(r()*384,r()*384,.45+r()*1.7,0,Math.PI*2);x.fill()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2.8,5.2);t.anisotropy=8;return t}\nconst pathMat=new THREE.MeshStandardMaterial({color:0xd8c49a,map:makePathTexture(),roughness:.97,metalness:0});document.documentElement.dataset.m04PathMaterial='m04-path-material-v2';"""
+            assert old in index, 'path material anchor changed'
+            index=index.replace(old,new,1)
+            index_path.write_text(index)
+
+          insp=Path('prototypes/modern-3d/m04-bank-inspection.html')
+          txt=insp.read_text().replace('bank_target_v4@4.7.0','bank_target_v4@4.8.0')
+          insp.write_text(txt)
+
+          manifest_path=Path('prototypes/modern-3d/ASSET_MANIFEST.json')
+          manifest=json.loads(manifest_path.read_text())
+          manifest['active_target_set']['bank']='bank_target_v4@4.8.0'
+          bank_asset=next(a for a in manifest['assets'] if a['id']=='bank_target_v4')
+          bank_asset['version']='4.8.0'
+          bank_asset['note']='v4.8 M11 adversarial return: preserves accepted M03/M06 footprint while adding broad erosion/soil veins, tighter cliff-layer cadence and broken strata ledges to reduce assembled procedural-band read against TARGET.'
+          for feat in ['broad low-frequency erosion/soil veins for repeat resistance','five-step cliff depth cadence','broken strata ledges joining terrace rows into continuous eroded mass']:
+            if feat not in bank_asset['features']: bank_asset['features'].append(feat)
+          manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+
+          ev=Path('.github/workflows/m04-p02-terrain-evidence.yml')
+          txt=ev.read_text().replace('bank_target_v4@4.7.0','bank_target_v4@4.8.0').replace("bank.version!=='4.7.0'","bank.version!=='4.8.0'")
+          ev.write_text(txt)
+          PY
+
+          grep -q "version:'4.8.0'" prototypes/modern-3d/m04-bank-target-v4.js
+          grep -q "m04-path-material-v2" prototypes/modern-3d/index.html
+          grep -q 'bank_target_v4@4.8.0' prototypes/modern-3d/ASSET_MANIFEST.json
+
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo "repair already present"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/modern-3d/m04-bank-target-v4.js prototypes/modern-3d/index.html prototypes/modern-3d/m04-bank-inspection.html prototypes/modern-3d/ASSET_MANIFEST.json .github/workflows/m04-p02-terrain-evidence.yml
+          git commit -m "fix(m04-p02): deepen terrain strata and material breakup"
+          git push origin HEAD:prototype/modern-3d
