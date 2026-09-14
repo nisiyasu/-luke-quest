@@ -1,6 +1,7 @@
 name: M09-P02 Postfix Regate
 # re-entry exact-head gate after M09-P01 landscape repair
 # adversarially hardened after prior panel-bounds check missed clipped objective text
+# 2026-09-14 exact-head re-gate after M09-P01 south-fringe repair v66
 
 on:
   push:
