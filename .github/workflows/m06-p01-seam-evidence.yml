@@ -1,3 +1,4 @@
+# fresh exact-head revalidation trigger: 2026-09-14 organic near-field terrain integration c2a0b3fb
 # fresh exact-head revalidation trigger: 2026-09-14 deterministic movement repair after headless RAF throttling false-failed run 34809967925
 # fresh exact-head revalidation trigger: 2026-09-14 after bank_target_v4@4.8.0 M04 repair and M05 minimum-floor PASS
 # fresh exact-head revalidation trigger: 2026-09-14 after secondary bridge clearance d5447038
@@ -49,23 +50,18 @@ jobs:
               await page.waitForTimeout(800);
               const before=await page.evaluate(()=>({player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
               await page.screenshot({path:'.m06-p01/canonical.png',fullPage:true,timeout:150000});
-
-              // Do not use wall-clock key-hold time here: software WebGL in hosted CI can throttle RAF to ~1 fps.
-              // Drive the exact production movement/collision step function deterministically instead.
               await page.keyboard.down('ArrowUp');
               await page.evaluate(()=>{for(let i=0;i<18;i++)window.LQ_MODERN_3D_M08_GATE.stepMovement(.1);window.LQ_MODERN_3D_M08_GATE.syncState()});
               await page.keyboard.up('ArrowUp');
               await page.waitForTimeout(150);
               const north=await page.evaluate(()=>({player:document.documentElement.dataset.m08Player,blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
               await page.screenshot({path:'.m06-p01/nearby-north-landing.png',fullPage:true,timeout:150000});
-
               await page.keyboard.down('ArrowRight');
               await page.evaluate(()=>{for(let i=0;i<4;i++)window.LQ_MODERN_3D_M08_GATE.stepMovement(.1);window.LQ_MODERN_3D_M08_GATE.syncState()});
               await page.keyboard.up('ArrowRight');
               await page.waitForTimeout(150);
               const side=await page.evaluate(()=>({player:document.documentElement.dataset.m08Player,blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
               await page.screenshot({path:'.m06-p01/nearby-side.png',fullPage:true,timeout:150000});
-
               const a=pos(before.player),b=pos(north.player),c=pos(side.player);
               if(errors.length)throw new Error(`page errors=${JSON.stringify(errors)}`);
               if(a.length<3||b.length<3||c.length<3||![...a,...b,...c].every(Number.isFinite))throw new Error('invalid player coordinates');
