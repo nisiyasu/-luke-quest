@@ -40,18 +40,10 @@ jobs:
             const errors=[];p.on('pageerror',e=>errors.push(String(e)));
             const started=Date.now();
             await p.goto(`http://127.0.0.1:8140/index.html?quality=${quality}`,{waitUntil:'domcontentloaded',timeout:150000});
-            await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:150000});
+            await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&document.documentElement.dataset.m07Lighting==='cohesion-v2-shadow-field',{timeout:150000});
             await p.waitForTimeout(900);
             if(errors.length)throw new Error(`${quality} page errors=${JSON.stringify(errors)}`);
-            const meta=await p.evaluate(()=>({
-              scene:document.documentElement.dataset.lqModern3d,
-              lighting:document.documentElement.dataset.m07Lighting||'UNKNOWN',
-              camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',
-              player:document.documentElement.dataset.m08Player||'UNKNOWN',
-              preset:document.documentElement.dataset.m10QualityPreset||'UNKNOWN',
-              pixelRatio:document.documentElement.dataset.m10PixelRatio||'UNKNOWN',
-              shadowMap:document.documentElement.dataset.m10ShadowMapSize||'UNKNOWN'
-            }));
+            const meta=await p.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,lighting:document.documentElement.dataset.m07Lighting||'UNKNOWN',camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',player:document.documentElement.dataset.m08Player||'UNKNOWN',preset:document.documentElement.dataset.m10QualityPreset||'UNKNOWN',pixelRatio:document.documentElement.dataset.m10PixelRatio||'UNKNOWN',shadowMap:document.documentElement.dataset.m10ShadowMapSize||'UNKNOWN'}));
             rows.push(`${quality}_ready_ms=${Date.now()-started} meta=${JSON.stringify(meta)}`);
             return p;
           }
@@ -62,16 +54,21 @@ jobs:
               await p.screenshot({path:'.m07-p02/high-canonical.png',timeout:150000});
               const before=await p.evaluate(()=>document.documentElement.dataset.m08Player);
               await p.keyboard.down('ArrowUp');await p.waitForTimeout(1300);await p.keyboard.up('ArrowUp');await p.waitForTimeout(650);
-              const after=await p.evaluate(()=>document.documentElement.dataset.m08Player);
-              await p.screenshot({path:'.m07-p02/high-moved.png',timeout:150000});
-              rows.push(`high_move before=${before} after=${after}`);
+              const north=await p.evaluate(()=>document.documentElement.dataset.m08Player);
+              await p.screenshot({path:'.m07-p02/high-moved-north.png',timeout:150000});
+              await p.close();
+              p=await open(browser,'high');
+              await p.keyboard.down('ArrowDown');await p.waitForTimeout(2200);await p.keyboard.up('ArrowDown');await p.waitForTimeout(650);
+              const south=await p.evaluate(()=>document.documentElement.dataset.m08Player);
+              await p.screenshot({path:'.m07-p02/high-moved-south.png',timeout:150000});
+              rows.push(`high_moves canonical=${before} north=${north} south=${south}`);
               await p.close();
               p=await open(browser,'practical');
               await p.screenshot({path:'.m07-p02/practical-canonical.png',timeout:150000});
               await p.close();
               const source=fs.readFileSync('prototypes/modern-3d/index.html','utf8');
-              for(const token of ['toneMappingExposure=1.07','FogExp2(0xb4c8bd,.0074)','HemisphereLight(0xfff0d3,0x29483d,1.06)','DirectionalLight(0xffd7a1,4.18)','DirectionalLight(0xb7d7e8,.31)','dataset.m07Lighting=\'cohesion-v1\''])if(!source.includes(token))throw new Error(`lighting contract token missing: ${token}`);
-              rows.push('lighting_contract=PASS exposure=1.07 fog=0.0074 hemisphere=1.06 sun=4.18 skyFill=0.31');
+              for(const token of ["toneMappingExposure=1.07","FogExp2(0xb4c8bd,.0074)","HemisphereLight(0xfff0d3,0x29483d,1.06)","DirectionalLight(0xffd7a1,4.18)","DirectionalLight(0xb7d7e8,.31)","sunTarget.position.set(-1.35,0,1.10)","sun.shadow.camera.left=-40","sun.shadow.camera.right=40","sun.shadow.camera.top=42","sun.shadow.camera.bottom=-42","dataset.m07Lighting='cohesion-v2-shadow-field'"])if(!source.includes(token))throw new Error(`lighting contract token missing: ${token}`);
+              rows.push('lighting_contract=PASS one_shadow_key=true explicit_target=true expanded_shadow_field=true sky_fill_no_shadow=true');
               rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'} page_errors=0`);
               fs.writeFileSync('.m07-p02/lighting-audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
