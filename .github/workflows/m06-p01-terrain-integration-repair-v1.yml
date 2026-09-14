@@ -26,16 +26,7 @@ jobs:
           from pathlib import Path
           path=Path('prototypes/modern-3d/index.html')
           text=path.read_text(encoding='utf-8')
-          old="""function nearFieldMass(x,z,radius,height,ry=0){
-            const geo=new THREE.CylinderGeometry(radius*.84,radius,height,7,1,false);
-            const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);
-            mesh.position.set(x,-.28+height/2,z);
-            mesh.rotation.y=ry;
-            mesh.receiveShadow=true;
-            mesh.castShadow=true;
-            scene.add(mesh);
-            return mesh
-          }"""
+          old="function nearFieldMass(x,z,radius,height,ry=0){const geo=new THREE.CylinderGeometry(radius*.84,radius,height,7,1,false);const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);mesh.position.set(x,-.28+height/2,z);mesh.rotation.y=ry;mesh.receiveShadow=true;mesh.castShadow=true;scene.add(mesh);return mesh}"
           new="""function nearFieldMass(x,z,radius,height,ry=0){
             // M06-P01 v1: preserve the proven footprint while removing the regular heptagonal slab read.
             const segments=18;
