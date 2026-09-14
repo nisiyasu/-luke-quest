@@ -1,0 +1,49 @@
+name: M03-P01 Ground Ribbon Edges v73
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-p01-ground-ribbon-edges-v73.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Ground both ribbon edges to authored terrain
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          if 'M03 Composition Rebuild v73' in s:
+              raise SystemExit(0)
+          if 'M03 Composition Rebuild v72' not in s:
+              raise SystemExit('expected v72 source not found; refusing ambiguous patch')
+          old="function terrainPathRibbon(points,width=.72,lift=.055){const verts=[],idx=[];for(let i=0;i<points.length;i++){const [x,z]=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];const dx=next[0]-prev[0],dz=next[1]-prev[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len,w=width*(i===0||i===points.length-1?.78:1),y=terrainY(x,z)+lift;verts.push(x+nx*w,y,z+nz*w,x-nx*w,y,z-nz*w);if(i<points.length-1){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,c,d,b)}}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;m.castShadow=false;scene.add(m);return m}"
+          new="function terrainPathRibbon(points,width=.72,lift=.055){const verts=[],idx=[];for(let i=0;i<points.length;i++){const [x,z]=points[i],prev=points[Math.max(0,i-1)],next=points[Math.min(points.length-1,i+1)];const dx=next[0]-prev[0],dz=next[1]-prev[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len,w=width*(i===0||i===points.length-1?.78:1),lx=x+nx*w,lz=z+nz*w,rx=x-nx*w,rz=z-nz*w,ly=terrainY(lx,lz)+lift,ry=terrainY(rx,rz)+lift;verts.push(lx,ly,lz,rx,ry,rz);if(i<points.length-1){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,c,d,b)}}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,pathMat);m.receiveShadow=true;m.castShadow=false;scene.add(m);return m}"
+          if old not in s:
+              raise SystemExit('expected v72 terrainPathRibbon implementation not found')
+          s=s.replace(old,new,1)
+          s=s.replace('M03 Composition Rebuild v72','M03 Composition Rebuild v73',1)
+          s=s.replace("main-plus-diagonal-target-crossing-v8-organic-junction","main-plus-diagonal-target-crossing-v9-grounded-ribbon-edges",1)
+          p.write_text(s)
+          PY
+      - name: Commit repair
+        shell: bash
+        run: |
+          git add prototypes/modern-3d/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(m03-p01): ground trail ribbon edges to terrain [v73]"
+          git push origin HEAD:prototype/modern-3d
