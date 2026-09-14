@@ -20,5 +20,5 @@ const targetV4=createTargetBankV4({seed:77,width:9,depth:6,facing:1});targetV4.p
 for(const x of [-5.6,5.6]){const divider=new THREE.Mesh(new THREE.BoxGeometry(.06,.04,12),new THREE.MeshStandardMaterial({color:0xcaa85f,roughness:.8}));divider.position.set(x,-2.14,0);scene.add(divider)}
 function tick(){requestAnimationFrame(tick);renderer.render(scene,camera)}tick();
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize,{passive:true});
-document.documentElement.dataset.m04BankInspection='ready';document.documentElement.dataset.currentAsset='layered_bank_v2@2.1.0';document.documentElement.dataset.previousCandidate='bank_target_v3@3.0.0';document.documentElement.dataset.candidateAsset='bank_target_v4@4.7.0';
+document.documentElement.dataset.m04BankInspection='ready';document.documentElement.dataset.currentAsset='layered_bank_v2@2.1.0';document.documentElement.dataset.previousCandidate='bank_target_v3@3.0.0';document.documentElement.dataset.candidateAsset='bank_target_v4@4.8.0';
 </script></body></html>
