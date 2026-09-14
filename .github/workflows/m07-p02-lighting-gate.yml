@@ -1,4 +1,4 @@
-# evidence-v2: fresh exact-head M07-P02 revalidation after M07-P01 water PASS
+# evidence-v3: fresh exact-head M07-P02 revalidation after current M06/M07 repair chain
 name: M07-P02 Lighting Cohesion Gate
 
 on:
