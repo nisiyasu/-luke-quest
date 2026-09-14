@@ -58,8 +58,7 @@ jobs:
             index_path.write_text(index)
 
           insp=Path('prototypes/modern-3d/m04-bank-inspection.html')
-          txt=insp.read_text().replace('bank_target_v4@4.7.0','bank_target_v4@4.8.0')
-          insp.write_text(txt)
+          insp.write_text(insp.read_text().replace('bank_target_v4@4.7.0','bank_target_v4@4.8.0'))
 
           manifest_path=Path('prototypes/modern-3d/ASSET_MANIFEST.json')
           manifest=json.loads(manifest_path.read_text())
@@ -70,10 +69,6 @@ jobs:
           for feat in ['broad low-frequency erosion/soil veins for repeat resistance','five-step cliff depth cadence','broken strata ledges joining terrace rows into continuous eroded mass']:
             if feat not in bank_asset['features']: bank_asset['features'].append(feat)
           manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
-
-          ev=Path('.github/workflows/m04-p02-terrain-evidence.yml')
-          txt=ev.read_text().replace('bank_target_v4@4.7.0','bank_target_v4@4.8.0').replace("bank.version!=='4.7.0'","bank.version!=='4.8.0'")
-          ev.write_text(txt)
           PY
 
           grep -q "version:'4.8.0'" prototypes/modern-3d/m04-bank-target-v4.js
@@ -88,6 +83,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add prototypes/modern-3d/m04-bank-target-v4.js prototypes/modern-3d/index.html prototypes/modern-3d/m04-bank-inspection.html prototypes/modern-3d/ASSET_MANIFEST.json .github/workflows/m04-p02-terrain-evidence.yml
+          git add prototypes/modern-3d/m04-bank-target-v4.js prototypes/modern-3d/index.html prototypes/modern-3d/m04-bank-inspection.html prototypes/modern-3d/ASSET_MANIFEST.json
           git commit -m "fix(m04-p02): deepen terrain strata and material breakup"
           git push origin HEAD:prototype/modern-3d
