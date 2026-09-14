@@ -1,0 +1,3 @@
+M06-P01 south fringe authored bank repair v2
+current_packet=#37
+base_workflow_commit=3880ba8a2032ecb7401cc05afc90512b47acb5ee
