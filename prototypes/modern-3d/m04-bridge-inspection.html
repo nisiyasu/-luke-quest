@@ -20,8 +20,9 @@ for(const [x,z,s,seed] of [[-3.9,-.5,1.0,17],[4.1,.5,.92,24],[3.7,3.4,.72,29]]){
 const bankL=createTargetBankV4({seed:81,width:5.2,depth:5.0,facing:1});bankL.position.set(-5.2,-.18,0);scene.add(bankL);
 const bankR=createTargetBankV4({seed:91,width:5.2,depth:5.0,facing:-1});bankR.position.set(5.2,-.18,0);bankR.rotation.y=Math.PI;scene.add(bankR);
 const bankAuthority=`${bankL.userData.assetId}@${bankL.userData.version}`;
-document.querySelector('#context-assets').textContent=`conifer_target_v31@3.8.0 + ${bankAuthority} + rock_cluster_v1@1.1.0`;
+const probeRock=createRockCluster({seed:7,scale:.001});const rockAuthority=`${probeRock.userData.assetId}@${probeRock.userData.version}`;
+document.querySelector('#context-assets').textContent=`conifer_target_v31@3.8.0 + ${bankAuthority} + ${rockAuthority}`;
 function tick(){requestAnimationFrame(tick);renderer.render(scene,camera)}tick();
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize,{passive:true});
-document.documentElement.dataset.m04BridgeInspection='ready';document.documentElement.dataset.bridgeAsset='bridge_principal_v1@1.2.0';document.documentElement.dataset.vegetationAsset='conifer_target_v31@3.8.0';document.documentElement.dataset.bankAsset=bankAuthority;document.documentElement.dataset.rockAsset='rock_cluster_v1@1.1.0';
+document.documentElement.dataset.m04BridgeInspection='ready';document.documentElement.dataset.bridgeAsset='bridge_principal_v1@1.2.0';document.documentElement.dataset.vegetationAsset='conifer_target_v31@3.8.0';document.documentElement.dataset.bankAsset=bankAuthority;document.documentElement.dataset.rockAsset=rockAuthority;
 </script></body></html>
