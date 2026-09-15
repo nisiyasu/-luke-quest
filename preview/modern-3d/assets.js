@@ -12,7 +12,7 @@ export function makeCliffTexture(seed=73){const r=seeded(seed);return canvasText
 
 const woodTex=makeWoodTexture();woodTex.repeat.set(2.2,.45);const barkTex=makeBarkTexture();barkTex.repeat.set(1.4,2.4);const grassTex=makeGrassTexture();grassTex.repeat.set(4,4);const cliffTex=makeCliffTexture();cliffTex.repeat.set(3,1.4);
 const woodMat=new THREE.MeshStandardMaterial({map:woodTex,color:0xa98258,roughness:.82,metalness:0}),woodDark=new THREE.MeshStandardMaterial({map:woodTex,color:0x5e4935,roughness:.9,metalness:0}),ironMat=new THREE.MeshStandardMaterial({color:0x3b4143,roughness:.45,metalness:.68}),barkMat=new THREE.MeshStandardMaterial({map:barkTex,color:0x745038,roughness:1,metalness:0});
-const foliageMats=[0x184d34,0x21613e,0x2b7046].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.93,metalness:0})),rockMats=[0x777a73,0x686d68,0x85877e].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.94,metalness:0})),mossMat=new THREE.MeshStandardMaterial({color:0x566a37,roughness:1,metalness:0});
+const foliageMats=[0x184d34,0x21613e,0x2b7046].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.93,metalness:0})),rockMats=[0x777a73,0x686d68,0x85877e].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.94,metalness:0,flatShading:true})),mossMat=new THREE.MeshStandardMaterial({color:0x566a37,roughness:1,metalness:0});
 
 export function createProductionBridge(){
   const g=new THREE.Group();g.name='bridge_principal_v1';
@@ -72,30 +72,45 @@ export function createProductionBridge(){
 export function createConifer({seed=1,scale=1}={}){const r=seeded(seed),g=new THREE.Group();g.name=`conifer_family_v1_${seed}`;const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.19*scale,.36*scale,4.2*scale,9),barkMat);trunk.position.y=2.1*scale;g.add(trunk);for(let level=0;level<7;level++){const y=(1.15+level*.52)*scale,rad=(1.48-level*.13)*scale,count=5+(level%3);for(let i=0;i<count;i++){const a=i/count*Math.PI*2+r()*.32,len=rad*(.75+r()*.38),branch=new THREE.Mesh(new THREE.CylinderGeometry(.035*scale,.07*scale,len,6),barkMat);branch.position.set(Math.cos(a)*len*.36,y,Math.sin(a)*len*.36);branch.rotation.z=Math.PI/2.2;branch.rotation.y=-a;g.add(branch);const fol=new THREE.Mesh(new THREE.DodecahedronGeometry((.38+r()*.18)*scale,0),foliageMats[(level+i)%3]);fol.scale.set(.72+r()*.28,1.35+r()*.48,.72+r()*.3);fol.position.set(Math.cos(a)*len*.78,y+(r()-.4)*.18*scale,Math.sin(a)*len*.78);fol.rotation.y=a+r();g.add(fol)}}for(let i=0;i<5;i++){const top=new THREE.Mesh(new THREE.DodecahedronGeometry((.42-i*.045)*scale,0),foliageMats[i%3]);top.scale.set(.75,1.45,.75);top.position.y=(4.15+i*.3)*scale;top.rotation.y=r()*Math.PI;g.add(top)}const skirt=new THREE.Mesh(new THREE.CylinderGeometry(.58*scale,.76*scale,.09*scale,11),mossMat);skirt.position.y=.045*scale;g.add(skirt);g.rotation.y=r()*Math.PI*2;g.userData={assetId:'conifer_family_v1',version:'1.0.0',seed};return shadow(g)}
 
 function deform(geometry,r,amount=.18){const p=geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),m=1+(r()-.5)*amount;p.setXYZ(i,x*m,y*(1+(r()-.5)*amount*.65),z*m)}p.needsUpdate=true;geometry.computeVertexNormals();return geometry}
+function facetedRockGeometry(r,radius,variant=0){
+  let geometry;
+  if(variant%3===0)geometry=new THREE.DodecahedronGeometry(radius,0);
+  else if(variant%3===1)geometry=new THREE.OctahedronGeometry(radius,0);
+  else geometry=new THREE.TetrahedronGeometry(radius*1.08,0);
+  const p=geometry.attributes.position;
+  for(let i=0;i<p.count;i++){
+    let x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+    if(variant%3===0){x*=1.28;y*=.68;z*=1.02}
+    else if(variant%3===1){x*=1.08+(y>0?.18:-.05);y*=1.04;z*=.82}
+    else{x*=.75;y*=1.38;z*=.80}
+    const j=1+(r()-.5)*.20;p.setXYZ(i,x*j,y*(1+(r()-.5)*.12),z*(1+(r()-.5)*.18));
+  }
+  p.needsUpdate=true;geometry.computeVertexNormals();return geometry;
+}
 export function createRockCluster({seed=1,scale=1}={}){
   const r=seeded(seed),g=new THREE.Group();g.name=`rock_cluster_v1_${seed}`;
-  const count=4+Math.floor(r()*3);
+  const count=5+Math.floor(r()*3);
   const lichenMats=[
     new THREE.MeshStandardMaterial({color:0x65764a,roughness:1}),
     new THREE.MeshStandardMaterial({color:0x7d8153,roughness:1})
   ];
   for(let i=0;i<count;i++){
-    const radius=(.34+r()*.52)*scale;
-    const geo=deform(new THREE.IcosahedronGeometry(radius,2),r,.22);
+    const radius=(.32+r()*.50)*scale,variant=(i+seed)%3;
+    const geo=facetedRockGeometry(r,radius,variant);
     const m=new THREE.Mesh(geo,rockMats[i%rockMats.length]);
-    const sx=.72+r()*.72,sy=.46+r()*.52,sz=.70+r()*.68;
+    const sx=.78+r()*.44,sy=.78+r()*.34,sz=.76+r()*.42;
     m.scale.set(sx,sy,sz);
-    m.position.set((r()-.5)*1.55*scale,radius*sy*.42,(r()-.5)*1.28*scale);
-    m.rotation.set((r()-.5)*.42,r()*Math.PI,(r()-.5)*.34);
+    m.position.set((r()-.5)*1.48*scale,-radius*.08+(i%3)*.018*scale,(r()-.5)*1.22*scale);
+    m.rotation.set((r()-.5)*.48,r()*Math.PI,(r()-.5)*.42);
     g.add(m);
     if(i%2===0){
-      const cap=new THREE.Mesh(new THREE.CircleGeometry(radius*(.34+r()*.16),12),lichenMats[i%lichenMats.length]);
-      cap.rotation.x=-Math.PI/2;cap.position.set(m.position.x,m.position.y+radius*sy*.74,m.position.z);cap.rotation.z=r()*Math.PI;g.add(cap);
+      const cap=new THREE.Mesh(new THREE.CircleGeometry(radius*(.30+r()*.15),7),lichenMats[i%lichenMats.length]);
+      cap.rotation.x=-Math.PI/2;cap.position.set(m.position.x,m.position.y+radius*sy*.52,m.position.z);cap.rotation.z=r()*Math.PI;g.add(cap);
     }
   }
-  const moss=new THREE.Mesh(new THREE.CircleGeometry(.86*scale,20),mossMat);moss.rotation.x=-Math.PI/2;moss.position.y=.018;g.add(moss);
-  for(let i=0;i<6;i++){const peb=new THREE.Mesh(deform(new THREE.IcosahedronGeometry((.08+r()*.12)*scale,1),r,.18),rockMats[(i+1)%rockMats.length]);peb.scale.y=.55+r()*.25;peb.position.set((r()-.5)*1.75*scale,.05*scale,(r()-.5)*1.45*scale);peb.rotation.y=r()*Math.PI;g.add(peb)}
-  g.userData={assetId:'rock_cluster_v1',version:'1.1.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'rounded layered boulder cluster with lichen caps, moss footprint and pebble breakup'};
+  const moss=new THREE.Mesh(new THREE.CircleGeometry(.90*scale,12),mossMat);moss.rotation.x=-Math.PI/2;moss.position.y=.012;g.add(moss);
+  for(let i=0;i<7;i++){const rad=(.08+r()*.12)*scale,peb=new THREE.Mesh(facetedRockGeometry(r,rad,(i+seed+1)%3),rockMats[(i+1)%rockMats.length]);peb.scale.set(1.02,.72,.94);peb.position.set((r()-.5)*1.72*scale,.025*scale,(r()-.5)*1.42*scale);peb.rotation.set((r()-.5)*.34,r()*Math.PI,(r()-.5)*.28);g.add(peb)}
+  g.userData={assetId:'rock_cluster_v1',version:'1.2.0',seed,stage:'M04_PRODUCTION_CANDIDATE',source:'repo-procedural',intent:'three visibly distinct fractured silhouette families (low slab, wedge, block-spire) with faceted nonmetallic faces, embedded terrain contact, sparse lichen caps, moss footprint and angular pebble breakup'};
   return shadow(g)
 }
 
@@ -151,4 +166,4 @@ export function createLukeCharacter({scale=1}={}){
 
 export function createSign(){const g=new THREE.Group();beam(g,.17,1.45,.17,woodDark,0,.72,0);const board=beam(g,1.35,.55,.12,woodMat,0,1.28,0);const cap=beam(g,1.48,.08,.14,woodDark,0,1.58,0);g.userData={assetId:'sign_v1',version:'1.0.0'};return shadow(g)}
 
-export function assetMetadata(){return{bridge:'bridge_principal_v1@1.2.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.1.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.3.0',sign:'sign_v1@1.0.0'}}
+export function assetMetadata(){return{bridge:'bridge_principal_v1@1.2.0',conifer:'conifer_family_v1@1.0.0',rocks:'rock_cluster_v1@1.2.0',terrain:'terrain_grass_cliff_v1@1.0.0',water:'water_river_v1@1.0.0',player:'luke_player_v1@1.3.0',sign:'sign_v1@1.0.0'}}
