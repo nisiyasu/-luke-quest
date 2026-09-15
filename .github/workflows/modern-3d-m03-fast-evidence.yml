@@ -71,16 +71,63 @@ jobs:
           done
           python3 - <<'PY'
           from pathlib import Path
-          import struct, zlib
+          import math, struct, zlib
+
+          def decode_png(path):
+              raw=Path(path).read_bytes()
+              assert raw[:8]==b'\x89PNG\r\n\x1a\n', path
+              pos=8; idat=[]; w=h=ctype=depth=interlace=None
+              while pos < len(raw):
+                  n=struct.unpack('>I',raw[pos:pos+4])[0]; typ=raw[pos+4:pos+8]; data=raw[pos+8:pos+8+n]; pos += 12+n
+                  if typ==b'IHDR':
+                      w,h,depth,ctype,_,_,interlace=struct.unpack('>IIBBBBB',data)
+                  elif typ==b'IDAT': idat.append(data)
+                  elif typ==b'IEND': break
+              assert depth==8 and ctype in (2,6) and interlace==0, (path,depth,ctype,interlace)
+              bpp=3 if ctype==2 else 4
+              scan=zlib.decompress(b''.join(idat)); stride=w*bpp
+              rows=[]; off=0; prev=bytearray(stride)
+              def paeth(a,b,c):
+                  p=a+b-c; pa=abs(p-a); pb=abs(p-b); pc=abs(p-c)
+                  return a if pa<=pb and pa<=pc else (b if pb<=pc else c)
+              for _ in range(h):
+                  ft=scan[off]; off+=1; src=scan[off:off+stride]; off+=stride; cur=bytearray(stride)
+                  for i,x in enumerate(src):
+                      a=cur[i-bpp] if i>=bpp else 0; b=prev[i]; c=prev[i-bpp] if i>=bpp else 0
+                      if ft==0: v=x
+                      elif ft==1: v=(x+a)&255
+                      elif ft==2: v=(x+b)&255
+                      elif ft==3: v=(x+((a+b)//2))&255
+                      elif ft==4: v=(x+paeth(a,b,c))&255
+                      else: raise AssertionError((path,'png-filter',ft))
+                      cur[i]=v
+                  rows.append(cur); prev=cur
+              return w,h,bpp,rows
+
+          def world_stats(path, expected):
+              w,h,bpp,rows=decode_png(path); assert (w,h)==expected, (path,(w,h),expected)
+              # Exclude HUD/control bands and inspect the world-dominant central viewport.
+              x0,x1=int(w*.12),int(w*.88); y0,y1=int(h*.16),int(h*.72)
+              vals=[]; q=set(); mins=[255]*3; maxs=[0]*3
+              step=max(1,min(w,h)//220)
+              for y in range(y0,y1,step):
+                  row=rows[y]
+                  for x in range(x0,x1,step):
+                      i=x*bpp; rgb=tuple(row[i:i+3])
+                      for c in range(3): mins[c]=min(mins[c],rgb[c]); maxs[c]=max(maxs[c],rgb[c])
+                      vals.append(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2])
+                      q.add(tuple(v//16 for v in rgb))
+              mean=sum(vals)/len(vals); std=math.sqrt(sum((v-mean)**2 for v in vals)/len(vals)); span=max(maxs[c]-mins[c] for c in range(3))
+              print(f'{path}: world_crop_samples={len(vals)} qcolors={len(q)} luminance_std={std:.2f} channel_span={span}')
+              # A HUD-only / blank WebGL frame is near-uniform in this crop. Fail closed.
+              assert len(q)>=8 and std>=3.0 and span>=20, (path,'BLANK_OR_NEAR_UNIFORM_WORLD',len(q),std,span)
+
           checks=[('.modern3d-fast/m03-390x844.png',(390,844)),('.modern3d-fast/m03-864x1536.png',(864,1536))]
           for path, expected in checks:
-              p=Path(path).read_bytes()
-              assert len(p)>15000 and p[:8]==b'\x89PNG\r\n\x1a\n', (path,len(p))
-              dims=struct.unpack('>II',p[16:24])
-              assert dims==expected, (path,dims,expected)
-              print(path, dims, len(p))
+              p=Path(path).read_bytes(); assert len(p)>15000, (path,len(p))
+              world_stats(path, expected)
           PY
-          printf '%s\n' 'capture_path=chrome-cli same-webgl-args-as-proven-dump-dom virtual-time-budget=7000 exact-png-dimensions=pass' > .modern3d-fast/cdp-viewport.txt
+          printf '%s\n' 'capture_path=chrome-cli same-webgl-args-as-proven-dump-dom virtual-time-budget=7000 exact-png-dimensions=pass blank-world-reject=enabled' > .modern3d-fast/cdp-viewport.txt
       - name: Upload bounded M03 evidence
         if: always()
         uses: actions/upload-artifact@v4
