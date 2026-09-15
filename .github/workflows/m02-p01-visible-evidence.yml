@@ -1,0 +1,86 @@
+name: M02 P01 Visible Runtime Evidence
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m02-p01-visible-evidence.yml"
+      - "prototypes/modern-3d/**"
+      - "tools/lq-modern3d-cdp-capture.mjs"
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build fixture and start server
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf modern3d-ci modern3d-evidence
+          cp -a prototypes/modern-3d modern3d-ci
+          mkdir -p modern3d-evidence
+          curl -fL --retry 4 --retry-all-errors --connect-timeout 10 'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js' -o modern3d-ci/three.module.js
+          curl -fL --retry 4 --retry-all-errors --connect-timeout 10 'https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.core.js' -o modern3d-ci/three.core.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('modern3d-ci/index.html'); s=p.read_text(); old='https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js'; assert old in s; p.write_text(s.replace(old,'./three.module.js',1))
+          PY
+          (cd modern3d-ci && python3 -m http.server 8140 >/tmp/m02-visible-http.log 2>&1 &)
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8140/index.html >/dev/null && break; sleep 1; done
+      - name: Verify traversal and capture visible frames
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --virtual-time-budget=5000 --dump-dom 'http://127.0.0.1:8140/index.html?ci=1' > modern3d-evidence/dom.html 2>modern3d-evidence/chrome-stderr.log || true
+          grep -q 'data-lq-modern3d="m05-ready"' modern3d-evidence/dom.html
+          grep -q 'data-m02-ci="pass"' modern3d-evidence/dom.html
+          grep -q 'data-m03-ci="pass"' modern3d-evidence/dom.html
+          grep -q 'data-m05-scene="ready"' modern3d-evidence/dom.html
+          grep -oE 'data-m03-route="[^"]*"' modern3d-evidence/dom.html > modern3d-evidence/route.txt
+          node tools/lq-modern3d-cdp-capture.mjs "$BROWSER" 'http://127.0.0.1:8140/index.html?ci=1' 390 844 modern3d-evidence/m03-390x844.png | tee modern3d-evidence/cdp-console.txt
+          node tools/lq-modern3d-cdp-capture.mjs "$BROWSER" 'http://127.0.0.1:8140/index.html?ci=1' 864 1536 modern3d-evidence/m03-864x1536.png | tee -a modern3d-evidence/cdp-console.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import math, struct, zlib
+          def decode(path):
+              raw=Path(path).read_bytes(); assert raw[:8]==b'\x89PNG\r\n\x1a\n'; pos=8; ids=[]
+              while pos<len(raw):
+                  n=struct.unpack('>I',raw[pos:pos+4])[0]; typ=raw[pos+4:pos+8]; data=raw[pos+8:pos+8+n]; pos+=12+n
+                  if typ==b'IHDR': w,h,d,c,_,_,inter=struct.unpack('>IIBBBBB',data)
+                  elif typ==b'IDAT': ids.append(data)
+                  elif typ==b'IEND': break
+              assert d==8 and c in (2,6) and inter==0; bpp=3 if c==2 else 4; scan=zlib.decompress(b''.join(ids)); stride=w*bpp; rows=[]; off=0; prev=bytearray(stride)
+              def paeth(a,b,c):
+                  p=a+b-c; pa,pb,pc=abs(p-a),abs(p-b),abs(p-c); return a if pa<=pb and pa<=pc else (b if pb<=pc else c)
+              for _ in range(h):
+                  ft=scan[off]; off+=1; src=scan[off:off+stride]; off+=stride; cur=bytearray(stride)
+                  for i,x in enumerate(src):
+                      a=cur[i-bpp] if i>=bpp else 0; b=prev[i]; cc=prev[i-bpp] if i>=bpp else 0
+                      cur[i]=(x + (0 if ft==0 else a if ft==1 else b if ft==2 else (a+b)//2 if ft==3 else paeth(a,b,cc))) & 255
+                  rows.append(cur); prev=cur
+              return w,h,bpp,rows
+          def check(path,expected):
+              w,h,bpp,rows=decode(path); assert (w,h)==expected; vals=[]; q=set(); mins=[255]*3; maxs=[0]*3
+              for y in range(int(h*.16),int(h*.72),max(1,min(w,h)//220)):
+                  for x in range(int(w*.12),int(w*.88),max(1,min(w,h)//220)):
+                      rgb=tuple(rows[y][x*bpp:x*bpp+3]); q.add(tuple(v//16 for v in rgb)); vals.append(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2])
+                      for c in range(3): mins[c]=min(mins[c],rgb[c]); maxs[c]=max(maxs[c],rgb[c])
+              mean=sum(vals)/len(vals); std=math.sqrt(sum((v-mean)**2 for v in vals)/len(vals)); span=max(maxs[c]-mins[c] for c in range(3)); print(path,len(q),round(std,2),span); assert len(q)>=8 and std>=3 and span>=20
+          check('modern3d-evidence/m03-390x844.png',(390,844)); check('modern3d-evidence/m03-864x1536.png',(864,1536))
+          PY
+      - name: Upload visible evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m02-p01-visible-${{ github.sha }}
+          path: |
+            modern3d-evidence/
+            assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+            assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+          if-no-files-found: error
+          retention-days: 14
