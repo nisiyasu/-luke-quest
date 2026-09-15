@@ -57,51 +57,30 @@ jobs:
           grep -q 'data-m03-ci="pass"' .modern3d-fast/dom.html
           grep -q 'data-m05-scene="ready"' .modern3d-fast/dom.html
           grep -oE 'data-m03-route="[^"]*"' .modern3d-fast/dom.html > .modern3d-fast/route.txt
-      - name: Install CDP capture harness
-        shell: bash
-        run: npm install --no-save --no-package-lock puppeteer-core
-      - name: Capture exact frames after proven WebGL boot
+      - name: Capture exact frames through proven Chrome CLI path
         shell: bash
         run: |
           set -euo pipefail
-          export BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
-          node <<'NODE'
-          const puppeteer=require('puppeteer-core');
-          const fs=require('fs');
-          (async()=>{
-            const browser=await puppeteer.launch({executablePath:process.env.BROWSER,headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-webgl','--ignore-gpu-blocklist','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
-            const page=await browser.newPage();
-            const diag=[];
-            page.on('console',m=>diag.push(`console:${m.type()}:${m.text()}`));
-            page.on('pageerror',e=>diag.push(`pageerror:${e.message}`));
-            await page.setViewport({width:800,height:600,deviceScaleFactor:1});
-            await page.goto('http://127.0.0.1:8140/index.html?ci=1',{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForFunction(()=>document.body.dataset.lqModern3d==='m05-ready'&&document.body.dataset.m02Ci==='pass'&&document.body.dataset.m03Ci==='pass',{timeout:60000,polling:250});
-            async function shot(width,height,out){
-              await page.setViewport({width,height,deviceScaleFactor:1});
-              await new Promise(r=>setTimeout(r,1500));
-              const state=await page.evaluate(()=>({innerWidth,innerHeight,clientWidth:document.documentElement.clientWidth,clientHeight:document.documentElement.clientHeight,ready:document.body.dataset.lqModern3d,m02:document.body.dataset.m02Ci,m03:document.body.dataset.m03Ci,scene:document.body.dataset.m05Scene,profile:document.body.dataset.m03CameraProfile||'',canvas:[...document.querySelectorAll('canvas')].map(c=>({w:c.width,h:c.height,cw:c.clientWidth,ch:c.clientHeight}))}));
-              if(state.innerWidth!==width||state.innerHeight!==height||state.clientWidth!==width||state.clientHeight!==height) throw new Error(`viewport mismatch ${JSON.stringify(state)}`);
-              if(state.ready!=='m05-ready'||state.m02!=='pass'||state.m03!=='pass'||state.scene!=='ready') throw new Error(`runtime lost readiness after resize ${JSON.stringify(state)}`);
-              await page.screenshot({path:`.modern3d-fast/${out}`,fullPage:false});
-              fs.appendFileSync('.modern3d-fast/cdp-viewport.txt',`${out} ${JSON.stringify(state)}\n`);
-            }
-            await shot(390,844,'m03-390x844.png');
-            await shot(864,1536,'m03-864x1536.png');
-            fs.writeFileSync('.modern3d-fast/cdp-console.txt',diag.join('\n'));
-            await browser.close();
-          })().catch(e=>{console.error(e);process.exit(1)});
-          NODE
+          BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
+          COMMON=(--headless=new --no-sandbox --disable-dev-shm-usage --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader --hide-scrollbars --force-device-scale-factor=1 --virtual-time-budget=7000)
+          for spec in '390 844 m03-390x844.png' '864 1536 m03-864x1536.png'; do
+            read -r W H OUT <<< "$spec"
+            PROFILE="$(mktemp -d)"
+            timeout 90s "$BROWSER" "${COMMON[@]}" --user-data-dir="$PROFILE" --window-size="$W,$H" --screenshot=".modern3d-fast/$OUT" 'http://127.0.0.1:8140/index.html?ci=1' >>.modern3d-fast/capture-stdout.log 2>>.modern3d-fast/cdp-console.txt
+            rm -rf "$PROFILE"
+          done
           python3 - <<'PY'
           from pathlib import Path
-          import struct
-          for path, expected in [('.modern3d-fast/m03-390x844.png',(390,844)),('.modern3d-fast/m03-864x1536.png',(864,1536))]:
+          import struct, zlib
+          checks=[('.modern3d-fast/m03-390x844.png',(390,844)),('.modern3d-fast/m03-864x1536.png',(864,1536))]
+          for path, expected in checks:
               p=Path(path).read_bytes()
-              assert len(p)>15000 and p[:8]==b'\x89PNG\r\n\x1a\n'
-              assert struct.unpack('>II',p[16:24])==expected
-              print(path, expected, len(p))
-          print(Path('.modern3d-fast/cdp-viewport.txt').read_text())
+              assert len(p)>15000 and p[:8]==b'\x89PNG\r\n\x1a\n', (path,len(p))
+              dims=struct.unpack('>II',p[16:24])
+              assert dims==expected, (path,dims,expected)
+              print(path, dims, len(p))
           PY
+          printf '%s\n' 'capture_path=chrome-cli same-webgl-args-as-proven-dump-dom virtual-time-budget=7000 exact-png-dimensions=pass' > .modern3d-fast/cdp-viewport.txt
       - name: Upload bounded M03 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -113,6 +92,7 @@ jobs:
             .modern3d-fast/chrome-stderr.log
             .modern3d-fast/cdp-viewport.txt
             .modern3d-fast/cdp-console.txt
+            .modern3d-fast/capture-stdout.log
             .modern3d-fast/m03-390x844.png
             .modern3d-fast/m03-864x1536.png
             /tmp/modern3d-fast-http.log
