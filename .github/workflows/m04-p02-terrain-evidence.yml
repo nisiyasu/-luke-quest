@@ -1,4 +1,3 @@
-# fresh exact-head revalidation trigger: 2026-09-14 M11 adversarial target-depth return
 name: M04-P02 Terrain Evidence
 
 on:
@@ -14,60 +13,107 @@ permissions:
 jobs:
   evidence:
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: prototype/modern-3d
+          ref: ${{ github.sha }}
+          fetch-depth: 1
       - name: Install Playwright Chromium
         run: |
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null 2>&1
-      - name: Start runtime
+      - name: Start exact-trigger-head runtime
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m04-p02-http.log 2>&1 &
           sleep 2
           curl -fsS http://127.0.0.1:8140/m04-bank-inspection.html >/dev/null
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
-      - name: Capture common-light terrain inspection and integrated frame
+      - name: Capture common-light, HQ, practical and traversal evidence
         run: |
           mkdir -p .m04-p02
           cat > terrain-evidence.cjs <<'JS'
           const {chromium}=require('playwright');
           const fs=require('fs');
+          const pos=s=>String(s||'').split(',').map(Number);
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
-            const rows=[];
+            const rows=[`evidence_source_head=${process.env.GITHUB_SHA||'UNKNOWN'}`];
             try{
               const inspect=await browser.newPage({viewport:{width:1280,height:760},deviceScaleFactor:1});
               const ie=[];inspect.on('pageerror',e=>ie.push(String(e)));
               await inspect.goto('http://127.0.0.1:8140/m04-bank-inspection.html',{waitUntil:'domcontentloaded',timeout:150000});
-              await inspect.waitForFunction(()=>document.documentElement.dataset.m04BankInspection==='ready'&&document.documentElement.dataset.candidateAsset==='bank_target_v4@4.8.0',{timeout:150000});
+              await inspect.waitForFunction(()=>document.documentElement.dataset.m04BankInspection==='ready'&&document.documentElement.dataset.candidateAsset==='bank_target_v4@4.9.0',{timeout:150000});
               await inspect.waitForTimeout(1200);
               const im=await inspect.evaluate(()=>({ready:document.documentElement.dataset.m04BankInspection,current:document.documentElement.dataset.currentAsset,previous:document.documentElement.dataset.previousCandidate,candidate:document.documentElement.dataset.candidateAsset}));
               if(ie.length)throw new Error(`inspection errors=${JSON.stringify(ie)}`);
               await inspect.screenshot({path:'.m04-p02/common-light-bank-inspection.png',fullPage:true,timeout:150000});
-              rows.push(`inspection ${JSON.stringify(im)}`);
+              rows.push(`inspection=${JSON.stringify(im)}`);
               await inspect.close();
 
-              const scene=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
-              const se=[];scene.on('pageerror',e=>se.push(String(e)));
-              await scene.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
-              await scene.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&document.documentElement.dataset.m04PathMaterial==='m04-path-material-v2',{timeout:150000});
-              await scene.waitForTimeout(1200);
-              const sm=await scene.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',pathMaterial:document.documentElement.dataset.m04PathMaterial||'UNKNOWN'}));
-              if(se.length)throw new Error(`scene errors=${JSON.stringify(se)}`);
-              await scene.screenshot({path:'.m04-p02/integrated-canonical.png',fullPage:true,timeout:150000});
-              rows.push(`scene ${JSON.stringify(sm)}`);
-              await scene.close();
+              async function openScene(query=''){
+                const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+                const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+                await page.goto(`http://127.0.0.1:8140/index.html${query}`,{waitUntil:'domcontentloaded',timeout:150000});
+                await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass'&&document.documentElement.dataset.m04PathMaterial==='m04-path-material-v2'&&window.LQ_MODERN_3D_M08_GATE&&window.LQ_MODERN_3D_M05,{timeout:150000});
+                await page.waitForTimeout(1000);
+                if(errors.length)throw new Error(`scene errors=${JSON.stringify(errors)}`);
+                return page;
+              }
+
+              const hq=await openScene('?quality=high&m08gate=1');
+              const hqMeta=await hq.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',pathMaterial:document.documentElement.dataset.m04PathMaterial||'UNKNOWN',blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
+              await hq.screenshot({path:'.m04-p02/integrated-canonical-hq.png',fullPage:true,timeout:150000});
+              rows.push(`hq=${JSON.stringify(hqMeta)}`);
+
+              const before=await hq.evaluate(()=>({player:document.documentElement.dataset.m08Player,blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
+              await hq.keyboard.down('ArrowUp');
+              await hq.evaluate(()=>{for(let i=0;i<18;i++)window.LQ_MODERN_3D_M08_GATE.stepMovement(.1);window.LQ_MODERN_3D_M08_GATE.syncState()});
+              await hq.keyboard.up('ArrowUp');
+              await hq.waitForTimeout(150);
+              const north=await hq.evaluate(()=>({player:document.documentElement.dataset.m08Player,blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
+              await hq.screenshot({path:'.m04-p02/north-fringe-hq.png',fullPage:true,timeout:150000});
+              const a=pos(before.player),b=pos(north.player),northDelta=Math.hypot(b[0]-a[0],b[2]-a[2]);
+              if(northDelta<5.5)throw new Error(`north traversal regression delta=${northDelta}`);
+              if(north.blockedWater-before.blockedWater!==0||north.blockedBounds-before.blockedBounds!==0)throw new Error('north route collision regression');
+              rows.push(`north_player=${north.player} north_delta=${northDelta.toFixed(3)} blocked_water_delta=${north.blockedWater-before.blockedWater} blocked_bounds_delta=${north.blockedBounds-before.blockedBounds}`);
+              await hq.close();
+
+              const southPage=await openScene('?quality=high&m08gate=1');
+              const southBefore=await southPage.evaluate(()=>({player:document.documentElement.dataset.m08Player,blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
+              await southPage.keyboard.down('ArrowDown');
+              await southPage.evaluate(()=>{for(let i=0;i<18;i++)window.LQ_MODERN_3D_M08_GATE.stepMovement(.1);window.LQ_MODERN_3D_M08_GATE.syncState()});
+              await southPage.keyboard.up('ArrowDown');
+              await southPage.waitForTimeout(150);
+              const south=await southPage.evaluate(()=>({player:document.documentElement.dataset.m08Player,blockedWater:window.LQ_MODERN_3D_M05.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05.blockedBounds}));
+              await southPage.screenshot({path:'.m04-p02/south-fringe-hq.png',fullPage:true,timeout:150000});
+              const c=pos(southBefore.player),d=pos(south.player),southDelta=Math.hypot(d[0]-c[0],d[2]-c[2]);
+              if(southDelta<5.5)throw new Error(`south traversal regression delta=${southDelta}`);
+              if(south.blockedWater-southBefore.blockedWater!==0||south.blockedBounds-southBefore.blockedBounds!==0)throw new Error('south route collision regression');
+              rows.push(`south_player=${south.player} south_delta=${southDelta.toFixed(3)} blocked_water_delta=${south.blockedWater-southBefore.blockedWater} blocked_bounds_delta=${south.blockedBounds-southBefore.blockedBounds}`);
+              await southPage.close();
+
+              const practical=await openScene('?m08gate=1');
+              const practicalMeta=await practical.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',pathMaterial:document.documentElement.dataset.m04PathMaterial||'UNKNOWN'}));
+              await practical.screenshot({path:'.m04-p02/integrated-canonical-practical.png',fullPage:true,timeout:150000});
+              rows.push(`practical=${JSON.stringify(practicalMeta)}`);
+              await practical.close();
 
               const manifest=JSON.parse(fs.readFileSync('prototypes/modern-3d/ASSET_MANIFEST.json','utf8'));
               const bank=manifest.assets.find(x=>x.id==='bank_target_v4');
               const rock=manifest.assets.find(x=>x.id==='rock_cluster_v1');
-              if(manifest.active_target_set.bank!=='bank_target_v4@4.8.0'||!bank||bank.version!=='4.8.0'||!rock||rock.version!=='1.1.0')throw new Error('terrain authority mismatch');
-              rows.push(`manifest bank=${manifest.active_target_set.bank} bankVersion=${bank.version} rockVersion=${rock.version} sources=${bank.source}/${rock.source}`);
-              rows.push('targetDepthRepair=erosion-veins+five-step-cliff-cadence+broken-strata-ledges+path-material-v2');
+              if(manifest.active_target_set.bank!=='bank_target_v4@4.9.0'||!bank||bank.version!=='4.9.0'||!rock||rock.version!=='1.2.0')throw new Error('terrain authority mismatch');
+              const bankSrc=fs.readFileSync('prototypes/modern-3d/m04-bank-target-v4.js','utf8');
+              const rockSrc=fs.readFileSync('prototypes/modern-3d/assets.js','utf8');
+              for(const token of ['DodecahedronGeometry','OctahedronGeometry','TetrahedronGeometry']){
+                if(!bankSrc.includes(token)||!rockSrc.includes(token))throw new Error(`missing faceted family ${token}`);
+              }
+              if(/new THREE\.IcosahedronGeometry\(radius\s*,\s*[12]/.test(bankSrc)||/new THREE\.IcosahedronGeometry\(radius\s*,\s*[12]/.test(rockSrc))throw new Error('rounded high-subdivision rock family still primary');
+              rows.push(`manifest_bank=${manifest.active_target_set.bank} bankVersion=${bank.version} rockVersion=${rock.version} sources=${bank.source}/${rock.source}`);
+              rows.push('faceted_families=slab(Dodecahedron)+fractured-wedge(Octahedron)+block-spire(Tetrahedron)');
+              rows.push('ground_contact=embedded-bank-bands+shore-toe+moss-footprint');
+              rows.push('traversal_collision_regression=PASS');
               fs.writeFileSync('.m04-p02/terrain-audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
