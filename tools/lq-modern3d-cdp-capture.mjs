@@ -47,5 +47,18 @@ try {
   await writeFile(out,Buffer.from(shot.data,'base64'));
   console.log(`cdp_capture=${out} viewport=${width}x${height} readiness=${last}`);
 } finally {
-  try{ws.close();}catch{} child.kill('SIGKILL'); await rm(profile,{recursive:true,force:true});
+  try { ws.close(); } catch {}
+  child.kill('SIGKILL');
+  await new Promise(resolve => {
+    if (child.exitCode !== null || child.signalCode !== null) return resolve();
+    child.once('exit', resolve);
+    setTimeout(resolve, 3000);
+  });
+  for (let attempt=0; attempt<6; attempt++) {
+    try { await rm(profile,{recursive:true,force:true,maxRetries:3,retryDelay:100}); break; }
+    catch (error) {
+      if (attempt===5) console.warn(`profile_cleanup_warning=${error.code||error.message}`);
+      else await sleep(200*(attempt+1));
+    }
+  }
 }
