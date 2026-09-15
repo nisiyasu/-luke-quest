@@ -7,7 +7,7 @@
     "composition_baseline": "M03 atomic exit accepted: runtime 70aa551c49e890e2f6719696f065def65631274d; evidence head 5ff880cc944e0945b228409de63a43bc09fc7f29; Action 34710908572; artifact 10303232489",
     "conifer": "conifer_target_v31@3.8.0",
     "understory": "fern_patch_target_v3@3.0.0 + understory_cluster_v2@2.1.0 + meadow_field_v1@1.1.0",
-    "bank": "bank_target_v4@4.8.0",
+    "bank": "bank_target_v4@4.9.0",
     "water": "water_target_v3@3.9.0",
     "bridge": "bridge_principal_v1@1.2.0",
     "character": "luke_player_v1@1.1.0",
@@ -87,16 +87,14 @@
       "forward": "none",
       "texture": "material color/roughness variation; geometry vertex deformation",
       "features": [
-        "higher-subdivision rounded boulders",
-        "seeded deformation",
-        "multi-stone clusters",
-        "lichen caps",
-        "moss footprint",
-        "micro pebble breakup",
-        "grounded rotation/scale variation"
+        "three visibly distinct fractured silhouette families: low slab, wedge, block-spire",
+        "flat-shaded nonmetallic rock faces",
+        "embedded terrain contact instead of perched rounded boulders",
+        "sparse lichen caps and moss footprint",
+        "angular faceted pebble breakup"
       ],
-      "version": "1.1.0",
-      "note": "M04 target-facing standalone rock refinement preserves existing scene placements while reducing low-poly faceting; cliff-face rock fidelity is governed by bank_target_v4."
+      "version": "1.2.0",
+      "note": "M04-P02 v1.2 replaces the rounded higher-subdivision cluster language with deliberately faceted production silhouettes and grounded contact."
     },
     {
       "id": "terrain_grass_cliff_v1",
@@ -353,18 +351,16 @@
         "512px multi-scale forest-floor grass/soil/leaf color breakup",
         "dense instanced bank-top grass tufts with controlled variation",
         "clustered exposed-soil top patches and flower/leaf islands",
-        "four staggered smoother overlapping rock terrace bands",
-        "higher-subdivision deformed multi-tone rocks",
-        "fern lip and embedded top stones",
-        "micro pebble breakup and shoreline toe rubble",
-        "moss shelves and exposed roots",
-        "broad low-frequency erosion/soil veins for repeat resistance",
-        "five-step cliff depth cadence",
-        "broken strata ledges joining terrace rows into continuous eroded mass"
+        "five staggered overlapping fractured rock terrace bands",
+        "three low-poly faceted silhouette families: slab, fractured wedge, block-spire",
+        "embedded cliff and shoreline toe contact",
+        "broken strata ledges between rock rows",
+        "fern lip, angular top stones and pebble breakup",
+        "moss shelves and exposed roots"
       ],
-      "version": "4.8.0",
+      "version": "4.9.0",
       "inspection": "m04-bank-inspection.html RIGHT column; m06-finish-inspection.html CENTER panel",
-      "note": "v4.8 M11 adversarial return: preserves accepted M03/M06 footprint while adding broad erosion/soil veins, tighter cliff-layer cadence and broken strata ledges to reduce assembled procedural-band read against TARGET."
+      "note": "v4.9 active M04-P02 source replaces the rounded-boulder family with three visibly faceted fractured silhouette families while preserving accepted M03 macro placement and collision-neutral integration."
     },
     {
       "id": "water_target_v3",
