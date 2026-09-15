@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v65</title>
+<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v73</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07130d;color:#fff;font-family:system-ui,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.panel{position:fixed;z-index:10;background:linear-gradient(180deg,#071019e6,#0c1720c7);border:1px solid #d7b45f;border-radius:9px;box-shadow:0 3px 16px #0007}#status{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:11px}#status b,.objective b{color:#f0d177}.objective{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:8px 10px;font-size:10px;color:#f2ead4}.hp{margin-top:4px;width:72px;height:5px;border:1px solid #bfa65d;background:#18232a;border-radius:3px;overflow:hidden}.hp:after{content:"";display:block;width:82%;height:100%;background:#65c575}#loading{inset:0;display:grid;place-items:center;background:#07130d;z-index:40;position:fixed}#error{display:none;left:12px;right:12px;top:42%;padding:12px;color:#ffb9b9;border-color:#e06b6b}.dpad{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:118px;height:118px;z-index:20;opacity:.58}.move{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid #c5d0d2aa;background:#10242c73;color:#fff;font-size:17px}.up{left:37px;top:0}.down{left:37px;bottom:0}.left{left:0;top:37px}.right{right:0;top:37px}#hint{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:10;font-size:10px;padding:7px 9px;background:#071019b8;border:1px solid #d7b45f80;border-radius:8px}#ci-evidence{display:none}.demo-tag{display:block;margin-top:3px;font-size:8px;letter-spacing:.08em;color:#d9d1b9;opacity:.82}.hp-label{display:block;margin-top:4px;font-size:8px;color:#cfc7b3;opacity:.78}@media (max-height:480px){#status,.objective{padding:5px 7px;font-size:9px}.objective{max-width:132px}.dpad{width:96px;height:96px;bottom:max(8px,env(safe-area-inset-bottom))}.move{width:38px;height:38px;font-size:14px}.up,.down{left:29px}.left,.right{top:29px}#hint{bottom:max(8px,env(safe-area-inset-bottom));font-size:8px;padding:5px 7px}}
@@ -1218,6 +1218,8 @@ function addTopMicrodetail(g, r, width, depth, facing) {
   });
 }
 function createTargetBankV4({ seed = 1, width = 12, depth = 8, facing = 1 } = {}) {
+  const requestedDepth = depth, integration509 = seed === 509;
+  if (integration509) depth = 10;
   const r = rng4(seed), g = new THREE5.Group();
   g.name = `bank_target_v4_${seed}`;
   g.add(makeOrganicTop(r, seed, width, depth, facing));
@@ -1304,7 +1306,13 @@ function createTargetBankV4({ seed = 1, width = 12, depth = 8, facing = 1 } = {}
     root.rotation.x = facing * (0.1 + r() * 0.18);
     g.add(root);
   }
-  g.userData = { assetId: "bank_target_v4", version: "4.8.0", seed, stage: "M04_QUALITY_REGATE", source: "repo-procedural", intent: "target-facing forest bank with multi-scale mottled ground texture, clustered flower and fern understory, irregular macro-relief, layered cliff terraces, shoreline rubble, moss shelves and roots; v4.8 preserves the accepted world silhouette while adding broad erosion/soil veins, denser cliff layering and broken strata ledges so the bank reads as one eroded natural mass rather than stacked procedural bands" };
+  if (integration509) {
+    for (const child of g.children) {
+      child.position.z -= 0.8;
+      child.position.y -= 0.1;
+    }
+  }
+  g.userData = { assetId: "bank_target_v4", version: "4.8.0", seed, stage: "M04_QUALITY_REGATE", source: "repo-procedural", intent: "target-facing forest bank with multi-scale mottled ground texture, clustered flower and fern understory, irregular macro-relief, layered cliff terraces, shoreline rubble, moss shelves and roots; v4.8 preserves the accepted world silhouette while adding broad erosion/soil veins, denser cliff layering and broken strata ledges so the bank reads as one eroded natural mass rather than stacked procedural bands", integrationProfile: integration509 ? "m06-p01-bank509-mid" : "default", requestedDepth, effectiveDepth: depth };
   return shadows2(g);
 }
 
@@ -1498,9 +1506,23 @@ try {
     scene.add(b);
     return b;
   }, nearFieldMass = function(x, z, radius, height, ry = 0) {
-    const geo = new THREE7.CylinderGeometry(radius * 0.84, radius, height, 7, 1, false);
+    const segments = 18;
+    const geo = new THREE7.CylinderGeometry(radius * 0.88, radius, height, segments, 2, false);
+    const pos = geo.attributes.position;
+    const phase = x * 0.173 + z * 0.119 + radius * 0.311;
+    for (let i = 0; i < pos.count; i++) {
+      const px = pos.getX(i), py = pos.getY(i), pz = pos.getZ(i);
+      const a = Math.atan2(pz, px);
+      const radial = 1 + 0.055 * Math.sin(a * 3 + phase) + 0.028 * Math.sin(a * 7 - phase * 0.63) + 0.016 * Math.sin(a * 11 + phase * 0.37);
+      const yNorm = py / Math.max(height, 1e-3) + 0.5;
+      const edgeBias = 0.96 + 0.04 * Math.sin(Math.PI * Math.max(0, Math.min(1, yNorm)));
+      const crown = yNorm > 0.8 ? (0.035 + 0.018 * Math.sin(a * 4 + phase)) * radius : 0;
+      pos.setXYZ(i, px * radial * edgeBias, py + crown, pz * radial * edgeBias);
+    }
+    pos.needsUpdate = true;
+    geo.computeVertexNormals();
     const mesh = new THREE7.Mesh(geo, [nearMassSideMat, nearMassTopMat, nearMassSideMat]);
-    mesh.position.set(x, -0.28 + height / 2, z);
+    mesh.position.set(x, -0.3 + height / 2, z);
     mesh.rotation.y = ry;
     mesh.receiveShadow = true;
     mesh.castShadow = true;
@@ -1658,6 +1680,26 @@ try {
     m.receiveShadow = true;
     scene.add(m);
     return m;
+  }, terrainPathRibbon = function(points, width = 0.72, lift = 0.055) {
+    const verts = [], idx = [];
+    for (let i = 0; i < points.length; i++) {
+      const [x, z] = points[i], prev = points[Math.max(0, i - 1)], next = points[Math.min(points.length - 1, i + 1)];
+      const dx = next[0] - prev[0], dz = next[1] - prev[1], len = Math.hypot(dx, dz) || 1, nx = -dz / len, nz = dx / len, w = width * (i === 0 || i === points.length - 1 ? 0.78 : 1), lx = x + nx * w, lz = z + nz * w, rx = x - nx * w, rz = z - nz * w, ly = terrainY(lx, lz) + lift, ry = terrainY(rx, rz) + lift;
+      verts.push(lx, ly, lz, rx, ry, rz);
+      if (i < points.length - 1) {
+        const a = i * 2, b = a + 1, c = a + 2, d = a + 3;
+        idx.push(a, c, b, c, d, b);
+      }
+    }
+    const geo = new THREE7.BufferGeometry();
+    geo.setAttribute("position", new THREE7.Float32BufferAttribute(verts, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    const m = new THREE7.Mesh(geo, pathMat);
+    m.receiveShadow = true;
+    m.castShadow = false;
+    scene.add(m);
+    return m;
   }, terrainY = function(x, z) {
     if (x < -5) return z < 0 ? 1.05 : 1.65;
     if (x > 5) return z < 0 ? 1.55 : 1.9;
@@ -1726,9 +1768,9 @@ try {
   }, syncCameraOffset = function() {
     const a = Math.max(0.1, camera.aspect || 1), landscape = a > 1.25;
     offset.copy(landscape ? offsetLandscape : offsetPortrait);
-    camera.fov = landscape ? 39 : 39;
+    camera.fov = landscape ? 39 : 43;
     camera.updateProjectionMatrix();
-    document.documentElement.dataset.m03CameraProfile = landscape ? "landscape-target-depth-v3-perspective" : "portrait-canonical";
+    document.documentElement.dataset.m03CameraProfile = landscape ? "landscape-target-depth-v3-perspective" : "portrait-target-family-v2";
   }, publishM10Perf = function() {
     if (m10PerfSamples.length < 20) return;
     const a = [...m10PerfSamples].sort((x, y) => x - y), median = a[Math.floor(a.length * 0.5)], p95 = a[Math.min(a.length - 1, Math.floor(a.length * 0.95))];
@@ -1885,8 +1927,8 @@ try {
   waterLower.rotation.y = 0.08;
   scene.add(waterLower);
   bank(905, 8.8, 13.8, 3.45, -0.22, 14.4, -1, -0.05);
-  nearFieldMass(-6.05, 17.2, 4.55, 1.02, 0.19);
-  nearFieldMass(4.75, 17.5, 4.1, 1, -0.16);
+  bank(9661, 6.8, 6, -8.2, -0.42, 19, -1, 0.14);
+  bank(9667, 7, 6, 6.7, -0.4, 19.1, -1, -0.14);
   const southFringeFernL = createTargetFernPatch({ seed: 9661, count: 26, radius: 2.35 });
   southFringeFernL.position.set(-4.85, -0.02, 16.7);
   scene.add(southFringeFernL);
@@ -1901,18 +1943,19 @@ try {
     r.position.set(x, -0.15, z);
     scene.add(r);
   }
-  const waterUpperRight = createTargetWaterV3({ width: 9.4, depth: 18.5, seed: 331 });
-  waterUpperRight.position.set(4.45, 0.05, -8.2);
-  waterUpperRight.rotation.y = -0.2;
+  const waterUpperRight = createTargetWaterV3({ width: 8.6, depth: 19, seed: 331 });
+  waterUpperRight.position.set(5.15, 0.05, -6.35);
+  waterUpperRight.rotation.y = -0.38;
   scene.add(waterUpperRight);
   const bridgeMain = bridgeAt(-1.35, 1.1, 0, true);
   const bridgeClearDeckMat = new THREE7.MeshStandardMaterial({ color: 8542263, roughness: 0.88, metalness: 0 });
   const bridgeClearDeckDark = new THREE7.MeshStandardMaterial({ color: 4798509, roughness: 0.94, metalness: 0 });
   bridgeClearDeck();
-  const bridgeRight = bridgeAt(3.25, -7, Math.PI / 2 - 0.16, false);
-  bridgeRight.position.y = 0.72;
-  bank(880, 1.8, 1.85, -2.3, 0.92, -7.34, 1, 0.05);
-  bank(887, 1.9, 1.9, 8.82, 1, -6.76, 1, -0.04);
+  const bridgeRight = bridgeAt(4.35, -5.25, 1.14, false);
+  bridgeRight.position.y = 0.82;
+  bridgeRight.scale.z = 0.78;
+  bank(880, 2.2, 2.25, -1.1, 1.02, -7.85, 1, 0.2);
+  bank(887, 2.2, 2.25, 9.05, 1.05, -3.85, 1, -0.2);
   document.documentElement.dataset.m06SecondaryBridgeClearance = "terrain-and-object-free-v4";
   const pathMat = new THREE7.MeshStandardMaterial({ color: 14206106, map: makePathTexture(), roughness: 0.97, metalness: 0 });
   document.documentElement.dataset.m04PathMaterial = "m04-path-material-v2";
@@ -1954,9 +1997,9 @@ try {
   const bridgeFernR = createTargetFernPatch({ seed: 7691, count: 20, radius: 1.25 });
   bridgeFernR.position.set(2.05, -0.18, 6.05);
   scene.add(bridgeFernR);
-  pathRibbon([[-1.35, -4.45], [-2.25, -4.9], [-3.45, -5.8], [-4.55, -7], [-5.25, -9], [-5.8, -11.1], [-5.55, -13.4], [-6.4, -14.6]], 0.7, 1.08);
+  terrainPathRibbon([[-1.35, -4.45], [-0.95, -5.15], [-0.48, -5.95], [-0.62, -6.9], [-1.12, -8.05], [-1.72, -9.55], [-2.28, -11.15], [-2.82, -12.85], [-3.3, -14.45]], 0.66, 0.055);
   pathRibbon([[-1.35, 5.95], [-0.75, 7.35], [-1.45, 9], [-2.3, 10.7], [-2.8, 12.6], [-3.35, 14.6]], 0.76, -0.18);
-  pathRibbon([[-2.2, -10.35], [-1, -11.2], [0.2, -12.1], [1, -13]], 0.64, 2.28);
+  terrainPathRibbon([[-0.52, -5.92], [0.2, -6.02], [0.82, -6.15], [1.38, -6.3], [1.82, -6.48]], 0.44, 0.06);
   bank(601, 5.4, 5.7, -6.15, 1.42, -6.8, 1, 0.16);
   bank(607, 2.4, 2.8, 8, 1.42, -9.5, 1, -0.2);
   bank(613, 6.2, 4.8, -1, 2.28, -13.2, 1, 0.04);
@@ -2090,7 +2133,7 @@ try {
   const keys = /* @__PURE__ */ new Set(), pointers = /* @__PURE__ */ new Map();
   let last = performance.now(), blurRelease = false, resizes = 0, blockedWater = 0, blockedBounds = 0, moving = false;
   const dirMap = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }, keyMap = { ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down", ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right" };
-  window.LQ_MODERN_3D_M05 = { ready: true, variant: "m03-composition-v49-concave-path-fix", threeRevision: THREE7.REVISION, webglVersion: renderer.capabilities.isWebGL2 ? "WebGL2" : "WebGL1", player: [-1.35, 3.2], activeInputs: 0, resizes: 0, blockedWater: 0, blockedBounds: 0, meadowInstances: 1225, terrainMasses: 15, compositionTrees: trees.length + destinationTrees.length + southRightFrameTrees.length + 11, targetConifers: trees.length - backgroundNaturalIndices.size + destinationTrees.length + southRightFrameTrees.length + 11, targetBanks: 13, targetWaters: 3, riverLayout: "branching-target-layout", bridgeLayout: "main-plus-right-branch" };
+  window.LQ_MODERN_3D_M05 = { ready: true, variant: "m03-composition-v49-concave-path-fix", threeRevision: THREE7.REVISION, webglVersion: renderer.capabilities.isWebGL2 ? "WebGL2" : "WebGL1", player: [-1.35, 3.2], activeInputs: 0, resizes: 0, blockedWater: 0, blockedBounds: 0, meadowInstances: 1225, terrainMasses: 15, compositionTrees: trees.length + destinationTrees.length + southRightFrameTrees.length + 11, targetConifers: trees.length - backgroundNaturalIndices.size + destinationTrees.length + southRightFrameTrees.length + 11, targetBanks: 13, targetWaters: 3, riverLayout: "branching-target-layout", bridgeLayout: "main-plus-diagonal-target-crossing-v9-grounded-ribbon-edges" };
   addEventListener("keydown", (e) => onKey(e, true));
   addEventListener("keyup", (e) => onKey(e, false));
   for (const b of document.querySelectorAll(".move")) {
@@ -2112,7 +2155,7 @@ try {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) releaseAll();
   });
-  const offsetPortrait = new THREE7.Vector3(1.2, 30.2, 20.4), offsetLandscape = new THREE7.Vector3(0.8, 10.8, 15), offset = new THREE7.Vector3();
+  const offsetPortrait = new THREE7.Vector3(1.2, 32.4, 23), offsetLandscape = new THREE7.Vector3(0.8, 10.8, 15), offset = new THREE7.Vector3();
   syncCameraOffset();
   const m10PerfSamples = [];
   let m10PerfWarmup = 8;
