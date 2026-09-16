@@ -1,3 +1,4 @@
+# evidence-refresh: M07-P01 exact-head regate after M06 terrain/vegetation repairs
 name: M07-P01 Water Gate
 on:
   push:
