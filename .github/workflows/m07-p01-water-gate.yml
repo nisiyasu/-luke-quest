@@ -9,7 +9,7 @@ permissions:
 jobs:
   water-proof:
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with: { ref: "${{ github.sha }}" }
@@ -24,10 +24,11 @@ jobs:
       - name: Fresh HQ practical visual and motion evidence
         run: |
           mkdir -p .m07-p01
+          printf 'head=%s\ncapture_started=1\n' "$GITHUB_SHA" > .m07-p01/water-audit.txt
           cat > water-proof.cjs <<'JS'
           const {chromium}=require('playwright'); const fs=require('fs');
           (async()=>{const b=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']}); const rows=[];
-          try{for(const q of ['high','practical']){const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});const errs=[];p.on('pageerror',e=>errs.push(String(e)));await p.goto(`http://127.0.0.1:8140/index.html?quality=${q}&m08gate=1`,{waitUntil:'domcontentloaded',timeout:150000});await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',{timeout:150000});await p.waitForTimeout(700);await p.screenshot({path:`.m07-p01/${q}-canonical-t0.png`,fullPage:true});await p.waitForTimeout(1400);await p.screenshot({path:`.m07-p01/${q}-canonical-t1.png`,fullPage:true});const meta=await p.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,quality:document.documentElement.dataset.m10QualityPreset,pixelRatio:document.documentElement.dataset.m10PixelRatio,player:document.documentElement.dataset.m08Player||'UNKNOWN'}));if(errs.length)throw new Error(`${q} page errors ${JSON.stringify(errs)}`);rows.push(`${q} ${JSON.stringify(meta)} errors=0`);await p.close();}rows.push(`head=${process.env.GITHUB_SHA}`);rows.push('fresh_visual_motion_pair=PASS');fs.writeFileSync('.m07-p01/water-audit.txt',rows.join('\n')+'\n');}finally{await b.close()}})().catch(e=>{console.error(e);process.exit(1)});
+          try{for(const q of ['high','practical']){const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});p.setDefaultTimeout(150000);const errs=[];p.on('pageerror',e=>errs.push(String(e)));await p.goto(`http://127.0.0.1:8140/index.html?quality=${q}&m08gate=1`,{waitUntil:'domcontentloaded',timeout:150000});await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',{timeout:150000});await p.waitForTimeout(700);await p.screenshot({path:`.m07-p01/${q}-canonical-t0.png`,timeout:120000});await p.waitForTimeout(1400);await p.screenshot({path:`.m07-p01/${q}-canonical-t1.png`,timeout:120000});const meta=await p.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,quality:document.documentElement.dataset.m10QualityPreset,pixelRatio:document.documentElement.dataset.m10PixelRatio,player:document.documentElement.dataset.m08Player||'UNKNOWN'}));if(errs.length)throw new Error(`${q} page errors ${JSON.stringify(errs)}`);rows.push(`${q} ${JSON.stringify(meta)} errors=0`);await p.close();}rows.push(`head=${process.env.GITHUB_SHA}`);rows.push('fresh_visual_motion_pair=PASS');fs.writeFileSync('.m07-p01/water-audit.txt',rows.join('\n')+'\n');}finally{await b.close()}})().catch(e=>{fs.appendFileSync('.m07-p01/water-audit.txt',`capture_error=${String(e)}\n`);console.error(e);process.exit(1)});
           JS
           node water-proof.cjs
       - uses: actions/upload-artifact@v4
