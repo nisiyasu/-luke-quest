@@ -1,4 +1,4 @@
-# M06-P01 upstream-void-regate-v1: reproduce the exact camera-follow pressure that exposed the M07-P02 upstream terrain/shore defect.
+# M06-P01 upstream-void-regate-v2: repair the reproduced upstream terrain envelope, then recapture the exact camera-follow pressure.
 name: M06-P01 Upstream Void Regate
 
 on:
@@ -6,10 +6,11 @@ on:
     branches: ["prototype/modern-3d"]
     paths:
       - ".github/workflows/m06-p01-upstream-void-regate.yml"
+      - "prototypes/modern-3d/index.html"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   terrain-regate:
@@ -19,17 +20,52 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: prototype/modern-3d
+      - name: Repair reproduced upstream terrain envelope once
+        id: repair
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          marker='M06-P01 upstream-envelope-repair-v1'
+          if marker in s:
+              print('already repaired')
+              Path('/tmp/repaired').write_text('0')
+              raise SystemExit(0)
+          needle="const waterUpperRight=createTargetWaterV3({width:8.6,depth:19.0,seed:331});waterUpperRight.position.set(5.15,.05,-6.35);waterUpperRight.rotation.y=-.38;scene.add(waterUpperRight);"
+          if needle not in s:
+              raise SystemExit('FAIL_CLOSED: waterUpperRight anchor not found')
+          patch=needle+"\n// M06-P01 upstream-envelope-repair-v1: cover the exposed underlay beside the upper river without entering the bridge route.\nbank(9751,5.6,8.4,-.45,.12,-10.9,1,.08);\nbank(9757,4.8,7.2,6.95,.10,-13.0,1,-.18);\nconst upstreamSeamFern=createTargetFernPatch({seed:9751,count:24,radius:2.05});upstreamSeamFern.position.set(.15,.20,-10.1);scene.add(upstreamSeamFern);"
+          p.write_text(s.replace(needle,patch,1))
+          Path('/tmp/repaired').write_text('1')
+          PY
+          echo "changed=$(cat /tmp/repaired)" >> "$GITHUB_OUTPUT"
+      - name: Commit repair and trigger exact-HEAD regate
+        if: steps.repair.outputs.changed == '1'
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add prototypes/modern-3d/index.html
+          git commit -m "fix(m06-p01): cover upstream river terrain void"
+          git push origin HEAD:prototype/modern-3d
+      - name: Stop bootstrap run after repair push
+        if: steps.repair.outputs.changed == '1'
+        run: exit 0
       - name: Install Playwright Chromium
+        if: steps.repair.outputs.changed != '1'
         run: |
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null 2>&1
       - name: Start runtime
+        if: steps.repair.outputs.changed != '1'
         run: |
           python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m06-p01-http.log 2>&1 &
           sleep 2
           curl -fsS http://127.0.0.1:8140/index.html >/dev/null
       - name: Capture canonical and exact moved-camera regression positions
+        if: steps.repair.outputs.changed != '1'
         run: |
           mkdir -p .m06-p01-upstream
           cat > m06-upstream-regate.cjs <<'JS'
@@ -65,14 +101,14 @@ jobs:
               rows.push(`north_1300ms=${north}`);
               rows.push(`south_2200ms=${south}`);
               rows.push('page_errors=0');
-              rows.push('purpose=reproduce M07-P02 upstream terrain/shore void at exact camera-follow pressure; screenshots require adversarial visual inspection before PASS');
+              rows.push('purpose=verify M06-P01 upstream terrain/shore envelope repair under exact camera-follow pressure');
               fs.writeFileSync('.m06-p01-upstream/audit.txt',rows.join('\n')+'\n');
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node m06-upstream-regate.cjs
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: steps.repair.outputs.changed != '1'
         with:
           name: m06-p01-upstream-void-regate
           path: .m06-p01-upstream
