@@ -34,4 +34,5 @@ jobs:
         with:
           name: m06-p01-upstream-void-regate-v3
           path: .evidence
+          include-hidden-files: true
           retention-days: 14
