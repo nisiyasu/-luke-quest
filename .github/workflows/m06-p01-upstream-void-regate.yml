@@ -1,0 +1,81 @@
+# M06-P01 upstream-void-regate-v1: reproduce the exact camera-follow pressure that exposed the M07-P02 upstream terrain/shore defect.
+name: M06-P01 Upstream Void Regate
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m06-p01-upstream-void-regate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terrain-regate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m06-p01-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Capture canonical and exact moved-camera regression positions
+        run: |
+          mkdir -p .m06-p01-upstream
+          cat > m06-upstream-regate.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const rows=[];
+            async function open(){
+              const p=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+              const errors=[];p.on('pageerror',e=>errors.push(String(e)));
+              await p.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:150000});
+              await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',{timeout:150000});
+              await p.waitForTimeout(900);
+              if(errors.length)throw new Error(`page errors=${JSON.stringify(errors)}`);
+              return p;
+            }
+            try{
+              let p=await open();
+              const canonical=await p.evaluate(()=>document.documentElement.dataset.m08Player||'UNKNOWN');
+              await p.screenshot({path:'.m06-p01-upstream/canonical.png',timeout:150000});
+              await p.keyboard.down('ArrowUp');await p.waitForTimeout(1300);await p.keyboard.up('ArrowUp');await p.waitForTimeout(650);
+              const north=await p.evaluate(()=>document.documentElement.dataset.m08Player||'UNKNOWN');
+              await p.screenshot({path:'.m06-p01-upstream/moved-north-1300ms.png',timeout:150000});
+              await p.close();
+              p=await open();
+              await p.keyboard.down('ArrowDown');await p.waitForTimeout(2200);await p.keyboard.up('ArrowDown');await p.waitForTimeout(650);
+              const south=await p.evaluate(()=>document.documentElement.dataset.m08Player||'UNKNOWN');
+              await p.screenshot({path:'.m06-p01-upstream/moved-south-2200ms.png',timeout:150000});
+              await p.close();
+              rows.push(`head=${process.env.GITHUB_SHA||'UNKNOWN'}`);
+              rows.push(`canonical=${canonical}`);
+              rows.push(`north_1300ms=${north}`);
+              rows.push(`south_2200ms=${south}`);
+              rows.push('page_errors=0');
+              rows.push('purpose=reproduce M07-P02 upstream terrain/shore void at exact camera-follow pressure; screenshots require adversarial visual inspection before PASS');
+              fs.writeFileSync('.m06-p01-upstream/audit.txt',rows.join('\n')+'\n');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node m06-upstream-regate.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m06-p01-upstream-void-regate
+          path: .m06-p01-upstream
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
