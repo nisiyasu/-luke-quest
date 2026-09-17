@@ -1143,6 +1143,27 @@ function makeFacetedRockGeometry(r, radius, variant = 0) {
   geo.computeVertexNormals();
   return geo;
 }
+function makeFracturedCliffShelf(r, width, depth, facing, level = 0) {
+  const seg = Math.max(18, Math.ceil(width * 2.4)), verts = [], idx = [], uv = [];
+  for (let i = 0; i <= seg; i++) {
+    const t = i / seg, x = -width * 0.5 + t * width, wave = Math.sin(t * Math.PI * (2.15 + level * 0.31) + level * 0.73) * (0.34 - level * 0.035) + Math.sin(t * Math.PI * (5.7 + level * 0.41) + 1.17) * 0.12 + (r() - 0.5) * 0.1, front = facing * (depth * 0.5 - 0.34 - level * 0.23 + wave), back = front - facing * (0.72 + level * 0.1 + (r() - 0.5) * 0.1), top = -0.13 - level * 0.31 + Math.sin(t * Math.PI * 3.3 + level) * 0.06 + (r() - 0.5) * 0.035, bottom = top - (0.46 + level * 0.13 + Math.sin(t * Math.PI * 2.4 + 0.8) * 0.07);
+    verts.push(x, top, back, x, top + (r() - 0.5) * 0.04, front, x + (r() - 0.5) * 0.09, bottom, front - facing * (0.08 + r() * 0.12));
+    uv.push(t, 0, t, 0.22, t, 1);
+  }
+  for (let i = 0; i < seg; i++) {
+    const a = i * 3, b = a + 3;
+    idx.push(a, b, a + 1, b, b + 1, a + 1, a + 1, b + 1, a + 2, b + 1, b + 2, a + 2);
+  }
+  const geo = new THREE5.BufferGeometry();
+  geo.setAttribute("position", new THREE5.Float32BufferAttribute(verts, 3));
+  geo.setAttribute("uv", new THREE5.Float32BufferAttribute(uv, 2));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  const m = new THREE5.Mesh(geo, rockMats3[(level * 2 + 1) % rockMats3.length]);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  return m;
+}
 function shadows2(root) {
   root.traverse((n) => {
     if (n.isMesh) {
@@ -1286,11 +1307,12 @@ function createTargetBankV4({ seed = 1, width = 12, depth = 8, facing = 1 } = {}
   g.name = `bank_target_v4_${seed}`;
   g.add(makeOrganicTop(r, seed, width, depth, facing));
   addTopMicrodetail(g, r, width, depth, facing);
-  const bands = [{ z: depth * 0.5 - 0.24, y: -0.24, scale: 1.05 }, { z: depth * 0.5 - 0.48, y: -0.56, scale: 0.88 }, { z: depth * 0.5 - 0.73, y: -0.91, scale: 0.7 }, { z: depth * 0.5 - 0.93, y: -1.22, scale: 0.52 }];
+  for (let level = 0; level < 4; level++) g.add(makeFracturedCliffShelf(r, width, depth, facing, level));
+  const bands = [{ z: depth * 0.5 - 0.28, y: -0.31, scale: 0.78 }, { z: depth * 0.5 - 0.58, y: -0.72, scale: 0.6 }, { z: depth * 0.5 - 0.84, y: -1.08, scale: 0.43 }];
   bands.forEach((band, bi) => {
-    const count = Math.max(7, Math.ceil(width / (bi === 0 ? 0.86 : 1.08)));
+    const count = Math.max(4, Math.ceil(width / (bi === 0 ? 1.75 : 2.15)));
     for (let i = 0; i < count; i++) {
-      if ((i * 3 + bi + seed) % 8 === 2) continue;
+      if ((i * 3 + bi + seed) % 5 !== 0) continue;
       const t = (i + 0.5) / count, x = -width * 0.5 + t * width + (r() - 0.5) * 0.48, edgeWave = Math.sin(t * Math.PI * 2.7 + seed * 0.19) * 0.46 + Math.sin(t * Math.PI * 6.2 + seed * 0.07) * 0.17, radius = (0.43 + r() * 0.42) * band.scale, variant = (i + bi + seed) % 3, geo = makeFacetedRockGeometry(r, radius, variant), rock = new THREE5.Mesh(geo, rockMats3[(i * 2 + bi + seed) % rockMats3.length]);
       rock.scale.set(0.92 + r() * 0.72, 0.72 + r() * 0.52, 0.76 + r() * 0.56);
       rock.position.set(x, band.y + (r() - 0.5) * 0.22, facing * (band.z + edgeWave) + (r() - 0.5) * 0.2);
