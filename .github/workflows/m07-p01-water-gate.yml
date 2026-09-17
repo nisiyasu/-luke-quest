@@ -40,3 +40,4 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
+# exact-head-regate: 2026-09-18 M07-P01 after M06-P03 fresh pass
