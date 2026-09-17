@@ -1,0 +1,94 @@
+name: M04-P02 Fresh Visual Regate Playwright
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m04-p02-fresh-regate-playwright.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start exact-head runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/m04-fresh-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/index.html >/dev/null
+      - name: Capture content-aware fresh evidence
+        run: |
+          mkdir -p .m04-p02-fresh
+          cat > m04-fresh.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
+            const rows=[`evidence_source_head=${process.env.GITHUB_SHA}`];
+            try {
+              for (const spec of [
+                ['portrait-high',390,844,'?quality=high&m08gate=1'],
+                ['landscape-high',844,390,'?quality=high&m08gate=1'],
+                ['portrait-practical',390,844,'?quality=practical&m08gate=1'],
+                ['landscape-practical',844,390,'?quality=practical&m08gate=1']
+              ]) {
+                const [name,w,h,q]=spec;
+                const page=await browser.newPage({viewport:{width:w,height:h},deviceScaleFactor:1});
+                const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+                await page.goto(`http://127.0.0.1:8140/index.html${q}`,{waitUntil:'domcontentloaded',timeout:150000});
+                await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m04Assets==='target-v35'&&window.LQ_MODERN_3D_M05,{timeout:150000});
+                await page.waitForTimeout(1600);
+                if(errors.length) throw new Error(`${name} page errors=${JSON.stringify(errors)}`);
+                const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d,assets:document.documentElement.dataset.m04Assets,camera:document.documentElement.dataset.m03CameraProfile,quality:document.documentElement.dataset.m10QualityPreset,player:document.documentElement.dataset.m08Player}));
+                await page.screenshot({path:`.m04-p02-fresh/${name}.png`,fullPage:true,timeout:150000});
+                rows.push(`${name}=${JSON.stringify(meta)}`);
+                await page.close();
+              }
+              fs.writeFileSync('.m04-p02-fresh/audit.txt',rows.join('\n')+'\n');
+            } finally { await browser.close(); }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node m04-fresh.cjs
+      - name: Validate screenshots contain rendered world
+        run: |
+          python3 - <<'PY'
+          from PIL import Image, ImageStat
+          import glob, os
+          for p in glob.glob('.m04-p02-fresh/*.png'):
+              im=Image.open(p).convert('RGB')
+              w,h=im.size
+              crop=im.crop((int(w*.18),int(h*.20),int(w*.82),int(h*.80)))
+              st=ImageStat.Stat(crop)
+              spread=max(x[1]-x[0] for x in crop.getextrema())
+              std=max(st.stddev)
+              colors=crop.resize((96,96)).getcolors(maxcolors=9217)
+              unique=len(colors) if colors else 9217
+              print(os.path.basename(p), 'size=',im.size,'spread=',spread,'std=',round(std,2),'unique=',unique)
+              if spread < 24 or std < 8 or unique < 32:
+                  raise SystemExit(f'FAIL rendered-world content gate: {p}')
+          PY
+      - name: Add visual authorities
+        run: |
+          curl -L --fail --retry 3 -o .m04-p02-fresh/MINIMUM_QUALITY_LINE.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png
+          curl -L --fail --retry 3 -o .m04-p02-fresh/TARGET_PS1_FINAL.png https://raw.githubusercontent.com/nisiyasu/-luke-quest/eb6ec9fafc053b6dbabb6ee473932b7c7851ebc6/assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m04-p02-fresh-regate-playwright
+          path: .m04-p02-fresh
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
