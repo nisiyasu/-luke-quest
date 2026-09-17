@@ -72,80 +72,21 @@ jobs:
           const fs=require('fs');
           const p3=s=>String(s||'').split(',').map(Number);
           const delta=(a,b)=>Math.hypot(b[0]-a[0],b[2]-a[2]);
-          async function meta(page){return page.evaluate(()=>({
-            player:document.documentElement.dataset.m08Player,
-            camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',
-            scene:document.documentElement.dataset.lqModern3d,
-            active:window.LQ_MODERN_3D_M05?.activeInputs,
-            blockedWater:window.LQ_MODERN_3D_M05?.blockedWater,
-            blockedBounds:window.LQ_MODERN_3D_M05?.blockedBounds
-          }))}
+          async function meta(page){return page.evaluate(()=>({player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile||'UNKNOWN',scene:document.documentElement.dataset.lqModern3d,active:window.LQ_MODERN_3D_M05?.activeInputs,blockedWater:window.LQ_MODERN_3D_M05?.blockedWater,blockedBounds:window.LQ_MODERN_3D_M05?.blockedBounds}))}
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});
             const rows=['functional_clock=fixed_step_production_stepMovement performance_claim=NONE','guard=m08gate-query-only'];
-            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});
-            const errs=[];page.on('pageerror',e=>errs.push(String(e)));
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});const errs=[];page.on('pageerror',e=>errs.push(String(e)));
             try{
-              await page.goto('http://127.0.0.1:8140/index.html?quality=high&m08gate=1',{waitUntil:'domcontentloaded',timeout:60000});
-              await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&window.LQ_MODERN_3D_M08_GATE,null,{timeout:60000});
-              if(errs.length)throw new Error(`page errors=${JSON.stringify(errs)}`);
+              await page.goto('http://127.0.0.1:8140/index.html?quality=high&m08gate=1',{waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&window.LQ_MODERN_3D_M08_GATE,null,{timeout:60000});if(errs.length)throw new Error(`page errors=${JSON.stringify(errs)}`);
               const start=await meta(page);const a=p3(start.player);if(a.length<3||!a.every(Number.isFinite))throw new Error('invalid start player');
-
-              const keyboardProof=await page.evaluate(()=>{
-                const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;
-                const before=[player.position.x,player.position.y,player.position.z];
-                dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));
-                for(let i=0;i<150;i++)stepMovement(1/60);
-                dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState();
-                return {before,after:[player.position.x,player.position.y,player.position.z],rotation:player.rotation.y,active:window.LQ_MODERN_3D_M05.activeInputs};
-              });
-              const b=keyboardProof.after;rows.push(`keyboard_fixed_step=${JSON.stringify(keyboardProof)} delta=${delta(a,b).toFixed(3)}`);
-              if(delta(a,b)<6.7||b[2]>=-3.65||b[1]<.90||keyboardProof.active!==0)throw new Error(`keyboard bridge-to-terrain transition fail ${JSON.stringify(keyboardProof)}`);
-              rows.push(`keyboard_bridge_to_terrain=PASS y=${b[1].toFixed(3)} z=${b[2].toFixed(3)}`);
-
-              const releaseProof=await page.evaluate(()=>{
-                const {stepMovement,player}=window.LQ_MODERN_3D_M08_GATE;const before=[player.position.x,player.position.y,player.position.z];
-                for(let i=0;i<30;i++)stepMovement(1/60);const after=[player.position.x,player.position.y,player.position.z];
-                return {before,after,active:window.LQ_MODERN_3D_M05.activeInputs};
-              });
-              const releaseDelta=delta(releaseProof.before,releaseProof.after);rows.push(`keyboard_release=${JSON.stringify(releaseProof)} delta=${releaseDelta.toFixed(4)}`);if(releaseDelta>.001||releaseProof.active!==0)throw new Error('keyboard release drift');
-
-              const turnProof=await page.evaluate(()=>{
-                const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;const before=[player.position.x,player.position.y,player.position.z],r0=player.rotation.y;
-                dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowRight',bubbles:true,cancelable:true}));for(let i=0;i<12;i++)stepMovement(1/60);
-                dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowRight',bubbles:true,cancelable:true}));syncState();
-                return {before,after:[player.position.x,player.position.y,player.position.z],r0,r1:player.rotation.y,active:window.LQ_MODERN_3D_M05.activeInputs};
-              });
-              const turnDelta=delta(turnProof.before,turnProof.after);rows.push(`turn_right=${JSON.stringify(turnProof)} delta=${turnDelta.toFixed(3)}`);if(turnDelta<.4||Math.abs(turnProof.r1-turnProof.r0)<.3||turnProof.active!==0)throw new Error('direction/turn proof fail');
-
-              const touchProof=await page.evaluate(()=>{
-                const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;const btn=document.querySelector('button.move.down');if(!btn)throw new Error('touch button missing');
-                const before=[player.position.x,player.position.y,player.position.z];const id=777;
-                btn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));for(let i=0;i<12;i++)stepMovement(1/60);
-                btn.dispatchEvent(new PointerEvent('pointerup',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));syncState();const after=[player.position.x,player.position.y,player.position.z];
-                for(let i=0;i<20;i++)stepMovement(1/60);const released=[player.position.x,player.position.y,player.position.z];
-                return {before,after,released,active:window.LQ_MODERN_3D_M05.activeInputs};
-              });
-              const touchDelta=delta(touchProof.before,touchProof.after),touchReleaseDelta=delta(touchProof.after,touchProof.released);
-              rows.push(`touch_pointer=${JSON.stringify(touchProof)} delta=${touchDelta.toFixed(3)} release_delta=${touchReleaseDelta.toFixed(4)}`);
-              if(touchDelta<.4||touchReleaseDelta>.001||touchProof.active!==0)throw new Error('touch movement/release proof fail');
-              rows.push(`functional_camera_profile=${(await meta(page)).camera}`);await page.close();
-
-              const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});const cie=[];ci.on('pageerror',e=>cie.push(String(e)));
-              await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:60000});
-              await ci.waitForFunction(()=>document.documentElement.dataset.m03Ci,null,{timeout:60000});
-              const ciResult=await ci.evaluate(()=>({m03Ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route,ci:window.LQ_MODERN_3D_M05?.ci||null}));
-              if(cie.length||ciResult.m03Ci!=='pass'||!ciResult.ci?.crossedBridge||!ciResult.ci?.noHole||!ciResult.ci?.groundingSmooth)throw new Error(`CI route fail ${JSON.stringify(ciResult)} errors=${JSON.stringify(cie)}`);
-              rows.push(`bridge_ci=${JSON.stringify(ciResult)}`);await ci.close();
-
-              const visual=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});const ve=[];visual.on('pageerror',e=>ve.push(String(e)));
-              await visual.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:60000});
-              await visual.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',null,{timeout:60000});await visual.waitForTimeout(500);
-              if(ve.length)throw new Error(`visual page errors=${JSON.stringify(ve)}`);await visual.screenshot({path:'.m08-p02/camera-start.png',timeout:90000});
-              await visual.goto('http://127.0.0.1:8140/index.html?quality=high&m08proof=1',{waitUntil:'domcontentloaded',timeout:60000});
-              await visual.waitForFunction(()=>document.documentElement.dataset.m08ProofDone==='1'&&Number(document.documentElement.dataset.m08ProofRendered)>=4,null,{timeout:60000});await visual.waitForTimeout(250);
-              await visual.screenshot({path:'.m08-p02/camera-postwalk.png',timeout:90000});const vm=await meta(visual);rows.push(`camera_regression_frames=camera-start.png,camera-postwalk.png profile=${vm.camera}`);await visual.close();
-
+              const keyboardProof=await page.evaluate(()=>{const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;const before=[player.position.x,player.position.y,player.position.z];dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowUp',bubbles:true,cancelable:true}));for(let i=0;i<150;i++)stepMovement(1/60);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowUp',bubbles:true,cancelable:true}));syncState();return {before,after:[player.position.x,player.position.y,player.position.z],rotation:player.rotation.y,active:window.LQ_MODERN_3D_M05.activeInputs};});
+              const b=keyboardProof.after;rows.push(`keyboard_fixed_step=${JSON.stringify(keyboardProof)} delta=${delta(a,b).toFixed(3)}`);if(delta(a,b)<6.7||b[2]>=-3.65||b[1]<.90||keyboardProof.active!==0)throw new Error(`keyboard bridge-to-terrain transition fail ${JSON.stringify(keyboardProof)}`);rows.push(`keyboard_bridge_to_terrain=PASS y=${b[1].toFixed(3)} z=${b[2].toFixed(3)}`);
+              const releaseProof=await page.evaluate(()=>{const {stepMovement,player}=window.LQ_MODERN_3D_M08_GATE;const before=[player.position.x,player.position.y,player.position.z];for(let i=0;i<30;i++)stepMovement(1/60);const after=[player.position.x,player.position.y,player.position.z];return {before,after,active:window.LQ_MODERN_3D_M05.activeInputs};});const releaseDelta=delta(releaseProof.before,releaseProof.after);rows.push(`keyboard_release=${JSON.stringify(releaseProof)} delta=${releaseDelta.toFixed(4)}`);if(releaseDelta>.001||releaseProof.active!==0)throw new Error('keyboard release drift');
+              const turnProof=await page.evaluate(()=>{const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;const before=[player.position.x,player.position.y,player.position.z],r0=player.rotation.y;dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowRight',bubbles:true,cancelable:true}));for(let i=0;i<12;i++)stepMovement(1/60);dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowRight',bubbles:true,cancelable:true}));syncState();return {before,after:[player.position.x,player.position.y,player.position.z],r0,r1:player.rotation.y,active:window.LQ_MODERN_3D_M05.activeInputs};});const turnDelta=delta(turnProof.before,turnProof.after);rows.push(`turn_right=${JSON.stringify(turnProof)} delta=${turnDelta.toFixed(3)}`);if(turnDelta<.4||Math.abs(turnProof.r1-turnProof.r0)<.3||turnProof.active!==0)throw new Error('direction/turn proof fail');
+              const touchProof=await page.evaluate(()=>{const {stepMovement,player,syncState}=window.LQ_MODERN_3D_M08_GATE;const btn=document.querySelector('button.move.down');if(!btn)throw new Error('touch button missing');const before=[player.position.x,player.position.y,player.position.z];const id=777;btn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));for(let i=0;i<12;i++)stepMovement(1/60);btn.dispatchEvent(new PointerEvent('pointerup',{pointerId:id,pointerType:'touch',bubbles:true,isPrimary:true}));syncState();const after=[player.position.x,player.position.y,player.position.z];for(let i=0;i<20;i++)stepMovement(1/60);const released=[player.position.x,player.position.y,player.position.z];return {before,after,released,active:window.LQ_MODERN_3D_M05.activeInputs};});const touchDelta=delta(touchProof.before,touchProof.after),touchReleaseDelta=delta(touchProof.after,touchProof.released);rows.push(`touch_pointer=${JSON.stringify(touchProof)} delta=${touchDelta.toFixed(3)} release_delta=${touchReleaseDelta.toFixed(4)}`);if(touchDelta<.4||touchReleaseDelta>.001||touchProof.active!==0)throw new Error('touch movement/release proof fail');rows.push(`functional_camera_profile=${(await meta(page)).camera}`);await page.close();
+              const ci=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});const cie=[];ci.on('pageerror',e=>cie.push(String(e)));await ci.goto('http://127.0.0.1:8140/index.html?quality=high&ci=1',{waitUntil:'domcontentloaded',timeout:60000});await ci.waitForFunction(()=>document.documentElement.dataset.m03Ci,null,{timeout:60000});const ciResult=await ci.evaluate(()=>({m03Ci:document.documentElement.dataset.m03Ci,route:document.documentElement.dataset.m03Route,ci:window.LQ_MODERN_3D_M05?.ci||null}));if(cie.length||ciResult.m03Ci!=='pass'||!ciResult.ci?.crossedBridge||!ciResult.ci?.noHole||!ciResult.ci?.groundingSmooth)throw new Error(`CI route fail ${JSON.stringify(ciResult)} errors=${JSON.stringify(cie)}`);rows.push(`bridge_ci=${JSON.stringify(ciResult)}`);await ci.close();
+              const visual=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true});const ve=[];visual.on('pageerror',e=>ve.push(String(e)));await visual.goto('http://127.0.0.1:8140/index.html?quality=high',{waitUntil:'domcontentloaded',timeout:60000});await visual.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',null,{timeout:60000});await visual.waitForTimeout(500);if(ve.length)throw new Error(`visual page errors=${JSON.stringify(ve)}`);await visual.screenshot({path:'.m08-p02/camera-start.png',timeout:90000});await visual.goto('http://127.0.0.1:8140/index.html?quality=high&m08proof=1',{waitUntil:'domcontentloaded',timeout:60000});await visual.waitForFunction(()=>document.documentElement.dataset.m08ProofDone==='1'&&Number(document.documentElement.dataset.m08ProofRendered)>=4,null,{timeout:60000});await visual.waitForTimeout(250);await visual.screenshot({path:'.m08-p02/camera-postwalk.png',timeout:90000});const vm=await meta(visual);rows.push(`camera_regression_frames=camera-start.png,camera-postwalk.png profile=${vm.camera}`);await visual.close();
               rows.push(`page_errors=0 head=${process.env.GITHUB_SHA||'UNKNOWN'} RESULT=PASS`);fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');
             }catch(e){rows.push(`FAIL error=${String(e)}`);fs.writeFileSync('.m08-p02/movement-audit.txt',rows.join('\n')+'\n');throw e}finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
@@ -166,3 +107,4 @@ jobs:
           retention-days: 14
 
 # fresh exact-head regate after M08-P01/M07 revalidation 2026-09-14
+# fresh exact-head regate after post-M07 M08-P01 PASS 2026-09-17
