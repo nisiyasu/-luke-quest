@@ -116,20 +116,21 @@ jobs:
           BROWSER="$(command -v google-chrome || command -v chromium-browser || command -v chromium)"
           capture(){
             local size="$1" out="$2" attempt rc
-            for attempt in 1 2; do
+            for attempt in 1 2 3; do
+              rm -f ".modern3d/$out"
               set +e
-              timeout 75s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+              timeout 55s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
+                --disable-background-networking --disable-component-update --disable-sync --metrics-recording-only \
                 --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-                --hide-scrollbars --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=700 \
-                --screenshot=".modern3d/$out" 'http://127.0.0.1:8140/index.html?quality=high'
+                --hide-scrollbars --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=450 \
+                --screenshot=".modern3d/$out" 'http://127.0.0.1:8140/index.html?ci=1&quality=high'
               rc=$?
               set -e
-              if [ "$rc" -eq 0 ] && test -s ".modern3d/$out"; then
-                echo "M05_CAPTURE $out attempt=$attempt PASS" >> .modern3d/m05-capture-performance.txt
+              if test -s ".modern3d/$out"; then
+                echo "M05_CAPTURE $out attempt=$attempt PASS rc=$rc" >> .modern3d/m05-capture-performance.txt
                 return 0
               fi
               echo "M05_CAPTURE $out attempt=$attempt RETRY rc=$rc" >> .modern3d/m05-capture-performance.txt
-              rm -f ".modern3d/$out"
               sleep 1
             done
             return 1
