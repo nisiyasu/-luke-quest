@@ -53,8 +53,8 @@ jobs:
               timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-dev-shm-usage \
                 --disable-background-networking --disable-component-update --disable-sync --metrics-recording-only \
                 --enable-webgl --ignore-gpu-blocklist --use-angle=swiftshader --enable-unsafe-swiftshader \
-                --hide-scrollbars --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=2200 \
-                --screenshot=".modern3d-regate/$out" 'http://127.0.0.1:8140/index.html?ci=1&quality=high'
+                --hide-scrollbars --window-size="$size" --force-device-scale-factor=1 --virtual-time-budget=2600 \
+                --screenshot=".modern3d-regate/$out" 'http://127.0.0.1:8140/index.html?ci=1&m08proof=1&quality=high'
               rc=$?
               set -e
               if test -s ".modern3d-regate/$out" && python3 - ".modern3d-regate/$out" <<'PY'
@@ -63,7 +63,6 @@ jobs:
           p=sys.argv[1]
           im=Image.open(p).convert('RGB')
           w,h=im.size
-          # HUD can render while WebGL world is blank. Judge the central world area only.
           crop=im.crop((int(w*.20),int(h*.20),int(w*.80),int(h*.78)))
           stat=ImageStat.Stat(crop)
           extrema=crop.getextrema()
@@ -72,7 +71,6 @@ jobs:
           colors=crop.resize((max(1,crop.width//8),max(1,crop.height//8))).getcolors(maxcolors=1000000) or []
           unique=len(colors)
           print(f'CONTENT_CHECK path={p} spread={spread} std={std:.2f} unique={unique}')
-          # A HUD-only dark frame has almost no variation in the central world area.
           assert spread > 45 and std > 12 and unique > 24, (spread,std,unique)
           PY
               then
@@ -90,7 +88,7 @@ jobs:
         run: |
           cp assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png .modern3d-regate/
           cp assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png .modern3d-regate/
-          printf 'SOURCE_SHA=%s\nPACKET=M04-P02\nVISUAL_ACCEPTANCE=REQUIRES_DIRECT_COMPARISON\n' "$GITHUB_SHA" > .modern3d-regate/manifest.txt
+          printf 'SOURCE_SHA=%s\nPACKET=M04-P02\nCAPTURE_ROUTE=ci-plus-m08proof-render-loop\nVISUAL_ACCEPTANCE=REQUIRES_DIRECT_COMPARISON\n' "$GITHUB_SHA" > .modern3d-regate/manifest.txt
       - name: Upload M04 regate evidence
         if: always()
         uses: actions/upload-artifact@v4
