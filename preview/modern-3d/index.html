@@ -106,6 +106,15 @@ const southFringeFernR=createTargetFernPatch({seed:9667,count:24,radius:2.20});s
 const southShoreFern=createTargetFernPatch({seed:913,count:34,radius:2.45});southShoreFern.position.set(.95,-.10,13.8);scene.add(southShoreFern);
 for(const [i,x,z,sc] of [[0,-.15,11.8,.54],[1,.55,15.2,.62],[2,1.55,18.0,.58]]){const r=createRockCluster({seed:9200+i*29,scale:sc});r.position.set(x,-.15,z);scene.add(r);}
 const waterUpperRight=createTargetWaterV3({width:8.6,depth:19.0,seed:331});waterUpperRight.position.set(5.15,.05,-6.35);waterUpperRight.rotation.y=-.38;scene.add(waterUpperRight);
+// M06-P01 upstream-envelope-repair-v1: cover the exposed underlay beside the upper river without entering the bridge route.
+bank(9751,5.6,8.4,-.45,.12,-10.9,1,.08);
+bank(9757,4.8,7.2,6.95,.10,-13.0,1,-.18);
+// M06-P01 upstream-envelope-repair-v2: close the remaining east-bank coverage gap exposed by canonical + north/south follow-camera evidence while preserving the river channel.
+bank(9763,4.2,5.8,4.55,.08,-10.85,1,-.10);
+// M06-P01 upstream-envelope-repair-v3: extend authored receiving terrain farther beyond both follow-camera upstream edges while leaving the water channel and bridge corridor open.
+bank(9769,5.4,7.4,-3.75,.06,-14.15,1,.12);
+bank(9773,5.0,7.0,4.95,.06,-15.25,1,-.14);
+const upstreamSeamFern=createTargetFernPatch({seed:9751,count:24,radius:2.05});upstreamSeamFern.position.set(.15,.20,-10.1);scene.add(upstreamSeamFern);
 function bridgeAt(x,z,ry=0,shadow=true){const b=createProductionBridge();b.position.set(x,.05,z);b.rotation.y=ry;if(!shadow)b.traverse(n=>{if(n.isMesh)n.castShadow=false});scene.add(b);return b}
 const bridgeMain=bridgeAt(-1.35,1.1,0,true);
 const bridgeClearDeckMat=new THREE.MeshStandardMaterial({color:0x825837,roughness:.88,metalness:0});
