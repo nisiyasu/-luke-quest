@@ -1,0 +1,45 @@
+name: M04 P02 Continuous Cliff Repair
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths: [.github/workflows/m04-p02-continuous-cliff-repair.yml]
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Replace bead-like cliff bands with continuous fractured shelves
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/m04-bank-target-v4.js')
+          s=p.read_text()
+          anchor="function shadows(root){root.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});return root}"
+          helper="""function makeFracturedCliffShelf(r,width,depth,facing,level=0){const seg=Math.max(18,Math.ceil(width*2.4)),verts=[],idx=[],uv=[];for(let i=0;i<=seg;i++){const t=i/seg,x=-width*.5+t*width,wave=Math.sin(t*Math.PI*(2.15+level*.31)+level*.73)*(.34-level*.035)+Math.sin(t*Math.PI*(5.7+level*.41)+1.17)*.12+(r()-.5)*.10,front=facing*(depth*.5-.34-level*.23+wave),back=front-facing*(.72+level*.10+(r()-.5)*.10),top=-.13-level*.31+Math.sin(t*Math.PI*3.3+level)*.06+(r()-.5)*.035,bottom=top-(.46+level*.13+Math.sin(t*Math.PI*2.4+.8)*.07);verts.push(x,top,back,x,top+(r()-.5)*.04,front,x+(r()-.5)*.09,bottom,front-facing*(.08+r()*.12));uv.push(t,0,t,.22,t,1)}for(let i=0;i<seg;i++){const a=i*3,b=a+3;idx.push(a,b,a+1,b,b+1,a+1,a+1,b+1,a+2,b+1,b+2,a+2)}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();const m=new THREE.Mesh(geo,rockMats[(level*2+1)%rockMats.length]);m.castShadow=true;m.receiveShadow=true;return m}\n"""
+          if 'function makeFracturedCliffShelf' not in s:
+              if anchor not in s: raise SystemExit('anchor missing')
+              s=s.replace(anchor,helper+anchor)
+          old="""  const bands=[{z:depth*.5-.24,y:-.24,scale:1.05},{z:depth*.5-.48,y:-.56,scale:.88},{z:depth*.5-.73,y:-.91,scale:.70},{z:depth*.5-.93,y:-1.22,scale:.52}];\n  bands.forEach((band,bi)=>{"""
+          new="""  for(let level=0;level<4;level++)g.add(makeFracturedCliffShelf(r,width,depth,facing,level));\n  const bands=[{z:depth*.5-.28,y:-.31,scale:.78},{z:depth*.5-.58,y:-.72,scale:.60},{z:depth*.5-.84,y:-1.08,scale:.43}];\n  bands.forEach((band,bi)=>{"""
+          if old not in s: raise SystemExit('bands anchor missing')
+          s=s.replace(old,new)
+          s=s.replace("const count=Math.max(7,Math.ceil(width/(bi===0?.86:1.08)))","const count=Math.max(4,Math.ceil(width/(bi===0?1.75:2.15)))")
+          s=s.replace("if((i*3+bi+seed)%8===2)continue","if((i*3+bi+seed)%5!==0)continue")
+          p.write_text(s)
+      - name: Syntax check
+        run: node --check prototypes/modern-3d/m04-bank-target-v4.js
+      - name: Commit repair
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add prototypes/modern-3d/m04-bank-target-v4.js
+          git diff --cached --quiet && exit 0
+          git commit -m "M04-P02 replace rock beads with fractured cliff shelves"
+          git push origin HEAD:prototype/modern-3d
