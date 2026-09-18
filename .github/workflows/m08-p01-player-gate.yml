@@ -88,3 +88,4 @@ jobs:
 # fresh revalidation after M07 exact-head water/lighting completion 2026-09-14
 # evidence-v4: current-head revalidation after M06/M07 return repair chain 2026-09-14
 # evidence-v5: fresh player regate after M07-P02 post-M06/water lighting completion 2026-09-17
+# evidence-v6: fresh player regate after M07-P02 fb5fbce exact-head pass 2026-09-18
