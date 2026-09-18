@@ -13,6 +13,7 @@ on:
 # Fresh router-selected M11-P01 trigger after M10-P02 exact-head package PASS.
 # 2026-09-17 fresh exact-lineage regate after M10-P02 Action 35185404546 PASS.
 # 2026-09-18 fresh exact-lineage regate after M10-P02 Action 35310412991 PASS.
+# 2026-09-19 fresh router-selected recapture after M10-P02 Action 35374352641 PASS.
 permissions:
   contents: read
 
