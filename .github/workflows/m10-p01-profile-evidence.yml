@@ -2,6 +2,7 @@ name: M10-P01 HQ vs Practical Profile Evidence
 # Fresh exact-head regate after M09-P02; bounded wall-clock proxy harness, 2026-09-14.
 # Fresh M10-P01 router regate trigger, 2026-09-17.
 # Fresh post-M09-P02 pass profile regate trigger, 2026-09-18.
+# Fresh exact-head recovery regate trigger, 2026-09-19.
 
 on:
   push:
@@ -84,28 +85,11 @@ jobs:
                 await p.screenshot({path:`.m10-p01/${profile.name}.png`,timeout:150000});
                 const screenshotWallMs=Date.now()-shotStart;
 
-                summary.profiles[profile.name]={
-                  query:profile.query,
-                  ready_wall_ms:readyMs,
-                  movement_wall_ms:movementWallMs,
-                  screenshot_wall_ms:screenshotWallMs,
-                  settings,
-                  runtime_errors:errors,
-                  screenshot:`${profile.name}.png`
-                };
+                summary.profiles[profile.name]={query:profile.query,ready_wall_ms:readyMs,movement_wall_ms:movementWallMs,screenshot_wall_ms:screenshotWallMs,settings,runtime_errors:errors,screenshot:`${profile.name}.png`};
                 await p.close();
               }
               const h=summary.profiles.high,p=summary.profiles.practical;
-              summary.comparison={
-                pixel_ratio_high:h.settings.pixelRatio,
-                pixel_ratio_practical:p.settings.pixelRatio,
-                shadow_map_high:h.settings.shadowMapSize,
-                shadow_map_practical:p.settings.shadowMapSize,
-                ready_wall_delta_ms:p.ready_wall_ms-h.ready_wall_ms,
-                movement_wall_delta_ms:p.movement_wall_ms-h.movement_wall_ms,
-                screenshot_wall_delta_ms:p.screenshot_wall_ms-h.screenshot_wall_ms,
-                note:'Wall-clock measurements on GitHub-hosted headless Chromium/SwiftShader are bounded CI/browser proxy signals only. They are not physical iPhone FPS or device-performance measurements.'
-              };
+              summary.comparison={pixel_ratio_high:h.settings.pixelRatio,pixel_ratio_practical:p.settings.pixelRatio,shadow_map_high:h.settings.shadowMapSize,shadow_map_practical:p.settings.shadowMapSize,ready_wall_delta_ms:p.ready_wall_ms-h.ready_wall_ms,movement_wall_delta_ms:p.movement_wall_ms-h.movement_wall_ms,screenshot_wall_delta_ms:p.screenshot_wall_ms-h.screenshot_wall_ms,note:'Wall-clock measurements on GitHub-hosted headless Chromium/SwiftShader are bounded CI/browser proxy signals only. They are not physical iPhone FPS or device-performance measurements.'};
               fs.writeFileSync('.m10-p01/metrics.json',JSON.stringify(summary,null,2)+'\n');
               const md=`# M10-P01 profile settings and bounded proxy evidence\n\nExact HEAD: \`${summary.head}\`\n\n| Setting / proxy | HQ | iPhone-practical |\n|---|---:|---:|\n| query | \`${h.query}\` | \`${p.query}\` |\n| simulated source DPR | ${h.settings.sourceDpr} | ${p.settings.sourceDpr} |\n| effective renderer DPR | ${h.settings.pixelRatio} | ${p.settings.pixelRatio} |\n| shadow map | ${h.settings.shadowMapSize} | ${p.settings.shadowMapSize} |\n| ready wall time (ms) | ${h.ready_wall_ms} | ${p.ready_wall_ms} |\n| identical movement wall time (ms) | ${h.movement_wall_ms} | ${p.movement_wall_ms} |\n| screenshot wall time (ms) | ${h.screenshot_wall_ms} | ${p.screenshot_wall_ms} |\n\nBoth profiles run the same portrait scene and north→release→east→release path. These wall-clock numbers are GitHub-hosted Chromium/SwiftShader proxy signals only. No physical-device FPS is inferred from them.\n\nIOS_PHYSICAL_VERIFICATION: PENDING\n`;
               fs.writeFileSync('.m10-p01/profile-settings.md',md);
