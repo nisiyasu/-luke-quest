@@ -41,3 +41,4 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 # exact-head-regate: 2026-09-18 M07-P01 after M06-P03 fresh pass
+# exact-head-regate: 2026-09-19 M07-P01 after target-gap terrain lineage passed M06-P02/P03
