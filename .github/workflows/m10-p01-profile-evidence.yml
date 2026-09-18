@@ -1,6 +1,7 @@
 name: M10-P01 HQ vs Practical Profile Evidence
 # Fresh exact-head regate after M09-P02; bounded wall-clock proxy harness, 2026-09-14.
 # Fresh M10-P01 router regate trigger, 2026-09-17.
+# Fresh post-M09-P02 pass profile regate trigger, 2026-09-18.
 
 on:
   push:
