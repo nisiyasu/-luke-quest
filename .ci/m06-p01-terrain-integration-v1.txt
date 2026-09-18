@@ -1,4 +1,5 @@
 M06-P01 terrain integration repair v1
 triggered_from_current_router=#37
-workflow_fix_commit=5b07981221499b1601431107b5d6389b4f6e7dc9
-retrigger=2
+repair_contract_comment=5735760352
+purpose=final_target_terrain_cliff_ground_gap
+retrigger=3
