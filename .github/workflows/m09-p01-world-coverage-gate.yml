@@ -16,6 +16,7 @@ permissions:
 # M09-P01 fresh exact-head revalidation after M08 movement/camera pass 2026-09-14.
 # M09-P01 fresh re-gate after south fringe receiving-terrain repair v66 2026-09-14.
 # M09-P01 fresh post-M08-P02 exact-head re-gate 2026-09-17.
+# M09-P01 fresh exact-head revalidation after M08-P02 pass 2026-09-18.
 jobs:
   coverage-gate:
     runs-on: ubuntu-24.04
