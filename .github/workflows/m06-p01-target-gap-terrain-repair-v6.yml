@@ -1,0 +1,54 @@
+name: M06 P01 Target Gap Terrain Repair V6
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths: [.github/workflows/m06-p01-target-gap-terrain-repair-v6.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 10}
+      - name: Apply bounded terrain target-gap repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/m04-bank-target-v4.js')
+          s=p.read_text()
+          patches=[
+            ("const seg=Math.max(18,Math.ceil(width*2.4))", "const seg=Math.max(28,Math.ceil(width*3.4))"),
+            ("wave=Math.sin(t*Math.PI*(2.15+level*.31)+level*.73)*(.34-level*.035)+Math.sin(t*Math.PI*(5.7+level*.41)+1.17)*.12+(r()-.5)*.10", "wave=Math.sin(t*Math.PI*(2.15+level*.31)+level*.73)*(.31-level*.03)+Math.sin(t*Math.PI*(5.7+level*.41)+1.17)*.13+Math.sin(t*Math.PI*(11.2+level*.27)+2.03)*.055+(r()-.5)*.075"),
+            ("back=front-facing*(.72+level*.10+(r()-.5)*.10)", "back=front-facing*(.86+level*.12+(r()-.5)*.14)"),
+            ("bottom=top-(.46+level*.13+Math.sin(t*Math.PI*2.4+.8)*.07)", "bottom=top-(.52+level*.15+Math.sin(t*Math.PI*2.4+.8)*.08+Math.sin(t*Math.PI*7.1+level)*.035)"),
+            ("const rockMats=[0x5d6159,0x777266,0x898171,0x62675f,0x75786a,0x555d56]", "const rockMats=[0x555b52,0x706c61,0x857c6b,0x5c6259,0x6d7163,0x4e564f]"),
+            ("const cols=32,rows=9", "const cols=40,rows=12"),
+            ("micro=(r()-.5)*.032", "micro=(r()-.5)*.045"),
+            ("const bladeGeo=new THREE.ConeGeometry(.038,.30,5,1,false)", "const bladeGeo=new THREE.ConeGeometry(.034,.34,5,1,false)"),
+            ("count=Math.max(150,Math.floor(width*16))", "count=Math.max(190,Math.floor(width*20))"),
+            ("for(let i=0;i<22;i++", "for(let i=0;i<30;i++"),
+          ]
+          for old,new in patches:
+            n=s.count(old)
+            if n != 1:
+              raise SystemExit(f'expected exactly one match for {old!r}, got {n}')
+            s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff --stat
+          git diff -- prototypes/modern-3d/m04-bank-target-v4.js
+      - name: Commit terrain repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add prototypes/modern-3d/m04-bank-target-v4.js
+          git diff --cached --quiet && exit 1
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(modern-3d): deepen M06 terrain sculpting'
+          git push origin HEAD:prototype/modern-3d
