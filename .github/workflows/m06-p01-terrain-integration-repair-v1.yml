@@ -20,56 +20,45 @@ jobs:
           ref: prototype/modern-3d
           fetch-depth: 0
 
-      - name: Replace only near-field terrain mass generator
+      - name: Deepen terrain sculpting and break procedural repetition
         run: |
+          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          path=Path('prototypes/modern-3d/index.html')
-          text=path.read_text(encoding='utf-8')
-          old="function nearFieldMass(x,z,radius,height,ry=0){const geo=new THREE.CylinderGeometry(radius*.84,radius,height,7,1,false);const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);mesh.position.set(x,-.28+height/2,z);mesh.rotation.y=ry;mesh.receiveShadow=true;mesh.castShadow=true;scene.add(mesh);return mesh}"
-          new="""function nearFieldMass(x,z,radius,height,ry=0){
-            // M06-P01 v1: preserve the proven footprint while removing the regular heptagonal slab read.
-            const segments=18;
-            const geo=new THREE.CylinderGeometry(radius*.88,radius,height,segments,2,false);
-            const pos=geo.attributes.position;
-            const phase=x*.173+z*.119+radius*.311;
-            for(let i=0;i<pos.count;i++){
-              const px=pos.getX(i),py=pos.getY(i),pz=pos.getZ(i);
-              const a=Math.atan2(pz,px);
-              const radial=1+.055*Math.sin(a*3+phase)+.028*Math.sin(a*7-phase*.63)+.016*Math.sin(a*11+phase*.37);
-              const yNorm=(py/Math.max(height,.001))+.5;
-              const edgeBias=.96+.04*Math.sin(Math.PI*Math.max(0,Math.min(1,yNorm)));
-              const crown=(yNorm>.80?(.035+.018*Math.sin(a*4+phase))*radius:0);
-              pos.setXYZ(i,px*radial*edgeBias,py+crown,pz*radial*edgeBias);
-            }
-            pos.needsUpdate=true;
-            geo.computeVertexNormals();
-            const mesh=new THREE.Mesh(geo,[nearMassSideMat,nearMassTopMat,nearMassSideMat]);
-            mesh.position.set(x,-.30+height/2,z);
-            mesh.rotation.y=ry;
-            mesh.receiveShadow=true;
-            mesh.castShadow=true;
-            scene.add(mesh);
-            return mesh
-          }"""
-          count=text.count(old)
-          if count != 1:
-            raise SystemExit(f'FAIL_CLOSED nearFieldMass match count={count}')
-          path.write_text(text.replace(old,new,1),encoding='utf-8')
+          p=Path('prototypes/modern-3d/m04-bank-target-v4.js')
+          s=p.read_text(encoding='utf-8')
+          patches=[
+            ("const seg=Math.max(18,Math.ceil(width*2.4))", "const seg=Math.max(28,Math.ceil(width*3.4))"),
+            ("wave=Math.sin(t*Math.PI*(2.15+level*.31)+level*.73)*(.34-level*.035)+Math.sin(t*Math.PI*(5.7+level*.41)+1.17)*.12+(r()-.5)*.10", "wave=Math.sin(t*Math.PI*(2.15+level*.31)+level*.73)*(.31-level*.03)+Math.sin(t*Math.PI*(5.7+level*.41)+1.17)*.13+Math.sin(t*Math.PI*(11.2+level*.27)+2.03)*.055+(r()-.5)*.075"),
+            ("back=front-facing*(.72+level*.10+(r()-.5)*.10)", "back=front-facing*(.86+level*.12+(r()-.5)*.14)"),
+            ("bottom=top-(.46+level*.13+Math.sin(t*Math.PI*2.4+.8)*.07)", "bottom=top-(.52+level*.15+Math.sin(t*Math.PI*2.4+.8)*.08+Math.sin(t*Math.PI*7.1+level)*.035)"),
+            ("const rockMats=[0x5d6159,0x777266,0x898171,0x62675f,0x75786a,0x555d56]", "const rockMats=[0x555b52,0x706c61,0x857c6b,0x5c6259,0x6d7163,0x4e564f]"),
+            ("const cols=32,rows=9", "const cols=40,rows=12"),
+            ("micro=(r()-.5)*.032", "micro=(r()-.5)*.045"),
+            ("const bladeGeo=new THREE.ConeGeometry(.038,.30,5,1,false)", "const bladeGeo=new THREE.ConeGeometry(.034,.34,5,1,false)"),
+            ("count=Math.max(150,Math.floor(width*16))", "count=Math.max(190,Math.floor(width*20))"),
+            ("for(let i=0;i<22;i++", "for(let i=0;i<30;i++"),
+          ]
+          for old,new in patches:
+            n=s.count(old)
+            if n != 1:
+              raise SystemExit(f'FAIL_CLOSED expected exactly one match for {old!r}, got {n}')
+            s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
           PY
 
       - name: Validate bounded diff
         run: |
           git diff --check
-          grep -F "M06-P01 v1: preserve the proven footprint" prototypes/modern-3d/index.html
-          grep -F "const segments=18;" prototypes/modern-3d/index.html
-          test "$(git diff --name-only)" = "prototypes/modern-3d/index.html"
+          test "$(git diff --name-only)" = "prototypes/modern-3d/m04-bank-target-v4.js"
+          grep -F "const seg=Math.max(28,Math.ceil(width*3.4))" prototypes/modern-3d/m04-bank-target-v4.js
+          grep -F "const cols=40,rows=12" prototypes/modern-3d/m04-bank-target-v4.js
 
       - name: Commit exact repair
         run: |
-          test -n "$(git status --short prototypes/modern-3d/index.html)"
+          test -n "$(git status --short prototypes/modern-3d/m04-bank-target-v4.js)"
           git config user.name "LUKE QUEST Autonomous Builder"
           git config user.email "actions@users.noreply.github.com"
-          git add prototypes/modern-3d/index.html
-          git commit -m "fix(m06-p01): integrate organic near-field terrain masses"
+          git add prototypes/modern-3d/m04-bank-target-v4.js
+          git commit -m "feat(modern-3d): deepen M06 terrain sculpting"
           git push origin HEAD:prototype/modern-3d
