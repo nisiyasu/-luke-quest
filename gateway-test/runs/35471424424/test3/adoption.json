@@ -1,5 +1,7 @@
 {
   "ADOPTION_ID": "AD-35471424424-T3",
+  "DURABLE_EVIDENCE_SET_SHA256": "e0e793e9a43d736f3a025201ff7fdba7417c48698526a1d139b473e8488d4979",
+  "DURABLE_URI": "gateway-test/runs/35471424424/evidence/dungeon/issue-82/EV-35471424424-T3",
   "EVIDENCE_ID": "EV-35471424424-T3",
   "IDENTITY": {
     "acceptance_revision": "accept-v1",
@@ -10,5 +12,5 @@
     "target_revision": "target-v1",
     "viewport": "896x1664@1"
   },
-  "STATE": "IDENTIFIERS_RESERVED"
+  "STATE": "DURABLE_STORED_NOT_ADOPTED"
 }
