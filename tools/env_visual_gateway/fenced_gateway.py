@@ -406,6 +406,17 @@ class Gateway:
         status = lease.get("LEASE_STATUS")
         expiry = parse_time(lease.get("LEASE_UNTIL"))
         if status == ACTIVE and (expiry is None or expiry > time.time()):
+            current_epoch = int(lease.get("LEASE_EPOCH", 0))
+            requested_epoch = int(req.get("lease_epoch", 0))
+            if (
+                lease.get("OWNER_RUN_ID") == req["owner_run_id"]
+                and requested_epoch in (0, current_epoch)
+            ):
+                return {
+                    "status": "LEASE_ALREADY_ACQUIRED",
+                    "lease": lease,
+                    "RECOVERED_AFTER_UNKNOWN_RESPONSE": True,
+                }
             raise LeaseUnavailable("active lease exists")
         new_epoch = int(lease.get("LEASE_EPOCH", 0)) + 1
         if int(req.get("lease_epoch", 0)) not in (0, new_epoch):
@@ -455,6 +466,16 @@ class Gateway:
         lease = self.gh.json_file(branch, LEASE_PATH)
         if lease.get("ACTIVE_OPERATION_ID"):
             raise ActiveOperation("release blocked while operation unresolved")
+        if (
+            lease.get("LEASE_STATUS") == RELEASED
+            and lease.get("OWNER_RUN_ID") == req["owner_run_id"]
+            and int(lease.get("LEASE_EPOCH", -1)) == int(req["lease_epoch"])
+        ):
+            return {
+                "status": "LEASE_ALREADY_RELEASED",
+                "lease": lease,
+                "RECOVERED_AFTER_UNKNOWN_RESPONSE": True,
+            }
         self._lease_valid(lease, req)
         lease["LEASE_STATUS"] = RELEASED
         lease["LEASE_UNTIL"] = None
