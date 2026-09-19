@@ -108,9 +108,71 @@ def main():
     report_path = pathlib.Path(os.environ["REPORT_PATH"])
 
     real = gw.GitHub(repo, token)
+
+    # Every run gets fresh test-only branches. The previous run intentionally
+    # leaves RESULT_UNKNOWN fenced state behind as evidence, so reusing a fixed
+    # control branch would make the next run fail before the test starts.
+    global TEST_CONTROL, TEST_IMPLEMENTATION
+    TEST_CONTROL = f"test/env-visual-gateway-v1-crash-control-{run_id}"
+    TEST_IMPLEMENTATION = f"test/env-visual-gateway-v1-crash-implementation-{run_id}"
+    test_evidence = f"test/env-visual-gateway-v1-crash-evidence-{run_id}"
+    base_head = real.ref("main")
+    for branch in (TEST_CONTROL, TEST_IMPLEMENTATION, test_evidence):
+        real.request(
+            "POST",
+            "/git/refs",
+            {"ref": f"refs/heads/{branch}", "sha": base_head},
+            ok=(201,),
+        )
+
+    implementation_head = real.ref(TEST_IMPLEMENTATION)
+    initial_lease = {
+        "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1",
+        "LANE_ID": "isolated-dungeon-crash-test",
+        "OWNER_RUN_ID": None,
+        "LEASE_EPOCH": 0,
+        "FENCING_TOKEN": 0,
+        "ACQUIRED_AT": None,
+        "LEASE_UNTIL": None,
+        "LAST_HEARTBEAT_AT": None,
+        "BASE_HEAD_SHA": None,
+        "CURRENT_HEAD_SHA": implementation_head,
+        "LEASE_STATUS": "RELEASED",
+        "PRODUCTION_ENABLED": True,
+        "ACTIVE_OPERATION_ID": None,
+        "GATEWAY_CUTOVER_STATUS": "ISOLATED_TEST",
+        "TEST_ONLY": True,
+    }
+    real.cas_write_files(
+        TEST_CONTROL,
+        {
+            gw.LEASE_PATH: (
+                json.dumps(initial_lease, ensure_ascii=False, indent=2) + "\n"
+            ).encode("utf-8")
+        },
+        f"test: initialize crash recovery lane {run_id}",
+    )
+
+    gw.ALLOWED_LANES = {
+        "dungeon": {
+            "parent": TEST_PARENT,
+            "children": {TEST_CHILD},
+            "implementation_branch": TEST_IMPLEMENTATION,
+            "control_branch": TEST_CONTROL,
+            "target_source_commit_sha": TARGET["target_source_commit_sha"],
+            "target_path": "references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png",
+            "target_blob_sha": TARGET["target_blob_sha"],
+        }
+    }
+    gw.EVIDENCE_BRANCH = test_evidence
+
     gate = gw.Gateway(real, production_enabled=True)
     owner = f"gateway-crash-test-{run_id}"
     results = []
+    _, gateway_blob_under_test = real.content(
+        os.environ.get("GITHUB_SHA", "main"),
+        "tools/env_visual_gateway/fenced_gateway.py",
+    )
 
     # Acquire generation 1.
     acquired = gate.apply(
@@ -284,7 +346,7 @@ def main():
         "overall": "PASS",
         "test_only": True,
         "run_id": run_id,
-        "gateway_blob_under_test": "b110f21eeefc7dfa8d7abd64e9c216c7e92b2dc2",
+        "gateway_blob_under_test": gateway_blob_under_test,
         "resources": {
             "parent_issue": TEST_PARENT,
             "child_issue": TEST_CHILD,
@@ -308,6 +370,25 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
+    except Exception as exc:
         traceback.print_exc()
+        try:
+            failure_path = pathlib.Path(os.environ["REPORT_PATH"])
+            failure_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "LUKE_QUEST_ENV_GATEWAY_CRASH_RECOVERY_REPORT:v1",
+                        "overall": "FAIL",
+                        "test_only": True,
+                        "run_id": os.environ.get("GITHUB_RUN_ID"),
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        except Exception:
+            traceback.print_exc()
         raise
