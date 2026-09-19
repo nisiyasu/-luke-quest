@@ -1,0 +1,51 @@
+name: LUKE QUEST Environment Visual Gateway Integration Test
+
+on:
+  push:
+    branches:
+      - infra/env-visual-safety-v1
+    paths:
+      - "tools/env_visual_safety/github_gateway_integration_test.py"
+      - ".github/workflows/env-visual-gateway-integration-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: lq-env-visual-gateway-integration-test
+  cancel-in-progress: false
+
+jobs:
+  github-api-fault-injection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TEST_ISSUE_NUMBER: "98"
+      TEST_STATE_BRANCH: "test/env-visual-gateway-state"
+      TEST_EVIDENCE_BRANCH: "test/env-visual-gateway-evidence"
+    steps:
+      - name: Checkout isolated implementation branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run GitHub API gateway integration fault tests
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/lq-env-gateway-integration
+          python tools/env_visual_safety/github_gateway_integration_test.py --report /tmp/lq-env-gateway-integration/report.json
+
+      - name: Upload gateway integration evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-visual-gateway-integration-report
+          path: /tmp/lq-env-gateway-integration/report.json
+          if-no-files-found: error
+          retention-days: 30
