@@ -246,3 +246,5 @@ if __name__=="__main__":
     except Exception:
         traceback.print_exc()
         raise
+
+# E2E_TRIGGER_VERSION: 1
