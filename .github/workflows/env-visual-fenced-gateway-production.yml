@@ -1,0 +1,61 @@
+name: LUKE QUEST Environment Fenced Mutation Gateway
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_json:
+        description: Canonical LUKE_QUEST_ENV_GATEWAY_REQUEST:v1 JSON
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lq-env-fenced-gateway-production
+  cancel-in-progress: false
+
+jobs:
+  gateway:
+    if: ${{ vars.LQ_ENV_GATEWAY_PRODUCTION_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Materialize immutable request
+        env:
+          REQUEST_JSON: ${{ inputs.request_json }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          obj=json.loads(os.environ["REQUEST_JSON"])
+          pathlib.Path(os.environ["RUNNER_TEMP"],"gateway-request.json").write_text(
+              json.dumps(obj,ensure_ascii=False,sort_keys=True,separators=(",",":")),encoding="utf-8"
+          )
+          PY
+
+      - name: Execute fenced gateway
+        env:
+          LQ_ENV_GATEWAY_WRITER_TOKEN: ${{ secrets.LQ_ENV_GATEWAY_WRITER_TOKEN }}
+        run: |
+          test -n "$LQ_ENV_GATEWAY_WRITER_TOKEN"
+          python tools/env_visual_gateway/fenced_gateway.py \
+            --production-enabled \
+            --request-file "$RUNNER_TEMP/gateway-request.json" \
+            --result-file "$RUNNER_TEMP/gateway-result.json"
+
+      - name: Upload gateway result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lq-env-gateway-result-${{ github.run_id }}
+          path: ${{ runner.temp }}/gateway-result.json
+          if-no-files-found: warn
+          retention-days: 30
