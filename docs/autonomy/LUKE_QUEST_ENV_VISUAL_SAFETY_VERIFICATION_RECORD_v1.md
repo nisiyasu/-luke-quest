@@ -2,7 +2,8 @@
 
 **状態:** ISOLATED SAFETY FOUNDATION VERIFIED / 隔離安全基盤検証済み
 **契約正本:** `docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md`
-**本番Environment自律mutation:** DISABLED / 未解禁
+**新Gateway本番cutover:** DISABLED / 未解禁
+**既存Environment Scheduled Run:** ACTIVE / 継続
 
 ## 1. Model Fault Injection / 状態機械故障注入
 
@@ -85,25 +86,33 @@ Result:
 - shared evidence branchのCAS conflictを検出し既存Evidenceを失わず再試行できる
 - identity mismatch Evidenceをcurrent PASSへ採用しない
 
-## 4. 未解禁事項
+## 4. 本番cutover前の残作業と完了済み項目
 
-この検証だけで本番Scheduled Agentへwrite capabilityを配線してはいけない。
+完了済み:
 
-本番解禁前に残る必須作業:
+1. production Gateway request schema定義: 完了。
+2. production control branches初期化: 完了。3レーンとも `RELEASED / PRODUCTION_ENABLED=false`。
+3. production durable evidence branch初期化: 完了、cutover disabled。
+4. common Visual Evidence Workflow v2: mainへ固定、READ ONLY。
+5. production-pin smoke run `35472194325`: PASS。
+6. production-shaped Fenced Gateway candidate run `35472236501`: PASS。
+7. production Gateway code / static validation / explicit cutover-gated workflow: mainへ配置済み。
 
-1. production Gateway request boundaryを定義する。
-2. Scheduled AgentがImplementation Branch / Issue / LeaseへGatewayを迂回して直接mutationできない資格情報境界を実装・確認する。
-3. production control branchesを初期化する。
-4. production durable evidence branchを初期化する。
-5. common Visual Evidence WorkflowをREAD ONLY資格情報で実装・試験する。
-6. Village / Castle / Dungeonをdry-run経路へ配線し、direct writeが発生しないことを監査する。
-7. Owner明示promotionなしにParent #12 / router / grasslandを変更しない。
+未完了の必須境界:
+
+- Scheduled AgentがImplementation Branch / Issue / LeaseへGatewayを迂回して直接mutationできないCredential Boundaryの実効化・確認。
+- `CREDENTIAL_BOUNDARY_TEST:v1` のdurable PASS。
+
+この境界が未成立のため、新Gatewayを唯一の書込み口とするproduction cutoverは未解禁。
+
+ただしOwner指示により、既存Village / Castle / Dungeon Scheduled Runは停止せず legacy executionとして継続する。
 
 ## 5. 判定
 
 **Safety Foundation: PASS**
 
-**Production Activation: NOT YET ENABLED**
+**Production Gateway Cutover: NOT YET ENABLED**
 
-モデル故障注入と実GitHub API故障注入は両方PASSした。
-次段階はproduction Gateway candidateとcredential boundaryの実装・dry-run検証である。
+モデル故障注入、実GitHub API故障注入、production-pin、production-shaped Gateway candidateまでPASSした。
+
+残るhard blockerはCredential Boundaryの実効化と、その拒否試験のdurable PASSである。既存Environment Scheduled Runの継続とは別管理する。
