@@ -1,0 +1,55 @@
+name: M03-P01 Target Depth Macro Repair v75
+
+on:
+  push:
+    branches: ["prototype/modern-3d"]
+    paths:
+      - ".github/workflows/m03-p01-target-depth-rebuild-v75.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply bounded macro composition repair
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          replacements=[
+            ('M03 Composition Rebuild v74','M03 Composition Rebuild v75'),
+            ('new THREE.Vector3(1.2,27.2,25.8)','new THREE.Vector3(1.2,23.8,29.6)'),
+            ("camera.fov=landscape?39:39","camera.fov=landscape?39:36"),
+            ("'portrait-target-depth-v3'","'portrait-target-depth-v4-macro'"),
+            ('player.position.z-7.2','player.position.z-9.0'),
+          ]
+          for old,new in replacements:
+            if old not in s:
+              raise SystemExit(f'expected source token missing: {old}')
+            s=s.replace(old,new)
+          p.write_text(s)
+      - name: Verify bounded repair
+        run: |
+          grep -q 'M03 Composition Rebuild v75' prototypes/modern-3d/index.html
+          grep -q 'new THREE.Vector3(1.2,23.8,29.6)' prototypes/modern-3d/index.html
+          grep -q 'camera.fov=landscape?39:36' prototypes/modern-3d/index.html
+          grep -q 'player.position.z-9.0' prototypes/modern-3d/index.html
+      - name: Commit product repair
+        run: |
+          if git diff --quiet -- prototypes/modern-3d/index.html; then
+            echo 'No product diff to commit'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git commit -m 'fix(m03-p01): rebuild target-depth macro composition v75'
+          git push origin HEAD:prototype/modern-3d
