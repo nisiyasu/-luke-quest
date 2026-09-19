@@ -544,21 +544,156 @@ class Gateway:
             self.gh.cas_write_files(branch, {path: self._encode_json(record)}, f"gateway: reserve evidence ids {adoption_id}", expected_head=head)
         return self._finish(req, op, CONFIRMED_APPLIED, {"ADOPTION_ID": adoption_id, "EVIDENCE_ID": evidence_id})
 
+
+
+    def _persist_operation_state(
+        self,
+        req: dict,
+        op: dict,
+        state: str,
+        extra: dict | None = None,
+        *,
+        clear_active: bool = False,
+    ) -> dict:
+        branch = self._control(req["lane_id"])
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            lease = self.gh.json_file(branch, LEASE_PATH)
+            if (
+                lease.get("OWNER_RUN_ID") != req["owner_run_id"]
+                or int(lease.get("LEASE_EPOCH", -1)) != int(req["lease_epoch"])
+            ):
+                raise StaleEpoch("cannot persist operation after ownership changed")
+            if lease.get("ACTIVE_OPERATION_ID") not in (
+                None,
+                req["operation_id"],
+            ):
+                raise ActiveOperation(
+                    "another operation owns the lane during reconciliation"
+                )
+            updated = dict(op)
+            updated["OPERATION_STATE"] = state
+            updated["LAST_UPDATED_AT"] = now_rfc3339()
+            if extra:
+                updated.update(extra)
+            if clear_active and lease.get("ACTIVE_OPERATION_ID") == req["operation_id"]:
+                lease["ACTIVE_OPERATION_ID"] = None
+            files = {self._op_path(req["operation_id"]): self._encode_json(updated)}
+            if clear_active:
+                files[LEASE_PATH] = self._encode_json(lease)
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    files,
+                    f"gateway: operation {req['operation_id']} -> {state}",
+                    expected_head=head,
+                )
+                return self.gh.json_file(
+                    branch, self._op_path(req["operation_id"])
+                )
+            except CasConflict:
+                continue
+        raise CasConflict("operation state CAS retries exhausted")
+
+    def _sync_current_head(self, req: dict, implementation_head: str) -> None:
+        branch = self._control(req["lane_id"])
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            lease = self.gh.json_file(branch, LEASE_PATH)
+            if (
+                lease.get("OWNER_RUN_ID") != req["owner_run_id"]
+                or int(lease.get("LEASE_EPOCH", -1)) != int(req["lease_epoch"])
+            ):
+                return
+            lease["CURRENT_HEAD_SHA"] = implementation_head
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {LEASE_PATH: self._encode_json(lease)},
+                    f"gateway: sync current head {implementation_head}",
+                    expected_head=head,
+                )
+                return
+            except CasConflict:
+                continue
+        raise CasConflict("lease current-head sync CAS retries exhausted")
+
     def implementation_file_update(self, req: dict) -> dict:
         cfg = self._validate_common(req)
         expected_head = req.get("expected_lane_head")
         if not expected_head:
             raise RequestRejected("expected_lane_head required")
-        if self.gh.ref(cfg["implementation_branch"]) != expected_head:
-            raise HeadMismatch("implementation branch HEAD mismatch")
+
         payload = req.get("payload", {})
         path = payload.get("path")
         if not path or path.startswith(".git/") or path == LEASE_PATH:
             raise RequestRejected("invalid implementation path")
         content = decode_payload_content(payload)
-        _, op, _ = self._start_operation(req, "IMPLEMENTATION_FILE_UPDATE", f"{cfg['implementation_branch']}:{path}", "IDEMPOTENT_RETRY_SAFE")
+
+        _, op, _ = self._start_operation(
+            req,
+            "IMPLEMENTATION_FILE_UPDATE",
+            f"{cfg['implementation_branch']}:{path}",
+            "IDEMPOTENT_RETRY_SAFE",
+        )
         if op["OPERATION_STATE"] == CONFIRMED_APPLIED:
             return op
+        if op["OPERATION_STATE"] == CONFIRMED_NOT_APPLIED:
+            return op
+
+        current_head = self.gh.ref(cfg["implementation_branch"])
+
+        # Recovery path for a process that dispatched the ref update and died
+        # before recording its result. If the requested postcondition is
+        # already observable, finalize the same Operation instead of issuing a
+        # second write.
+        if op["OPERATION_STATE"] in (DISPATCHED, RESULT_UNKNOWN):
+            if current_head != expected_head:
+                try:
+                    actual, _ = self.gh.content(cfg["implementation_branch"], path)
+                except ApiError:
+                    actual = None
+
+                if actual == content:
+                    result = self._finish(
+                        req,
+                        op,
+                        CONFIRMED_APPLIED,
+                        {
+                            "APPLIED_HEAD": current_head,
+                            "CONTENT_SHA256": sha256_bytes(content),
+                            "RECOVERED_AFTER_UNKNOWN_RESPONSE": True,
+                        },
+                    )
+                    self._sync_current_head(req, current_head)
+                    return result
+
+                # The old request might have applied partially or a non-Gateway
+                # writer might have moved the lane. Do not retry and do not
+                # permit takeover. Keep ACTIVE_OPERATION_ID fenced until
+                # explicit reconciliation.
+                self._persist_operation_state(
+                    req,
+                    op,
+                    RECONCILIATION_REQUIRED,
+                    {
+                        "EXPECTED_IMPLEMENTATION_HEAD": expected_head,
+                        "OBSERVED_IMPLEMENTATION_HEAD": current_head,
+                        "EXPECTED_CONTENT_SHA256": sha256_bytes(content),
+                    },
+                    clear_active=False,
+                )
+                raise GatewayError(
+                    f"implementation outcome requires reconciliation expected_head={expected_head} current_head={current_head}"
+                )
+
+            # HEAD is still the exact precondition. This operation is
+            # IDEMPOTENT_RETRY_SAFE, so a retry is safe.
+        elif current_head != expected_head:
+            raise HeadMismatch(
+                f"implementation branch HEAD mismatch expected={expected_head} current={current_head}"
+            )
+
         op = self._mark_dispatched(req, op)
         try:
             new_head = self.gh.cas_write_files(
@@ -568,28 +703,44 @@ class Gateway:
                 expected_head=expected_head,
             )
         except CasConflict:
-            return self._finish(req, op, CONFIRMED_NOT_APPLIED, {"FAILURE": "HEAD_CAS_CONFLICT"})
+            return self._finish(
+                req,
+                op,
+                CONFIRMED_NOT_APPLIED,
+                {"FAILURE": "HEAD_CAS_CONFLICT"},
+            )
+        except Exception:
+            # The transport may fail after GitHub has already accepted the ref
+            # update. Leave the Operation DISPATCHED so a restart reconciles
+            # actual target state before any retry or takeover.
+            raise
+
         actual, _ = self.gh.content(cfg["implementation_branch"], path)
         if actual != content:
-            op["OPERATION_STATE"] = RESULT_UNKNOWN
-            branch = self._control(req["lane_id"])
-            head = self.gh.ref(branch)
-            self.gh.cas_write_files(branch, {self._op_path(req["operation_id"]): self._encode_json(op)}, f"gateway: result unknown {req['operation_id']}", expected_head=head)
+            self._persist_operation_state(
+                req,
+                op,
+                RESULT_UNKNOWN,
+                {
+                    "EXPECTED_CONTENT_SHA256": sha256_bytes(content),
+                    "OBSERVED_IMPLEMENTATION_HEAD": self.gh.ref(cfg["implementation_branch"]),
+                },
+                clear_active=False,
+            )
             raise GatewayError("implementation readback mismatch")
-        result = self._finish(req, op, CONFIRMED_APPLIED, {"APPLIED_HEAD": new_head, "CONTENT_SHA256": sha256_bytes(content)})
-        branch = self._control(req["lane_id"])
-        for _ in range(3):
-            head = self.gh.ref(branch)
-            lease = self.gh.json_file(branch, LEASE_PATH)
-            if lease.get("OWNER_RUN_ID") != req["owner_run_id"] or int(lease.get("LEASE_EPOCH", -1)) != int(req["lease_epoch"]):
-                break
-            lease["CURRENT_HEAD_SHA"] = new_head
-            try:
-                self.gh.cas_write_files(branch, {LEASE_PATH: self._encode_json(lease)}, f"gateway: sync current head {new_head}", expected_head=head)
-                break
-            except CasConflict:
-                continue
+
+        result = self._finish(
+            req,
+            op,
+            CONFIRMED_APPLIED,
+            {
+                "APPLIED_HEAD": new_head,
+                "CONTENT_SHA256": sha256_bytes(content),
+            },
+        )
+        self._sync_current_head(req, new_head)
         return result
+
 
     def issue_comment(self, req: dict) -> dict:
         self._validate_common(req)
@@ -597,21 +748,76 @@ class Gateway:
         self._assert_issue_allowed(req["lane_id"], issue)
         body = str(req.get("payload", {}).get("body", ""))
         marker = f"[LQ_GATEWAY_OP:{req['operation_id']}]"
-        _, op, _ = self._start_operation(req, "ISSUE_COMMENT", f"issue-{issue}", "RESULT_CONFIRMATION_REQUIRED")
+
+        _, op, _ = self._start_operation(
+            req,
+            "ISSUE_COMMENT",
+            f"issue-{issue}",
+            "RESULT_CONFIRMATION_REQUIRED",
+        )
+
         existing = self.gh.find_comment(issue, marker)
         if existing:
-            return self._finish(req, op, CONFIRMED_APPLIED, {"COMMENT_ID": existing[0]["id"]})
+            return self._finish(
+                req,
+                op,
+                CONFIRMED_APPLIED,
+                {
+                    "COMMENT_ID": existing[0]["id"],
+                    "RECONCILED_BY_MARKER": True,
+                },
+            )
+
+        # A RESULT_CONFIRMATION_REQUIRED operation must never be blindly
+        # retransmitted after dispatch. Absence of the marker at this instant
+        # is not proof that GitHub will never apply the old request.
+        if op["OPERATION_STATE"] in (DISPATCHED, RESULT_UNKNOWN):
+            self._persist_operation_state(
+                req,
+                op,
+                RESULT_UNKNOWN,
+                {"RECONCILIATION_REASON": "marker_not_observable_after_prior_dispatch"},
+                clear_active=False,
+            )
+            raise GatewayError(
+                "issue comment result unknown; blind resend prohibited"
+            )
+
+        if op["OPERATION_STATE"] == RECONCILIATION_REQUIRED:
+            raise GatewayError("issue comment requires reconciliation")
+        if op["OPERATION_STATE"] == CONFIRMED_NOT_APPLIED:
+            return op
+
         op = self._mark_dispatched(req, op)
-        self.gh.post_comment(issue, marker + "\n" + body)
+        try:
+            self.gh.post_comment(issue, marker + "\n" + body)
+        except Exception:
+            # Do not convert transport failure into NOT_APPLIED. The request
+            # may already have crossed the external boundary.
+            raise
+
         matches = self.gh.find_comment(issue, marker)
         if len(matches) != 1:
-            branch = self._control(req["lane_id"])
-            head = self.gh.ref(branch)
-            op["OPERATION_STATE"] = RESULT_UNKNOWN
-            op["LAST_UPDATED_AT"] = now_rfc3339()
-            self.gh.cas_write_files(branch, {self._op_path(req["operation_id"]): self._encode_json(op)}, f"gateway: result unknown {req['operation_id']}", expected_head=head)
-            raise GatewayError(f"issue comment outcome unknown; marker count={len(matches)}")
-        return self._finish(req, op, CONFIRMED_APPLIED, {"COMMENT_ID": matches[0]["id"]})
+            self._persist_operation_state(
+                req,
+                op,
+                RESULT_UNKNOWN,
+                {
+                    "RECONCILIATION_REASON": "marker_count_after_dispatch",
+                    "OBSERVED_MARKER_COUNT": len(matches),
+                },
+                clear_active=False,
+            )
+            raise GatewayError(
+                f"issue comment outcome unknown; marker count={len(matches)}"
+            )
+
+        return self._finish(
+            req,
+            op,
+            CONFIRMED_APPLIED,
+            {"COMMENT_ID": matches[0]["id"]},
+        )
 
     def issue_close(self, req: dict) -> dict:
         cfg = self._validate_common(req)
@@ -784,6 +990,7 @@ class Gateway:
             },
         )
 
+
     def evidence_adopt(self, req: dict) -> dict:
         cfg = self._validate_common(req)
         payload = req.get("payload", {})
@@ -791,49 +998,134 @@ class Gateway:
         self._assert_issue_allowed(req["lane_id"], child)
         adoption_id = str(payload["adoption_id"])
         evidence_id = str(payload["evidence_id"])
+
         reservation = self.adoption_record(req["lane_id"], adoption_id)
         if reservation.get("EVIDENCE_ID") != evidence_id or reservation.get("CHILD_ISSUE") != child:
             raise RequestRejected("adoption does not match reserved identifiers")
-        if reservation.get("STATE") in ("ADOPTED_CHILD_NOT_CLOSED", "CHILD_CLOSED_PARENT_NOT_ADVANCED", "COMPLETE"):
-            return {"status": "ALREADY_ADOPTED", "adoption": reservation}
-        if reservation.get("STATE") != "DURABLE_STORED_NOT_ADOPTED" or not reservation.get("READBACK_VERIFIED"):
-            raise RequestRejected("durable evidence must be stored and fresh-read before adoption")
-        expected_lane_head = req.get("expected_lane_head")
-        current_head = self.gh.ref(cfg["implementation_branch"])
-        if not expected_lane_head or current_head != expected_lane_head or reservation.get("IMPLEMENTATION_HEAD") != current_head:
-            raise HeadMismatch("adoption implementation head mismatch")
-        prefix = f"evidence/{req['lane_id']}/issue-{child}/{evidence_id}/"
-        index_bytes, _ = self.gh.content(EVIDENCE_BRANCH, prefix + "evidence-set-index.json")
-        set_hash = sha256_bytes(index_bytes)
-        if set_hash != payload["durable_evidence_set_sha256"] or set_hash != reservation.get("DURABLE_EVIDENCE_SET_SHA256"):
-            raise RequestRejected("durable evidence set hash mismatch")
-        manifest = json.loads(self.gh.text(EVIDENCE_BRANCH, prefix + "evidence-manifest.candidate.json"))
-        coordinate = json.loads(self.gh.text(EVIDENCE_BRANCH, prefix + "coordinate-audit.json"))
-        visual = json.loads(self.gh.text(EVIDENCE_BRANCH, prefix + "visual-audit.json"))
-        settings = json.loads(self.gh.text(EVIDENCE_BRANCH, prefix + "evidence-settings.json"))
-        if manifest.get("actual_head_sha") != current_head or manifest.get("runtime_build_sha") != current_head:
-            raise RequestRejected("evidence actual/runtime HEAD mismatch")
-        if manifest.get("target_source_commit_sha") != cfg["target_source_commit_sha"] or manifest.get("target_blob_sha") != cfg["target_blob_sha"]:
-            raise RequestRejected("evidence target identity mismatch")
-        if manifest.get("target_dimensions") != CANONICAL_VIEWPORT or manifest.get("actual_dimensions") != CANONICAL_VIEWPORT:
-            raise RequestRejected("evidence canonical viewport mismatch")
-        vp = settings.get("viewport", {})
-        if [vp.get("width"), vp.get("height")] != CANONICAL_VIEWPORT or vp.get("dpr") != 1:
-            raise RequestRejected("evidence settings viewport mismatch")
-        coordinate_status = str(coordinate.get("STATUS", coordinate.get("status", ""))).upper()
-        visual_status = str(visual.get("STATUS", visual.get("status", ""))).upper()
-        if coordinate_status != "PASS":
-            raise RequestRejected("coordinate audit is not PASS")
-        if visual_status != "PASS" or visual.get("visual_comparison_performed") is not True:
-            raise RequestRejected("visual audit is not PASS or comparison was not performed")
-        if visual.get("target_image_sha256") and visual.get("target_image_sha256") != manifest.get("target_image_sha256"):
-            raise RequestRejected("visual audit target image hash mismatch")
-        if visual.get("actual_image_sha256") and visual.get("actual_image_sha256") != manifest.get("actual_image_sha256"):
-            raise RequestRejected("visual audit actual image hash mismatch")
-        _, op, _ = self._start_operation(req, "EVIDENCE_ADOPT", f"{self._control(req['lane_id'])}:{self._adoption_path(adoption_id)}", "IDEMPOTENT_RETRY_SAFE")
+
+        # Persist/recover the Operation before taking a terminal-state fast
+        # path. This prevents a crash after the adoption record changes but
+        # before Operation Journal finalization from stranding the Lane.
+        _, op, _ = self._start_operation(
+            req,
+            "EVIDENCE_ADOPT",
+            f"{self._control(req['lane_id'])}:{self._adoption_path(adoption_id)}",
+            "IDEMPOTENT_RETRY_SAFE",
+        )
         if op["OPERATION_STATE"] == CONFIRMED_APPLIED:
             return op
+
+        if reservation.get("STATE") in (
+            "ADOPTED_CHILD_NOT_CLOSED",
+            "CHILD_CLOSED_PARENT_NOT_ADVANCED",
+            "COMPLETE",
+        ):
+            return self._finish(
+                req,
+                op,
+                CONFIRMED_APPLIED,
+                {
+                    "ADOPTION_ID": adoption_id,
+                    "EVIDENCE_ID": evidence_id,
+                    "RECOVERED_AFTER_ADOPTION_STATE_COMMIT": True,
+                },
+            )
+
+        if reservation.get("STATE") != "DURABLE_STORED_NOT_ADOPTED" or not reservation.get("READBACK_VERIFIED"):
+            raise RequestRejected(
+                "durable evidence must be stored and fresh-read before adoption"
+            )
+
+        expected_lane_head = req.get("expected_lane_head")
+        current_head = self.gh.ref(cfg["implementation_branch"])
+        if (
+            not expected_lane_head
+            or current_head != expected_lane_head
+            or reservation.get("IMPLEMENTATION_HEAD") != current_head
+        ):
+            raise HeadMismatch("adoption implementation head mismatch")
+
+        prefix = f"evidence/{req['lane_id']}/issue-{child}/{evidence_id}/"
+        index_bytes, _ = self.gh.content(
+            EVIDENCE_BRANCH, prefix + "evidence-set-index.json"
+        )
+        set_hash = sha256_bytes(index_bytes)
+        if (
+            set_hash != payload["durable_evidence_set_sha256"]
+            or set_hash != reservation.get("DURABLE_EVIDENCE_SET_SHA256")
+        ):
+            raise RequestRejected("durable evidence set hash mismatch")
+
+        manifest = json.loads(
+            self.gh.text(
+                EVIDENCE_BRANCH, prefix + "evidence-manifest.candidate.json"
+            )
+        )
+        coordinate = json.loads(
+            self.gh.text(EVIDENCE_BRANCH, prefix + "coordinate-audit.json")
+        )
+        visual = json.loads(
+            self.gh.text(EVIDENCE_BRANCH, prefix + "visual-audit.json")
+        )
+        settings = json.loads(
+            self.gh.text(EVIDENCE_BRANCH, prefix + "evidence-settings.json")
+        )
+
+        if (
+            manifest.get("actual_head_sha") != current_head
+            or manifest.get("runtime_build_sha") != current_head
+        ):
+            raise RequestRejected("evidence actual/runtime HEAD mismatch")
+        if (
+            manifest.get("target_source_commit_sha")
+            != cfg["target_source_commit_sha"]
+            or manifest.get("target_blob_sha") != cfg["target_blob_sha"]
+        ):
+            raise RequestRejected("evidence target identity mismatch")
+        if (
+            manifest.get("target_dimensions") != CANONICAL_VIEWPORT
+            or manifest.get("actual_dimensions") != CANONICAL_VIEWPORT
+        ):
+            raise RequestRejected("evidence canonical viewport mismatch")
+
+        vp = settings.get("viewport", {})
+        if (
+            [vp.get("width"), vp.get("height")] != CANONICAL_VIEWPORT
+            or vp.get("dpr") != 1
+        ):
+            raise RequestRejected("evidence settings viewport mismatch")
+
+        coordinate_status = str(
+            coordinate.get("STATUS", coordinate.get("status", ""))
+        ).upper()
+        visual_status = str(
+            visual.get("STATUS", visual.get("status", ""))
+        ).upper()
+
+        if coordinate_status != "PASS":
+            raise RequestRejected("coordinate audit is not PASS")
+        if (
+            visual_status != "PASS"
+            or visual.get("visual_comparison_performed") is not True
+        ):
+            raise RequestRejected(
+                "visual audit is not PASS or comparison was not performed"
+            )
+        if (
+            visual.get("target_image_sha256")
+            and visual.get("target_image_sha256")
+            != manifest.get("target_image_sha256")
+        ):
+            raise RequestRejected("visual audit target image hash mismatch")
+        if (
+            visual.get("actual_image_sha256")
+            and visual.get("actual_image_sha256")
+            != manifest.get("actual_image_sha256")
+        ):
+            raise RequestRejected("visual audit actual image hash mismatch")
+
         op = self._mark_dispatched(req, op)
+
         def mutate(r):
             if r.get("STATE") != "DURABLE_STORED_NOT_ADOPTED":
                 raise RequestRejected("adoption state changed before commit")
@@ -842,8 +1134,19 @@ class Gateway:
             r["VISUAL_AUDIT_STATUS"] = visual_status
             r["COORDINATE_AUDIT_STATUS"] = coordinate_status
             return r
-        self._update_adoption_record(req["lane_id"], adoption_id, mutate, f"gateway: adopt evidence {adoption_id}")
-        return self._finish(req, op, CONFIRMED_APPLIED, {"ADOPTION_ID": adoption_id, "EVIDENCE_ID": evidence_id})
+
+        self._update_adoption_record(
+            req["lane_id"],
+            adoption_id,
+            mutate,
+            f"gateway: adopt evidence {adoption_id}",
+        )
+        return self._finish(
+            req,
+            op,
+            CONFIRMED_APPLIED,
+            {"ADOPTION_ID": adoption_id, "EVIDENCE_ID": evidence_id},
+        )
 
     def apply(self, req: dict) -> dict:
         if not self.production_enabled:
