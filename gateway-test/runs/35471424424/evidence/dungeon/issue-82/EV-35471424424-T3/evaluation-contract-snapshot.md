@@ -1,0 +1,1 @@
+contract-snapshot-v1
