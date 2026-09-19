@@ -37,6 +37,12 @@ on:
       artifact_name:
         required: true
         type: string
+      viewport_width:
+        required: true
+        type: number
+      viewport_height:
+        required: true
+        type: number
       common_workflow_commit_sha:
         required: true
         type: string
@@ -63,6 +69,8 @@ jobs:
       PARENT_ISSUE: ${{ inputs.parent_issue }}
       CHILD_ISSUE: ${{ inputs.child_issue }}
       READY_MODE: ${{ inputs.ready_mode }}
+      VIEWPORT_WIDTH: ${{ inputs.viewport_width }}
+      VIEWPORT_HEIGHT: ${{ inputs.viewport_height }}
       COMMON_WORKFLOW_COMMIT_SHA: ${{ inputs.common_workflow_commit_sha }}
       COMMON_WORKFLOW_BLOB_SHA: ${{ inputs.common_workflow_blob_sha }}
     steps:
@@ -158,7 +166,8 @@ jobs:
               headless:true,
               args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']
             });
-            const page=await browser.newPage({viewport:{width:448,height:832},deviceScaleFactor:1});
+            const viewport={width:Number(process.env.VIEWPORT_WIDTH),height:Number(process.env.VIEWPORT_HEIGHT)};
+            const page=await browser.newPage({viewport,deviceScaleFactor:1});
             page.on('pageerror',e=>errors.push(String(e)));
             page.on('console',msg=>{ if(msg.type()==='error') errors.push('console:'+msg.text()); });
             const url='http://127.0.0.1:8140/'+process.env.PAGE_PATH;
@@ -200,10 +209,21 @@ jobs:
           impl=(root/"implementation-head.txt").read_text().strip()
           target_commit=(root/"target-source-commit.txt").read_text().strip()
           runtime=json.loads((root/"runtime-audit.json").read_text())
+          target_dims=png_size(root/"target.png")
+          actual_dims=png_size(root/"actual.png")
+          viewport=[int(os.environ["VIEWPORT_WIDTH"]),int(os.environ["VIEWPORT_HEIGHT"])]
+          if target_dims != viewport:
+              raise SystemExit(f"CANONICAL_VIEWPORT_TARGET_MISMATCH target={target_dims} viewport={viewport}")
+          if actual_dims != target_dims:
+              raise SystemExit(f"ACTUAL_TARGET_DIMENSION_MISMATCH actual={actual_dims} target={target_dims}")
+          aspect=f"{target_dims[0]}:{target_dims[1]}"
           settings={
             "schema":"LUKE_QUEST_ENV_EVIDENCE_SETTINGS:v2",
-            "viewport":{"width":448,"height":832,"aspect":"7:13","dpr":1},
-            "target_native_basis":{"width":896,"height":1664,"aspect":"7:13"},
+            "viewport":{"width":viewport[0],"height":viewport[1],"aspect":aspect,"dpr":1},
+            "target_native_basis":{"width":target_dims[0],"height":target_dims[1],"aspect":aspect},
+            "crop":"none",
+            "padding":"none",
+            "full_page":False,
             "playwright_version":"1.55.0",
             "browser_version":runtime.get("browserVersion"),
             "runner_os":os.environ.get("RUNNER_OS"),
@@ -230,8 +250,8 @@ jobs:
             "target_blob_sha":os.environ["TARGET_BLOB_SHA"],
             "target_image_sha256":sha(root/"target.png"),
             "actual_image_sha256":sha(root/"actual.png"),
-            "target_dimensions":png_size(root/"target.png"),
-            "actual_dimensions":png_size(root/"actual.png"),
+            "target_dimensions":target_dims,
+            "actual_dimensions":actual_dims,
             "evidence_settings_sha256":sha(root/"evidence-settings.json"),
             "evaluation_contract_snapshot_sha256":contract_sha,
             "caller_workflow_ref":os.environ.get("GITHUB_WORKFLOW_REF"),
