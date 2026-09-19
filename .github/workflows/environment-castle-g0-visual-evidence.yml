@@ -1,0 +1,56 @@
+name: Castle G0 Visual Evidence
+on:
+  push:
+    branches: ["environment/castle"]
+    paths: [".github/workflows/environment-castle-g0-visual-evidence.yml", "prototypes/modern-3d/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: environment/castle
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start exact-head runtime
+        run: |
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/castle-g0-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8140/castle-g0.html >/dev/null
+      - name: Capture exact-head castle frame
+        run: |
+          mkdir -p .castle-g0
+          cat > capture-castle-g0.cjs <<'JS'
+          const {chromium}=require('playwright'); const fs=require('fs');
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});const page=await browser.newPage({viewport:{width:448,height:832},deviceScaleFactor:1});const errors=[];page.on('pageerror',e=>errors.push(String(e)));await page.goto('http://127.0.0.1:8140/castle-g0.html',{waitUntil:'domcontentloaded',timeout:150000});await page.waitForFunction(()=>document.documentElement.dataset.visualReady==='true',{timeout:150000});await page.waitForTimeout(1000);await page.screenshot({path:'.castle-g0/ACTUAL_EXACT_HEAD.png',fullPage:true});fs.writeFileSync('.castle-g0/runtime-audit.json',JSON.stringify({head:process.env.GITHUB_SHA,viewport:[448,832],visualReady:true,pageErrors:errors},null,2));if(errors.length)throw new Error(JSON.stringify(errors));await browser.close()})().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node capture-castle-g0.cjs
+      - name: Add Owner target
+        run: |
+          curl -L --fail --retry 3 -o .castle-g0/TARGET_CASTLE_OWNER.png "https://raw.githubusercontent.com/nisiyasu/-luke-quest/prototype/modern-3d/references/target-quality/environments/CASTLE_INTERIOR_TARGET_OWNER_20260914.png"
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct,json,hashlib
+          p=Path('.castle-g0/TARGET_CASTLE_OWNER.png'); b=p.read_bytes()
+          if b[:8]!=b'\x89PNG\r\n\x1a\n': raise SystemExit('target is not PNG')
+          w,h=struct.unpack('>II',b[16:24]); Path('.castle-g0/target-audit.json').write_text(json.dumps({'source_branch':'prototype/modern-3d','source_path':'references/target-quality/environments/CASTLE_INTERIOR_TARGET_OWNER_20260914.png','blob_sha':'573c13225471820d063043a37e3ee26fad389d63','width':w,'height':h,'sha256':hashlib.sha256(b).hexdigest()},indent=2))
+          PY
+      - name: Add coordinate audit contract
+        run: |
+          cat > .castle-g0/coordinate-audit.json <<'JSON'
+          {"coordinate_system":"normalized_screen_space_top_left_origin","target":"TARGET_CASTLE_OWNER.png","actual":"ACTUAL_EXACT_HEAD.png","anchors":["CASTLE-PLAYER-A","CASTLE-CARPET-AXIS-A","CASTLE-COLUMN-LEFT-A","CASTLE-COLUMN-RIGHT-A","CASTLE-STAIRS-A","CASTLE-THRONE-A","CASTLE-WALL-WINDOW-MASS-A"],"measurement_status":"PENDING_SAME_ROI_VISUAL_AUDIT"}
+          JSON
+      - uses: actions/upload-artifact@v4
+        with:
+          name: castle-g0-visual-evidence
+          path: .castle-g0
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
