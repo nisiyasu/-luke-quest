@@ -4,6 +4,7 @@ name: M09-P02 Postfix Regate
 # 2026-09-14 exact-head re-gate after M09-P01 south-fringe repair v66
 # 2026-09-17 fresh re-gate after M09-P01 exact-head world coverage PASS
 # 2026-09-18 fresh re-gate after M09-P01 post-M08 exact-head PASS
+# 2026-09-19 fresh re-gate after M09-P01 post-M08 second exact-head PASS
 
 on:
   push:
