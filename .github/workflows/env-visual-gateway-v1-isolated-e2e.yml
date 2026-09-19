@@ -20,8 +20,6 @@ jobs:
   isolated-full-e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      REPORT_PATH: ${{ runner.temp }}/gateway-v1-full-e2e-report.json
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,6 +30,7 @@ jobs:
       - name: Run production gateway code against isolated resources only
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          REPORT_PATH: ${{ runner.temp }}/gateway-v1-full-e2e-report.json
         run: python tools/env_visual_gateway/isolated_full_e2e.py
       - name: Upload E2E report
         if: always()
