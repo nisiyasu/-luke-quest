@@ -43,8 +43,27 @@ Environment LaneからOwner明示promotionなしに以下を変更しない。
 - grassland本線
 - default/stable integration target
 
-## 5. 本番解禁条件
+## 5. 新Gateway本番cutover条件
 
-本番Village / Castle / Dungeonの自律mutationは、安全基盤の隔離TEST-1〜TEST-5がfresh evidence付きで全PASSした後にのみ有効化する。
+安全基盤TEST-1〜TEST-5、実GitHub API統合試験、production-pin smoke、production-shaped Gateway candidateはPASS済み。
 
-安全基盤の構築・隔離試験は本番解禁前でも実施してよい。
+新Gatewayを唯一の永続mutation受付口として本番cutoverするには、さらに以下を満たす。
+
+- Scheduled AgentのTarget Repository direct writeを技術的に拒否できる
+- 専用Request ChannelへのwriteだけをAgentへ許可する
+- Gateway writerだけがTarget Repositoryへmutationできる
+- stale Epoch requestをGateway受付側で拒否できる
+- `CREDENTIAL_BOUNDARY_TEST:v1` をdurable PASSとして保存する
+- Production Control Branchの `PRODUCTION_ENABLED` をOwner-approved cutoverでのみ有効化する
+
+## 6. Cutover前の既存運用
+
+Owner指示により、Village / Castle / Dungeonの既存Scheduled Runは停止しない。
+
+- Existing Scheduled Prompts: unchanged
+- Existing automations: active
+- Current Child work: 継続
+- New Gateway cutover: pending Credential Boundary
+- Legacy executionを新Gateway準拠済みと誤表示しない
+
+安全基盤の構築・隔離試験と、既存環境制作の進行を並行させる。
