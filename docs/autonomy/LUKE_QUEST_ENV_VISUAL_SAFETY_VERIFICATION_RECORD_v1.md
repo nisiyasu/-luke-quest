@@ -119,7 +119,23 @@ Result:
 Durable record:
 `docs/autonomy/evidence/LUKE_QUEST_ENV_GATEWAY_V1_FULL_E2E_35473334725.md`
 
-## 5. 本番cutover前の残作業と完了済み項目
+## 5. Credential Boundary Pre-Cutover Canary / 資格情報境界事前試験
+
+Result: **FAIL / expected pre-cutover failure**
+
+Evidence:
+`docs/autonomy/evidence/LUKE_QUEST_CREDENTIAL_BOUNDARY_TEST_v1_PRE_CUTOVER_FAIL.md`
+
+Observed:
+- direct Target Repository contents write via current Scheduled Agent connection: SUCCEEDED
+- direct Target Repository Issue write via current Scheduled Agent connection: SUCCEEDED
+- production Environment lanes: NOT MUTATED
+- existing Environment Scheduled Runs: ACTIVE
+
+Conclusion:
+Current connection still bypasses the planned Gateway boundary. Credential-level separation remains the only hard blocker.
+
+## 6. 本番cutover前の残作業と完了済み項目
 
 完了済み:
 
@@ -140,7 +156,7 @@ Durable record:
 
 ただしOwner指示により、既存Village / Castle / Dungeon Scheduled Runは停止せず legacy executionとして継続する。
 
-## 6. 判定
+## 7. 判定
 
 **Safety Foundation: PASS**
 
@@ -148,4 +164,4 @@ Durable record:
 
 モデル故障注入、実GitHub API故障注入、production-pin、production-shaped Gateway candidateまでPASSした。
 
-残るhard blockerはCredential Boundaryの実効化と、その拒否試験のdurable PASSである。既存Environment Scheduled Runの継続とは別管理する。
+残るhard blockerはCredential Boundaryの実効化と、その拒否試験のdurable PASSである。Pre-cutover canaryでは現状FAILを実測済み。既存Environment Scheduled Runの継続とは別管理する。
