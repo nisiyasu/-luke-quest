@@ -12,5 +12,6 @@
     "target_revision": "target-v1",
     "viewport": "896x1664@1"
   },
+  "READBACK_VERIFIED": true,
   "STATE": "DURABLE_STORED_NOT_ADOPTED"
 }
