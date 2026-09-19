@@ -1,50 +1,68 @@
 name: LUKE QUEST Environment Visual Evidence Production
 
-run-name: LQ Env Evidence ${{ inputs.request_id }}
-
 on:
   workflow_dispatch:
-    inputs:
-      request_id:
-        description: Immutable evidence capture request ID
-        required: true
-        type: string
-      lane_id:
-        description: Environment lane
-        required: true
-        type: choice
-        options:
-          - village
-          - castle
-          - dungeon
-      implementation_sha:
-        description: Exact implementation commit SHA to capture
-        required: true
-        type: string
-      child_issue:
-        description: Current child Issue number
-        required: true
-        type: number
+  schedule:
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: read
   issues: read
+  actions: read
+
+concurrency:
+  group: lq-env-evidence-capture-poller
+  cancel-in-progress: false
 
 jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.scan.outputs.matrix }}
+      count: ${{ steps.scan.outputs.count }}
+    steps:
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Clone request channel snapshot
+        run: |
+          git clone --depth 1 https://github.com/nisiyasu/luke-env-gateway-requests.git "$RUNNER_TEMP/lq-env-requests"
+          git -C "$RUNNER_TEMP/lq-env-requests" rev-parse HEAD
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scan eligible evidence capture requests
+        id: scan
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LQ_ENV_REQUEST_CHECKOUT: ${{ runner.temp }}/lq-env-requests
+        run: python tools/env_visual_gateway/evidence_capture_request_scanner.py
+
   capture:
+    needs: scan
+    if: ${{ needs.scan.outputs.count != '0' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.scan.outputs.matrix) }}
     uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
     with:
-      lane_id: ${{ inputs.lane_id }}
-      implementation_ref: ${{ inputs.implementation_sha }}
-      runtime_dir: ${{ inputs.lane_id == 'dungeon' && '.' || 'prototypes/modern-3d' }}
-      page_path: ${{ inputs.lane_id == 'village' && 'village-g0.html' || inputs.lane_id == 'castle' && 'castle-g0.html' || 'dungeon-g0.html' }}
-      target_source_commit: 0d225f77944eb54eed648b76f00869879f4284ff
-      target_path: ${{ inputs.lane_id == 'village' && 'references/target-quality/environments/VILLAGE_TARGET_OWNER_20260914.png' || inputs.lane_id == 'castle' && 'references/target-quality/environments/CASTLE_INTERIOR_TARGET_OWNER_20260914.png' || 'references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png' }}
-      target_blob_sha: ${{ inputs.lane_id == 'village' && 'e6536371eddcc7fb5cf5803568216f008011a5f1' || inputs.lane_id == 'castle' && '573c13225471820d063043a37e3ee26fad389d63' || '198d0f5f3da115b70218ae8180d5f8363d744959' }}
-      parent_issue: ${{ inputs.lane_id == 'village' && 51 || inputs.lane_id == 'castle' && 52 || 53 }}
-      child_issue: ${{ inputs.child_issue }}
-      ready_mode: ${{ inputs.lane_id == 'dungeon' && 'load' || 'visual-ready' }}
-      artifact_name: lq-env-evidence-${{ inputs.request_id }}
+      lane_id: ${{ matrix.lane_id }}
+      implementation_ref: ${{ matrix.implementation_sha }}
+      runtime_dir: ${{ matrix.runtime_dir }}
+      page_path: ${{ matrix.page_path }}
+      target_source_commit: ${{ matrix.target_source_commit }}
+      target_path: ${{ matrix.target_path }}
+      target_blob_sha: ${{ matrix.target_blob_sha }}
+      parent_issue: ${{ matrix.parent_issue }}
+      child_issue: ${{ matrix.child_issue }}
+      ready_mode: ${{ matrix.ready_mode }}
+      artifact_name: ${{ matrix.artifact_name }}
       viewport_width: 941
       viewport_height: 1672
       common_workflow_path: .github/workflows/environment-visual-evidence-common-v2.yml
