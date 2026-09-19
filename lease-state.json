@@ -1,14 +1,14 @@
 {
-  "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1",
-  "LANE_ID": "gateway-test",
-  "OWNER_RUN_ID": null,
-  "LEASE_EPOCH": 0,
-  "FENCING_TOKEN": 0,
-  "ACQUIRED_AT": null,
-  "LEASE_UNTIL": null,
-  "LAST_HEARTBEAT_AT": null,
+  "ACQUIRED_AT": "TEST",
   "BASE_HEAD_SHA": null,
-  "CURRENT_HEAD_SHA": null,
-  "LEASE_STATUS": "RELEASED",
-  "PRODUCTION_ENABLED": true
+  "CURRENT_HEAD_SHA": "ee73bb6d0796def46d5998f3f6e71601828d5f5e",
+  "FENCING_TOKEN": 1,
+  "LANE_ID": "gateway-test",
+  "LAST_HEARTBEAT_AT": "TEST",
+  "LEASE_EPOCH": 1,
+  "LEASE_STATUS": "ACTIVE",
+  "LEASE_UNTIL": "TEST-FUTURE",
+  "OWNER_RUN_ID": "candidate-run-A-35472236501",
+  "PRODUCTION_ENABLED": true,
+  "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
 }
