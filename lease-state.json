@@ -1,0 +1,14 @@
+{
+  "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1",
+  "LANE_ID": "gateway-test",
+  "OWNER_RUN_ID": null,
+  "LEASE_EPOCH": 0,
+  "FENCING_TOKEN": 0,
+  "ACQUIRED_AT": null,
+  "LEASE_UNTIL": null,
+  "LAST_HEARTBEAT_AT": null,
+  "BASE_HEAD_SHA": null,
+  "CURRENT_HEAD_SHA": null,
+  "LEASE_STATUS": "RELEASED",
+  "PRODUCTION_ENABLED": true
+}
