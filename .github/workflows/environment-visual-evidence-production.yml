@@ -1,0 +1,95 @@
+name: LUKE QUEST Environment Visual Evidence Production
+
+run-name: LQ Env Evidence ${{ inputs.request_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: Immutable evidence capture request ID
+        required: true
+        type: string
+      lane_id:
+        description: Environment lane
+        required: true
+        type: choice
+        options:
+          - village
+          - castle
+          - dungeon
+      implementation_sha:
+        description: Exact implementation commit SHA to capture
+        required: true
+        type: string
+      child_issue:
+        description: Current child Issue number
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  village:
+    if: ${{ inputs.lane_id == 'village' }}
+    uses: nisiyasu/-luke-quest/.github/workflows/environment-visual-evidence-common-v2.yml@c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+    with:
+      lane_id: village
+      implementation_ref: ${{ inputs.implementation_sha }}
+      runtime_dir: prototypes/modern-3d
+      page_path: village-g0.html
+      target_source_commit: 0d225f77944eb54eed648b76f00869879f4284ff
+      target_path: references/target-quality/environments/VILLAGE_TARGET_OWNER_20260914.png
+      target_blob_sha: e6536371eddcc7fb5cf5803568216f008011a5f1
+      parent_issue: 51
+      child_issue: ${{ inputs.child_issue }}
+      ready_mode: visual-ready
+      artifact_name: lq-env-evidence-${{ inputs.request_id }}
+      viewport_width: 941
+      viewport_height: 1672
+      common_workflow_path: .github/workflows/environment-visual-evidence-common-v2.yml
+      common_workflow_commit_sha: c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+      common_workflow_blob_sha: 182e13ff2e2df5b48fd5196126b4b31103b405bb
+
+  castle:
+    if: ${{ inputs.lane_id == 'castle' }}
+    uses: nisiyasu/-luke-quest/.github/workflows/environment-visual-evidence-common-v2.yml@c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+    with:
+      lane_id: castle
+      implementation_ref: ${{ inputs.implementation_sha }}
+      runtime_dir: prototypes/modern-3d
+      page_path: castle-g0.html
+      target_source_commit: 0d225f77944eb54eed648b76f00869879f4284ff
+      target_path: references/target-quality/environments/CASTLE_INTERIOR_TARGET_OWNER_20260914.png
+      target_blob_sha: 573c13225471820d063043a37e3ee26fad389d63
+      parent_issue: 52
+      child_issue: ${{ inputs.child_issue }}
+      ready_mode: visual-ready
+      artifact_name: lq-env-evidence-${{ inputs.request_id }}
+      viewport_width: 941
+      viewport_height: 1672
+      common_workflow_path: .github/workflows/environment-visual-evidence-common-v2.yml
+      common_workflow_commit_sha: c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+      common_workflow_blob_sha: 182e13ff2e2df5b48fd5196126b4b31103b405bb
+
+  dungeon:
+    if: ${{ inputs.lane_id == 'dungeon' }}
+    uses: nisiyasu/-luke-quest/.github/workflows/environment-visual-evidence-common-v2.yml@c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+    with:
+      lane_id: dungeon
+      implementation_ref: ${{ inputs.implementation_sha }}
+      runtime_dir: .
+      page_path: dungeon-g0.html
+      target_source_commit: 0d225f77944eb54eed648b76f00869879f4284ff
+      target_path: references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png
+      target_blob_sha: 198d0f5f3da115b70218ae8180d5f8363d744959
+      parent_issue: 53
+      child_issue: ${{ inputs.child_issue }}
+      ready_mode: load
+      artifact_name: lq-env-evidence-${{ inputs.request_id }}
+      viewport_width: 941
+      viewport_height: 1672
+      common_workflow_path: .github/workflows/environment-visual-evidence-common-v2.yml
+      common_workflow_commit_sha: c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+      common_workflow_blob_sha: 182e13ff2e2df5b48fd5196126b4b31103b405bb
