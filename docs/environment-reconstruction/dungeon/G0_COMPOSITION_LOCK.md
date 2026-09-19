@@ -30,3 +30,5 @@ These identities and ROIs are now frozen. A later run must not silently substitu
 ## Gate rule
 
 #82 cannot PASS until fresh exact-HEAD runtime evidence is captured and the implemented camera/player/route/elevation/bridge/water geometry aligns with these same frozen target ROIs at approximately 95% composition fidelity. Materials, moss, lighting, and decoration cannot compensate for G0 mismatch.
+
+Evidence trigger: measured G0 visual verification requested after `dungeon-g0.html` implementation.
