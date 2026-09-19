@@ -36,6 +36,7 @@ Initial production allowlist:
 - `ISSUE_COMMENT`
 - `ISSUE_CLOSE`
 - `PARENT_PROGRESS_UPDATE`
+- `EVIDENCE_IDENTIFIERS_RESERVE`
 - `DURABLE_EVIDENCE_PUBLISH`
 - `EVIDENCE_ADOPT`
 
@@ -98,5 +99,23 @@ Gateway must persist PREPARED before external mutation.
 Evidence path:
 
 `IDENTIFIERS_RESERVED -> DURABLE_STORED_NOT_ADOPTED -> READBACK_VERIFIED -> ADOPTED_CHILD_NOT_CLOSED -> CHILD_CLOSED_PARENT_NOT_ADVANCED -> COMPLETE`
+
+`EVIDENCE_IDENTIFIERS_RESERVE` must happen before durable Evidence publication. The same `EVIDENCE_ID` / `ADOPTION_ID` pair is reused after restart.
+
+`DURABLE_EVIDENCE_PUBLISH` requires at least:
+
+- `target.png`
+- `actual.png`
+- `coordinate-audit.json`
+- `evidence-manifest.candidate.json`
+- `evidence-settings.json`
+- `evaluation-contract-snapshot.md`
+- `visual-audit.json`
+
+`EVIDENCE_ADOPT` requires fresh durable read-back, canonical viewport `941 x 1672`, exact implementation/runtime HEAD, fixed Target identity, Coordinate PASS and actual Visual PASS.
+
+`ISSUE_CLOSE` requires the same Child Issue's adopted `ADOPTION_ID`.
+
+PASS-linked `PARENT_PROGRESS_UPDATE` may advance the adoption state to COMPLETE only after Child close.
 
 No PASS/close/Parent advance before durable fresh read-back.
