@@ -1,0 +1,52 @@
+name: LUKE QUEST Fenced Mutation Gateway Candidate
+
+on:
+  push:
+    branches:
+      - infra/env-visual-safety-v1
+    paths:
+      - "tools/env_visual_safety/fenced_gateway_candidate.py"
+      - ".github/workflows/env-visual-fenced-gateway-candidate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: lq-env-visual-fenced-gateway-candidate
+  cancel-in-progress: false
+
+jobs:
+  isolated-production-shaped-gateway:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      TEST_CONTROL_BRANCH: test/env-visual-gateway-control
+      TEST_IMPLEMENTATION_BRANCH: test/env-visual-gateway-implementation
+      TEST_ISSUE_NUMBER: "98"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: infra/env-visual-safety-v1
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run production-shaped gateway candidate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/lq-fenced-gateway-candidate
+          python tools/env_visual_safety/fenced_gateway_candidate.py             --report /tmp/lq-fenced-gateway-candidate/report.json
+
+      - name: Upload gateway candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fenced-gateway-candidate-report
+          path: /tmp/lq-fenced-gateway-candidate/report.json
+          if-no-files-found: error
+          retention-days: 30
