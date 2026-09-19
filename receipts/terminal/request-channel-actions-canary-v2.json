@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: lane production cutover disabled",
+  "lane_id": "village",
+  "ok": false,
+  "operation_id": "request-channel-actions-canary-op",
+  "processed_at": "2026-09-19T23:08:07.040601Z",
+  "request_id": "request-channel-actions-canary-v2",
+  "request_sha256": "dde1669460355658d7c2e0e4f1e6ec3727b320f5dbe5a35786672d9828779ca0",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "fdbe7eee3baa03d08838a5190f3909ec57b103cc",
+  "source_commit_sha": "2972e0186024d22afe7b3e12f53bb9ad2b69a7dc",
+  "source_path": "requests/village/request-channel-actions-canary-v2.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
