@@ -21,11 +21,17 @@ jobs:
     env:
       LQ_ENV_REQUEST_REPOSITORY: nisiyasu/luke-env-gateway-requests
       LQ_ENV_REQUEST_MAX_PER_RUN: "30"
+      LQ_ENV_REQUEST_CHECKOUT: ${{ runner.temp }}/lq-env-requests
     steps:
       - name: Checkout immutable Gateway implementation
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+
+      - name: Clone public request channel as immutable run snapshot
+        run: |
+          git clone --depth 1 https://github.com/nisiyasu/luke-env-gateway-requests.git "$LQ_ENV_REQUEST_CHECKOUT"
+          git -C "$LQ_ENV_REQUEST_CHECKOUT" rev-parse HEAD
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
