@@ -1144,9 +1144,9 @@ function makeFacetedRockGeometry(r, radius, variant = 0) {
   return geo;
 }
 function makeFracturedCliffShelf(r, width, depth, facing, level = 0) {
-  const seg = Math.max(18, Math.ceil(width * 2.4)), verts = [], idx = [], uv = [];
+  const seg = Math.max(28, Math.ceil(width * 3.4)), verts = [], idx = [], uv = [];
   for (let i = 0; i <= seg; i++) {
-    const t = i / seg, x = -width * 0.5 + t * width, wave = Math.sin(t * Math.PI * (2.15 + level * 0.31) + level * 0.73) * (0.34 - level * 0.035) + Math.sin(t * Math.PI * (5.7 + level * 0.41) + 1.17) * 0.12 + (r() - 0.5) * 0.1, front = facing * (depth * 0.5 - 0.34 - level * 0.23 + wave), back = front - facing * (0.72 + level * 0.1 + (r() - 0.5) * 0.1), top = -0.13 - level * 0.31 + Math.sin(t * Math.PI * 3.3 + level) * 0.06 + (r() - 0.5) * 0.035, bottom = top - (0.46 + level * 0.13 + Math.sin(t * Math.PI * 2.4 + 0.8) * 0.07);
+    const t = i / seg, x = -width * 0.5 + t * width, wave = Math.sin(t * Math.PI * (2.15 + level * 0.31) + level * 0.73) * (0.31 - level * 0.03) + Math.sin(t * Math.PI * (5.7 + level * 0.41) + 1.17) * 0.13 + Math.sin(t * Math.PI * (11.2 + level * 0.27) + 2.03) * 0.055 + (r() - 0.5) * 0.075, front = facing * (depth * 0.5 - 0.34 - level * 0.23 + wave), back = front - facing * (0.86 + level * 0.12 + (r() - 0.5) * 0.14), top = -0.13 - level * 0.31 + Math.sin(t * Math.PI * 3.3 + level) * 0.06 + (r() - 0.5) * 0.035, bottom = top - (0.52 + level * 0.15 + Math.sin(t * Math.PI * 2.4 + 0.8) * 0.08 + Math.sin(t * Math.PI * 7.1 + level) * 0.035);
     verts.push(x, top, back, x, top + (r() - 0.5) * 0.04, front, x + (r() - 0.5) * 0.09, bottom, front - facing * (0.08 + r() * 0.12));
     uv.push(t, 0, t, 0.22, t, 1);
   }
@@ -1180,7 +1180,7 @@ var moss2 = new THREE5.MeshStandardMaterial({ color: 5798209, roughness: 1 });
 var mossLight = new THREE5.MeshStandardMaterial({ color: 7443794, roughness: 1 });
 var rootMat = new THREE5.MeshStandardMaterial({ color: 4928551, roughness: 1 });
 var cliffMap = makeCliffMap();
-var rockMats3 = [6119769, 7828070, 9011569, 6448991, 7698538, 5594454].map((c, i) => new THREE5.MeshStandardMaterial({ color: c, map: i % 2 ? cliffMap : null, roughness: 0.96, metalness: 0, flatShading: true }));
+var rockMats3 = [5593938, 7367777, 8748139, 6054489, 7172451, 5133903].map((c, i) => new THREE5.MeshStandardMaterial({ color: c, map: i % 2 ? cliffMap : null, roughness: 0.96, metalness: 0, flatShading: true }));
 var fernMats = [2841131, 6853701, 4749368].map((c) => new THREE5.MeshStandardMaterial({ color: c, roughness: 0.98, side: THREE5.DoubleSide }));
 var topGrassMats = [3234861, 4684600, 7443787].map((c) => new THREE5.MeshStandardMaterial({ color: c, roughness: 1 }));
 var flowerMats = [16050901, 14469362, 15851395].map((c) => new THREE5.MeshStandardMaterial({ color: c, roughness: 0.92, side: THREE5.DoubleSide }));
@@ -1223,11 +1223,11 @@ function makeFernPatch(r, scale = 0.7, count = 14) {
   return g;
 }
 function makeOrganicTop(r, seed, width, depth, facing) {
-  const cols = 32, rows = 9, vertices = [], indices = [], uvs = [];
+  const cols = 40, rows = 12, vertices = [], indices = [], uvs = [];
   for (let i = 0; i <= cols; i++) {
     const tx = i / cols, baseX = -width * 0.5 + tx * width, frontWave = Math.sin(tx * Math.PI * 3 + seed * 0.19) * 0.42 + Math.sin(tx * Math.PI * 7 + seed * 0.07) * 0.14 + (r() - 0.5) * 0.08, backWave = Math.sin(tx * Math.PI * 2.35 + seed * 0.23) * 0.23 + Math.sin(tx * Math.PI * 5.2 + seed * 0.09) * 0.09, front = facing * (depth * 0.5 - 0.42 + frontWave), back = -facing * (depth * 0.5 - 0.18 + backWave);
     for (let j = 0; j <= rows; j++) {
-      const tz = j / rows, sideInfluence = Math.pow(Math.abs(tx - 0.5) * 2, 5.5), sideSign = tx < 0.5 ? -1 : 1, sideWave = Math.sin(tz * Math.PI * 3.1 + seed * 0.17 + sideSign * 0.8) * 0.22 + Math.sin(tz * Math.PI * 6.3 + seed * 0.07) * 0.07, x = baseX + sideSign * sideInfluence * sideWave, z = THREE5.MathUtils.lerp(back, front, tz), centerLift = Math.sin(Math.PI * tz) * (0.14 + 0.065 * Math.sin(tx * Math.PI * 4 + seed * 0.11)), crossRoll = Math.sin(tx * Math.PI * 2.1 + tz * Math.PI * 1.7 + seed * 0.13) * 0.075, macroRoll = Math.sin(tx * Math.PI * 1.35 + seed * 0.21) * Math.sin(tz * Math.PI) * 0.055, micro = (r() - 0.5) * 0.032, frontLift = tz * tz * (0.045 + 0.03 * Math.sin(tx * Math.PI * 2.2));
+      const tz = j / rows, sideInfluence = Math.pow(Math.abs(tx - 0.5) * 2, 5.5), sideSign = tx < 0.5 ? -1 : 1, sideWave = Math.sin(tz * Math.PI * 3.1 + seed * 0.17 + sideSign * 0.8) * 0.22 + Math.sin(tz * Math.PI * 6.3 + seed * 0.07) * 0.07, x = baseX + sideSign * sideInfluence * sideWave, z = THREE5.MathUtils.lerp(back, front, tz), centerLift = Math.sin(Math.PI * tz) * (0.14 + 0.065 * Math.sin(tx * Math.PI * 4 + seed * 0.11)), crossRoll = Math.sin(tx * Math.PI * 2.1 + tz * Math.PI * 1.7 + seed * 0.13) * 0.075, macroRoll = Math.sin(tx * Math.PI * 1.35 + seed * 0.21) * Math.sin(tz * Math.PI) * 0.055, micro = (r() - 0.5) * 0.045, frontLift = tz * tz * (0.045 + 0.03 * Math.sin(tx * Math.PI * 2.2));
       vertices.push(x, 0.015 + centerLift + crossRoll + macroRoll + micro + frontLift, z);
       uvs.push(tx, tz);
     }
@@ -1247,7 +1247,7 @@ function makeOrganicTop(r, seed, width, depth, facing) {
   return top;
 }
 function addTopMicrodetail(g, r, width, depth, facing) {
-  const bladeGeo = new THREE5.ConeGeometry(0.038, 0.3, 5, 1, false), dummy = new THREE5.Object3D(), lists = [[], [], []], count = Math.max(150, Math.floor(width * 16));
+  const bladeGeo = new THREE5.ConeGeometry(0.034, 0.34, 5, 1, false), dummy = new THREE5.Object3D(), lists = [[], [], []], count = Math.max(190, Math.floor(width * 20));
   for (let i = 0; i < count; i++) {
     const x = (r() - 0.5) * width * 0.88, z = (r() - 0.5) * depth * 0.64 - facing * 0.28;
     if (r() < 0.1) continue;
@@ -1267,7 +1267,7 @@ function addTopMicrodetail(g, r, width, depth, facing) {
     mesh.receiveShadow = true;
     g.add(mesh);
   });
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < 30; i++) {
     const radius = 0.15 + r() * 0.36, patch = new THREE5.Mesh(new THREE5.CircleGeometry(radius, 10), i % 3 === 0 ? soilLight : soil2);
     patch.rotation.x = -Math.PI / 2;
     patch.position.set((r() - 0.5) * width * 0.8, 0.105 + (r() - 0.5) * 0.02, (r() - 0.5) * depth * 0.52 - facing * 0.38);
