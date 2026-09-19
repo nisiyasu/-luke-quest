@@ -128,3 +128,21 @@ Credential BoundaryがPASSするまで、新Gatewayを「唯一の書込み口�
 この結果は、current GitHub plugin permission modeの変更だけではなく、Target Repository writer credentialそのものの分離が必要であることを確認するもの。
 
 ChatGPT Plugin permission modeはOAuth / GitHub App repository scopeではないため、confirmation mode変更だけをCredential Boundary PASSとして扱ってはいけない。
+
+## 9. Production Boundary Implementation / 本番境界の実装方式
+
+Target Repository `nisiyasu/-luke-quest` はPUBLICであるため、ChatGPT Codex Connectorのselected repository対象から外した後もpublic read-only reality取得は継続できる。
+
+Request Repository `nisiyasu/luke-env-gateway-requests` はConnectorのselected repository対象に残し、Scheduled Agentの唯一のGitHub write先とする。
+
+Target Repository側の `.github/workflows/env-visual-gateway-request-poller.yml` が5分ごとにPublic Request Repositoryをimmutable snapshotとしてcloneし、Target Repository自身のGitHub Actions `GITHUB_TOKEN` でFenced Mutation Gatewayを実行する。
+
+この方式ではRequest RepositoryからTarget RepositoryへPAT / GitHub App private key / cross-repository writer secretを渡さない。
+
+Credential Boundary PASS条件は次の3点を実測する。
+
+1. ChatGPT GitHub connectorから `nisiyasu/-luke-quest` direct writeが拒否される。
+2. 同じconnectorから `nisiyasu/luke-env-gateway-requests` request writeが成功する。
+3. Target Repository pollerがrequestをpublic readし、Target自身の `GITHUB_TOKEN` でGateway処理できる。
+
+上記が成立するまで `LQ_ENV_GATEWAY_PRODUCTION_ENABLED=false` を維持する。

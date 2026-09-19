@@ -13,8 +13,10 @@
 - コードはmainへ配置してよい。
 - Production Control Branch / Evidence Branchは初期化済みでも `PRODUCTION_ENABLED=false` のまま維持する。
 - `LQ_ENV_GATEWAY_PRODUCTION_ENABLED` を明示的に有効化するまで本番mutationを実行しない。
-- GitHub Actions標準 `GITHUB_TOKEN` はGateway writerに使用しない。
-- 本番writerは専用 `LQ_ENV_GATEWAY_WRITER_TOKEN` のみ。
+- 本番Gateway writerはTarget Repository自身のGitHub Actions `GITHUB_TOKEN` を使用する。
+- Scheduled AgentへTarget Repository write credentialを渡さない。
+- Request Channelはpublic repository `nisiyasu/luke-env-gateway-requests` とし、Target Repositoryのscheduled pollerが5分ごとにPUBLIC READする。
+- Request RepositoryからTarget Repositoryへcross-repository writer secretを持たせない。
 - Scheduled AgentのTarget Repository direct-write capabilityが残っている間は、credential-level cutover完了と判定しない。
 
 ## 実装済み保証
