@@ -1,0 +1,44 @@
+name: M03 P01 v77 coordinate lock repair
+on:
+  push:
+    branches: [prototype/modern-3d]
+    paths: ['.github/workflows/m03-p01-v77-coordinate-lock.yml']
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          fetch-depth: 0
+      - name: Apply coordinate-lock repair
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('prototypes/modern-3d/index.html')
+          s=p.read_text()
+          reps={
+            '<title>LUKE QUEST Modern 3D — M03 Composition Rebuild v76</title>':'<title>LUKE QUEST Modern 3D — M03 Coordinate Lock v77</title>',
+            'const bridgeMain=bridgeAt(-1.35,1.1,0,true);':'const bridgeMain=bridgeAt(-1.35,1.1,0,true);bridgeMain.scale.set(.58,1,1);',
+            'new THREE.BoxGeometry(3.46,.115,step*.90)':'new THREE.BoxGeometry(2.08,.115,step*.90)',
+            'const bridgeRight=bridgeAt(5.35,-6.55,.92,false);bridgeRight.position.y=.82;bridgeRight.rotation.y=-.16;bridgeRight.scale.set(.88,1,.66);':'const bridgeRight=bridgeAt(8.10,-8.65,.92,false);bridgeRight.position.y=.82;bridgeRight.rotation.y=-.16;bridgeRight.scale.set(.74,1,.58);',
+            'const onMainBridge=Math.abs(x+1.35)<1.55&&z>-2.45&&z<4.65;':'const onMainBridge=Math.abs(x+1.35)<1.08&&z>-2.45&&z<4.65;',
+            'const onBridgeLane=Math.abs(x+1.35)<1.55;':'const onBridgeLane=Math.abs(x+1.35)<1.08;',
+            "variant:'m03-composition-v49-concave-path-fix'":"variant:'m03-coordinate-lock-v77'"
+          }
+          missing=[]
+          for a,b in reps.items():
+            if a not in s: missing.append(a[:100])
+            else: s=s.replace(a,b)
+          if missing:
+            raise SystemExit('missing expected source anchors: '+repr(missing))
+          p.write_text(s)
+          PY
+          git config user.name 'luke-quest-autonomy'
+          git config user.email 'actions@users.noreply.github.com'
+          git add prototypes/modern-3d/index.html
+          git diff --cached --check
+          git commit -m 'fix(m03-p01): apply v77 coordinate lock to bridge hierarchy'
+          git push origin HEAD:prototype/modern-3d
