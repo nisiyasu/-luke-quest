@@ -15,6 +15,7 @@ on:
 # 2026-09-18 fresh exact-lineage regate after M10-P02 Action 35310412991 PASS.
 # 2026-09-19 fresh router-selected recapture after M10-P02 Action 35374352641 PASS.
 # 2026-09-19 movement proof repair: auto-walk may legitimately collide at a near start; probe real keyboard movement before rejecting evidence.
+# 2026-09-19 fresh router-selected recapture after M10-P02 Action 35426539166 PASS.
 permissions:
   contents: read
 
@@ -68,37 +69,21 @@ jobs:
               await page.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready'&&document.documentElement.dataset.m09OwnerHud==='pass',{timeout:90000});
               await new Promise(r=>setTimeout(r,2600));
               if(errors.length) throw new Error(`${name} pageerror ${errors.join(' | ')}`);
-              const base=await page.evaluate(()=>({
-                ready:document.documentElement.dataset.lqModern3d||null,
-                profile:document.documentElement.dataset.m10QualityPreset||null,
-                pixelRatio:document.documentElement.dataset.m10PixelRatio||null,
-                shadow:document.documentElement.dataset.m10ShadowMapSize||null,
-                hud:document.documentElement.dataset.m09OwnerHud||null,
-                hudMode:document.documentElement.dataset.m09HudMode||null,
-                cameraProfile:document.documentElement.dataset.m03CameraProfile||null,
-                player:document.documentElement.dataset.m08Player||null,
-                walkStart:document.documentElement.dataset.m08WalkStart||null,
-                walkEnd:document.documentElement.dataset.m08WalkEnd||null,
-                walkDone:document.documentElement.dataset.m08WalkDone||null,
-                viewport:{width:innerWidth,height:innerHeight}
-              }));
+              const base=await page.evaluate(()=>({ready:document.documentElement.dataset.lqModern3d||null,profile:document.documentElement.dataset.m10QualityPreset||null,pixelRatio:document.documentElement.dataset.m10PixelRatio||null,shadow:document.documentElement.dataset.m10ShadowMapSize||null,hud:document.documentElement.dataset.m09OwnerHud||null,hudMode:document.documentElement.dataset.m09HudMode||null,cameraProfile:document.documentElement.dataset.m03CameraProfile||null,player:document.documentElement.dataset.m08Player||null,walkStart:document.documentElement.dataset.m08WalkStart||null,walkEnd:document.documentElement.dataset.m08WalkEnd||null,walkDone:document.documentElement.dataset.m08WalkDone||null,viewport:{width:innerWidth,height:innerHeight}}));
               if(base.profile!==quality) throw new Error(`${name} quality marker ${base.profile}`);
               if(base.walkDone!=='1') throw new Error(`${name} movement proof incomplete`);
-
               let movementStart=base.walkStart, movementEnd=base.walkEnd, movementMode='auto-walk';
               if(!movementStart || movementStart===movementEnd){
                 movementStart=await page.evaluate(()=>document.documentElement.dataset.m08Player||null);
-                const keys=['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'];
-                for(const key of keys){
+                for(const key of ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft']){
                   await page.keyboard.down(key); await new Promise(r=>setTimeout(r,700)); await page.keyboard.up(key); await new Promise(r=>setTimeout(r,180));
                   movementEnd=await page.evaluate(()=>document.documentElement.dataset.m08Player||null);
                   if(movementStart && movementEnd && movementStart!==movementEnd){ movementMode=`keyboard-${key}`; break; }
                 }
               }
               if(!movementStart || !movementEnd || movementStart===movementEnd) throw new Error(`${name} no actual movement delta after collision-aware keyboard probe`);
-              const runtime={...base,movementStart,movementEnd,movementMode};
               await page.screenshot({path:`.m11-p01/${name}.png`,fullPage:false});
-              fs.writeFileSync(`.m11-p01/${name}.runtime.json`,JSON.stringify({url,...runtime},null,2)+'\n');
+              fs.writeFileSync(`.m11-p01/${name}.runtime.json`,JSON.stringify({url,...base,movementStart,movementEnd,movementMode},null,2)+'\n');
             } finally { await browser.close(); }
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
@@ -126,10 +111,7 @@ jobs:
           from PIL import Image
           import hashlib, json, statistics
           root=Path('.m11-p01')
-          names=[
-            'high-portrait-near','high-portrait-far','high-landscape-near','high-landscape-far',
-            'practical-portrait-near','practical-portrait-far','practical-landscape-near','practical-landscape-far'
-          ]
+          names=['high-portrait-near','high-portrait-far','high-landscape-near','high-landscape-far','practical-portrait-near','practical-portrait-far','practical-landscape-near','practical-landscape-far']
           rows=[]
           for n in names:
             p=root/f'{n}.png'; j=root/f'{n}.runtime.json'
