@@ -42,7 +42,7 @@
 - Production-shaped candidate: `35472236501` PASS
 - Main gateway static validation: `35473092417` PASS
 - Later static validation on full gateway path: PASS runs continue on main
-- Production Gateway v1 isolated full-adoption E2E: execution initiated on test-only resources; final durable result must be read fresh before declaring PASS
+- Production Gateway v1 isolated full-adoption E2E: `35473334725` PASS / artifact `10593617003` / durable record saved
 
 ## Canonical Visual Identity
 
@@ -62,14 +62,23 @@ Target blob:
 
 Credential Boundary only.
 
-The currently connected Scheduled Agent GitHub capability can still directly write the Target Repository. Until that capability is technically removed or separated, the new Fenced Mutation Gateway cannot be proven to be the only persistent mutation entry point.
+`CREDENTIAL_BOUNDARY_TEST:v1` pre-cutover canary was executed and **FAIL was confirmed**:
+
+- direct Target Repository contents write: succeeded
+- direct Target Repository Issue write: succeeded
+- production Environment lanes were not touched
+
+Durable FAIL evidence:
+`docs/autonomy/evidence/LUKE_QUEST_CREDENTIAL_BOUNDARY_TEST_v1_PRE_CUTOVER_FAIL.md`
+
+Therefore the currently connected Scheduled Agent GitHub capability can still bypass the Gateway. Until that capability is technically removed or separated, the new Fenced Mutation Gateway cannot be proven to be the only persistent mutation entry point.
 
 Do not solve this by pausing Village / Castle / Dungeon. Keep existing work active and complete the credential cutover independently.
 
 ## Next Exact Action
 
-1. Finish/read fresh isolated full-adoption E2E result.
-2. If PASS, record it in the Safety Verification Record.
-3. Establish credential separation.
-4. Run `CREDENTIAL_BOUNDARY_TEST:v1`.
-5. Only after that PASS, perform Owner-approved production cutover.
+1. Establish credential separation outside the current broad-write Target Repository connection.
+2. Repeat `CREDENTIAL_BOUNDARY_TEST:v1`.
+3. Require direct Target branch + Issue writes to be DENIED.
+4. Require Request Channel + Gateway path to succeed.
+5. Only after PASS, perform Owner-approved production cutover.
