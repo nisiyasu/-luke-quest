@@ -240,9 +240,10 @@ class GitHub:
 
 
 class Gateway:
-    def __init__(self, gh: GitHub, *, production_enabled: bool):
+    def __init__(self, gh: GitHub, *, production_enabled: bool, request_source: dict | None = None):
         self.gh = gh
         self.production_enabled = production_enabled
+        self.request_source = dict(request_source or {})
 
     @staticmethod
     def lane_cfg(lane_id: str) -> dict:
@@ -348,6 +349,8 @@ class Gateway:
             "CREATED_AT": now_rfc3339(),
             "LAST_UPDATED_AT": now_rfc3339(),
         }
+        if self.request_source:
+            op["REQUEST_CHANNEL_SOURCE"] = self.request_source
         lease["ACTIVE_OPERATION_ID"] = req["operation_id"]
         lease["LAST_GATEWAY_ACCEPTED_AT"] = now_rfc3339()
         self.gh.cas_write_files(

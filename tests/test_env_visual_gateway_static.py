@@ -14,6 +14,37 @@ class BombGitHub:
         raise AssertionError(f"GitHub must not be touched in disabled mode: {name}")
 
 
+class JournalGitHub:
+    def __init__(self):
+        self.head = "control-head-1"
+        self.files = {
+            "lease-state.json": {
+                "OWNER_RUN_ID": "run-1",
+                "LEASE_EPOCH": 7,
+                "LEASE_STATUS": gw.ACTIVE,
+                "LEASE_UNTIL": "2099-01-01T00:00:00Z",
+                "ACTIVE_OPERATION_ID": None,
+            }
+        }
+
+    def ref(self, branch):
+        return self.head
+
+    def json_file(self, branch, path):
+        if path not in self.files:
+            raise gw.ApiError(404, "not found")
+        return dict(self.files[path])
+
+    def cas_write_files(self, branch, files, message, expected_head=None, retries=8):
+        if expected_head is not None and expected_head != self.head:
+            raise gw.CasConflict("head mismatch")
+        import json
+        for path, content in files.items():
+            self.files[path] = json.loads(content.decode("utf-8"))
+        self.head = "control-head-2"
+        return self.head
+
+
 class GatewayStaticTests(unittest.TestCase):
     def test_production_disabled_blocks_before_any_github_access(self):
         gateway = gw.Gateway(BombGitHub(), production_enabled=False)
@@ -40,6 +71,32 @@ class GatewayStaticTests(unittest.TestCase):
                 "0d225f77944eb54eed648b76f00869879f4284ff",
             )
         self.assertEqual(gw.CANONICAL_VIEWPORT, [941, 1672])
+
+    def test_request_channel_source_is_persisted_in_operation_journal(self):
+        fake = JournalGitHub()
+        source = {
+            "repository": "nisiyasu/luke-env-gateway-requests",
+            "ref": "main",
+            "commit_sha": "abc123",
+            "path": "requests/village/r1.json",
+            "blob_sha": "blob123",
+        }
+        gateway = gw.Gateway(fake, production_enabled=True, request_source=source)
+        req = {
+            "lane_id": "village",
+            "owner_run_id": "run-1",
+            "lease_epoch": 7,
+            "operation_id": "op-1",
+            "request_id": "r1",
+            "request_sha256": "hash-1",
+        }
+        _, op, _ = gateway._start_operation(
+            req,
+            "ISSUE_COMMENT",
+            "issue-54",
+            "RESULT_CONFIRMATION_REQUIRED",
+        )
+        self.assertEqual(op["REQUEST_CHANNEL_SOURCE"], source)
 
     def test_request_hash_is_self_excluding(self):
         req = {

@@ -66,9 +66,9 @@ GatewayはOperation Journal / Lease Epoch / expected HEAD / Evidence Adoption co
 
 最も明確な構成はTarget Repositoryとは別の専用request repositoryまたは同等の外部queue。
 
-例:
+実装済みRequest Repository:
 
-`nisiyasu/luke-quest-agent-requests`
+`nisiyasu/luke-env-gateway-requests`
 
 Scheduled AgentのGitHub installationはrequest repositoryへwriteできるが、
 `nisiyasu/-luke-quest` にはwriteできない構成にする。

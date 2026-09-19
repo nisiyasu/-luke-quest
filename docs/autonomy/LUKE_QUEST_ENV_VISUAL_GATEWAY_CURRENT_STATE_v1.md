@@ -12,6 +12,9 @@
 - Cutover Checklist: `docs/autonomy/LUKE_QUEST_ENV_VISUAL_GATEWAY_CUTOVER_CHECKLIST_v1.md`
 - Gateway code: `tools/env_visual_gateway/fenced_gateway.py`
 - Request builder: `tools/env_visual_gateway/request_builder.py`
+- Request poller: `tools/env_visual_gateway/request_channel_poller.py`
+- Request Repository: `nisiyasu/luke-env-gateway-requests`
+- Receipt branch: `gateway/request-receipts`
 
 ## Existing Environment Lanes
 

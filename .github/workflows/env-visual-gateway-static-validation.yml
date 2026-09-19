@@ -7,6 +7,8 @@ on:
       - "tools/env_visual_gateway/**"
       - "tests/test_env_visual_gateway_static.py"
       - ".github/workflows/env-visual-gateway-static-validation.yml"
+      - ".github/workflows/env-visual-fenced-gateway-production.yml"
+      - ".github/workflows/env-visual-gateway-request-poller.yml"
   workflow_dispatch:
 
 permissions:

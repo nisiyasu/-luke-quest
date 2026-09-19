@@ -1,0 +1,46 @@
+name: LUKE QUEST Environment Gateway Request Poller
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: lq-env-fenced-gateway-production
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    if: ${{ vars.LQ_ENV_GATEWAY_PRODUCTION_ENABLED == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      LQ_ENV_REQUEST_REPOSITORY: nisiyasu/luke-env-gateway-requests
+      LQ_ENV_REQUEST_MAX_PER_RUN: "30"
+    steps:
+      - name: Checkout immutable Gateway implementation
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Poll public request channel and apply fenced mutations
+        env:
+          LQ_ENV_GATEWAY_WRITER_TOKEN: ${{ github.token }}
+        run: |
+          python tools/env_visual_gateway/request_channel_poller.py
+
+      - name: Emit poller identity
+        if: always()
+        run: |
+          echo "target_repo=${GITHUB_REPOSITORY}"
+          echo "gateway_sha=${GITHUB_SHA}"
+          echo "request_repo=${LQ_ENV_REQUEST_REPOSITORY}"

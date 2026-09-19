@@ -20,7 +20,10 @@
 - Durable Evidence Branch初期化
 - production Gateway本体をmainへ配置
 - Request Schema / Request Builder配置
-- Gateway workflowはread-only `GITHUB_TOKEN` + 専用writer secret方式で配置
+- Gateway workflowはTarget Repository Actionsの短命 `GITHUB_TOKEN` writer方式へ変更
+- 専用Request Repository `nisiyasu/luke-env-gateway-requests` 作成済み
+- Request validator / request poller / receipt branch `gateway/request-receipts` 配置済み
+- Request Channel pre-cutover canaryはproduction-disabled拒否 + receipt永続化までPASS
 - production enable variable未設定のためcutoverはFail Closed
 
 ## 2. 現在の唯一のHard Blocker

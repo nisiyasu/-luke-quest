@@ -9,7 +9,8 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
+  issues: write
 
 concurrency:
   group: lq-env-fenced-gateway-production
@@ -43,7 +44,7 @@ jobs:
 
       - name: Execute fenced gateway
         env:
-          LQ_ENV_GATEWAY_WRITER_TOKEN: ${{ secrets.LQ_ENV_GATEWAY_WRITER_TOKEN }}
+          LQ_ENV_GATEWAY_WRITER_TOKEN: ${{ github.token }}
         run: |
           test -n "$LQ_ENV_GATEWAY_WRITER_TOKEN"
           python tools/env_visual_gateway/fenced_gateway.py \
