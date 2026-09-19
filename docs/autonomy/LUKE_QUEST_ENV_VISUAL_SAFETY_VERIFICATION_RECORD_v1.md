@@ -86,7 +86,40 @@ Result:
 - shared evidence branchのCAS conflictを検出し既存Evidenceを失わず再試行できる
 - identity mismatch Evidenceをcurrent PASSへ採用しない
 
-## 4. 本番cutover前の残作業と完了済み項目
+
+## 4. Production Gateway v1 Full Adoption E2E / 本番コード隔離E2E
+
+GitHub Actions run:
+`35473334725`
+
+Artifact:
+`10593617003 / gateway-v1-isolated-full-e2e-35473334725`
+
+Artifact digest:
+`sha256:63c6a4dc77f9d72ddc5be6158ba32a6351ba76564b4b3f3ad08896ed7de8db65`
+
+Gateway blob:
+`29c56e9321fb39fb12bc41f7b92dd3ca7ba3b5c2`
+
+Result:
+- Lease acquire / heartbeat / release: PASS
+- implementation expected-HEAD CAS: PASS
+- Evidence ID / Adoption ID保存前予約: PASS
+- Durable Evidence append-only publish + fresh read-back: PASS
+- Visual PASS + Coordinate PASS gate: PASS
+- Evidence Adoption: PASS
+- Child close after adoption only: PASS
+- Parent progress after Child close: PASS
+- Adoption COMPLETE: PASS
+- new Epoch=2 after release: PASS
+- old Epoch=1 mutation rejection: PASS
+- production Village / Castle / Dungeon control states remained disabled: PASS
+- OVERALL: PASS
+
+Durable record:
+`docs/autonomy/evidence/LUKE_QUEST_ENV_GATEWAY_V1_FULL_E2E_35473334725.md`
+
+## 5. 本番cutover前の残作業と完了済み項目
 
 完了済み:
 
@@ -107,7 +140,7 @@ Result:
 
 ただしOwner指示により、既存Village / Castle / Dungeon Scheduled Runは停止せず legacy executionとして継続する。
 
-## 5. 判定
+## 6. 判定
 
 **Safety Foundation: PASS**
 
