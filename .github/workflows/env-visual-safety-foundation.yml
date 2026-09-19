@@ -1,0 +1,45 @@
+name: LUKE QUEST Environment Visual Safety Foundation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - infra/env-visual-safety-v1
+    paths:
+      - "tools/env_visual_safety/**"
+      - ".github/workflows/env-visual-safety-foundation.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lq-env-visual-safety-foundation
+  cancel-in-progress: false
+
+jobs:
+  isolated-safety-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout isolated safety branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run TEST-1 through TEST-5
+        run: |
+          mkdir -p "$RUNNER_TEMP/lq-env-visual-safety"
+          python tools/env_visual_safety/run_safety_tests.py \
+            --report "$RUNNER_TEMP/lq-env-visual-safety/safety-test-report.json"
+
+      - name: Upload safety test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-visual-safety-foundation-report
+          path: "\${{ runner.temp }}/lq-env-visual-safety/safety-test-report.json"
+          if-no-files-found: error
+          retention-days: 30
