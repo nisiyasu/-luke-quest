@@ -1,0 +1,17 @@
+{
+  "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1",
+  "LANE_ID": "isolated-crash-test",
+  "OWNER_RUN_ID": null,
+  "LEASE_EPOCH": 0,
+  "FENCING_TOKEN": 0,
+  "ACQUIRED_AT": null,
+  "LEASE_UNTIL": null,
+  "LAST_HEARTBEAT_AT": null,
+  "BASE_HEAD_SHA": null,
+  "CURRENT_HEAD_SHA": null,
+  "LEASE_STATUS": "RELEASED",
+  "ACTIVE_OPERATION_ID": null,
+  "PRODUCTION_ENABLED": true,
+  "TEST_ONLY": true,
+  "GATEWAY_CUTOVER_STATUS": "ISOLATED_CRASH_TEST"
+}
