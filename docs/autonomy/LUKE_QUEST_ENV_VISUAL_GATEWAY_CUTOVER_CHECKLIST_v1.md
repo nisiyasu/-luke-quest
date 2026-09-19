@@ -15,6 +15,7 @@
 - production-pin smoke `35472194325` PASS
 - production-shaped Gateway candidate `35472236501` PASS
 - production Gateway static validation `35473092417` PASS
+- production Gateway v1 full isolated E2E `35473334725` PASS / artifact `10593617003`
 - production Control Branch 3本初期化
 - Durable Evidence Branch初期化
 - production Gateway本体をmainへ配置
@@ -98,3 +99,13 @@ Credential Boundary完成までは、
 - 新GatewayはCUTOVER DISABLED
 - 既存運用を新Gateway準拠済みとは表示しない
 
+
+## 7. Pre-Cutover Boundary Evidence
+
+Current boundary canary: **FAIL**
+
+- direct contents canary commit: `0c293c5b96ac9e03f4839cc5cf781e0f6b463d09`
+- direct Issue canary comment: `5745772476`
+- durable record: `docs/autonomy/evidence/LUKE_QUEST_CREDENTIAL_BOUNDARY_TEST_v1_PRE_CUTOVER_FAIL.md`
+
+次に必要なのはコード修正ではなくCredential Boundary設定変更。その変更後に同じテストを再実行し、direct writeがDENIEDへ反転することを必須とする。
