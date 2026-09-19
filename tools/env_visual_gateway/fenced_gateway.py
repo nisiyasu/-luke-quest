@@ -849,6 +849,9 @@ class Gateway:
         if not self.production_enabled:
             raise RequestRejected("production mutation disabled")
         self._validate_common(req)
+        lane_lease = self.lease(req["lane_id"])
+        if lane_lease.get("PRODUCTION_ENABLED") is not True:
+            raise RequestRejected("lane production cutover disabled")
         op = req["operation_type"]
         if op == "LEASE_ACQUIRE":
             return self.acquire(req)
