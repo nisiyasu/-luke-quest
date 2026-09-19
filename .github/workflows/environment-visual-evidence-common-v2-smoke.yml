@@ -28,8 +28,10 @@ jobs:
       child_issue: 54
       ready_mode: visual-ready
       artifact_name: common-v2-smoke-village
-      common_workflow_commit_sha: 781994de86585a80e83b699ff83c600714d495a2
-      common_workflow_blob_sha: c101ea0c19ba8384bc3ed923db0219282f5f91a0
+      viewport_width: 941
+      viewport_height: 1672
+      common_workflow_commit_sha: 29513b1998c3d6823eeee43555126711ce988f95
+      common_workflow_blob_sha: 8b7e8a7c2486a03e5fb7de056976f9fa6a182ec8
 
   castle:
     uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
@@ -45,8 +47,10 @@ jobs:
       child_issue: 68
       ready_mode: visual-ready
       artifact_name: common-v2-smoke-castle
-      common_workflow_commit_sha: 781994de86585a80e83b699ff83c600714d495a2
-      common_workflow_blob_sha: c101ea0c19ba8384bc3ed923db0219282f5f91a0
+      viewport_width: 941
+      viewport_height: 1672
+      common_workflow_commit_sha: 29513b1998c3d6823eeee43555126711ce988f95
+      common_workflow_blob_sha: 8b7e8a7c2486a03e5fb7de056976f9fa6a182ec8
 
   dungeon:
     uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
@@ -62,5 +66,7 @@ jobs:
       child_issue: 82
       ready_mode: load
       artifact_name: common-v2-smoke-dungeon
-      common_workflow_commit_sha: 781994de86585a80e83b699ff83c600714d495a2
-      common_workflow_blob_sha: c101ea0c19ba8384bc3ed923db0219282f5f91a0
+      viewport_width: 941
+      viewport_height: 1672
+      common_workflow_commit_sha: 29513b1998c3d6823eeee43555126711ce988f95
+      common_workflow_blob_sha: 8b7e8a7c2486a03e5fb7de056976f9fa6a182ec8
