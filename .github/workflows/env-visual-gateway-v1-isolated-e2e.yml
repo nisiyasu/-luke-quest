@@ -1,0 +1,43 @@
+name: LUKE QUEST Production Gateway v1 Isolated Full E2E
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/env_visual_gateway/isolated_full_e2e.py"
+      - ".github/workflows/env-visual-gateway-v1-isolated-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: lq-env-gateway-v1-isolated-e2e
+  cancel-in-progress: false
+
+jobs:
+  isolated-full-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REPORT_PATH: ${{ runner.temp }}/gateway-v1-full-e2e-report.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run production gateway code against isolated resources only
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python tools/env_visual_gateway/isolated_full_e2e.py
+      - name: Upload E2E report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-v1-isolated-full-e2e-${{ github.run_id }}
+          path: ${{ runner.temp }}/gateway-v1-full-e2e-report.json
+          if-no-files-found: error
+          retention-days: 30
