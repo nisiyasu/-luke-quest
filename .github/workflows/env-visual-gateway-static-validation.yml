@@ -24,6 +24,6 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile gateway
-        run: python -m py_compile tools/env_visual_gateway/fenced_gateway.py
+        run: python -m py_compile tools/env_visual_gateway/*.py
       - name: Run static safety tests
         run: python -m unittest -v tests/test_env_visual_gateway_static.py
