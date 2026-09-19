@@ -1,0 +1,66 @@
+name: LUKE QUEST Common Environment Visual Evidence v2 Smoke
+
+on:
+  push:
+    branches:
+      - infra/env-visual-safety-v1
+    paths:
+      - ".github/workflows/environment-visual-evidence-common-v2.yml"
+      - ".github/workflows/environment-visual-evidence-common-v2-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  village:
+    uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
+    with:
+      lane_id: village
+      implementation_ref: environment/village
+      runtime_dir: prototypes/modern-3d
+      page_path: village-g0.html
+      target_source_commit: 0d225f77944eb54eed648b76f00869879f4284ff
+      target_path: references/target-quality/environments/VILLAGE_TARGET_OWNER_20260914.png
+      target_blob_sha: e6536371eddcc7fb5cf5803568216f008011a5f1
+      parent_issue: 51
+      child_issue: 54
+      ready_mode: visual-ready
+      artifact_name: common-v2-smoke-village
+      common_workflow_commit_sha: 38f0adf868584123fa1dddac120894c311a5da92
+      common_workflow_blob_sha: abc65fdb0e90042b7073d21f98e73211be0753ed
+
+  castle:
+    uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
+    with:
+      lane_id: castle
+      implementation_ref: environment/castle
+      runtime_dir: prototypes/modern-3d
+      page_path: castle-g0.html
+      target_source_commit: 0d225f77944eb54eed648b76f00869879f4284ff
+      target_path: references/target-quality/environments/CASTLE_INTERIOR_TARGET_OWNER_20260914.png
+      target_blob_sha: 573c13225471820d063043a37e3ee26fad389d63
+      parent_issue: 52
+      child_issue: 68
+      ready_mode: visual-ready
+      artifact_name: common-v2-smoke-castle
+      common_workflow_commit_sha: 38f0adf868584123fa1dddac120894c311a5da92
+      common_workflow_blob_sha: abc65fdb0e90042b7073d21f98e73211be0753ed
+
+  dungeon:
+    uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
+    with:
+      lane_id: dungeon
+      implementation_ref: environment/dungeon
+      runtime_dir: .
+      page_path: dungeon-g0.html
+      target_source_commit: 0d225f77944eb54eed648b76f00869879f4284ff
+      target_path: references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png
+      target_blob_sha: 198d0f5f3da115b70218ae8180d5f8363d744959
+      parent_issue: 53
+      child_issue: 82
+      ready_mode: load
+      artifact_name: common-v2-smoke-dungeon
+      common_workflow_commit_sha: 38f0adf868584123fa1dddac120894c311a5da92
+      common_workflow_blob_sha: abc65fdb0e90042b7073d21f98e73211be0753ed
