@@ -1,0 +1,14 @@
+{
+  "ADOPTION_ID": "AD-35471424424-T3",
+  "EVIDENCE_ID": "EV-35471424424-T3",
+  "IDENTITY": {
+    "acceptance_revision": "accept-v1",
+    "anchor_revision": "anchor-v1",
+    "audit_semantics": "audit-v1",
+    "evidence_settings": "settings-v1",
+    "implementation_head": "head-t3",
+    "target_revision": "target-v1",
+    "viewport": "896x1664@1"
+  },
+  "STATE": "IDENTIFIERS_RESERVED"
+}
