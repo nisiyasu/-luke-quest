@@ -15,6 +15,7 @@ on:
 # Build from current source and require the persisted distribution to remain byte-stable while actual package executes.
 # Fresh post-M10-P01 exact-head package regate trigger, 2026-09-18.
 # Fresh post-M10-P01 exact-head package regate trigger, 2026-09-19.
+# Fresh package regate after M09 UI and M10-P01 profile pass, 2026-09-19.
 permissions:
   contents: write
 
