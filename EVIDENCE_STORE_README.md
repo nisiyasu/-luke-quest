@@ -22,3 +22,10 @@ Rules:
 - Village / Castle / Dungeon publication conflict must preserve all sets
 
 This initialization file is infrastructure only. It is not evidence and does not enable any production lane.
+
+## Gateway implementation
+
+- main path: `tools/env_visual_gateway/fenced_gateway.py`
+- cutover status: `PENDING_CREDENTIAL_BOUNDARY`
+- production publication remains disabled until credential-boundary PASS
+- existing Environment Scheduled Runs remain active as legacy execution until cutover
