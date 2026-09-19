@@ -1,0 +1,50 @@
+name: Dungeon G0 Visual Evidence
+on:
+  push:
+    branches: ["environment/dungeon"]
+    paths: ["dungeon-g0.html", ".github/workflows/environment-dungeon-g0-visual-evidence.yml", "docs/environment-reconstruction/dungeon/G0_COMPOSITION_LOCK.md"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: environment/dungeon
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Start exact-head runtime
+        run: |
+          python3 -m http.server 8142 >/tmp/dungeon-g0-http.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8142/dungeon-g0.html >/dev/null
+      - name: Capture exact-head dungeon frame
+        run: |
+          mkdir -p .dungeon-g0
+          cat > capture-dungeon-g0.cjs <<'JS'
+          const {chromium}=require('playwright'); const fs=require('fs');
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});const page=await browser.newPage({viewport:{width:448,height:832},deviceScaleFactor:1});const errors=[];page.on('pageerror',e=>errors.push(String(e)));await page.goto('http://127.0.0.1:8142/dungeon-g0.html',{waitUntil:'networkidle',timeout:150000});await page.waitForTimeout(800);await page.screenshot({path:'.dungeon-g0/ACTUAL_EXACT_HEAD.png',fullPage:true});fs.writeFileSync('.dungeon-g0/runtime-audit.json',JSON.stringify({head:process.env.GITHUB_SHA,viewport:[448,832],pageErrors:errors},null,2));if(errors.length)throw new Error(JSON.stringify(errors));await browser.close()})().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node capture-dungeon-g0.cjs
+      - name: Add Owner target
+        run: |
+          curl -L --fail --retry 3 -o .dungeon-g0/TARGET_DUNGEON_OWNER.png "https://raw.githubusercontent.com/nisiyasu/-luke-quest/prototype/modern-3d/references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png"
+      - name: Add coordinate audit contract
+        run: |
+          cp docs/environment-reconstruction/dungeon/G0_COMPOSITION_LOCK.md .dungeon-g0/G0_COMPOSITION_LOCK.md
+          cat > .dungeon-g0/coordinate-audit.json <<'JSON'
+          {"coordinate_system":"normalized_screen_space_top_left_origin","target":"TARGET_DUNGEON_OWNER.png","actual":"ACTUAL_EXACT_HEAD.png","anchors":["PLAYER-A","MAIN-PATH-A","BRIDGE-A","ELEVATION-A","WATER-GAP-A","UPPER-DOOR-A","SIDE-PLATFORM-A","WATERFALL-A"],"measurement_status":"TARGET_ROIS_LOCKED_ACTUAL_COMPARISON_REQUIRED"}
+          JSON
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-g0-visual-evidence
+          path: .dungeon-g0
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
