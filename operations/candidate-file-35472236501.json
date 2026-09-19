@@ -1,0 +1,16 @@
+{
+  "EXPECTED_POSTCONDITION": {
+    "content_sha256": "f62ad33347788ccfe109e83647fac9d3e1a856ea5e5c886be58416df3d1aabb8"
+  },
+  "EXPECTED_PRECONDITION": {
+    "head": "ee73bb6d0796def46d5998f3f6e71601828d5f5e"
+  },
+  "LEASE_EPOCH": 1,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "candidate-file-35472236501",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "candidate-run-A-35472236501",
+  "REQUEST_FINGERPRINT": "9d7fe058e3cff4c4700a38cd829ecb71b5af5526def7cd9ad99a76c8dfeea76d",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "test/env-visual-gateway-implementation:gateway-test-runtime.txt"
+}
