@@ -31,15 +31,14 @@ jobs:
 
       - name: Run TEST-1 through TEST-5
         run: |
-          mkdir -p "$RUNNER_TEMP/lq-env-visual-safety"
-          python tools/env_visual_safety/run_safety_tests.py \
-            --report "$RUNNER_TEMP/lq-env-visual-safety/safety-test-report.json"
+          mkdir -p /tmp/lq-env-visual-safety
+          python tools/env_visual_safety/run_safety_tests.py --report /tmp/lq-env-visual-safety/safety-test-report.json
 
       - name: Upload safety test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: env-visual-safety-foundation-report
-          path: "\${{ runner.temp }}/lq-env-visual-safety/safety-test-report.json"
+          path: /tmp/lq-env-visual-safety/safety-test-report.json
           if-no-files-found: error
           retention-days: 30
