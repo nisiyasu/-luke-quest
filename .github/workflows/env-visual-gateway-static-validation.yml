@@ -1,0 +1,29 @@
+name: LUKE QUEST Environment Gateway Static Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/env_visual_gateway/**"
+      - "tests/test_env_visual_gateway_static.py"
+      - ".github/workflows/env-visual-gateway-static-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile gateway
+        run: python -m py_compile tools/env_visual_gateway/fenced_gateway.py
+      - name: Run static safety tests
+        run: python -m unittest -v tests/test_env_visual_gateway_static.py
