@@ -1,4 +1,4 @@
-name: M03 P01 v77 coordinate lock evidence
+name: M03 P01 v78 coordinate lock evidence
 on:
   push:
     branches: [prototype/modern-3d]
@@ -18,24 +18,25 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null 2>&1
-      - name: Capture v77 exact product state
+      - name: Capture v78 exact product state with diagnostics
         run: |
-          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/lq-v77-http.log 2>&1 &
+          python3 -m http.server 8140 --directory prototypes/modern-3d >/tmp/lq-v78-http.log 2>&1 &
           sleep 2
-          mkdir -p .m03-v77
+          mkdir -p .m03-v78
           cat > capture.cjs <<'JS'
           const {chromium}=require('playwright'); const fs=require('fs');
           (async()=>{const b=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});const rows=[];
-          for(const [name,v,steps] of [['portrait-near',{width:390,height:844},8],['portrait-far',{width:390,height:844},48],['landscape-near',{width:844,height:390},8],['landscape-far',{width:844,height:390},48]]){const p=await b.newPage({viewport:v,deviceScaleFactor:1});await p.goto(`http://127.0.0.1:8140/index.html?quality=high&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:150000});await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',{timeout:150000});await p.waitForTimeout(1800);const m=await p.evaluate(()=>({player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile,variant:window.LQ_MODERN_3D_M05?.variant}));await p.screenshot({path:`.m03-v77/${name}.png`,fullPage:true});rows.push(name+' '+JSON.stringify(m));await p.close();}fs.writeFileSync('.m03-v77/audit.txt',rows.join('\n')+'\n');await b.close();})().catch(e=>{console.error(e);process.exit(1)});
+          for(const [name,v,steps] of [['portrait-near',{width:390,height:844},8],['portrait-far',{width:390,height:844},48],['landscape-near',{width:844,height:390},8],['landscape-far',{width:844,height:390},48]]){const p=await b.newPage({viewport:v,deviceScaleFactor:1});const errors=[];p.on('console',m=>{if(m.type()==='error')errors.push('console:'+m.text())});p.on('pageerror',e=>errors.push('pageerror:'+e.message));await p.goto(`http://127.0.0.1:8140/index.html?quality=high&m08walk=1&m08steps=${steps}`,{waitUntil:'domcontentloaded',timeout:60000});let ready=false;try{await p.waitForFunction(()=>document.documentElement.dataset.lqModern3d==='m05-ready',{timeout:25000});ready=true}catch(e){}await p.waitForTimeout(1500);const m=await p.evaluate(()=>({ready:document.documentElement.dataset.lqModern3d,player:document.documentElement.dataset.m08Player,camera:document.documentElement.dataset.m03CameraProfile,variant:window.LQ_MODERN_3D_M05?.variant,body:(document.body?.innerText||'').slice(0,500)}));await p.screenshot({path:`.m03-v78/${name}.png`,fullPage:true});rows.push(name+' '+JSON.stringify({ready,...m,errors}));await p.close();}fs.writeFileSync('.m03-v78/audit.txt',rows.join('\n')+'\n');await b.close();})().catch(e=>{fs.writeFileSync('.m03-v78/fatal.txt',String(e?.stack||e));process.exit(1)});
           JS
           node capture.cjs
-          cp assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png .m03-v77/TARGET_PS1_FINAL.png
-          cp assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png .m03-v77/MINIMUM_QUALITY_LINE.png
+          cp assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png .m03-v78/TARGET_PS1_FINAL.png
+          cp assets/reference/owner_2026-09-11_ps1_visual_target/MINIMUM_QUALITY_LINE.png .m03-v78/MINIMUM_QUALITY_LINE.png
+          cp /tmp/lq-v78-http.log .m03-v78/http.log || true
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: m03-p01-v77-coordinate-evidence
-          path: .m03-v77
+          name: m03-p01-v78-coordinate-evidence
+          path: .m03-v78
           include-hidden-files: true
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
-# v78-current-head-evidence-trigger-20260920
