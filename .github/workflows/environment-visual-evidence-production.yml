@@ -33,7 +33,7 @@ permissions:
 jobs:
   village:
     if: ${{ inputs.lane_id == 'village' }}
-    uses: nisiyasu/-luke-quest/.github/workflows/environment-visual-evidence-common-v2.yml@c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+    uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
     with:
       lane_id: village
       implementation_ref: ${{ inputs.implementation_sha }}
@@ -54,7 +54,7 @@ jobs:
 
   castle:
     if: ${{ inputs.lane_id == 'castle' }}
-    uses: nisiyasu/-luke-quest/.github/workflows/environment-visual-evidence-common-v2.yml@c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+    uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
     with:
       lane_id: castle
       implementation_ref: ${{ inputs.implementation_sha }}
@@ -75,7 +75,7 @@ jobs:
 
   dungeon:
     if: ${{ inputs.lane_id == 'dungeon' }}
-    uses: nisiyasu/-luke-quest/.github/workflows/environment-visual-evidence-common-v2.yml@c82e0ba6e940af3b94660cf8ad6abca7e14da75b
+    uses: ./.github/workflows/environment-visual-evidence-common-v2.yml
     with:
       lane_id: dungeon
       implementation_ref: ${{ inputs.implementation_sha }}
