@@ -29,7 +29,7 @@ jobs:
           mkdir -p .village-g0
           cat > capture-village-g0.cjs <<'JS'
           const {chromium}=require('playwright'); const fs=require('fs');
-          (async()=>{const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});const page=await browser.newPage({viewport:{width:448,height:832},deviceScaleFactor:1});const errors=[];page.on('pageerror',e=>errors.push(String(e)));await page.goto('http://127.0.0.1:8140/village-g0.html',{waitUntil:'domcontentloaded',timeout:150000});await page.waitForFunction(()=>document.documentElement.dataset.visualReady==='true',{timeout:150000});await page.waitForTimeout(1000);await page.screenshot({path:'.village-g0/ACTUAL_EXACT_HEAD.png',fullPage:true});const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d||null,visualReady:document.documentElement.dataset.visualReady||null}));fs.writeFileSync('.village-g0/runtime-audit.json',JSON.stringify({head:process.env.GITHUB_SHA,viewport:[448,832],canonicalTargetAspect:'896x1664',meta,pageErrors:errors},null,2));if(errors.length)throw new Error(JSON.stringify(errors));await browser.close()})().catch(e=>{console.error(e);process.exit(1)});
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']});const page=await browser.newPage({viewport:{width:941,height:1672},deviceScaleFactor:1});const errors=[];page.on('pageerror',e=>errors.push(String(e)));await page.goto('http://127.0.0.1:8140/village-g0.html',{waitUntil:'domcontentloaded',timeout:150000});await page.waitForFunction(()=>document.documentElement.dataset.visualReady==='true',{timeout:150000});await page.waitForTimeout(1000);await page.screenshot({path:'.village-g0/ACTUAL_EXACT_HEAD.png',fullPage:false});const meta=await page.evaluate(()=>({scene:document.documentElement.dataset.lqModern3d||null,visualReady:document.documentElement.dataset.visualReady||null}));fs.writeFileSync('.village-g0/runtime-audit.json',JSON.stringify({head:process.env.GITHUB_SHA,viewport:[941,1672],devicePixelRatio:1,canonicalTargetAspect:'941:1672',crop:'none',padding:'none',fullPage:false,meta,pageErrors:errors},null,2));if(errors.length)throw new Error(JSON.stringify(errors));await browser.close()})().catch(e=>{console.error(e);process.exit(1)});
           JS
           node capture-village-g0.cjs
       - name: Add Owner target
@@ -40,12 +40,14 @@ jobs:
           import struct,json,hashlib
           p=Path('.village-g0/TARGET_VILLAGE_OWNER.png'); b=p.read_bytes()
           if b[:8]!=b'\x89PNG\r\n\x1a\n': raise SystemExit('target is not PNG')
-          w,h=struct.unpack('>II',b[16:24]); Path('.village-g0/target-audit.json').write_text(json.dumps({'source_branch':'prototype/modern-3d','source_path':'references/target-quality/environments/VILLAGE_TARGET_OWNER_20260914.png','width':w,'height':h,'sha256':hashlib.sha256(b).hexdigest()},indent=2))
+          w,h=struct.unpack('>II',b[16:24])
+          if (w,h)!=(941,1672): raise SystemExit(f'canonical target dimension mismatch: {(w,h)}')
+          Path('.village-g0/target-audit.json').write_text(json.dumps({'source_branch':'prototype/modern-3d','source_path':'references/target-quality/environments/VILLAGE_TARGET_OWNER_20260914.png','width':w,'height':h,'sha256':hashlib.sha256(b).hexdigest()},indent=2))
           PY
       - name: Add coordinate audit contract
         run: |
           cat > .village-g0/coordinate-audit.json <<'JSON'
-          {"coordinate_system":"normalized_screen_space_top_left_origin","target":"TARGET_VILLAGE_OWNER.png","actual":"ACTUAL_EXACT_HEAD.png","anchors":["VILLAGE-PLAYER-A","VILLAGE-PLAZA-A","VILLAGE-HOUSE-LEFT-A","VILLAGE-HOUSE-RIGHT-A","VILLAGE-FOUNTAIN-A","VILLAGE-CHURCH-A","VILLAGE-STAIR-PATH-A"],"measurement_status":"TARGET_ROIS_FROZEN_IN_ANCHOR_CONTRACT"}
+          {"coordinate_system":"normalized_screen_space_top_left_origin","target":"TARGET_VILLAGE_OWNER.png","actual":"ACTUAL_EXACT_HEAD.png","canonical_viewport":[941,1672],"anchors":["VILLAGE-PLAYER-A","VILLAGE-PLAZA-A","VILLAGE-HOUSE-LEFT-A","VILLAGE-HOUSE-RIGHT-A","VILLAGE-FOUNTAIN-A","VILLAGE-CHURCH-A","VILLAGE-STAIR-PATH-A"],"measurement_status":"TARGET_ROIS_FROZEN_IN_ANCHOR_CONTRACT"}
           JSON
       - uses: actions/upload-artifact@v4
         with:
