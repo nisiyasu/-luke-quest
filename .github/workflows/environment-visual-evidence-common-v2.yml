@@ -194,7 +194,7 @@ jobs:
           def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
           def png_size(p):
               b=Path(p).read_bytes()
-              if b[:8] != b'\\x89PNG\\r\\n\\x1a\\n':
+              if not b.startswith(bytes.fromhex("89504e470d0a1a0a")):
                   raise SystemExit(f"not PNG: {p}")
               return list(struct.unpack(">II", b[16:24]))
           impl=(root/"implementation-head.txt").read_text().strip()
