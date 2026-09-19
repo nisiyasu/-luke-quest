@@ -1,0 +1,42 @@
+name: LUKE QUEST Gateway Crash Recovery Isolated Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/env_visual_gateway/isolated_crash_recovery_test.py"
+      - ".github/workflows/env-visual-gateway-crash-recovery-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: lq-env-gateway-crash-recovery-test
+  cancel-in-progress: false
+
+jobs:
+  crash-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Inject crashes and verify restart semantics
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPORT_PATH: ${{ runner.temp }}/gateway-crash-recovery-report.json
+        run: python tools/env_visual_gateway/isolated_crash_recovery_test.py
+      - name: Upload crash-recovery report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-crash-recovery-${{ github.run_id }}
+          path: ${{ runner.temp }}/gateway-crash-recovery-report.json
+          if-no-files-found: error
+          retention-days: 30
