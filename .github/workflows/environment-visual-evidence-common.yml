@@ -1,0 +1,239 @@
+name: LUKE QUEST Common Environment Visual Evidence
+
+on:
+  workflow_call:
+    inputs:
+      lane_id:
+        required: true
+        type: string
+      implementation_ref:
+        required: true
+        type: string
+      runtime_dir:
+        required: true
+        type: string
+      page_path:
+        required: true
+        type: string
+      target_source_commit:
+        required: true
+        type: string
+      target_path:
+        required: true
+        type: string
+      target_blob_sha:
+        required: true
+        type: string
+      parent_issue:
+        required: true
+        type: number
+      child_issue:
+        required: true
+        type: number
+      ready_mode:
+        required: false
+        type: string
+        default: visual-ready
+      artifact_name:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      LANE_ID: ${{ inputs.lane_id }}
+      IMPLEMENTATION_REF: ${{ inputs.implementation_ref }}
+      RUNTIME_DIR: ${{ inputs.runtime_dir }}
+      PAGE_PATH: ${{ inputs.page_path }}
+      TARGET_SOURCE_COMMIT: ${{ inputs.target_source_commit }}
+      TARGET_PATH: ${{ inputs.target_path }}
+      TARGET_BLOB_SHA: ${{ inputs.target_blob_sha }}
+      PARENT_ISSUE: ${{ inputs.parent_issue }}
+      CHILD_ISSUE: ${{ inputs.child_issue }}
+      READY_MODE: ${{ inputs.ready_mode }}
+    steps:
+      - name: Checkout implementation source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.implementation_ref }}
+          path: implementation
+          persist-credentials: false
+
+      - name: Checkout fixed target source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_source_commit }}
+          path: target-source
+          persist-credentials: false
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned Playwright Chromium
+        run: |
+          mkdir -p "$RUNNER_TEMP/evidence-tools"
+          cd "$RUNNER_TEMP/evidence-tools"
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          ./node_modules/.bin/playwright install --with-deps chromium >/dev/null 2>&1
+
+      - name: Prepare immutable target identity
+        run: |
+          mkdir -p "$RUNNER_TEMP/env-evidence"
+          ACTUAL_BLOB="$(git -C target-source rev-parse "HEAD:$TARGET_PATH")"
+          if [ "$ACTUAL_BLOB" != "$TARGET_BLOB_SHA" ]; then
+            echo "TARGET_BLOB_MISMATCH expected=$TARGET_BLOB_SHA actual=$ACTUAL_BLOB" >&2
+            exit 41
+          fi
+          cp "target-source/$TARGET_PATH" "$RUNNER_TEMP/env-evidence/target.png"
+          git -C implementation rev-parse HEAD > "$RUNNER_TEMP/env-evidence/implementation-head.txt"
+          git -C target-source rev-parse HEAD > "$RUNNER_TEMP/env-evidence/target-source-commit.txt"
+
+      - name: Fetch Parent and Child acceptance snapshots read-only
+        env:
+          GH_READ_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          repo=os.environ["GITHUB_REPOSITORY"]
+          token=os.environ["GH_READ_TOKEN"]
+          out=[]
+          for kind,num in (("PARENT",os.environ["PARENT_ISSUE"]),("CHILD",os.environ["CHILD_ISSUE"])):
+              req=urllib.request.Request(
+                  f"https://api.github.com/repos/{repo}/issues/{num}",
+                  headers={
+                      "Authorization":f"Bearer {token}",
+                      "Accept":"application/vnd.github+json",
+                      "X-GitHub-Api-Version":"2022-11-28",
+                      "User-Agent":"lq-env-visual-evidence-readonly",
+                  },
+              )
+              with urllib.request.urlopen(req,timeout=30) as r:
+                  obj=json.load(r)
+              out.append(f"# {kind} ISSUE #{num}\n\n")
+              out.append(obj.get("body") or "")
+              out.append("\n\n")
+          path=os.path.join(os.environ["RUNNER_TEMP"],"env-evidence","evaluation-contract-snapshot.md")
+          open(path,"w",encoding="utf-8").write("".join(out))
+          PY
+
+      - name: Start exact implementation runtime
+        run: |
+          python3 -m http.server 8140 --directory "implementation/$RUNTIME_DIR" >"$RUNNER_TEMP/env-runtime-http.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/env-runtime.pid"
+          for i in $(seq 1 30); do
+            if curl -fsS "http://127.0.0.1:8140/$PAGE_PATH" >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/env-runtime-http.log" || true
+          exit 42
+
+      - name: Capture deterministic canonical viewport
+        env:
+          NODE_PATH: ${{ runner.temp }}/evidence-tools/node_modules
+        run: |
+          cat > "$RUNNER_TEMP/capture-env-evidence.cjs" <<'JS'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          (async()=>{
+            const output=process.env.RUNNER_TEMP+'/env-evidence/actual.png';
+            const errors=[];
+            const browser=await chromium.launch({
+              headless:true,
+              args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--disable-dev-shm-usage']
+            });
+            const page=await browser.newPage({viewport:{width:448,height:832},deviceScaleFactor:1});
+            page.on('pageerror',e=>errors.push(String(e)));
+            page.on('console',msg=>{ if(msg.type()==='error') errors.push('console:'+msg.text()); });
+            const url='http://127.0.0.1:8140/'+process.env.PAGE_PATH;
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:150000});
+            if(process.env.READY_MODE==='visual-ready'){
+              await page.waitForFunction(()=>document.documentElement.dataset.visualReady==='true',{timeout:150000});
+            } else {
+              await page.waitForLoadState('networkidle',{timeout:150000}).catch(()=>{});
+              await page.waitForTimeout(1000);
+            }
+            await page.screenshot({path:output,fullPage:false});
+            const meta=await page.evaluate(()=>({
+              visualReady:document.documentElement.dataset.visualReady||null,
+              modern3d:document.documentElement.dataset.lqModern3d||null,
+              width:window.innerWidth,
+              height:window.innerHeight,
+              devicePixelRatio:window.devicePixelRatio,
+            }));
+            fs.writeFileSync(process.env.RUNNER_TEMP+'/env-evidence/runtime-audit.json',
+              JSON.stringify({url,meta,pageErrors:errors},null,2));
+            await browser.close();
+            if(errors.length) throw new Error(JSON.stringify(errors));
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node "$RUNNER_TEMP/capture-env-evidence.cjs"
+
+      - name: Build candidate evidence manifest
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, platform, subprocess
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"env-evidence"
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          impl=(root/"implementation-head.txt").read_text().strip()
+          target_commit=(root/"target-source-commit.txt").read_text().strip()
+          settings={
+            "schema":"LUKE_QUEST_ENV_EVIDENCE_SETTINGS:v1",
+            "viewport":{"width":448,"height":832,"aspect":"7:13","dpr":1},
+            "target_native_basis":{"width":896,"height":1664,"aspect":"7:13"},
+            "browser":"chromium via playwright 1.55.0",
+            "runner":os.environ.get("RUNNER_OS"),
+            "python":platform.python_version(),
+            "ready_mode":os.environ["READY_MODE"],
+            "page_path":os.environ["PAGE_PATH"],
+            "runtime_dir":os.environ["RUNTIME_DIR"],
+          }
+          (root/"evidence-settings.json").write_text(json.dumps(settings,indent=2,sort_keys=True),encoding="utf-8")
+          contract_sha=sha(root/"evaluation-contract-snapshot.md")
+          manifest={
+            "schema":"LUKE_QUEST_ENV_EVIDENCE_CANDIDATE:v1",
+            "lane_id":os.environ["LANE_ID"],
+            "parent_issue":int(os.environ["PARENT_ISSUE"]),
+            "child_issue":int(os.environ["CHILD_ISSUE"]),
+            "implementation_ref":os.environ["IMPLEMENTATION_REF"],
+            "actual_head_sha":impl,
+            "runtime_build_sha":impl,
+            "target_source_commit_sha":target_commit,
+            "target_path":os.environ["TARGET_PATH"],
+            "target_blob_sha":os.environ["TARGET_BLOB_SHA"],
+            "target_image_sha256":sha(root/"target.png"),
+            "actual_image_sha256":sha(root/"actual.png"),
+            "evidence_settings_sha256":sha(root/"evidence-settings.json"),
+            "evaluation_contract_snapshot_sha256":contract_sha,
+            "workflow_ref":os.environ.get("GITHUB_WORKFLOW_REF"),
+            "workflow_sha":os.environ.get("GITHUB_WORKFLOW_SHA"),
+            "run_id":os.environ.get("GITHUB_RUN_ID"),
+            "run_attempt":os.environ.get("GITHUB_RUN_ATTEMPT"),
+            "adoption_status":"CANDIDATE_NOT_ADOPTED",
+          }
+          (root/"evidence-manifest.candidate.json").write_text(json.dumps(manifest,indent=2,sort_keys=True),encoding="utf-8")
+          (root/"coordinate-audit.json").write_text(json.dumps({
+            "schema":"LUKE_QUEST_COORDINATE_AUDIT:v1",
+            "coordinate_system":"normalized_screen_space_top_left_origin",
+            "measurement_status":"PENDING_SAME_ROI_VISUAL_AUDIT",
+            "parent_issue":int(os.environ["PARENT_ISSUE"]),
+            "child_issue":int(os.environ["CHILD_ISSUE"]),
+          },indent=2,sort_keys=True),encoding="utf-8")
+          PY
+
+      - name: Upload read-only evidence candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ runner.temp }}/env-evidence
+          if-no-files-found: error
+          retention-days: 14
