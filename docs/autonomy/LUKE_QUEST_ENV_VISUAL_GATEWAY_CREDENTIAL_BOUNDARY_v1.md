@@ -25,7 +25,7 @@ Prompt上で「直接write禁止」と指示するだけでは技術的強制に
 
 ## 2. Production Hard Rule
 
-本番Environment Laneを再開する前に、
+新Gatewayへ本番cutoverする前に、
 
 Scheduled Agent と Target Repository Writer のcredentialを分離する。
 
@@ -102,8 +102,15 @@ Branch ruleだけでIssue comment / close等のdirect write capabilityまで消�
 - Safety Foundation model TEST-1〜5: PASS
 - GitHub実API Gateway integration TEST-1〜5: PASS
 - Common READ ONLY Visual Evidence workflow: isolated smoke PASS
+- Production-pin smoke run `35472194325`: PASS
+- Production-shaped Gateway candidate run `35472236501`: PASS
+- Production Gateway code: mainへ配置済み、cutover disabled
 - Production control/evidence branches: initialized disabled
 - Credential Boundary: **NOT YET SATISFIED**
-- Production Environment scheduled automations: **PAUSED**
+- Existing Village / Castle / Dungeon scheduled automations: **ACTIVE**
+- Existing Scheduled Prompts: **UNCHANGED**
+- New Gateway production cutover: **PENDING**
 
-Credential BoundaryがPASSするまでProduction Environment mutationを再開しない。
+Credential BoundaryがPASSするまで、新Gatewayを「唯一の書込み口」とする本番cutoverは完了扱いにしない。
+
+ただし、Owner指示により既存Environment Scheduled Runは停止しない。cutover完了前の既存運用は legacy execution として明示的に区別し、新Gateway準拠済みとは扱わない。
