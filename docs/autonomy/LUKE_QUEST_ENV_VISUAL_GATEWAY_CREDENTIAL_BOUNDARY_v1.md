@@ -114,3 +114,17 @@ Branch ruleだけでIssue comment / close等のdirect write capabilityまで消�
 Credential BoundaryがPASSするまで、新Gatewayを「唯一の書込み口」とする本番cutoverは完了扱いにしない。
 
 ただし、Owner指示により既存Environment Scheduled Runは停止しない。cutover完了前の既存運用は legacy execution として明示的に区別し、新Gateway準拠済みとは扱わない。
+
+## 8. Pre-Cutover Canary Result / 事前実測
+
+`CREDENTIAL_BOUNDARY_TEST:v1` の事前canaryをtest-only resourcesで実行した。
+
+- Target Repository contents direct write: **SUCCEEDED**
+- Target Repository Issue direct write: **SUCCEEDED**
+- Result: **FAIL / boundary not yet satisfied**
+- Production Environment branches/issues: not used
+- Durable evidence: `docs/autonomy/evidence/LUKE_QUEST_CREDENTIAL_BOUNDARY_TEST_v1_PRE_CUTOVER_FAIL.md`
+
+この結果は、current GitHub plugin permission modeの変更だけではなく、Target Repository writer credentialそのものの分離が必要であることを確認するもの。
+
+ChatGPT Plugin permission modeはOAuth / GitHub App repository scopeではないため、confirmation mode変更だけをCredential Boundary PASSとして扱ってはいけない。
