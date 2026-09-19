@@ -80,4 +80,4 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-# evidence trigger: coordinated world-massing v76 exact-head
+# evidence trigger: coordinate-lock v77 exact-head
