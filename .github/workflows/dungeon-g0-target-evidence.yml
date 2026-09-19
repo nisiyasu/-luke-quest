@@ -1,0 +1,56 @@
+name: Dungeon G0 Target Evidence / ダンジョンG0ターゲット証拠
+
+on:
+  push:
+    branches: [environment/dungeon]
+    paths:
+      - '.github/workflows/dungeon-g0-target-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  target-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout implementation / 実装取得
+        uses: actions/checkout@v4
+        with:
+          ref: environment/dungeon
+          path: implementation
+      - name: Checkout target authority / ターゲット正本取得
+        uses: actions/checkout@v4
+        with:
+          ref: prototype/modern-3d
+          path: target-source
+          sparse-checkout: |
+            references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png
+          sparse-checkout-cone-mode: false
+      - name: Record exact identities / 同一性記録
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          cp target-source/references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png evidence/target.png
+          TARGET_COMMIT=$(git -C target-source rev-parse HEAD)
+          IMPLEMENTATION_HEAD=$(git -C implementation rev-parse HEAD)
+          TARGET_SHA256=$(sha256sum evidence/target.png | awk '{print $1}')
+          FILE_INFO=$(file evidence/target.png)
+          {
+            echo "TARGET_SOURCE_BRANCH=prototype/modern-3d"
+            echo "TARGET_SOURCE_COMMIT_SHA=$TARGET_COMMIT"
+            echo "IMPLEMENTATION_BRANCH=environment/dungeon"
+            echo "IMPLEMENTATION_HEAD_SHA=$IMPLEMENTATION_HEAD"
+            echo "TARGET_PATH=references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png"
+            echo "TARGET_BLOB_SHA=198d0f5f3da115b70218ae8180d5f8363d744959"
+            echo "TARGET_IMAGE_SHA256=$TARGET_SHA256"
+            echo "TARGET_FILE_INFO=$FILE_INFO"
+          } > evidence/evidence-manifest.txt
+      - name: Upload evidence / 証拠成果物保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-g0-target-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
