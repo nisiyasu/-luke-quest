@@ -21,7 +21,6 @@ jobs:
     env:
       LQ_ENV_REQUEST_REPOSITORY: nisiyasu/luke-env-gateway-requests
       LQ_ENV_REQUEST_MAX_PER_RUN: "30"
-      LQ_ENV_REQUEST_CHECKOUT: ${{ runner.temp }}/lq-env-requests
     steps:
       - name: Checkout immutable Gateway implementation
         uses: actions/checkout@v4
@@ -30,8 +29,8 @@ jobs:
 
       - name: Clone public request channel as immutable run snapshot
         run: |
-          git clone --depth 1 https://github.com/nisiyasu/luke-env-gateway-requests.git "$LQ_ENV_REQUEST_CHECKOUT"
-          git -C "$LQ_ENV_REQUEST_CHECKOUT" rev-parse HEAD
+          git clone --depth 1 https://github.com/nisiyasu/luke-env-gateway-requests.git "$RUNNER_TEMP/lq-env-requests"
+          git -C "$RUNNER_TEMP/lq-env-requests" rev-parse HEAD
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
@@ -42,6 +41,7 @@ jobs:
         env:
           LQ_ENV_GATEWAY_WRITER_TOKEN: ${{ github.token }}
         run: |
+          export LQ_ENV_REQUEST_CHECKOUT="$RUNNER_TEMP/lq-env-requests"
           python tools/env_visual_gateway/request_channel_poller.py
 
       - name: Emit poller identity
