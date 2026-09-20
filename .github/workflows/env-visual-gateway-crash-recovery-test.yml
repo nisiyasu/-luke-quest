@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "tools/env_visual_gateway/fenced_gateway.py"
       - "tools/env_visual_gateway/isolated_crash_recovery_test.py"
       - ".github/workflows/env-visual-gateway-crash-recovery-test.yml"
   workflow_dispatch:

@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "tools/env_visual_gateway/fenced_gateway.py"
       - "tools/env_visual_gateway/isolated_full_e2e.py"
       - ".github/workflows/env-visual-gateway-v1-isolated-e2e.yml"
   workflow_dispatch:

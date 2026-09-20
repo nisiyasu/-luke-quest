@@ -1,4 +1,5 @@
 import importlib.util
+import inspect
 import pathlib
 import unittest
 
@@ -97,6 +98,21 @@ class GatewayStaticTests(unittest.TestCase):
             "RESULT_CONFIRMATION_REQUIRED",
         )
         self.assertEqual(op["REQUEST_CHANNEL_SOURCE"], source)
+
+    def test_artifact_publish_operation_is_allowlisted(self):
+        source = inspect.getsource(gw.Gateway.apply)
+        self.assertIn("DURABLE_EVIDENCE_PUBLISH_FROM_ARTIFACT", source)
+        self.assertTrue(
+            hasattr(gw.Gateway, "durable_evidence_publish_from_artifact")
+        )
+
+    def test_artifact_provenance_is_retry_deterministic(self):
+        source = inspect.getsource(
+            gw.Gateway.durable_evidence_publish_from_artifact
+        )
+        self.assertNotIn('"imported_at"', source)
+        self.assertIn('"artifact_created_at"', source)
+        self.assertIn('"artifact_updated_at"', source)
 
     def test_request_hash_is_self_excluding(self):
         req = {
