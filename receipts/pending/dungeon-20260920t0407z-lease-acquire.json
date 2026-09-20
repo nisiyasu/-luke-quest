@@ -1,0 +1,15 @@
+{
+  "error": "LeaseUnavailable: active lease exists",
+  "lane_id": "dungeon",
+  "ok": false,
+  "operation_id": "dungeon-20260920t0407z-op01-lease",
+  "processed_at": "2026-09-20T06:07:04.947639Z",
+  "request_id": "dungeon-20260920t0407z-lease-acquire",
+  "request_sha256": "0f89dd702c6c116308675ae62bb7682a0594faa40a9e402eabf0dca1342204af",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "a1e3331acd20efc1d1e69b7fc398cb15596ab96d",
+  "source_commit_sha": "1c45b32a657e14246134335e6a32ee26b62e4943",
+  "source_path": "requests/dungeon/dungeon-20260920t0407z-lease-acquire.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
