@@ -1,0 +1,15 @@
+{
+  "error": "LeaseUnavailable: lease expired",
+  "lane_id": "castle",
+  "ok": false,
+  "operation_id": "op-002-lease-heartbeat",
+  "processed_at": "2026-09-20T06:06:57.570465Z",
+  "request_id": "castle-20260920-run02-heartbeat-01",
+  "request_sha256": "da270393ecd1c7a5c92604d9a14a9ccd05e09319837fb62e17e3592d852b95af",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "9a855926b1dd61066ae3a4b8916662dc925f672c",
+  "source_commit_sha": "1c45b32a657e14246134335e6a32ee26b62e4943",
+  "source_path": "requests/castle/castle-20260920-run02-heartbeat-01.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
