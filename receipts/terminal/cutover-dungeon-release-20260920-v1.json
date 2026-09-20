@@ -1,0 +1,35 @@
+{
+  "lane_id": "dungeon",
+  "ok": true,
+  "operation_id": "cutover-dungeon-release-op-20260920-v1",
+  "processed_at": "2026-09-20T00:36:55.412181Z",
+  "request_id": "cutover-dungeon-release-20260920-v1",
+  "request_sha256": "d0aaaec776ce4f9e9a1fee2801731122c5d2dddc94fe19cbc421fd9be7e27316",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-20T00:35:43.650282Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "10d28270119ecdac73bd7d2a468f78cc84c761b8",
+      "CURRENT_HEAD_SHA": "10d28270119ecdac73bd7d2a468f78cc84c761b8",
+      "FENCING_TOKEN": 1,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_GATEWAY_PRODUCTION_ACTIVE",
+      "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
+      "INITIALIZED_FROM_CONTRACT": "docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md",
+      "LANE_ID": "dungeon",
+      "LAST_HEARTBEAT_AT": "2026-09-20T00:36:53.608402Z",
+      "LEASE_EPOCH": 1,
+      "LEASE_STATUS": "RELEASED",
+      "LEASE_UNTIL": null,
+      "OWNER_RUN_ID": "cutover-admin-canary-20260920-dungeon-v1",
+      "PRODUCTION_ENABLED": true,
+      "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
+    },
+    "status": "LEASE_RELEASED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "c08192a9166060ba5d79c41881448e3e270ce10c",
+  "source_commit_sha": "7a39e9e5d55cb8753d8854769765fc3447c02cd3",
+  "source_path": "requests/dungeon/cutover-dungeon-release-20260920-v1.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
