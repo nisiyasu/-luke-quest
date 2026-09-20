@@ -1,0 +1,35 @@
+{
+  "lane_id": "castle",
+  "ok": true,
+  "operation_id": "cutover-castle-release-op-20260920-v1",
+  "processed_at": "2026-09-20T00:33:23.987558Z",
+  "request_id": "cutover-castle-release-20260920-v1",
+  "request_sha256": "58879667bed70a52120eb14d2214d6171aef65f7abf90fad051a47d7474a76ac",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-20T00:32:22.249980Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "6512e08e5c7524ed34b5dac9fa83581ec11a1b32",
+      "CURRENT_HEAD_SHA": "6512e08e5c7524ed34b5dac9fa83581ec11a1b32",
+      "FENCING_TOKEN": 1,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_GATEWAY_PRODUCTION_ACTIVE",
+      "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
+      "INITIALIZED_FROM_CONTRACT": "docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md",
+      "LANE_ID": "castle",
+      "LAST_HEARTBEAT_AT": "2026-09-20T00:33:21.907828Z",
+      "LEASE_EPOCH": 1,
+      "LEASE_STATUS": "RELEASED",
+      "LEASE_UNTIL": null,
+      "OWNER_RUN_ID": "cutover-admin-canary-20260920-castle-v1",
+      "PRODUCTION_ENABLED": true,
+      "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
+    },
+    "status": "LEASE_RELEASED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "0ad86ec6d15d6ca25f170a8a6fc4a502bf0b4fc7",
+  "source_commit_sha": "bfd786bc6e04bb572cb9717e35d019bbaf75ece2",
+  "source_path": "requests/castle/cutover-castle-release-20260920-v1.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
