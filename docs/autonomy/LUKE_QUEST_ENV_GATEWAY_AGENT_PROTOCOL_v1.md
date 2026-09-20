@@ -1,6 +1,6 @@
 # LUKE QUEST Environment Gateway Agent Protocol v1
 
-**状態:** CUTOVER READY / 本番切替準備完了  
+**状態:** PRODUCTION ACTIVE / 本番稼働  
 **対象:** Village #51 / Castle #52 / Dungeon #53 のScheduled Agent  
 **契約正本:** `docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md`  
 **配線正本:** `docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_WIRING_v1.md`

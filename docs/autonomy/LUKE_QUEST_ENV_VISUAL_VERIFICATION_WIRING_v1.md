@@ -1,6 +1,6 @@
 # LUKE QUEST 環境レーン共通・視覚検証契約 配線 v1
 
-**状態:** CUTOVER READY / 本番切替準備完了  
+**状態:** PRODUCTION ACTIVE / 本番稼働  
 **契約正本:** `docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md`  
 **Agent実行プロトコル:** `docs/autonomy/LUKE_QUEST_ENV_GATEWAY_AGENT_PROTOCOL_v1.md`
 
