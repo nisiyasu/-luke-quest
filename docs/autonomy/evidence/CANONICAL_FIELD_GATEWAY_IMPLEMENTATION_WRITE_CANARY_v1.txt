@@ -1,0 +1,9 @@
+LUKE QUEST CANONICAL FIELD GATEWAY IMPLEMENTATION WRITE CANARY v1
+purpose=prove fenced Scheduled-Agent transport can write prototype/modern-3d without direct connector write
+lane=field
+parent_issue=12
+router_comment_id=5646492352
+owner_run_id=cutover-field-write-canary-20260920-v2
+lease_epoch=2
+expected_pre_head=90635ceff9d35d69f80da350df1e6ea0610657dd
+gameplay_code_changed=false
