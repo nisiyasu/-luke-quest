@@ -1,0 +1,35 @@
+{
+  "lane_id": "village",
+  "ok": true,
+  "operation_id": "cutover-village-acquire-op-20260920-v1",
+  "processed_at": "2026-09-20T00:29:46.270514Z",
+  "request_id": "cutover-village-acquire-20260920-v1",
+  "request_sha256": "c2ccf39a6bf8c6cceebfd3e93bf8a209189f153e9da53616a4ae0eeaa87ffffd",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-20T00:29:44.709791Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "b040b0fa8e8ee9b1cbbd075b309c2eac65edce04",
+      "CURRENT_HEAD_SHA": "b040b0fa8e8ee9b1cbbd075b309c2eac65edce04",
+      "FENCING_TOKEN": 1,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_GATEWAY_PRODUCTION_ACTIVE",
+      "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
+      "INITIALIZED_FROM_CONTRACT": "docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md",
+      "LANE_ID": "village",
+      "LAST_HEARTBEAT_AT": "2026-09-20T00:29:44.709827Z",
+      "LEASE_EPOCH": 1,
+      "LEASE_STATUS": "ACTIVE",
+      "LEASE_UNTIL": "2026-09-20T00:39:44.709816Z",
+      "OWNER_RUN_ID": "cutover-admin-canary-20260920-v1",
+      "PRODUCTION_ENABLED": true,
+      "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
+    },
+    "status": "LEASE_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "26b28bc865d7bb1da81b5b6893e980ef795729ad",
+  "source_commit_sha": "c621ff5bd9d76f8ccba276c1995ca937aa8191dd",
+  "source_path": "requests/village/cutover-village-acquire-20260920-v1.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
