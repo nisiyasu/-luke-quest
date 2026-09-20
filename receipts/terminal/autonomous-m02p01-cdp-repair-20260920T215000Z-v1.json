@@ -1,0 +1,15 @@
+{
+  "error": "StaleEpoch: owner_run_id mismatch",
+  "lane_id": "field",
+  "ok": false,
+  "operation_id": "autonomous-m02p01-cdp-repair-20260920T215000Z-op1",
+  "processed_at": "2026-09-20T23:24:01.031023Z",
+  "request_id": "autonomous-m02p01-cdp-repair-20260920T215000Z-v1",
+  "request_sha256": "e88061b2d4587e4a4375bffb7255b25ae303f6e9e6d391ef4b3ddfedae4c9c3a",
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "a21110c17b8fe73bbdfa988566af97593e9e28ac",
+  "source_commit_sha": "0b20f3c8e0f14038e8fd3fae1a3d8bdcbaacbdf3",
+  "source_path": "field-requests/autonomous-m02p01-cdp-repair-20260920T215000Z-v1.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
