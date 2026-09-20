@@ -1,0 +1,13 @@
+{
+  "artifact_created_at": "2026-09-20T00:00:00Z",
+  "artifact_digest": "sha256:83c08af5f0264aa03ebf78d66c0c7c46aab697c57e43ae9fa6a5afb92ec5c912",
+  "artifact_id": 35477728230,
+  "artifact_name": "lq-env-evidence-fixture-35477728230",
+  "artifact_updated_at": "2026-09-20T00:00:00Z",
+  "capture_request_id": "fixture-35477728230",
+  "schema": "LUKE_QUEST_ENV_ARTIFACT_PROVENANCE:v1",
+  "workflow_run": {
+    "head_sha": "test-only",
+    "id": 35477728230
+  }
+}
