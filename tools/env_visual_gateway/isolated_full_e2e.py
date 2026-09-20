@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import io
 import json
 import os
 import pathlib
 import sys
 import time
 import traceback
+import zipfile
 
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/"tools"/"env_visual_gateway"))
@@ -114,8 +116,19 @@ def main():
     actual_bytes=b"isolated-actual-image-bytes"
     target_sha=sha(target_bytes)
     actual_sha=sha(actual_bytes)
+    settings_bytes=(
+        json.dumps(
+            {"viewport":{"width":941,"height":1672,"dpr":1},"test_only":True},
+            sort_keys=True,
+        )+"\n"
+    ).encode()
+    contract_bytes=b"TEST ONLY contract snapshot\n"
+    runtime_audit_bytes=(json.dumps({"test_only":True},sort_keys=True)+"\n").encode()
     manifest={
-        "schema":"LUKE_QUEST_ENV_VISUAL_EVIDENCE_MANIFEST:v1",
+        "schema":"LUKE_QUEST_ENV_EVIDENCE_CANDIDATE:v2",
+        "lane_id":"dungeon",
+        "parent_issue":TEST_PARENT,
+        "child_issue":TEST_CHILD,
         "actual_head_sha":head1,
         "runtime_build_sha":head1,
         "target_source_commit_sha":TARGET["target_source_commit_sha"],
@@ -124,8 +137,12 @@ def main():
         "actual_dimensions":[941,1672],
         "target_image_sha256":target_sha,
         "actual_image_sha256":actual_sha,
+        "evidence_settings_sha256":sha(settings_bytes),
+        "evaluation_contract_snapshot_sha256":sha(contract_bytes),
+        "runtime_audit_sha256":sha(runtime_audit_bytes),
+        "visual_comparison_performed":False,
     }
-    coordinate={"status":"PASS","objects":1}
+    coordinate={"status":"PASS","objects":1,"test_only":True}
     visual={
         "status":"PASS",
         "visual_comparison_performed":True,
@@ -133,30 +150,82 @@ def main():
         "actual_image_sha256":actual_sha,
         "test_only":True,
     }
-    settings={"viewport":{"width":941,"height":1672,"dpr":1},"test_only":True}
-    files={
-        "target.png":{"encoding":"base64","content":base64.b64encode(target_bytes).decode()},
-        "actual.png":{"encoding":"base64","content":base64.b64encode(actual_bytes).decode()},
-        "coordinate-audit.json":json.dumps(coordinate,sort_keys=True),
-        "evidence-manifest.candidate.json":json.dumps(manifest,sort_keys=True),
-        "evidence-settings.json":json.dumps(settings,sort_keys=True),
-        "evaluation-contract-snapshot.md":"TEST ONLY contract snapshot\n",
-        "visual-audit.json":json.dumps(visual,sort_keys=True),
+
+    artifact_members={
+        "target.png":target_bytes,
+        "actual.png":actual_bytes,
+        "coordinate-audit.json":json.dumps(
+            {"status":"PENDING_SAME_ROI_VISUAL_AUDIT","test_only":True},
+            sort_keys=True,
+        ).encode(),
+        "evidence-manifest.candidate.json":(
+            json.dumps(manifest,sort_keys=True)+"\n"
+        ).encode(),
+        "evidence-settings.json":settings_bytes,
+        "evaluation-contract-snapshot.md":contract_bytes,
+        "runtime-audit.json":runtime_audit_bytes,
+        "implementation-head.txt":(head1+"\n").encode(),
+        "target-source-commit.txt":(
+            TARGET["target_source_commit_sha"]+"\n"
+        ).encode(),
     }
+    artifact_buffer=io.BytesIO()
+    with zipfile.ZipFile(
+        artifact_buffer,"w",compression=zipfile.ZIP_DEFLATED
+    ) as zf:
+        for name,content in sorted(artifact_members.items()):
+            zf.writestr(name,content)
+    artifact_bytes=artifact_buffer.getvalue()
+    capture_request_id=f"fixture-{run_id}"
+    artifact_id=int(run_id)
+    fixture_metadata={
+        "id":artifact_id,
+        "name":"lq-env-evidence-"+capture_request_id,
+        "expired":False,
+        "digest":"sha256:"+sha(artifact_bytes),
+        "created_at":"2026-09-20T00:00:00Z",
+        "updated_at":"2026-09-20T00:00:00Z",
+        "workflow_run":{"id":artifact_id,"head_sha":"test-only"},
+    }
+
+    original_metadata=gh.artifact_metadata
+    original_zip=gh.artifact_zip
+    gh.artifact_metadata=lambda requested: (
+        fixture_metadata if int(requested)==artifact_id
+        else original_metadata(requested)
+    )
+    gh.artifact_zip=lambda requested: (
+        artifact_bytes if int(requested)==artifact_id
+        else original_zip(requested)
+    )
     evidence_head=gh.ref(TEST_EVIDENCE)
-    publish=gate.apply(make_req(
-        run_id,owner_a,epoch,"publish","DURABLE_EVIDENCE_PUBLISH",
-        expected_head=head1,
-        payload={
-            "child_issue":TEST_CHILD,
-            "evidence_id":evidence_id,
-            "adoption_id":adoption_id,
-            "expected_evidence_head":evidence_head,
-            "files":files,
-        }
-    ))
+    try:
+        publish=gate.apply(make_req(
+            run_id,owner_a,epoch,"publish",
+            "DURABLE_EVIDENCE_PUBLISH_FROM_ARTIFACT",
+            expected_head=head1,
+            payload={
+                "child_issue":TEST_CHILD,
+                "evidence_id":evidence_id,
+                "adoption_id":adoption_id,
+                "expected_evidence_head":evidence_head,
+                "capture_request_id":capture_request_id,
+                "artifact_id":artifact_id,
+                "visual_audit":visual,
+                "coordinate_audit":coordinate,
+            }
+        ))
+    finally:
+        gh.artifact_metadata=original_metadata
+        gh.artifact_zip=original_zip
+
     set_hash=publish["DURABLE_EVIDENCE_SET_SHA256"]
-    results.append({"step":"DURABLE_EVIDENCE_PUBLISH","status":"PASS","set_hash":set_hash})
+    results.append({
+        "step":"DURABLE_EVIDENCE_PUBLISH_FROM_ARTIFACT",
+        "status":"PASS",
+        "set_hash":set_hash,
+        "artifact_digest":fixture_metadata["digest"],
+    })
 
     adopt=gate.apply(make_req(
         run_id,owner_a,epoch,"adopt","EVIDENCE_ADOPT",

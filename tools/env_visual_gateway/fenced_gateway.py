@@ -3,12 +3,14 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import io
 import json
 import os
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import zipfile
 from datetime import datetime, timezone
 from typing import Any
 
@@ -136,6 +138,23 @@ class GitHub:
                 if resp.status not in ok:
                     raise ApiError(resp.status, raw.decode("utf-8", "replace"))
                 return json.loads(raw.decode("utf-8")) if raw else None
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", "replace")
+            raise ApiError(exc.code, body) from exc
+
+    def artifact_metadata(self, artifact_id: int) -> dict:
+        return self.request("GET", f"/actions/artifacts/{artifact_id}")
+
+    def artifact_zip(self, artifact_id: int) -> bytes:
+        url = API + "/repos/" + self.repo + f"/actions/artifacts/{artifact_id}/zip"
+        req = urllib.request.Request(url, method="GET")
+        req.add_header("Authorization", "Bearer " + self.token)
+        req.add_header("Accept", "application/vnd.github+json")
+        req.add_header("X-GitHub-Api-Version", "2022-11-28")
+        req.add_header("User-Agent", "luke-quest-env-fenced-gateway")
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return resp.read()
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", "replace")
             raise ApiError(exc.code, body) from exc
@@ -907,43 +926,76 @@ class Gateway:
             self._update_adoption_record(req["lane_id"], str(adoption_id), mutate, f"gateway: adoption complete {adoption_id}")
         return self._finish(req, op, CONFIRMED_APPLIED, {"COMMENT_ID": comment_id, "BODY_SHA256": sha256_text(body), "ADOPTION_ID": adoption_id})
 
-    def durable_evidence_publish(self, req: dict) -> dict:
-        cfg = self._validate_common(req)
-        payload = req.get("payload", {})
-        child = int(payload["child_issue"])
-        self._assert_issue_allowed(req["lane_id"], child)
-        evidence_id = str(payload["evidence_id"])
-        adoption_id = str(payload["adoption_id"])
-        expected_head = str(payload["expected_evidence_head"])
+    def _durable_evidence_publish_bytes(
+        self,
+        req: dict,
+        cfg: dict,
+        child: int,
+        evidence_id: str,
+        adoption_id: str,
+        expected_head: str,
+        files: dict[str, bytes],
+        mutation_type: str,
+    ) -> dict:
         reservation = self.adoption_record(req["lane_id"], adoption_id)
-        if reservation.get("EVIDENCE_ID") != evidence_id or reservation.get("CHILD_ISSUE") != child:
-            raise RequestRejected("evidence publication does not match reserved identifiers")
-        if reservation.get("STATE") not in ("IDENTIFIERS_RESERVED", "DURABLE_STORED_NOT_ADOPTED"):
-            raise RequestRejected(f"evidence publication invalid adoption state={reservation.get('STATE')}")
-        if reservation.get("IMPLEMENTATION_HEAD") != self.gh.ref(cfg["implementation_branch"]):
-            raise HeadMismatch("reserved evidence implementation HEAD no longer current")
-        files_spec = payload.get("files", {})
+        if (
+            reservation.get("EVIDENCE_ID") != evidence_id
+            or reservation.get("CHILD_ISSUE") != child
+        ):
+            raise RequestRejected(
+                "evidence publication does not match reserved identifiers"
+            )
+        if reservation.get("STATE") not in (
+            "IDENTIFIERS_RESERVED",
+            "DURABLE_STORED_NOT_ADOPTED",
+        ):
+            raise RequestRejected(
+                f"evidence publication invalid adoption state={reservation.get('STATE')}"
+            )
+        if (
+            reservation.get("IMPLEMENTATION_HEAD")
+            != self.gh.ref(cfg["implementation_branch"])
+        ):
+            raise HeadMismatch(
+                "reserved evidence implementation HEAD no longer current"
+            )
+
         required = {
-            "target.png", "actual.png", "coordinate-audit.json",
-            "evidence-manifest.candidate.json", "evidence-settings.json",
-            "evaluation-contract-snapshot.md", "visual-audit.json",
+            "target.png",
+            "actual.png",
+            "coordinate-audit.json",
+            "evidence-manifest.candidate.json",
+            "evidence-settings.json",
+            "evaluation-contract-snapshot.md",
+            "visual-audit.json",
         }
-        if not required.issubset(set(files_spec)):
-            raise RequestRejected("durable evidence file set incomplete: " + ",".join(sorted(required - set(files_spec))))
+        if not required.issubset(set(files)):
+            raise RequestRejected(
+                "durable evidence file set incomplete: "
+                + ",".join(sorted(required - set(files)))
+            )
+
         prefix = f"evidence/{req['lane_id']}/issue-{child}/{evidence_id}/"
-        files: dict[str, bytes] = {}
-        for rel, spec in files_spec.items():
+        prefixed: dict[str, bytes] = {}
+        for rel, content in files.items():
             if rel.startswith("/") or ".." in rel.split("/"):
                 raise RequestRejected("invalid evidence relative path")
-            files[prefix + rel] = decode_content_spec(spec)
-        _, op, _ = self._start_operation(req, "DURABLE_EVIDENCE_PUBLISH", f"{EVIDENCE_BRANCH}:{prefix}", "IDEMPOTENT_RETRY_SAFE")
+            prefixed[prefix + rel] = content
+
+        _, op, _ = self._start_operation(
+            req,
+            mutation_type,
+            f"{EVIDENCE_BRANCH}:{prefix}",
+            "IDEMPOTENT_RETRY_SAFE",
+        )
         if op["OPERATION_STATE"] == CONFIRMED_APPLIED:
             return op
+
         pending = {}
         existing_count = 0
-        for path, content in files.items():
+        for evidence_path, content in prefixed.items():
             try:
-                old, _ = self.gh.content(EVIDENCE_BRANCH, path)
+                old, _ = self.gh.content(EVIDENCE_BRANCH, evidence_path)
             except ApiError as exc:
                 if exc.status != 404:
                     raise
@@ -951,31 +1003,50 @@ class Gateway:
             if old is not None:
                 existing_count += 1
                 if old != content:
-                    raise RequestRejected(f"append-only evidence collision at {path}")
+                    raise RequestRejected(
+                        f"append-only evidence collision at {evidence_path}"
+                    )
             else:
-                pending[path] = content
+                pending[evidence_path] = content
+
         if op["OPERATION_STATE"] == PREPARED:
             op = self._mark_dispatched(req, op)
+
         if pending:
-            first_attempt = existing_count == 0 and self.gh.ref(EVIDENCE_BRANCH) == expected_head
+            first_attempt = (
+                existing_count == 0
+                and self.gh.ref(EVIDENCE_BRANCH) == expected_head
+            )
             try:
                 applied_head = self.gh.cas_write_files(
-                    EVIDENCE_BRANCH, pending, f"evidence: {req['operation_id']}",
+                    EVIDENCE_BRANCH,
+                    pending,
+                    f"evidence: {req['operation_id']}",
                     expected_head=expected_head if first_attempt else None,
                 )
             except CasConflict:
                 applied_head = self.gh.cas_write_files(
-                    EVIDENCE_BRANCH, pending, f"evidence-retry: {req['operation_id']}"
+                    EVIDENCE_BRANCH,
+                    pending,
+                    f"evidence-retry: {req['operation_id']}",
                 )
         else:
             applied_head = self.gh.ref(EVIDENCE_BRANCH)
 
         index = []
-        for path, content in sorted(files.items()):
-            actual, _ = self.gh.content(EVIDENCE_BRANCH, path)
+        for evidence_path, content in sorted(prefixed.items()):
+            actual, _ = self.gh.content(EVIDENCE_BRANCH, evidence_path)
             if actual != content:
-                raise GatewayError(f"durable evidence readback mismatch at {path}")
-            index.append({"path": path[len(prefix):], "sha256": sha256_bytes(actual)})
+                raise GatewayError(
+                    f"durable evidence readback mismatch at {evidence_path}"
+                )
+            index.append(
+                {
+                    "path": evidence_path[len(prefix):],
+                    "sha256": sha256_bytes(actual),
+                }
+            )
+
         index_text = canonical(index).encode("utf-8")
         index_path = prefix + "evidence-set-index.json"
         try:
@@ -984,17 +1055,21 @@ class Gateway:
             if exc.status != 404:
                 raise
             old_index = None
+
         if old_index is None:
             applied_head = self.gh.cas_write_files(
-                EVIDENCE_BRANCH, {index_path: index_text},
-                f"evidence-index: {req['operation_id']}"
+                EVIDENCE_BRANCH,
+                {index_path: index_text},
+                f"evidence-index: {req['operation_id']}",
             )
         elif old_index != index_text:
             raise RequestRejected("evidence index collision")
+
         read_index, _ = self.gh.content(EVIDENCE_BRANCH, index_path)
         if read_index != index_text:
             raise GatewayError("evidence index fresh read-back mismatch")
         set_hash = sha256_bytes(read_index)
+
         def mutate(r):
             if r.get("EVIDENCE_ID") != evidence_id:
                 raise RequestRejected("adoption/evidence reservation drift")
@@ -1004,16 +1079,251 @@ class Gateway:
             r["READBACK_VERIFIED"] = True
             r["DURABLE_STORED_AT"] = now_rfc3339()
             return r
-        self._update_adoption_record(req["lane_id"], adoption_id, mutate, f"gateway: durable evidence stored {adoption_id}")
+
+        self._update_adoption_record(
+            req["lane_id"],
+            adoption_id,
+            mutate,
+            f"gateway: durable evidence stored {adoption_id}",
+        )
         return self._finish(
-            req, op, CONFIRMED_APPLIED,
+            req,
+            op,
+            CONFIRMED_APPLIED,
             {
-                "EVIDENCE_ID": evidence_id, "ADOPTION_ID": adoption_id,
-                "DURABLE_URI": prefix, "DURABLE_EVIDENCE_SET_SHA256": set_hash,
-                "APPLIED_EVIDENCE_HEAD": applied_head, "READBACK_VERIFIED": True,
+                "EVIDENCE_ID": evidence_id,
+                "ADOPTION_ID": adoption_id,
+                "DURABLE_URI": prefix,
+                "DURABLE_EVIDENCE_SET_SHA256": set_hash,
+                "APPLIED_EVIDENCE_HEAD": applied_head,
+                "READBACK_VERIFIED": True,
             },
         )
 
+    def durable_evidence_publish(self, req: dict) -> dict:
+        cfg = self._validate_common(req)
+        payload = req.get("payload", {})
+        child = int(payload["child_issue"])
+        self._assert_issue_allowed(req["lane_id"], child)
+        evidence_id = str(payload["evidence_id"])
+        adoption_id = str(payload["adoption_id"])
+        expected_head = str(payload["expected_evidence_head"])
+        files_spec = payload.get("files", {})
+        files: dict[str, bytes] = {}
+        for rel, spec in files_spec.items():
+            files[rel] = decode_content_spec(spec)
+        return self._durable_evidence_publish_bytes(
+            req,
+            cfg,
+            child,
+            evidence_id,
+            adoption_id,
+            expected_head,
+            files,
+            "DURABLE_EVIDENCE_PUBLISH",
+        )
+
+    def durable_evidence_publish_from_artifact(self, req: dict) -> dict:
+        cfg = self._validate_common(req)
+        payload = req.get("payload", {})
+        child = int(payload["child_issue"])
+        self._assert_issue_allowed(req["lane_id"], child)
+        evidence_id = str(payload["evidence_id"])
+        adoption_id = str(payload["adoption_id"])
+        expected_head = str(payload["expected_evidence_head"])
+        capture_request_id = str(payload["capture_request_id"])
+        artifact_id = int(payload["artifact_id"])
+
+        if (
+            not capture_request_id
+            or len(capture_request_id) > 128
+            or any(
+                not (ch.isalnum() or ch in "._-")
+                for ch in capture_request_id
+            )
+        ):
+            raise RequestRejected("invalid capture_request_id")
+        if artifact_id <= 0:
+            raise RequestRejected("artifact_id must be positive")
+
+        metadata = self.gh.artifact_metadata(artifact_id)
+        expected_name = "lq-env-evidence-" + capture_request_id
+        if metadata.get("name") != expected_name:
+            raise RequestRejected(
+                f"artifact name mismatch expected={expected_name} actual={metadata.get('name')}"
+            )
+        if metadata.get("expired") is True:
+            raise RequestRejected("evidence artifact expired")
+
+        archive = self.gh.artifact_zip(artifact_id)
+        digest = str(metadata.get("digest") or "")
+        if digest.startswith("sha256:"):
+            actual_archive_hash = sha256_bytes(archive)
+            if actual_archive_hash != digest.split(":", 1)[1]:
+                raise RequestRejected("artifact archive digest mismatch")
+
+        artifact_files: dict[str, bytes] = {}
+        try:
+            with zipfile.ZipFile(io.BytesIO(archive)) as zf:
+                infos = [info for info in zf.infolist() if not info.is_dir()]
+                if len(infos) > 40:
+                    raise RequestRejected("artifact contains too many files")
+                total = sum(info.file_size for info in infos)
+                if total > 40 * 1024 * 1024:
+                    raise RequestRejected("artifact uncompressed size exceeds 40 MiB")
+                for info in infos:
+                    name = info.filename.replace("\\", "/")
+                    if (
+                        name.startswith("/")
+                        or ".." in name.split("/")
+                        or "/" in name
+                    ):
+                        raise RequestRejected(
+                            f"artifact path not allowed: {info.filename}"
+                        )
+                    if name in artifact_files:
+                        raise RequestRejected(
+                            f"duplicate artifact member: {name}"
+                        )
+                    artifact_files[name] = zf.read(info)
+        except zipfile.BadZipFile as exc:
+            raise RequestRejected("artifact is not a valid ZIP") from exc
+
+        candidate_required = {
+            "target.png",
+            "actual.png",
+            "evidence-manifest.candidate.json",
+            "evidence-settings.json",
+            "evaluation-contract-snapshot.md",
+        }
+        if not candidate_required.issubset(artifact_files):
+            raise RequestRejected(
+                "artifact candidate set incomplete: "
+                + ",".join(
+                    sorted(candidate_required - set(artifact_files))
+                )
+            )
+
+        manifest = json.loads(
+            artifact_files["evidence-manifest.candidate.json"].decode("utf-8")
+        )
+        current_head = self.gh.ref(cfg["implementation_branch"])
+        if (
+            manifest.get("lane_id") != req["lane_id"]
+            or int(manifest.get("parent_issue", -1)) != int(cfg["parent"])
+            or int(manifest.get("child_issue", -1)) != child
+        ):
+            raise RequestRejected("artifact manifest lane/issue mismatch")
+        if (
+            manifest.get("actual_head_sha") != current_head
+            or manifest.get("runtime_build_sha") != current_head
+        ):
+            raise HeadMismatch("artifact implementation HEAD no longer current")
+        if (
+            manifest.get("target_source_commit_sha")
+            != cfg["target_source_commit_sha"]
+            or manifest.get("target_blob_sha") != cfg["target_blob_sha"]
+        ):
+            raise RequestRejected("artifact target identity mismatch")
+        if (
+            manifest.get("target_dimensions") != CANONICAL_VIEWPORT
+            or manifest.get("actual_dimensions") != CANONICAL_VIEWPORT
+        ):
+            raise RequestRejected("artifact canonical viewport mismatch")
+
+        target_hash = sha256_bytes(artifact_files["target.png"])
+        actual_hash = sha256_bytes(artifact_files["actual.png"])
+        if (
+            manifest.get("target_image_sha256") != target_hash
+            or manifest.get("actual_image_sha256") != actual_hash
+        ):
+            raise RequestRejected("artifact image hash mismatch")
+        if (
+            manifest.get("evidence_settings_sha256")
+            != sha256_bytes(artifact_files["evidence-settings.json"])
+            or manifest.get("evaluation_contract_snapshot_sha256")
+            != sha256_bytes(
+                artifact_files["evaluation-contract-snapshot.md"]
+            )
+        ):
+            raise RequestRejected("artifact manifest supporting hash mismatch")
+        if (
+            "runtime-audit.json" in artifact_files
+            and manifest.get("runtime_audit_sha256")
+            != sha256_bytes(artifact_files["runtime-audit.json"])
+        ):
+            raise RequestRejected("artifact runtime audit hash mismatch")
+
+        visual = payload.get("visual_audit")
+        coordinate = payload.get("coordinate_audit")
+        if not isinstance(visual, dict) or not isinstance(coordinate, dict):
+            raise RequestRejected("visual_audit and coordinate_audit required")
+        visual_status = str(
+            visual.get("STATUS", visual.get("status", ""))
+        ).upper()
+        coordinate_status = str(
+            coordinate.get("STATUS", coordinate.get("status", ""))
+        ).upper()
+        if visual_status != "PASS":
+            raise RequestRejected("visual audit must be PASS")
+        if visual.get("visual_comparison_performed") is not True:
+            raise RequestRejected("visual comparison must be explicitly performed")
+        if coordinate_status != "PASS":
+            raise RequestRejected("coordinate audit must be PASS")
+        if (
+            visual.get("target_image_sha256") != target_hash
+            or visual.get("actual_image_sha256") != actual_hash
+        ):
+            raise RequestRejected("visual audit image identity mismatch")
+
+        files = dict(artifact_files)
+        files["coordinate-audit.json"] = (
+            json.dumps(
+                coordinate,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        ).encode("utf-8")
+        files["visual-audit.json"] = (
+            json.dumps(
+                visual,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        ).encode("utf-8")
+        files["artifact-provenance.json"] = (
+            json.dumps(
+                {
+                    "schema": "LUKE_QUEST_ENV_ARTIFACT_PROVENANCE:v1",
+                    "capture_request_id": capture_request_id,
+                    "artifact_id": artifact_id,
+                    "artifact_name": metadata.get("name"),
+                    "artifact_digest": metadata.get("digest"),
+                    "artifact_created_at": metadata.get("created_at"),
+                    "artifact_updated_at": metadata.get("updated_at"),
+                    "workflow_run": metadata.get("workflow_run"),
+                },
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        ).encode("utf-8")
+
+        return self._durable_evidence_publish_bytes(
+            req,
+            cfg,
+            child,
+            evidence_id,
+            adoption_id,
+            expected_head,
+            files,
+            "DURABLE_EVIDENCE_PUBLISH_FROM_ARTIFACT",
+        )
 
     def evidence_adopt(self, req: dict) -> dict:
         cfg = self._validate_common(req)
@@ -1191,6 +1501,7 @@ class Gateway:
             "PARENT_PROGRESS_UPDATE": self.parent_progress_update,
             "EVIDENCE_IDENTIFIERS_RESERVE": self.evidence_identifiers_reserve,
             "DURABLE_EVIDENCE_PUBLISH": self.durable_evidence_publish,
+            "DURABLE_EVIDENCE_PUBLISH_FROM_ARTIFACT": self.durable_evidence_publish_from_artifact,
             "EVIDENCE_ADOPT": self.evidence_adopt,
         }
         try:
