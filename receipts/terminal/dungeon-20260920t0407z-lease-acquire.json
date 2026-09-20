@@ -1,0 +1,35 @@
+{
+  "lane_id": "dungeon",
+  "ok": true,
+  "operation_id": "dungeon-20260920t0407z-op01-lease",
+  "processed_at": "2026-09-20T11:16:22.299837Z",
+  "request_id": "dungeon-20260920t0407z-lease-acquire",
+  "request_sha256": "0f89dd702c6c116308675ae62bb7682a0594faa40a9e402eabf0dca1342204af",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-20T11:16:20.639600Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "10d28270119ecdac73bd7d2a468f78cc84c761b8",
+      "CURRENT_HEAD_SHA": "10d28270119ecdac73bd7d2a468f78cc84c761b8",
+      "FENCING_TOKEN": 3,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_GATEWAY_PRODUCTION_ACTIVE",
+      "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
+      "INITIALIZED_FROM_CONTRACT": "docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md",
+      "LANE_ID": "dungeon",
+      "LAST_HEARTBEAT_AT": "2026-09-20T11:16:20.639630Z",
+      "LEASE_EPOCH": 3,
+      "LEASE_STATUS": "ACTIVE",
+      "LEASE_UNTIL": "2026-09-20T11:46:20.639617Z",
+      "OWNER_RUN_ID": "dungeon-20260920t0407z",
+      "PRODUCTION_ENABLED": true,
+      "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
+    },
+    "status": "LEASE_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "a1e3331acd20efc1d1e69b7fc398cb15596ab96d",
+  "source_commit_sha": "8b1fbef58db7427dfad9954a3cb0a98ba8d444a1",
+  "source_path": "requests/dungeon/dungeon-20260920t0407z-lease-acquire.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
