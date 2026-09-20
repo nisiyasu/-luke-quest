@@ -1,0 +1,37 @@
+{
+  "lane_id": "field",
+  "ok": true,
+  "operation_id": "cutover-field-acquire-op-20260920-v1",
+  "processed_at": "2026-09-20T01:38:19.680815Z",
+  "request_id": "cutover-field-acquire-20260920-v1",
+  "request_sha256": "1b93bf85f58729d7c965b2551918bd2c068e8a6b42c94c95bde44f252910048b",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-20T01:38:17.454826Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "90635ceff9d35d69f80da350df1e6ea0610657dd",
+      "CURRENT_HEAD_SHA": "90635ceff9d35d69f80da350df1e6ea0610657dd",
+      "FENCING_TOKEN": 1,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_CANONICAL_FIELD_GATEWAY_ACTIVE",
+      "IMPLEMENTATION_BRANCH": "prototype/modern-3d",
+      "LANE_ID": "field",
+      "LAST_HEARTBEAT_AT": "2026-09-20T01:38:17.454865Z",
+      "LEASE_EPOCH": 1,
+      "LEASE_STATUS": "ACTIVE",
+      "LEASE_UNTIL": "2026-09-20T01:48:17.454856Z",
+      "OWNER_RUN_ID": "cutover-field-admin-canary-20260920-v1",
+      "PARENT_ISSUE": 12,
+      "PRODUCTION_ENABLED": true,
+      "PROGRAM_ID": "LQ-MODERN-3D-VISUAL-PROTOTYPE-20260911-V2",
+      "ROUTER_COMMENT_ID": 5646492352,
+      "schema": "LUKE_QUEST_CANONICAL_FIELD_LEASE:v1"
+    },
+    "status": "LEASE_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "e6dbdcee14b9998f97f21bc8c6f0d6d67d1ad7c5",
+  "source_commit_sha": "f65a21b888164e9baea5f8457524021fc717f34a",
+  "source_path": "field-requests/cutover-field-acquire-20260920-v1.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
