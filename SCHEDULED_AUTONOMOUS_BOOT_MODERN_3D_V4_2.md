@@ -24,6 +24,26 @@ GitHub connector / GitHub API are allowed.
 Do not silently substitute RDC for a missing browser, local shell, local filesystem, renderer, or asset-production capability.
 If a capability is unavailable without RDC, record the exact limitation in M00 and continue all safe work that does not require it.
 
+## 0.5 CANONICAL FIELD GATEWAY TRANSPORT
+
+Persistent mutation for the active Modern 3D canonical field program is transported through:
+
+`docs/autonomy/LUKE_QUEST_CANONICAL_FIELD_GATEWAY_AGENT_PROTOCOL_v1.md`
+
+This changes mutation transport only. It does not change Parent #12, WORK_PACKET_ROUTER:v1, current Work Packet authority, acceptance criteria, visual authority, or fail routing.
+
+Scheduled Agent direct persistent write to `nisiyasu/-luke-quest` is intentionally unavailable.
+A direct write response of `403 Resource not accessible by integration` is therefore expected boundary behavior and is not a blocker and not a reason to request write permission restoration.
+
+For implementation / Issue / router mutations:
+- fresh-read Target Repository normally;
+- write immutable drafts only to `nisiyasu/luke-env-gateway-requests:field-inbox/`;
+- wait for the canonical field Gateway terminal receipt;
+- continue using the receipt's Lease Epoch / applied HEAD / result.
+
+Do not bypass this transport with RDC, alternate credentials, or a second direct writer.
+The canonical field Gateway may mutate only `prototype/modern-3d`, fresh router-selected Current Packet state/comments, and fixed router comment `5646492352` under its Lease/Epoch/Fencing rules.
+
 ## 1. BOOT CONTRACT
 
 At runtime, perform these four stages in order and do not collapse them into a verbal claim.
@@ -53,6 +73,7 @@ Global execution and safety authority:
 - `CURRENT.md`
 
 Modern 3D program authority:
+- `docs/autonomy/LUKE_QUEST_CANONICAL_FIELD_GATEWAY_AGENT_PROTOCOL_v1.md`
 - Parent Issue `#12` entire current body
 - Parent Issue `#12` relevant current comments, if any
 - `experiment/gold-vertical-slice:docs/modern-3d/LUKE_QUEST_MODERN_3D_EXECUTION_PLAN_v2.md` through physical EOF / complete file
