@@ -1,0 +1,37 @@
+{
+  "lane_id": "field",
+  "ok": true,
+  "operation_id": "cutover-field-implementation-write-op-20260920-v1",
+  "processed_at": "2026-09-20T01:43:15.274135Z",
+  "request_id": "cutover-field-implementation-write-20260920-v1",
+  "request_sha256": "a275f6a67ecc02628836aa644edb53807810da08ae15ada84a9ef648a14a681c",
+  "result": {
+    "APPLIED_HEAD": "540e33b2c98d06d6140c9a768abef03954d46ca8",
+    "CONTENT_SHA256": "e897286c348a72d23216928595a93ec76f87229fbbd3309d6ceddd253cdee87c",
+    "CREATED_AT": "2026-09-20T01:42:59.980123Z",
+    "LANE_ID": "field",
+    "LAST_UPDATED_AT": "2026-09-20T01:43:09.850683Z",
+    "LEASE_EPOCH": 2,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "cutover-field-implementation-write-op-20260920-v1",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "cutover-field-write-canary-20260920-v2",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "37585eaa524d50641ad09a44703cdeb7949e6c1f",
+      "commit_sha": "c24ca453e3f33bf70cb14e2a21f39ca457e2dbbb",
+      "path": "field-requests/cutover-field-implementation-write-20260920-v1.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "cutover-field-implementation-write-20260920-v1",
+    "REQUEST_SHA256": "a275f6a67ecc02628836aa644edb53807810da08ae15ada84a9ef648a14a681c",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "prototype/modern-3d:docs/autonomy/evidence/CANONICAL_FIELD_GATEWAY_IMPLEMENTATION_WRITE_CANARY_v1.txt"
+  },
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "37585eaa524d50641ad09a44703cdeb7949e6c1f",
+  "source_commit_sha": "c24ca453e3f33bf70cb14e2a21f39ca457e2dbbb",
+  "source_path": "field-requests/cutover-field-implementation-write-20260920-v1.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
