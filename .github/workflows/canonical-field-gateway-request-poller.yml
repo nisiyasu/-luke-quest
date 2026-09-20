@@ -1,0 +1,42 @@
+name: LUKE QUEST Canonical Field Gateway Request Poller
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+  issues: write
+  actions: read
+
+concurrency:
+  group: lq-canonical-field-gateway-request-poller
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout canonical gateway implementation
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Clone public request channel snapshot
+        run: |
+          git clone --depth 1 https://github.com/nisiyasu/luke-env-gateway-requests.git "$RUNNER_TEMP/lq-field-requests"
+          git -C "$RUNNER_TEMP/lq-field-requests" rev-parse HEAD
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Poll canonical field requests
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LQ_CANONICAL_FIELD_GATEWAY_PRODUCTION_ENABLED: ${{ vars.LQ_CANONICAL_FIELD_GATEWAY_PRODUCTION_ENABLED }}
+        run: |
+          python tools/canonical_field_gateway/canonical_request_poller.py             --request-checkout "$RUNNER_TEMP/lq-field-requests"

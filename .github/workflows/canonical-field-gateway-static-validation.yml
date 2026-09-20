@@ -1,0 +1,34 @@
+name: LUKE QUEST Canonical Field Gateway Static Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/canonical_field_gateway/**"
+      - "tests/test_canonical_field_gateway_static.py"
+      - ".github/workflows/canonical-field-gateway-static-validation.yml"
+      - ".github/workflows/canonical-field-gateway-request-poller.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile canonical field gateway
+        run: |
+          python -m py_compile             tools/canonical_field_gateway/canonical_gateway.py             tools/canonical_field_gateway/canonical_request_poller.py
+
+      - name: Run canonical field safety tests
+        run: python tests/test_canonical_field_gateway_static.py
