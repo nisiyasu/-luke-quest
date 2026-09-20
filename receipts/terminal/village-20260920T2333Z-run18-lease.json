@@ -1,0 +1,35 @@
+{
+  "lane_id": "village",
+  "ok": true,
+  "operation_id": "village-20260920T2333Z-run18-op01-lease-acquire",
+  "processed_at": "2026-09-20T23:34:34.635712Z",
+  "request_id": "village-20260920T2333Z-run18-lease",
+  "request_sha256": "78bc7ee43e79786064f32e3bebf0fe5131e7fe05794d36e91820e3fc4ecb27ed",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-20T23:34:32.867217Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "b040b0fa8e8ee9b1cbbd075b309c2eac65edce04",
+      "CURRENT_HEAD_SHA": "b040b0fa8e8ee9b1cbbd075b309c2eac65edce04",
+      "FENCING_TOKEN": 6,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_GATEWAY_PRODUCTION_ACTIVE",
+      "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
+      "INITIALIZED_FROM_CONTRACT": "docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md",
+      "LANE_ID": "village",
+      "LAST_HEARTBEAT_AT": "2026-09-20T23:34:32.867246Z",
+      "LEASE_EPOCH": 6,
+      "LEASE_STATUS": "ACTIVE",
+      "LEASE_UNTIL": "2026-09-20T23:44:32.867237Z",
+      "OWNER_RUN_ID": "village-20260920T2333Z-run18",
+      "PRODUCTION_ENABLED": true,
+      "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
+    },
+    "status": "LEASE_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "12a98d121601c83918cebe837e2fd1c2b515c9d3",
+  "source_commit_sha": "356b4bac6cd1bf28cd3e4d5bf530a3b220c26313",
+  "source_path": "requests/village/village-20260920T2333Z-run18-lease.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
