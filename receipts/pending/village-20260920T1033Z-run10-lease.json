@@ -1,0 +1,15 @@
+{
+  "error": "LeaseUnavailable: active lease exists",
+  "lane_id": "village",
+  "ok": false,
+  "operation_id": "village-20260920T1033Z-run10-lease-acquire",
+  "processed_at": "2026-09-20T11:16:32.637233Z",
+  "request_id": "village-20260920T1033Z-run10-lease",
+  "request_sha256": "6e6e8898a4014ebea1495ebd71c39c917dd76e24ad2622ac9ea7e5f59c755064",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "bd6f9990082a9cd8cc6eba4f2b1ad1d4effd2420",
+  "source_commit_sha": "8b1fbef58db7427dfad9954a3cb0a98ba8d444a1",
+  "source_path": "requests/village/village-20260920T1033Z-run10-lease.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
