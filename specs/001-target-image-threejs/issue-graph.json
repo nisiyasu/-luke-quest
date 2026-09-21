@@ -1,0 +1,187 @@
+{
+  "parent": {
+    "title": "AI見本画像→iPhone高精細3Dゲーム画面 再構築 v1",
+    "draft": "issue-drafts/PARENT.md"
+  },
+  "subissues": [
+    {
+      "key": "00-planning-durability",
+      "title": "Spec Kit計画耐久化・工程正本固定",
+      "tasks": "T001-T004",
+      "gate": "Planning",
+      "draft": "issue-drafts/00-planning-durability.md"
+    },
+    {
+      "key": "01-safe-reset",
+      "title": "安全な作り直し・旧視覚実装退避",
+      "tasks": "T005-T012",
+      "gate": "G0",
+      "draft": "issue-drafts/01-safe-reset.md"
+    },
+    {
+      "key": "02-g0-reference",
+      "title": "G0 見本画像・ランドマーク・証拠基盤",
+      "tasks": "T013-T024",
+      "gate": "G0",
+      "draft": "issue-drafts/02-g0-reference.md"
+    },
+    {
+      "key": "03-technical-spike",
+      "title": "Three.js / WebGPU 技術実証",
+      "tasks": "T025-T035",
+      "gate": "G0",
+      "draft": "issue-drafts/03-technical-spike.md"
+    },
+    {
+      "key": "04-g1-whitebox",
+      "title": "G1 ホワイトボックス構図",
+      "tasks": "T036-T048",
+      "gate": "G1",
+      "draft": "issue-drafts/04-g1-whitebox.md"
+    },
+    {
+      "key": "05-g2-3d-validity",
+      "title": "G2 3D成立性・複数視点",
+      "tasks": "T049-T054",
+      "gate": "G2",
+      "draft": "issue-drafts/05-g2-3d-validity.md"
+    },
+    {
+      "key": "06-g3-model-material",
+      "title": "G3 モデル・材質",
+      "tasks": "T055-T060",
+      "gate": "G3",
+      "draft": "issue-drafts/06-g3-model-material.md"
+    },
+    {
+      "key": "07-g4-lighting",
+      "title": "G4 照明・色",
+      "tasks": "T061-T066",
+      "gate": "G4",
+      "draft": "issue-drafts/07-g4-lighting.md"
+    },
+    {
+      "key": "08-g5-background",
+      "title": "G5 背景・装飾",
+      "tasks": "T067-T071",
+      "gate": "G5",
+      "draft": "issue-drafts/08-g5-background.md"
+    },
+    {
+      "key": "09-g6-iphone",
+      "title": "G6 iPhone実機・性能・ライフサイクル",
+      "tasks": "T072-T086",
+      "gate": "G6",
+      "draft": "issue-drafts/09-g6-iphone.md"
+    },
+    {
+      "key": "10-g7-convergence",
+      "title": "G7 最終視覚収束",
+      "tasks": "T087-T094",
+      "gate": "G7",
+      "draft": "issue-drafts/10-g7-convergence.md"
+    },
+    {
+      "key": "11-work-graph",
+      "title": "Taskstoissues・Sub-issues・Dependencies・Projects v2",
+      "tasks": "T095-T101",
+      "gate": "WorkGraph",
+      "draft": "issue-drafts/11-work-graph.md"
+    },
+    {
+      "key": "12-extension",
+      "title": "必要なSpec Kit Extension",
+      "tasks": "T102-T104",
+      "gate": "WorkGraph",
+      "draft": "issue-drafts/12-extension.md"
+    },
+    {
+      "key": "13-agent-implementation",
+      "title": "Agent実装・Test・CI・Review",
+      "tasks": "T105-T108",
+      "gate": "WorkGraph",
+      "draft": "issue-drafts/13-agent-implementation.md"
+    },
+    {
+      "key": "14-converge",
+      "title": "Converge最終収束",
+      "tasks": "T109-T114",
+      "gate": "Converge",
+      "draft": "issue-drafts/14-converge.md"
+    }
+  ],
+  "dependencies": [
+    [
+      "01-safe-reset",
+      "00-planning-durability"
+    ],
+    [
+      "02-g0-reference",
+      "01-safe-reset"
+    ],
+    [
+      "03-technical-spike",
+      "01-safe-reset"
+    ],
+    [
+      "04-g1-whitebox",
+      "02-g0-reference"
+    ],
+    [
+      "04-g1-whitebox",
+      "03-technical-spike"
+    ],
+    [
+      "05-g2-3d-validity",
+      "04-g1-whitebox"
+    ],
+    [
+      "06-g3-model-material",
+      "05-g2-3d-validity"
+    ],
+    [
+      "07-g4-lighting",
+      "06-g3-model-material"
+    ],
+    [
+      "08-g5-background",
+      "07-g4-lighting"
+    ],
+    [
+      "09-g6-iphone",
+      "03-technical-spike"
+    ],
+    [
+      "09-g6-iphone",
+      "08-g5-background"
+    ],
+    [
+      "10-g7-convergence",
+      "08-g5-background"
+    ],
+    [
+      "10-g7-convergence",
+      "09-g6-iphone"
+    ],
+    [
+      "11-work-graph",
+      "02-g0-reference"
+    ],
+    [
+      "12-extension",
+      "11-work-graph"
+    ],
+    [
+      "13-agent-implementation",
+      "12-extension"
+    ],
+    [
+      "14-converge",
+      "10-g7-convergence"
+    ],
+    [
+      "14-converge",
+      "13-agent-implementation"
+    ]
+  ]
+}
