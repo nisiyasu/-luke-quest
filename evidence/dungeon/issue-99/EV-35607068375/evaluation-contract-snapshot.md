@@ -1,0 +1,1 @@
+TEST ONLY contract snapshot
