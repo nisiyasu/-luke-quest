@@ -64,7 +64,7 @@ class PublicRequestRepo:
                 and path.endswith(".json")
             ):
                 parts = path.split("/")
-                if len(parts) == 3 and parts[1] in {"village", "castle", "dungeon"}:
+                if len(parts) == 3 and parts[1] in {"village", "castle", "dungeon", "visual-rebuild"}:
                     out.append(
                         {
                             "path": path,
@@ -105,7 +105,7 @@ class LocalRequestRepo:
         for path in sorted(self.root.glob("requests/*/*.json")):
             rel = path.relative_to(self.root).as_posix()
             parts = rel.split("/")
-            if len(parts) != 3 or parts[1] not in {"village", "castle", "dungeon"}:
+            if len(parts) != 3 or parts[1] not in {"village", "castle", "dungeon", "visual-rebuild"}:
                 continue
             blob_sha = self._git("rev-parse", f"HEAD:{rel}")
             content = path.read_bytes()

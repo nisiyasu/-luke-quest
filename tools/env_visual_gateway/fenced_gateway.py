@@ -53,6 +53,15 @@ ALLOWED_LANES = {
         "target_path": "references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png",
         "target_blob_sha": "198d0f5f3da115b70218ae8180d5f8363d744959",
     },
+    "visual-rebuild": {
+        "parent": 101,
+        "children": set(range(102, 117)),
+        "implementation_branch": "experiment/target-image-threejs-v1",
+        "control_branch": "control/lease-visual-rebuild",
+        "target_source_commit_sha": "90635ceff9d35d69f80da350df1e6ea0610657dd",
+        "target_path": "assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png",
+        "target_blob_sha": "b7281e6580689a7a22cfa3b67d500950e4af7285",
+    },
 }
 EVIDENCE_BRANCH = "evidence/visual-verification"
 LEASE_PATH = "lease-state.json"
