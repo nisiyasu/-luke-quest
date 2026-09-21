@@ -1,32 +1,3 @@
-<!--
-Sync Impact Report
-==================
-Version change: (unfilled template) → 1.0.0
-Bump rationale: Initial ratification. No prior ratified version existed; the file held
-only the unfilled core scaffold.
-
-Modified principles: N/A (initial adoption)
-
-Added sections:
-- Core Principles (six principles, replacing the five-slot scaffold):
-  I. Exact Target Authority
-  II. Composition Before Detail
-  III. Coordinate and Anchor Discipline
-  IV. Evidence-Gated Acceptance
-  V. Playable Scene, Not a Poster
-  VI. Fail Closed and Route Back
-- Scope and Authority Constraints (SECTION_2)
-- Verification Workflow and Gates (SECTION_3)
-- Governance
-
-Removed sections: None (scaffold placeholders only)
-
-Templates requiring alignment: none modified by this command. Dependent templates
-(spec, plan, tasks) read this constitution at runtime.
-
-Follow-up TODOs: None. All placeholders resolved from user input.
--->
-
 # LUKE QUEST Visual Reconstruction Planning Constitution
 
 ## Core Principles
