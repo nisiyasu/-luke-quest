@@ -1,0 +1,173 @@
+{
+  "schema": "LQ_VISUAL_REBUILD_ISSUE_NUMBERS:v2",
+  "repository": "nisiyasu/-luke-quest",
+  "feature_ref": "spec/target-image-to-threejs-20260921",
+  "spec_commit": "88694c2812c18938c8d72db3c5933b3efba2e428",
+  "project": {
+    "owner": "nisiyasu",
+    "number": 2,
+    "url": "https://github.com/users/nisiyasu/projects/2",
+    "title": "LUKE QUEST 視覚再構築 v1"
+  },
+  "parent": {
+    "number": 101,
+    "title": "AI見本画像→iPhone高精細3Dゲーム画面 再構築 v1",
+    "priority": "P0",
+    "gate": null,
+    "lane": "Visual Rebuild",
+    "work_type": "Management",
+    "owner_attention": "Review"
+  },
+  "subissues": [
+    {
+      "key": "00-planning-durability",
+      "number": 102,
+      "title": "Spec Kit計画耐久化・工程正本固定",
+      "priority": "P0",
+      "gate": null,
+      "lane": "Visual Rebuild",
+      "work_type": "Planning",
+      "owner_attention": "No"
+    },
+    {
+      "key": "01-safe-reset",
+      "number": 103,
+      "title": "安全な作り直し・旧視覚実装退避",
+      "priority": "P0",
+      "gate": "G0",
+      "lane": "Visual Rebuild",
+      "work_type": "Infrastructure",
+      "owner_attention": "No"
+    },
+    {
+      "key": "02-g0-reference",
+      "number": 104,
+      "title": "G0 見本画像・ランドマーク・証拠基盤",
+      "priority": "P0",
+      "gate": "G0",
+      "lane": "Visual Rebuild",
+      "work_type": "Verification",
+      "owner_attention": "No"
+    },
+    {
+      "key": "03-technical-spike",
+      "number": 105,
+      "title": "Three.js / WebGPU 技術実証",
+      "priority": "P0",
+      "gate": "G0",
+      "lane": "Visual Rebuild",
+      "work_type": "Runtime",
+      "owner_attention": "No"
+    },
+    {
+      "key": "04-g1-whitebox",
+      "number": 106,
+      "title": "G1 ホワイトボックス構図",
+      "priority": "P0",
+      "gate": "G1",
+      "lane": "Visual Rebuild",
+      "work_type": "Scene",
+      "owner_attention": "No"
+    },
+    {
+      "key": "05-g2-3d-validity",
+      "number": 107,
+      "title": "G2 3D成立性・複数視点",
+      "priority": "P1",
+      "gate": "G2",
+      "lane": "Visual Rebuild",
+      "work_type": "Scene",
+      "owner_attention": "No"
+    },
+    {
+      "key": "06-g3-model-material",
+      "number": 108,
+      "title": "G3 モデル・材質",
+      "priority": "P1",
+      "gate": "G3",
+      "lane": "Visual Rebuild",
+      "work_type": "Art",
+      "owner_attention": "No"
+    },
+    {
+      "key": "07-g4-lighting",
+      "number": 109,
+      "title": "G4 照明・色",
+      "priority": "P1",
+      "gate": "G4",
+      "lane": "Visual Rebuild",
+      "work_type": "Art",
+      "owner_attention": "No"
+    },
+    {
+      "key": "08-g5-background",
+      "number": 110,
+      "title": "G5 背景・装飾",
+      "priority": "P1",
+      "gate": "G5",
+      "lane": "Visual Rebuild",
+      "work_type": "Art",
+      "owner_attention": "No"
+    },
+    {
+      "key": "09-g6-iphone",
+      "number": 111,
+      "title": "G6 iPhone実機・性能・ライフサイクル",
+      "priority": "P0",
+      "gate": "G6",
+      "lane": "Visual Rebuild",
+      "work_type": "Runtime",
+      "owner_attention": "Review"
+    },
+    {
+      "key": "10-g7-convergence",
+      "number": 112,
+      "title": "G7 最終視覚収束",
+      "priority": "P0",
+      "gate": "G7",
+      "lane": "Visual Rebuild",
+      "work_type": "Verification",
+      "owner_attention": "Review"
+    },
+    {
+      "key": "11-work-graph",
+      "number": 113,
+      "title": "Taskstoissues・Sub-issues・Dependencies・Projects v2",
+      "priority": "P0",
+      "gate": "WorkGraph",
+      "lane": "Visual Rebuild",
+      "work_type": "Management",
+      "owner_attention": "No"
+    },
+    {
+      "key": "12-extension",
+      "number": 114,
+      "title": "必要なSpec Kit Extension",
+      "priority": "P0",
+      "gate": "WorkGraph",
+      "lane": "Visual Rebuild",
+      "work_type": "Infrastructure",
+      "owner_attention": "No"
+    },
+    {
+      "key": "13-agent-implementation",
+      "number": 115,
+      "title": "Agent実装・Test・CI・Review",
+      "priority": "P0",
+      "gate": "WorkGraph",
+      "lane": "Visual Rebuild",
+      "work_type": "Management",
+      "owner_attention": "No"
+    },
+    {
+      "key": "14-converge",
+      "number": 116,
+      "title": "Converge最終収束",
+      "priority": "P0",
+      "gate": "Converge",
+      "lane": "Visual Rebuild",
+      "work_type": "Verification",
+      "owner_attention": "Review"
+    }
+  ]
+}
