@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-21T10:36:07.041252Z",
+  "LANE_ID": "village",
+  "LAST_UPDATED_AT": "2026-09-21T10:36:07.041273Z",
+  "LEASE_EPOCH": 15,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "run27-impl-coordinate-audit",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "village-20260921T1033Z-run27",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "9b72d78f366642d52377ddce3c899e1a87a6b0a3",
+    "commit_sha": "8e79a88093fbcfdd826164f765b031e54a397582",
+    "path": "requests/village/village-20260921T1035Z-run27-impl-coordinate-audit.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "village-20260921T1035Z-run27-impl-coordinate-audit",
+  "REQUEST_SHA256": "41d15fdf6e2b751e3200b85db5a7ba383d45eb62b3a7335b5cd71c3c6209c9d4",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "environment/village:prototypes/modern-3d/village-g0.html"
+}
