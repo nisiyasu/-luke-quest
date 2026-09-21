@@ -1,6 +1,6 @@
 {
   "ACQUIRED_AT": "2026-09-21T13:44:16.726272Z",
-  "ACTIVE_OPERATION_ID": null,
+  "ACTIVE_OPERATION_ID": "visual-rebuild-canary-write-op",
   "BASE_HEAD_SHA": "540e33b2c98d06d6140c9a768abef03954d46ca8",
   "CURRENT_HEAD_SHA": "540e33b2c98d06d6140c9a768abef03954d46ca8",
   "FENCING_TOKEN": 1,
@@ -8,6 +8,7 @@
   "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
   "INITIALIZED_FROM_CONTRACT": "specs/001-target-image-threejs/DEVELOPMENT_PIPELINE_v1.md",
   "LANE_ID": "visual-rebuild",
+  "LAST_GATEWAY_ACCEPTED_AT": "2026-09-21T13:45:43.970551Z",
   "LAST_HEARTBEAT_AT": "2026-09-21T13:44:16.726303Z",
   "LEASE_EPOCH": 1,
   "LEASE_STATUS": "ACTIVE",
