@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "visual-rebuild-canary-write-op",
+  "processed_at": "2026-09-21T13:46:00.792911Z",
+  "request_id": "visual-rebuild-canary-write-20260921T1345Z",
+  "request_sha256": "e0a1773246d37cfb868519c8e455b25d308756a14ae8a138bd53d289fc880cb5",
+  "result": {
+    "APPLIED_HEAD": "41c157c9d7603f30bcc597069af474508915d447",
+    "CONTENT_SHA256": "64cd122eb201f46bdf3959d6c471ba53a9ee9c1fae02a169bdd717ded96e5bbd",
+    "CREATED_AT": "2026-09-21T13:45:43.970532Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-21T13:45:54.893398Z",
+    "LEASE_EPOCH": 1,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "visual-rebuild-canary-write-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "visual-rebuild-canary-20260921T1345Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "1b1084d467b056970b549b77bb73c396c0f088cf",
+      "commit_sha": "28a8573fde18545e12c6e931eca606b06f405e3c",
+      "path": "requests/visual-rebuild/visual-rebuild-canary-write-20260921T1345Z.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "visual-rebuild-canary-write-20260921T1345Z",
+    "REQUEST_SHA256": "e0a1773246d37cfb868519c8e455b25d308756a14ae8a138bd53d289fc880cb5",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "experiment/target-image-threejs-v1:docs/autonomy/evidence/VISUAL_REBUILD_GATEWAY_CANARY_v1.txt"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "1b1084d467b056970b549b77bb73c396c0f088cf",
+  "source_commit_sha": "28a8573fde18545e12c6e931eca606b06f405e3c",
+  "source_path": "requests/visual-rebuild/visual-rebuild-canary-write-20260921T1345Z.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
