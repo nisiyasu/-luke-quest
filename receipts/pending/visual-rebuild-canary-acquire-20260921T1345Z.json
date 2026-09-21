@@ -1,0 +1,15 @@
+{
+  "error": "JSONDecodeError: Extra data: line 18 column 2 (char 669)",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "visual-rebuild-canary-acquire-op",
+  "processed_at": "2026-09-21T13:43:00.459410Z",
+  "request_id": "visual-rebuild-canary-acquire-20260921T1345Z",
+  "request_sha256": "f35764a79264adedd87e5431cb26c7903c5687da748d9a80cd094cfcb0efb8b8",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "34630f0e1f22f714f4b410f1d4c972608816ec2b",
+  "source_commit_sha": "e0a2458dfb03b9065e81fba34b13814b8a648305",
+  "source_path": "requests/visual-rebuild/visual-rebuild-canary-acquire-20260921T1345Z.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
