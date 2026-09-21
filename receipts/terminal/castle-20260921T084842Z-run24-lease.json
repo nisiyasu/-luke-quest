@@ -1,0 +1,35 @@
+{
+  "lane_id": "castle",
+  "ok": true,
+  "operation_id": "castle-20260921T084842Z-run24-op01-lease-acquire",
+  "processed_at": "2026-09-21T08:49:51.572366Z",
+  "request_id": "castle-20260921T084842Z-run24-lease",
+  "request_sha256": "39bf8835ecd498f5d21947b8d602337e9d763ea14495f745bb0e9a68c5d899f9",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-21T08:49:48.955449Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "6512e08e5c7524ed34b5dac9fa83581ec11a1b32",
+      "CURRENT_HEAD_SHA": "6512e08e5c7524ed34b5dac9fa83581ec11a1b32",
+      "FENCING_TOKEN": 11,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_GATEWAY_PRODUCTION_ACTIVE",
+      "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
+      "INITIALIZED_FROM_CONTRACT": "docs/autonomy/LUKE_QUEST_ENV_VISUAL_VERIFICATION_CONTRACT_v1.md",
+      "LANE_ID": "castle",
+      "LAST_HEARTBEAT_AT": "2026-09-21T08:49:48.955484Z",
+      "LEASE_EPOCH": 11,
+      "LEASE_STATUS": "ACTIVE",
+      "LEASE_UNTIL": "2026-09-21T08:59:48.955474Z",
+      "OWNER_RUN_ID": "castle-20260921T084842Z-run24",
+      "PRODUCTION_ENABLED": true,
+      "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
+    },
+    "status": "LEASE_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "42e503ed826ed612cd37ad6e7eb901e85c0714b3",
+  "source_commit_sha": "90c100106005b7b4d05ca212fcd333a8f63fd179",
+  "source_path": "requests/castle/castle-20260921T084842Z-run24-lease.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
