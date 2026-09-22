@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-22T23:45:09.880113Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-22T23:45:09.880130Z",
+  "LEASE_EPOCH": 26,
+  "MUTATION_TYPE": "ISSUE_CLOSE",
+  "OPERATION_ID": "control-t011-20260922T233515Z-close-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-t011-20260922T233515Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "b3287d6c8df3f6ac34025b8d689d38f5b33836de",
+    "commit_sha": "d8ede5af509af8680e085b351f82d5a5b6043acf",
+    "path": "requests/visual-rebuild/control-t011-20260922T233515Z-close.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-t011-20260922T233515Z-close",
+  "REQUEST_SHA256": "b681766eca585b190dde2d064034d5facdc869b2d21caffe2d4fc3c35d0df77a",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "issue-124"
+}
