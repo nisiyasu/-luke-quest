@@ -56,6 +56,7 @@ ALLOWED_LANES = {
     "visual-rebuild": {
         "parent": 101,
         "children": set(range(102, 117)),
+        "allow_descendants": True,
         "implementation_branch": "experiment/target-image-threejs-v1",
         "control_branch": "control/lease-visual-rebuild",
         "target_source_commit_sha": "90635ceff9d35d69f80da350df1e6ea0610657dd",
@@ -328,10 +329,42 @@ class Gateway:
         if actual_blob != expected_blob:
             raise RequestRejected(f"target authority blob mismatch actual={actual_blob} expected={expected_blob}")
 
+    def _is_issue_descendant(
+        self, issue: int, root: int, *, max_depth: int = 8
+    ) -> bool:
+        current = int(issue)
+        seen: set[int] = set()
+        for _ in range(max_depth + 1):
+            if current == int(root):
+                return True
+            if current in seen:
+                raise RequestRejected(
+                    f"issue ancestry cycle detected at issue {current}"
+                )
+            seen.add(current)
+            data = self.gh.issue(current)
+            parent_url = data.get("parent_issue_url")
+            if not parent_url:
+                return False
+            try:
+                current = int(str(parent_url).rstrip("/").rsplit("/", 1)[-1])
+            except (TypeError, ValueError) as exc:
+                raise RequestRejected(
+                    f"invalid parent_issue_url for issue {current}: {parent_url}"
+                ) from exc
+        raise RequestRejected(
+            f"issue ancestry exceeds max depth={max_depth} from issue {issue}"
+        )
+
     def _assert_issue_allowed(self, lane_id: str, issue: int) -> None:
         cfg = self.lane_cfg(lane_id)
-        if issue != cfg["parent"] and issue not in cfg["children"]:
-            raise RequestRejected(f"issue {issue} outside lane allowlist")
+        if issue == cfg["parent"] or issue in cfg["children"]:
+            return
+        if cfg.get("allow_descendants") and self._is_issue_descendant(
+            issue, cfg["parent"]
+        ):
+            return
+        raise RequestRejected(f"issue {issue} outside lane allowlist")
 
     def _lease_valid(self, lease: dict, req: dict, *, require_active: bool = True) -> None:
         if require_active and lease.get("LEASE_STATUS") != ACTIVE:
