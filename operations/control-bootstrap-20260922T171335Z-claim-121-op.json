@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-22T17:16:28.984896Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-22T17:16:28.984925Z",
+  "LEASE_EPOCH": 20,
+  "MUTATION_TYPE": "ISSUE_COMMENT",
+  "OPERATION_ID": "control-bootstrap-20260922T171335Z-claim-121-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-bootstrap-20260922T171335Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "1c071305d6a86241040a4f637b242ee20634c2af",
+    "commit_sha": "31a9a72f20c6317cc764ae87cb5b750801507ad9",
+    "path": "requests/visual-rebuild/control-bootstrap-20260922T171335Z-claim-121.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-bootstrap-20260922T171335Z-claim-121",
+  "REQUEST_SHA256": "417c81c448d5ea3ac4bdfbed7d08ed6d58ecffd129c5616afdef7855c84294f4",
+  "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+  "TARGET_RESOURCE": "issue-121"
+}
