@@ -1,0 +1,25 @@
+{
+  "schema": "LQ_GRAPHITI_SYNC_EVENT_V1",
+  "required": [
+    "event_id",
+    "group_id",
+    "event_kind",
+    "source_repository",
+    "source_ref",
+    "source_locator",
+    "observed_at",
+    "valid_at",
+    "content",
+    "content_sha256"
+  ],
+  "event_id_rule": "sha256(group_id|source_repository|source_ref|event_kind|valid_at|content_sha256)",
+  "immutability": "event file MUST NOT be edited after fresh readback",
+  "writer": "CONTROL_ONLY",
+  "forbidden_content": [
+    "PAT",
+    "password",
+    "secret",
+    "private credential",
+    "unnecessary personal or sensitive data"
+  ]
+}

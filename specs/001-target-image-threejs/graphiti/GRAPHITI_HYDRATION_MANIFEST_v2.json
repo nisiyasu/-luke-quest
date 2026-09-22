@@ -1,0 +1,44 @@
+{
+  "schema": "LQ_GRAPHITI_HYDRATION_MANIFEST_V2",
+  "group_id": "luke-quest-visual-rebuild-v1",
+  "generated_at": "2026-09-22T22:23:49.8793606+09:00",
+  "version_pins": {
+    "wrapper": "2.0.0",
+    "graphiti-core": "0.30.2",
+    "neo4j": "6.3.1",
+    "httpx": "0.28.1",
+    "pydantic": "2.13.5"
+  },
+  "database_mode": "single configured Neo4j database + explicit group_id filtering",
+  "files": {
+    "LUKE_QUEST_GRAPHITI_HYDRATION_HYBRID_CONTRACT_v2.md": {
+      "sha256": "e7975b3bd5208f84b3d05976ccf55fd9acd139265b60ad197e8ea2bef8a07c0f",
+      "size": 9733
+    },
+    "luke_quest_visual_rebuild_seed_v2.json": {
+      "sha256": "7102690172d67c251e8cdbff9534f83de7f9c06d9fb97d4aaddf2643de8a0154",
+      "size": 9752
+    },
+    "chatgpt_graphiti_wrapper_v2.py": {
+      "sha256": "85e3dc094c6fdfa94c89fbb165dd488f06472703bb2dc7365fb4916d44c00572",
+      "size": 17617
+    },
+    "requirements-lock-v2.txt": {
+      "sha256": "efefbfd650b24add7d53b647562de33ad0d6ece8d4661319e8fb6cf6c18cefd0",
+      "size": 66
+    },
+    "GRAPHITI_SYNC_EVENT_SCHEMA_v1.json": {
+      "sha256": "548edff3c7d44dc4507112d8d95b71258a72270d0792cd5f708f23dcf8f22a21",
+      "size": 596
+    },
+    "GRAPHITI_SYNC_RECEIPT_SCHEMA_v1.json": {
+      "sha256": "70694b8191fd611f9e426f5520812dc7b139f5319b11a5d31ba79907a7c82dc8",
+      "size": 425
+    },
+    "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_v3_20260922.md": {
+      "sha256": "f37f8eb6c7f3e253b82d5ab919b9fcba46e001d17c94a527f63aa2d8e9101cfa",
+      "size": 9626
+    }
+  },
+  "integrity_rule": "all listed SHA256 values must match before local Graphiti rebuild"
+}

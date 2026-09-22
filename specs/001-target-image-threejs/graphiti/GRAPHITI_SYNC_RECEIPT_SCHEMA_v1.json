@@ -1,0 +1,14 @@
+{
+  "schema": "LQ_GRAPHITI_SYNC_RECEIPT_V1",
+  "required": [
+    "event_id",
+    "group_id",
+    "synced_at",
+    "wrapper_version",
+    "graphiti_core_version",
+    "graphiti_readback_status"
+  ],
+  "immutability": "receipt file MUST NOT be edited after fresh readback",
+  "success_rule": "event exists + Graphiti write succeeded + Graphiti readback succeeded",
+  "pending_rule": "event exists and receipt does not exist"
+}
