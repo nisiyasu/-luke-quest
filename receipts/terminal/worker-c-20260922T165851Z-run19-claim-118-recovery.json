@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: issue 118 outside lane allowlist",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-c-20260922T165851Z-run19-claim-118-recovery-op",
+  "processed_at": "2026-09-22T17:05:58.387478Z",
+  "request_id": "worker-c-20260922T165851Z-run19-claim-118-recovery",
+  "request_sha256": "c144f69d878a426a54096b8090e8f3425781bdc4369deac69cf86d079c81f905",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "4959cce2bdfd5dc55d00aabc5eb6ddb19ce3fbf2",
+  "source_commit_sha": "5d83d2661635526bb7783af1305ee857818bc22b",
+  "source_path": "requests/visual-rebuild/worker-c-20260922T165851Z-run19-claim-118-recovery.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
