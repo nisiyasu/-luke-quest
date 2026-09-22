@@ -178,7 +178,16 @@ C:\graphiti-poc
 LOCAL_WRAPPER_V2:
 C:\graphiti-poc\scripts\chatgpt_graphiti_wrapper_v2.py
 
+EXTERNAL_ENV:
+C:\graphiti-poc\.env.local
+
+Fresh cloneから実行する場合は:
+--env-file C:\graphiti-poc\.env.local
+または GRAPHITI_ENV_FILE を使用。
+Secret/configをGitHubへ保存しない。
+
 VERSION_PIN:
+- wrapper 2.2.0
 - graphiti-core 0.30.2
 - neo4j 6.3.1
 - httpx 0.28.1
@@ -189,6 +198,12 @@ C:\graphiti-poc\.venv\Scripts\python.exe C:\graphiti-poc\scripts\chatgpt_graphit
 
 History chain:
 C:\graphiti-poc\.venv\Scripts\python.exe C:\graphiti-poc\scripts\chatgpt_graphiti_wrapper_v2.py chain luke-quest-visual-rebuild-v1 --out C:\Temp\lq_graphiti_chain.json
+
+Post-seed durable events:
+C:\graphiti-poc\.venv\Scripts\python.exe C:\graphiti-poc\scripts\chatgpt_graphiti_wrapper_v2.py events luke-quest-visual-rebuild-v1 --limit 100 --out C:\Temp\lq_graphiti_events.json
+
+必要時:
+query-events <term> <group_id>
 
 UTF-8 JSONファイルをread_fileする。
 文字化けしたstdoutはEvidenceとして採用しない。
@@ -211,6 +226,13 @@ graphiti-sync/receipts/<EVENT_ID>.json
 
 Pending:
 eventあり + 同一EVENT_ID receiptなし
+
+重要:
+Receipt済みEventもdisaster rebuildでは必ず再生する。
+Memory branchのEvent log全体がSeed後の再構築元。
+
+REPLAY_TOOL:
+specs/001-target-image-threejs/graphiti/replay_graphiti_sync_events_v1.py
 
 Memory Writer:
 CONTROL_ONLY
@@ -323,6 +345,9 @@ specs/001-target-image-threejs/graphiti/GRAPHITI_HYDRATION_MANIFEST_v3.json
 
 GRAPHITI_VERIFIER:
 specs/001-target-image-threejs/graphiti/verify_graphiti_hydration_bundle_v1.py
+
+GRAPHITI_EVENT_REPLAY:
+specs/001-target-image-threejs/graphiti/replay_graphiti_sync_events_v1.py
 
 GATEWAY_RECEIPTS:
 branch gateway/request-receipts

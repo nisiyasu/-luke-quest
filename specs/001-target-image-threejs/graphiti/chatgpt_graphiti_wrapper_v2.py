@@ -17,12 +17,12 @@ from graphiti_core.nodes import EntityNode, EpisodicNode, EpisodeType
 from graphiti_core.edges import EntityEdge, EpisodicEdge
 
 ROOT = Path(__file__).resolve().parents[1]
-ENV_FILE = ROOT / ".env.local"
+DEFAULT_ENV_FILE = ROOT / ".env.local"
 NS = uuid.UUID("c65bc20a-5096-40de-8a1f-c508639a29c2")
 
 SUPPORTED_GRAPHITI_CORE = "0.30.2"
 SUPPORTED_NEO4J = "6.3.1"
-WRAPPER_VERSION = "2.1.1"
+WRAPPER_VERSION = "2.2.0"
 SEED_SCHEMA = "LQ_GRAPHITI_SEED_V2"
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -42,19 +42,31 @@ def parse_dt(value: str | None, default: datetime | None = None) -> datetime:
     return default or datetime.now(timezone.utc)
 
 
-def load_env() -> dict[str, str]:
+def resolve_env_file(env_file: str | None = None) -> Path:
+    if env_file:
+        return Path(env_file)
+    if os.environ.get("GRAPHITI_ENV_FILE"):
+        return Path(os.environ["GRAPHITI_ENV_FILE"])
+    return DEFAULT_ENV_FILE
+
+
+def load_env(env_file: str | None = None) -> dict[str, str]:
+    path = resolve_env_file(env_file)
     env: dict[str, str] = {}
-    if not ENV_FILE.exists():
-        raise RuntimeError(f"missing env file: {ENV_FILE}")
-    for line in ENV_FILE.read_text(encoding="utf-8-sig").splitlines():
+    if not path.exists():
+        raise RuntimeError(
+            "missing Graphiti env file. Pass --env-file <path> or set GRAPHITI_ENV_FILE. "
+            f"Tried: {path}"
+        )
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
         if "=" in line and not line.lstrip().startswith("#"):
             k, v = line.split("=", 1)
             env[k.strip()] = v.strip()
     return env
 
 
-def make_driver() -> Neo4jDriver:
-    env = load_env()
+def make_driver(env_file: str | None = None) -> Neo4jDriver:
+    env = load_env(env_file)
     return Neo4jDriver(
         env["NEO4J_URI"],
         env.get("NEO4J_USER", "neo4j"),
@@ -140,10 +152,15 @@ def validate_seed(data: dict) -> None:
             raise RuntimeError(f"fact {f.get('key')} invalid_at precedes valid_at")
 
 
-async def embed(client: httpx.AsyncClient, text: str) -> list[float]:
+async def embed(
+    client: httpx.AsyncClient,
+    text: str,
+    embedding_url: str,
+    embedding_model: str,
+) -> list[float]:
     response = await client.post(
-        "http://127.0.0.1:11434/v1/embeddings",
-        json={"model": "nomic-embed-text", "input": text},
+        embedding_url,
+        json={"model": embedding_model, "input": text},
     )
     response.raise_for_status()
     return response.json()["data"][0]["embedding"]
@@ -191,7 +208,7 @@ async def group_counts(driver: Neo4jDriver, group_id: str) -> dict[str, int]:
     }
 
 
-async def ingest(seed_path: Path, out_path: str | None) -> None:
+async def ingest(seed_path: Path, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
     raw = seed_path.read_text(encoding="utf-8")
     data = json.loads(raw)
@@ -202,8 +219,11 @@ async def ingest(seed_path: Path, out_path: str | None) -> None:
         data.get("generated_at"),
         datetime(2026, 9, 22, 13, 30, tzinfo=timezone.utc),
     )
-    driver = make_driver()
+    env = load_env(env_file)
+    driver = make_driver(env_file)
     embedding_client = httpx.AsyncClient(timeout=60.0)
+    embedding_url = env.get("EMBEDDING_URL", "http://127.0.0.1:11434/v1/embeddings")
+    embedding_model = env.get("EMBEDDING_MODEL", "nomic-embed-text")
 
     entity_ids = {
         e["key"]: stable_id(group_id, "entity", e["key"]) for e in data["entities"]
@@ -221,7 +241,10 @@ async def ingest(seed_path: Path, out_path: str | None) -> None:
                 labels=e.get("labels", ["OwnerMemory"]),
                 created_at=seed_generated_at,
                 name_embedding=await embed(
-                    embedding_client, e["name"] + " " + e.get("summary", "")
+                    embedding_client,
+                    e["name"] + " " + e.get("summary", ""),
+                    embedding_url,
+                    embedding_model,
                 ),
                 summary=e.get("summary", ""),
                 attributes={
@@ -267,7 +290,9 @@ async def ingest(seed_path: Path, out_path: str | None) -> None:
                 created_at=seed_generated_at,
                 name=f["name"],
                 fact=f["fact"],
-                fact_embedding=await embed(embedding_client, f["fact"]),
+                fact_embedding=await embed(
+                    embedding_client, f["fact"], embedding_url, embedding_model
+                ),
                 episodes=episode_refs,
                 valid_at=parse_dt(f.get("valid_at"), seed_generated_at),
                 invalid_at=parse_dt(f["invalid_at"]) if f.get("invalid_at") else None,
@@ -321,9 +346,9 @@ async def ingest(seed_path: Path, out_path: str | None) -> None:
         await driver.close()
 
 
-async def query(term: str, group_id: str, out_path: str | None) -> None:
+async def query(term: str, group_id: str, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver()
+    driver = make_driver(env_file)
     q = """
     MATCH (n:Entity {group_id: $group_id})
     OPTIONAL MATCH (n)-[out]->(m:Entity {group_id: $group_id})
@@ -363,9 +388,9 @@ async def query(term: str, group_id: str, out_path: str | None) -> None:
         await driver.close()
 
 
-async def chain(group_id: str, out_path: str | None) -> None:
+async def chain(group_id: str, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver()
+    driver = make_driver(env_file)
     q = """
     MATCH (a:Entity {group_id:$group_id})-[r]->(b:Entity {group_id:$group_id})
     WHERE r.name IN ['LEADS_TO','CURRENT_IS','ACTIVE_INSERT','RETURN_POINT','AUTHORITY_IS','ROLE_IS']
@@ -407,9 +432,9 @@ async def chain(group_id: str, out_path: str | None) -> None:
         await driver.close()
 
 
-async def health(group_id: str, out_path: str | None) -> None:
+async def health(group_id: str, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver()
+    driver = make_driver(env_file)
     try:
         counts = await group_counts(driver, group_id)
         emit(
@@ -426,11 +451,11 @@ async def health(group_id: str, out_path: str | None) -> None:
         await driver.close()
 
 
-async def reset_group(group_id: str, confirm: str, out_path: str | None) -> None:
+async def reset_group(group_id: str, confirm: str, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
     if confirm != group_id:
         raise RuntimeError("reset-group requires --confirm exactly equal to group_id")
-    driver = make_driver()
+    driver = make_driver(env_file)
     try:
         before = await group_counts(driver, group_id)
         await driver.execute_query(
@@ -465,11 +490,11 @@ async def reset_group(group_id: str, confirm: str, out_path: str | None) -> None
 
 
 
-async def sync_event(event_path: Path, out_path: str | None) -> None:
+async def sync_event(event_path: Path, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
     raw = event_path.read_text(encoding="utf-8")
     event = json.loads(raw)
-    if event.get("schema") != "LQ_GRAPHITI_SYNC_EVENT_V1":
+    if event.get("schema") != "LQ_GRAPHITI_SYNC_EVENT_V2":
         raise RuntimeError("unsupported sync event schema")
     required = [
         "event_id","group_id","event_kind","source_repository","source_ref",
@@ -481,14 +506,29 @@ async def sync_event(event_path: Path, out_path: str | None) -> None:
     if sha256_text(event["content"]) != event["content_sha256"]:
         raise RuntimeError("sync event content_sha256 mismatch")
 
+    expected_event_id = sha256_text(
+        "|".join([
+            event["group_id"],
+            event["source_repository"],
+            event["source_ref"],
+            event["event_kind"],
+            event["valid_at"],
+            event["content_sha256"],
+        ])
+    )
+    if event["event_id"] != expected_event_id:
+        raise RuntimeError(
+            f"sync event event_id mismatch: expected {expected_event_id}, got {event['event_id']}"
+        )
+
     group_id = event["group_id"]
-    driver = make_driver()
+    driver = make_driver(env_file)
     try:
         episode_uuid = stable_id(group_id, "sync_event", event["event_id"])
         created_at = parse_dt(event["observed_at"])
         node = EpisodicNode(
             uuid=episode_uuid,
-            name=f"{event['event_kind']}:{event['event_id']}",
+            name=f"SYNC_EVENT:{event['event_kind']}:{event['event_id']}",
             group_id=group_id,
             labels=["OwnerMemoryEpisode","DurableSyncEvent"],
             created_at=created_at,
@@ -520,9 +560,14 @@ async def sync_event(event_path: Path, out_path: str | None) -> None:
         row = rb.records[0].data()
         if row.get("content") != event["content"]:
             raise RuntimeError("sync event readback content mismatch")
+        expected_name = f"SYNC_EVENT:{event['event_kind']}:{event['event_id']}"
+        if row.get("name") != expected_name:
+            raise RuntimeError("sync event readback name mismatch")
+        if row.get("source_description") != event["source_locator"]:
+            raise RuntimeError("sync event readback source locator mismatch")
 
         emit({
-            "schema":"LQ_GRAPHITI_SYNC_RECEIPT_V1",
+            "schema":"LQ_GRAPHITI_SYNC_RECEIPT_V2",
             "status":"SYNC_OK",
             "event_id":event["event_id"],
             "group_id":group_id,
@@ -536,9 +581,9 @@ async def sync_event(event_path: Path, out_path: str | None) -> None:
         await driver.close()
 
 
-async def events(group_id: str, limit: int, out_path: str | None) -> None:
+async def events(group_id: str, limit: int, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver()
+    driver = make_driver(env_file)
     q = """
     MATCH (e:Episodic {group_id:$group_id})
     RETURN e.uuid AS uuid, e.name AS name, e.content AS content,
@@ -561,8 +606,52 @@ async def events(group_id: str, limit: int, out_path: str | None) -> None:
         await driver.close()
 
 
+async def query_events(
+    term: str,
+    group_id: str,
+    limit: int,
+    out_path: str | None,
+    env_file: str | None,
+) -> None:
+    assert_supported_versions()
+    driver = make_driver(env_file)
+    q = """
+    MATCH (e:Episodic {group_id:$group_id})
+    WHERE e.name STARTS WITH 'SYNC_EVENT:'
+      AND (
+        toLower(coalesce(e.content,'')) CONTAINS toLower($term)
+        OR toLower(coalesce(e.source_description,'')) CONTAINS toLower($term)
+        OR toLower(coalesce(e.name,'')) CONTAINS toLower($term)
+      )
+    RETURN e.uuid AS uuid, e.name AS name, e.content AS content,
+           e.source_description AS source_description,
+           toString(e.created_at) AS created_at,
+           toString(e.valid_at) AS valid_at
+    ORDER BY e.valid_at DESC, e.created_at DESC
+    LIMIT $limit
+    """
+    try:
+        result = await driver.execute_query(
+            q, group_id=group_id, term=term, limit=limit
+        )
+        rows = [r.data() for r in result.records]
+        emit({
+            "status":"QUERY_EVENTS_OK",
+            "wrapper_version":WRAPPER_VERSION,
+            "group_id":group_id,
+            "term":term,
+            "rows":rows,
+        }, out_path)
+    finally:
+        await driver.close()
+
+
 async def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--env-file",
+        help="Path to local secret/config env file. Can also use GRAPHITI_ENV_FILE.",
+    )
     sub = ap.add_subparsers(dest="command", required=True)
 
     p_ingest = sub.add_parser("ingest")
@@ -596,22 +685,32 @@ async def main() -> None:
     p_events.add_argument("--limit", type=int, default=20)
     p_events.add_argument("--out")
 
+    p_query_events = sub.add_parser("query-events")
+    p_query_events.add_argument("term")
+    p_query_events.add_argument("group_id")
+    p_query_events.add_argument("--limit", type=int, default=20)
+    p_query_events.add_argument("--out")
+
     args = ap.parse_args()
 
     if args.command == "ingest":
-        await ingest(Path(args.seed), args.out)
+        await ingest(Path(args.seed), args.out, args.env_file)
     elif args.command == "query":
-        await query(args.term, args.group_id, args.out)
+        await query(args.term, args.group_id, args.out, args.env_file)
     elif args.command == "chain":
-        await chain(args.group_id, args.out)
+        await chain(args.group_id, args.out, args.env_file)
     elif args.command == "health":
-        await health(args.group_id, args.out)
+        await health(args.group_id, args.out, args.env_file)
     elif args.command == "reset-group":
-        await reset_group(args.group_id, args.confirm, args.out)
+        await reset_group(args.group_id, args.confirm, args.out, args.env_file)
     elif args.command == "sync-event":
-        await sync_event(Path(args.event), args.out)
+        await sync_event(Path(args.event), args.out, args.env_file)
     elif args.command == "events":
-        await events(args.group_id, args.limit, args.out)
+        await events(args.group_id, args.limit, args.out, args.env_file)
+    elif args.command == "query-events":
+        await query_events(
+            args.term, args.group_id, args.limit, args.out, args.env_file
+        )
 
 
 if __name__ == "__main__":

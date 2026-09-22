@@ -62,6 +62,18 @@ def main() -> int:
                 failures.append(f"secret_pattern:{name}:{pattern.pattern}")
 
     required_pins = manifest.get("version_pins", {})
+
+    wrapper_name = manifest.get("wrapper_file")
+    if wrapper_name:
+        wrapper_text = (root / wrapper_name).read_text(encoding="utf-8")
+        m = re.search(r'^WRAPPER_VERSION\s*=\s*["\']([^"\']+)["\']', wrapper_text, re.MULTILINE)
+        if not m:
+            failures.append("wrapper_version_missing")
+        elif m.group(1) != required_pins.get("wrapper"):
+            failures.append(
+                f"wrapper_version:{m.group(1)}!={required_pins.get('wrapper')}"
+            )
+
     req_name = manifest.get("requirements_lock_file")
     if req_name:
         req = (root / req_name).read_text(encoding="utf-8")

@@ -77,7 +77,7 @@ Graphiti upstreamでgroup_idをdatabase routingへ使う経路にread/write不�
 
 ## 4. Version pin
 
-WRAPPER_VERSION: 2.0.0
+WRAPPER_VERSION: 2.2.0
 GRAPHITI_CORE: 0.30.2
 NEO4J_DRIVER: 6.3.1
 HTTPX: 0.28.1
@@ -112,7 +112,18 @@ specs/001-target-image-threejs/graphiti/GRAPHITI_HYDRATION_MANIFEST_v3.json
 BUNDLE_VERIFIER:
 specs/001-target-image-threejs/graphiti/verify_graphiti_hydration_bundle_v1.py
 
+EVENT_REPLAY:
+specs/001-target-image-threejs/graphiti/replay_graphiti_sync_events_v1.py
+
 ローカルDBを失ってもGitHubだけから再構築可能であること。
+
+再構築順:
+1. Seed投入
+2. MEMORY_SYNC_BRANCHの全Eventをvalid_at / observed_at / event_id順に再生
+3. health / chain / query-events readback
+
+Receiptの有無を理由にEventを再生対象から除外しない。
+Receiptは配信確認であり、Event logは再構築元である。
 
 ## 6. Stable ID / Idempotency
 
@@ -243,6 +254,14 @@ event / receiptはappend-only。
 
 ## 13. Graphiti検索規則
 
+Baseline causal chain:
+chain command
+
+Seed作成後のdurable changes:
+events / query-events command
+
+Hydrationはbaseline chainだけでなく、Memory branch EventとGraphiti sync eventsも確認する。
+
 禁止:
 - 「今READYは何？」
 - 「今のAuthorityは何？」
@@ -265,9 +284,29 @@ Hydrationへ採用する重要Factは可能な限り:
 
 provenance無しFactは補助扱い。
 
-## 15. UTF-8 / portability
+## 15. UTF-8 / portability / external config
 
 Wrapperは--outでUTF-8 JSONをatomic writeする。
+
+Secret/configはGitHubへ保存しない。
+Fresh cloneからWrapperを使う場合:
+- --env-file <local-path>
+または
+- GRAPHITI_ENV_FILE
+を使う。
+
+env file必須:
+- NEO4J_URI
+- NEO4J_USER
+- NEO4J_PASSWORD
+
+optional:
+- EMBEDDING_URL
+- EMBEDDING_MODEL
+
+既定:
+- EMBEDDING_URL=http://127.0.0.1:11434/v1/embeddings
+- EMBEDDING_MODEL=nomic-embed-text
 
 RDC/PowerShell stdoutの文字化け結果をMemory evidenceへ採用しない。
 
@@ -294,13 +333,20 @@ Handoff START/END markerは各1回のみ。
 
 最低限:
 1. clean temporary directoryへspec branchをfresh clone/fetch
-2. Manifest integrity検証
-3. Test groupへSeed投入
-4. 同Seedを2回投入
-5. count不変確認
-6. invalid_at確認
-7. provenance確認
-8. Test group cleanup
+2. MEMORY_SYNC_BRANCHもfresh取得
+3. Manifest integrity検証
+4. external env fileを明示指定
+5. Test groupへSeed投入
+6. 同Seedを2回投入
+7. Memory Eventを全件replay
+8. replayを再実行してもcount不変確認
+9. invalid_at確認
+10. episode provenance確認
+11. query-eventsでpost-seed Event検索確認
+12. Test group cleanup
+
+actual groupの本番復旧では:
+Seed → 全Event replay が完全な再構築単位。
 
 ローカル既存ファイルだけでPASS判定しない。
 
