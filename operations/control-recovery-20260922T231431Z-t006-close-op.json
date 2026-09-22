@@ -1,11 +1,19 @@
 {
+  "COMPLETION_EVIDENCE": [
+    "archive_sha=540e33b2c98d06d6140c9a768abef03954d46ca8",
+    "restored_head=540e33b2c98d06d6140c9a768abef03954d46ca8",
+    "detached_worktree_clean=true",
+    "restored_index_html=true"
+  ],
+  "COMPLETION_MODE": "TASK_EVIDENCE",
   "CREATED_AT": "2026-09-22T23:19:21.177039Z",
+  "ISSUE_STATE": "closed",
   "LANE_ID": "visual-rebuild",
-  "LAST_UPDATED_AT": "2026-09-22T23:19:25.807059Z",
+  "LAST_UPDATED_AT": "2026-09-22T23:19:29.949770Z",
   "LEASE_EPOCH": 24,
   "MUTATION_TYPE": "ISSUE_CLOSE",
   "OPERATION_ID": "control-recovery-20260922T231431Z-t006-close-op",
-  "OPERATION_STATE": "DISPATCHED",
+  "OPERATION_STATE": "CONFIRMED_APPLIED",
   "OWNER_RUN_ID": "control-recovery-20260922T231431Z",
   "REQUEST_CHANNEL_SOURCE": {
     "blob_sha": "f5df36b4446e9222153fad1ed56a82367f2cbefa",
@@ -17,5 +25,7 @@
   "REQUEST_ID": "control-recovery-20260922T231431Z-t006-close",
   "REQUEST_SHA256": "ae5fa6d24c2a743a073c88486af8da1f2cb7f79980dcbd104dcc29e50d40ba28",
   "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
-  "TARGET_RESOURCE": "issue-119"
+  "TARGET_RESOURCE": "issue-119",
+  "TASK_ID": "T006",
+  "WORK_LOG_COMMENT_ID": 5785902911
 }
