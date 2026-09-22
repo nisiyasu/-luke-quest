@@ -1,0 +1,14 @@
+{
+  "CREATED_AT": "2026-09-22T23:03:05.577901Z",
+  "LANE_ID": "dungeon",
+  "LAST_UPDATED_AT": "2026-09-22T23:03:05.577916Z",
+  "LEASE_EPOCH": 1,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "35795469986-impl-loss",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "gateway-crash-test-35795469986",
+  "REQUEST_ID": "REQ-35795469986-impl-loss",
+  "REQUEST_SHA256": "a52e27ce33e6257931133181fb86a2b9b3a0bf7376b3e4763e337e900bdaaeaf",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "test/env-visual-gateway-v1-crash-implementation-35795469986:crash-recovery-runtime.txt"
+}
