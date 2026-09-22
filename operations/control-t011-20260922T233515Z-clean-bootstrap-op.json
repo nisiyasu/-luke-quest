@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-22T23:39:34.183283Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-22T23:39:34.183304Z",
+  "LEASE_EPOCH": 26,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "control-t011-20260922T233515Z-clean-bootstrap-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-t011-20260922T233515Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "05c7f6b4b1c62c917326fd56bf5e9e274252b875",
+    "commit_sha": "55b904ac897616f89e899eb6a253680d09efeabc",
+    "path": "requests/visual-rebuild/control-t011-20260922T233515Z-clean-bootstrap.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-t011-20260922T233515Z-clean-bootstrap",
+  "REQUEST_SHA256": "18aa9f0a517f0ff60cfb7bc032f5cc267033fd2e4a8dba273983bfc6e648dd23",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:prototypes/target-image-threejs/bootstrap.js"
+}
