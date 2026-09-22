@@ -1,0 +1,13 @@
+{
+  "schema": "LQ_GRAPHITI_SYNC_EVENT_V2",
+  "event_id": "004f9a638f8aad018b5798de8a5ef7a82877de657d337915d14a4933222d24e5",
+  "group_id": "luke-quest-visual-rebuild-v1",
+  "event_kind": "HYDRATION_HYBRID_FINALIZED",
+  "source_repository": "nisiyasu/-luke-quest",
+  "source_ref": "spec/target-image-to-threejs-20260921@a63fd821c3bcd8038052e8d709fcf2b5ecff67c7",
+  "source_locator": "specs/001-target-image-threejs/graphiti/LUKE_QUEST_GRAPHITI_HYDRATION_HYBRID_CONTRACT_v3.md",
+  "observed_at": "2026-09-22T23:55:45.2809506+09:00",
+  "valid_at": "2026-09-22T23:55:45+09:00",
+  "content": "Graphiti×Session Context Hydrationハイブリッドをレビュー・再設計・実機検証の反復後に確定。GitHubを唯一の正本、GraphitiをWhy/History/Decision lineage用Sidecar Memory、HydrationをFresh GitHub+GraphitiからHot Contextを再構成する層とする。Wrapper 2.3.1、Graphiti Core 0.30.2、完全依存lock、Ollama 0.34.2、nomic-embed-text digest固定、memory/luke-visual-rebuild-graphitiのappend-only Event log、Seed+全Event replay、exact ref fetchを採用。Fresh exact-ref取得、空vEnv再構築、Seed二重投入、Event二重再生、invalid_at、provenance、日本語検索、stderr 0件までPASS。LUKEのCurrentは引き続きREADY Leaf並列Work Graph再設計であり、GraphitiはREADY/Authorityを決めない。",
+  "content_sha256": "a3a45b3b78b7b3e312f0a1ce65a7da13fa8c4c901832b7181ab4f25cbe89d2de"
+}

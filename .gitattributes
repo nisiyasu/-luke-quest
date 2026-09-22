@@ -2,3 +2,6 @@ specs/001-target-image-threejs/graphiti/*.md text eol=lf
 specs/001-target-image-threejs/graphiti/*.json text eol=lf
 specs/001-target-image-threejs/graphiti/*.py text eol=lf
 specs/001-target-image-threejs/graphiti/*.txt text eol=lf
+graphiti-sync/events/*.json text eol=lf
+graphiti-sync/receipts/*.json text eol=lf
+graphiti-sync/*.md text eol=lf
