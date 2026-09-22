@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: work log comment does not prove target task execution",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "control-recovery-20260922T231431Z-t009-close-op",
+  "processed_at": "2026-09-22T23:21:30.056916Z",
+  "request_id": "control-recovery-20260922T231431Z-t009-close",
+  "request_sha256": "176d52e9cf864b1f905bf0f2d3b6cf337bd264385fed60376bc791a41e88446d",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "eb112985207c452b4bd340a3e081edac469cb4ef",
+  "source_commit_sha": "ba64cf6468542c8006f59472a35ba3124b55bce2",
+  "source_path": "requests/visual-rebuild/control-recovery-20260922T231431Z-t009-close.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
