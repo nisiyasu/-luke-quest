@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-b-20260922T185140Z-run11-t008-inventory-op",
+  "processed_at": "2026-09-22T18:53:59.005890Z",
+  "request_id": "worker-b-20260922T185140Z-run11-t008-inventory",
+  "request_sha256": "87daf6147e4ba3f217288a3e16d7582722e8db01e1435afd0ac949247b7c45a9",
+  "result": {
+    "APPLIED_HEAD": "a75d62a627a80797654cd02670ee3db807eff116",
+    "CONTENT_SHA256": "967965010c70cf6554cfb6ec8db8796d2082ac1dacb170ac993ea6f0a42130c9",
+    "CREATED_AT": "2026-09-22T18:53:45.001422Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-22T18:53:53.887545Z",
+    "LEASE_EPOCH": 22,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "worker-b-20260922T185140Z-run11-t008-inventory-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "worker-b-20260922T185140Z-run11",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "ade23fdaffe86af6c017ad394f902b845310dc58",
+      "commit_sha": "9841b9abdbfc2a62f467489baaeaf1d6c18c0778",
+      "path": "requests/visual-rebuild/worker-b-20260922T185140Z-run11-t008-inventory.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "worker-b-20260922T185140Z-run11-t008-inventory",
+    "REQUEST_SHA256": "87daf6147e4ba3f217288a3e16d7582722e8db01e1435afd0ac949247b7c45a9",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "experiment/target-image-threejs-v1:docs/autonomy/evidence/T008_REUSE_INVENTORY_v1.md"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "ade23fdaffe86af6c017ad394f902b845310dc58",
+  "source_commit_sha": "9841b9abdbfc2a62f467489baaeaf1d6c18c0778",
+  "source_path": "requests/visual-rebuild/worker-b-20260922T185140Z-run11-t008-inventory.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
