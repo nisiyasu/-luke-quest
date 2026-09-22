@@ -1,11 +1,21 @@
 {
+  "COMPLETION_EVIDENCE": [
+    "implementation_head=21e8130cf19abef563165ec7c61bbdc13f554e48",
+    "implementation_root=prototypes/target-image-threejs/",
+    "forbidden_code_dependencies=NONE",
+    "node_check=PASS",
+    "old_field_head=01b1ff506f10d3d32cfe0823a5ab1293376e9f50 unchanged",
+    "docs/autonomy/evidence/T011_LEGACY_SCENE_SEPARATION_v1.md sha256=273acfe13fc91cf97a5a7200710f0510d7a91486be62f605ef6f15fe655fe5d9"
+  ],
+  "COMPLETION_MODE": "TASK_EVIDENCE",
   "CREATED_AT": "2026-09-22T23:45:09.880113Z",
+  "ISSUE_STATE": "closed",
   "LANE_ID": "visual-rebuild",
-  "LAST_UPDATED_AT": "2026-09-22T23:45:13.698827Z",
+  "LAST_UPDATED_AT": "2026-09-22T23:45:17.462082Z",
   "LEASE_EPOCH": 26,
   "MUTATION_TYPE": "ISSUE_CLOSE",
   "OPERATION_ID": "control-t011-20260922T233515Z-close-op",
-  "OPERATION_STATE": "DISPATCHED",
+  "OPERATION_STATE": "CONFIRMED_APPLIED",
   "OWNER_RUN_ID": "control-t011-20260922T233515Z",
   "REQUEST_CHANNEL_SOURCE": {
     "blob_sha": "b3287d6c8df3f6ac34025b8d689d38f5b33836de",
@@ -17,5 +27,7 @@
   "REQUEST_ID": "control-t011-20260922T233515Z-close",
   "REQUEST_SHA256": "b681766eca585b190dde2d064034d5facdc869b2d21caffe2d4fc3c35d0df77a",
   "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
-  "TARGET_RESOURCE": "issue-124"
+  "TARGET_RESOURCE": "issue-124",
+  "TASK_ID": "T011",
+  "WORK_LOG_COMMENT_ID": 5786313362
 }
