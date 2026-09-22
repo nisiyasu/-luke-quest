@@ -22,7 +22,7 @@ NS = uuid.UUID("c65bc20a-5096-40de-8a1f-c508639a29c2")
 
 SUPPORTED_GRAPHITI_CORE = "0.30.2"
 SUPPORTED_NEO4J = "6.3.1"
-WRAPPER_VERSION = "2.3.0"
+WRAPPER_VERSION = "2.3.1"
 SEED_SCHEMA = "LQ_GRAPHITI_SEED_V2"
 EXPECTED_OLLAMA_VERSION = "0.34.2"
 EXPECTED_EMBEDDING_MODEL = "nomic-embed-text:latest"
@@ -75,6 +75,19 @@ def make_driver(env_file: str | None = None) -> Neo4jDriver:
         env.get("NEO4J_USER", "neo4j"),
         env["NEO4J_PASSWORD"],
     )
+
+
+async def make_driver_ready(env_file: str | None = None) -> Neo4jDriver:
+    """
+    Graphiti 0.30.2 schedules index/constraint initialization in Neo4jDriver.__init__.
+    Await that version-pinned initialization task before using or closing the driver.
+    This avoids cancelling semaphore_gather with un-awaited index coroutines at process exit.
+    """
+    driver = make_driver(env_file)
+    init_task = getattr(driver, "_init_task", None)
+    if init_task is not None:
+        await init_task
+    return driver
 
 
 def versions() -> dict[str, str]:
@@ -264,7 +277,7 @@ async def ingest(seed_path: Path, out_path: str | None, env_file: str | None) ->
         datetime(2026, 9, 22, 13, 30, tzinfo=timezone.utc),
     )
     env = load_env(env_file)
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     embedding_client = httpx.AsyncClient(timeout=60.0)
     ollama_base_url = env.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
     embedding_url = env.get(
@@ -399,7 +412,7 @@ async def ingest(seed_path: Path, out_path: str | None, env_file: str | None) ->
 
 async def query(term: str, group_id: str, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     q = """
     MATCH (n:Entity {group_id: $group_id})
     OPTIONAL MATCH (n)-[out]->(m:Entity {group_id: $group_id})
@@ -441,7 +454,7 @@ async def query(term: str, group_id: str, out_path: str | None, env_file: str | 
 
 async def chain(group_id: str, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     q = """
     MATCH (a:Entity {group_id:$group_id})-[r]->(b:Entity {group_id:$group_id})
     WHERE r.name IN ['LEADS_TO','CURRENT_IS','ACTIVE_INSERT','RETURN_POINT','AUTHORITY_IS','ROLE_IS']
@@ -485,7 +498,7 @@ async def chain(group_id: str, out_path: str | None, env_file: str | None) -> No
 
 async def health(group_id: str, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     try:
         counts = await group_counts(driver, group_id)
         emit(
@@ -506,7 +519,7 @@ async def reset_group(group_id: str, confirm: str, out_path: str | None, env_fil
     assert_supported_versions()
     if confirm != group_id:
         raise RuntimeError("reset-group requires --confirm exactly equal to group_id")
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     try:
         before = await group_counts(driver, group_id)
         await driver.execute_query(
@@ -573,7 +586,7 @@ async def sync_event(event_path: Path, out_path: str | None, env_file: str | Non
         )
 
     group_id = event["group_id"]
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     try:
         episode_uuid = stable_id(group_id, "sync_event", event["event_id"])
         created_at = parse_dt(event["observed_at"])
@@ -634,7 +647,7 @@ async def sync_event(event_path: Path, out_path: str | None, env_file: str | Non
 
 async def events(group_id: str, limit: int, out_path: str | None, env_file: str | None) -> None:
     assert_supported_versions()
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     q = """
     MATCH (e:Episodic {group_id:$group_id})
     RETURN e.uuid AS uuid, e.name AS name, e.content AS content,
@@ -665,7 +678,7 @@ async def query_events(
     env_file: str | None,
 ) -> None:
     assert_supported_versions()
-    driver = make_driver(env_file)
+    driver = await make_driver_ready(env_file)
     q = """
     MATCH (e:Episodic {group_id:$group_id})
     WHERE e.name STARTS WITH 'SYNC_EVENT:'

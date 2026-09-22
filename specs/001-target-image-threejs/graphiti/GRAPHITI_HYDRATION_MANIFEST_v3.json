@@ -1,12 +1,12 @@
 {
   "schema": "LQ_GRAPHITI_HYDRATION_MANIFEST_V3",
   "group_id": "luke-quest-visual-rebuild-v1",
-  "generated_at": "2026-09-22T23:27:11.718066+09:00",
+  "generated_at": "2026-09-22T23:52:00.368253+09:00",
   "spec_branch": "spec/target-image-to-threejs-20260921",
   "memory_sync_branch": "memory/luke-visual-rebuild-graphiti",
   "memory_sync_branch_initial_commit": "9aa2f3f40a350e8cb5ac3ed39efa829fcc3dad4d",
   "version_pins": {
-    "wrapper": "2.3.0",
+    "wrapper": "2.3.1",
     "graphiti-core": "0.30.2",
     "neo4j": "6.3.1",
     "httpx": "0.28.1",
@@ -27,18 +27,19 @@
   "handoff_start_marker": "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_V4_BEGIN",
   "handoff_end_marker": "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_V4_END",
   "replay_tool": "replay_graphiti_sync_events_v1.py",
+  "fresh_git_fetch_mode": "exact_ref_fetch",
   "files": {
     "LUKE_QUEST_GRAPHITI_HYDRATION_HYBRID_CONTRACT_v3.md": {
-      "sha256": "62c8e0fd586113df501f4906f6526f8c358c3b2bb13b4fb2bf2c74270da1b66b",
-      "size": 10536
+      "sha256": "ab6bbf00c41a3e12bab74a9b6e0351223a41b066dbc3728f5d51fd4c72391e56",
+      "size": 11724
     },
     "luke_quest_visual_rebuild_seed_v2.json": {
       "sha256": "c5d97c41e1d60f2550a19bb419c0aac5e0114b297b2ecbee7e1962c8af76bb65",
       "size": 9752
     },
     "chatgpt_graphiti_wrapper_v2.py": {
-      "sha256": "377030b78527d69be1f9c3866f30d01b14a85e9da4c48c81d90fce89a32f0ad3",
-      "size": 28246
+      "sha256": "ca160b4b3fb7534d2985cbefe09b9963af6182780a2b73e363dbf7b3354d8f20",
+      "size": 28859
     },
     "requirements-lock-v2.txt": {
       "sha256": "efefbfd650b24add7d53b647562de33ad0d6ece8d4661319e8fb6cf6c18cefd0",
@@ -65,8 +66,8 @@
       "size": 2714
     },
     "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_v4_20260922.md": {
-      "sha256": "d831d583e7c28dd17cd4ad47e14d18a960652b865be6dc6beef19bf58e5182ce",
-      "size": 11598
+      "sha256": "ad174fdeb3c0bf211dbdf1dc3846c454340c7ff95ef97a5b97664fec90feed73",
+      "size": 12125
     }
   },
   "integrity_rule": "all listed SHA256 values and declared versions/runtime baselines must match before Graphiti rebuild",

@@ -189,14 +189,14 @@ Fresh cloneから実行する場合は:
 Secret/configをGitHubへ保存しない。
 
 VERSION_PIN:
-- wrapper 2.3.0
+- wrapper 2.3.1
 - graphiti-core 0.30.2
 - neo4j 6.3.1
 - httpx 0.28.1
 - pydantic 2.13.5
 
 RUNTIME_BASELINE:
-- wrapper 2.3.0
+- wrapper 2.3.1
 - Python 3.12.10
 - uv 0.12.15
 - Ollama 0.34.2
@@ -227,6 +227,20 @@ query-events <term> <group_id>
 
 UTF-8 JSONファイルをread_fileする。
 文字化けしたstdoutはEvidenceとして採用しない。
+
+
+# 9.1 Fresh Git取得標準
+
+EXACT_REF_FETCH / イグザクト・レフ・フェッチ / branch参照を直接取得する方式を標準とする。
+
+    git init <dir>
+    git -C <dir> remote add origin https://github.com/nisiyasu/-luke-quest.git
+    git -C <dir> fetch --depth 1 origin refs/heads/spec/target-image-to-threejs-20260921
+    git -C <dir> checkout --detach FETCH_HEAD
+    git -C <dir> rev-parse HEAD
+
+`git clone --branch`だけに依存しない。
+取得後はHEADとRequired FilesをFresh readbackする。
 
 # 10. Durable Memory Sync
 

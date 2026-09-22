@@ -77,7 +77,7 @@ Graphiti upstreamでgroup_idをdatabase routingへ使う経路にread/write不�
 
 ## 4. Version pin
 
-WRAPPER_VERSION: 2.3.0
+WRAPPER_VERSION: 2.3.1
 GRAPHITI_CORE: 0.30.2
 NEO4J_DRIVER: 6.3.1
 HTTPX: 0.28.1
@@ -96,6 +96,23 @@ EMBEDDING_DIGEST: 0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e5
 - UTF-8
 - query / chain / health
 - disaster rebuild
+
+
+## 4.1 Graphiti 0.30.2初期化互換層
+
+Neo4jDriverは生成時にindex/constraint初期化Taskをbackground起動する。
+Task完了前にdriver.close()すると、0.30.2では内部coroutine未回収warningが発生する場合がある。
+
+Wrapper 2.3.1では:
+1. Neo4jDriver生成
+2. version-pinned `_init_task` をawait
+3. その後にread/write
+4. close
+
+の順で使用する。
+
+Graphiti本体をfork/patchしない。
+Graphiti version更新時はこの互換層がまだ必要か再評価する。
 
 ## 5. Canonical rebuild assets
 
@@ -136,6 +153,29 @@ uv pip install --python <venv-python> -r requirements-full-lock-v1.txt
 
 Receiptの有無を理由にEventを再生対象から除外しない。
 Receiptは配信確認であり、Event logは再構築元である。
+
+
+## 5.1 Fresh Git取得方式
+
+`git clone --branch <branch>` だけを復旧前提にしない。
+
+標準Fresh取得はexact ref fetch:
+
+    git init <dir>
+    git -C <dir> remote add origin https://github.com/nisiyasu/-luke-quest.git
+    git -C <dir> fetch --depth 1 origin refs/heads/<branch>
+    git -C <dir> checkout --detach FETCH_HEAD
+
+理由:
+2026-09-22の実機試験で`ls-remote`にはbranchが存在するのに
+`git clone --branch`が`Remote branch ... not found`を返す経路を確認した。
+同一時点でexact ref fetchは成功した。
+
+復旧では取得後に必ず:
+- `rev-parse HEAD`
+- expected ref/commit
+- required file存在
+をreadbackする。
 
 ## 6. Stable ID / Idempotency
 
