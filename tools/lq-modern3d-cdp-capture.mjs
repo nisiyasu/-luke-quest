@@ -42,10 +42,12 @@ try {
     await sleep(250);
   }
   if(!ready) throw new Error(`runtime readiness timeout: ${last}`);
+  await send('Runtime.evaluate',{expression:`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))`,awaitPromise:true,returnByValue:true});
   await sleep(1200);
+  const diag=await send('Runtime.evaluate',{expression:`JSON.stringify((()=>{const c=document.querySelector('canvas');const gl=c?.getContext('webgl2')||c?.getContext('webgl');if(!c||!gl)return {canvas:!!c,webgl:!!gl};const p=new Uint8Array(4);gl.readPixels(Math.floor(c.width/2),Math.floor(c.height/2),1,1,gl.RGBA,gl.UNSIGNED_BYTE,p);return {canvas:[c.width,c.height],webgl:true,centerPixel:[...p],drawingBuffer:[gl.drawingBufferWidth,gl.drawingBufferHeight]}})())`,returnByValue:true});
   const shot=await send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});
   await writeFile(out,Buffer.from(shot.data,'base64'));
-  console.log(`cdp_capture=${out} viewport=${width}x${height} readiness=${last}`);
+  console.log(`cdp_capture=${out} viewport=${width}x${height} readiness=${last} render_diag=${diag.result?.value||''}`);
 } finally {
   try { ws.close(); } catch {}
   child.kill('SIGKILL');
