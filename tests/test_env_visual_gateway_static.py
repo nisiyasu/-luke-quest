@@ -66,6 +66,31 @@ class AncestryGitHub:
         }
 
 
+
+class TaskEvidenceGitHub:
+    def issue(self, number):
+        return {
+            "number": number,
+            "title": "T008: ReuseInventory",
+            "body": (
+                "<!-- LQ_EXECUTION_LEAF:v1 -->\n"
+                "TASK_ID: T008\n"
+                "WORK_TYPE: EXECUTION_LEAF\n"
+                "CLAIMABLE: YES\n"
+            ),
+        }
+
+    def comments(self, issue):
+        return [
+            {
+                "id": 4242,
+                "body": (
+                    "T008 WORK LOG\n"
+                    "TASK_ID=T008\n"
+                    "RESULT=ReuseInventory persisted and read back."
+                ),
+            }
+        ]
 class GatewayStaticTests(unittest.TestCase):
     def test_production_disabled_blocks_before_any_github_access(self):
         gateway = gw.Gateway(BombGitHub(), production_enabled=False)
@@ -91,6 +116,50 @@ class GatewayStaticTests(unittest.TestCase):
     def test_visual_rebuild_descendant_mode_is_explicit(self):
         self.assertTrue(gw.ALLOWED_LANES["visual-rebuild"]["allow_descendants"])
 
+    def test_issue_close_policy_keeps_visual_lanes_strict(self):
+        self.assertEqual(
+            gw.ALLOWED_LANES["village"]["issue_close_policy"],
+            "VISUAL_ADOPTION",
+        )
+        self.assertEqual(
+            gw.ALLOWED_LANES["visual-rebuild"]["issue_close_policy"],
+            "TASK_OR_VISUAL",
+        )
+
+    def test_visual_rebuild_task_evidence_close_context(self):
+        gateway = gw.Gateway(TaskEvidenceGitHub(), production_enabled=True)
+        ctx = gateway._task_completion_close_context(
+            {"lane_id": "visual-rebuild"},
+            121,
+            {
+                "completion_mode": "TASK_EVIDENCE",
+                "task_id": "T008",
+                "work_log_comment_id": 4242,
+                "completion_evidence": [
+                    "implementation_head=a75d62a",
+                    "docs/autonomy/evidence/T008_REUSE_INVENTORY_v1.md",
+                ],
+            },
+        )
+        self.assertEqual(ctx["COMPLETION_MODE"], "TASK_EVIDENCE")
+        self.assertEqual(ctx["TASK_ID"], "T008")
+        self.assertEqual(ctx["WORK_LOG_COMMENT_ID"], 4242)
+
+    def test_task_evidence_close_is_not_enabled_for_visual_lane(self):
+        gateway = gw.Gateway(TaskEvidenceGitHub(), production_enabled=True)
+        with self.assertRaisesRegex(
+            gw.RequestRejected, "not enabled for this lane"
+        ):
+            gateway._task_completion_close_context(
+                {"lane_id": "village"},
+                54,
+                {
+                    "completion_mode": "TASK_EVIDENCE",
+                    "task_id": "T008",
+                    "work_log_comment_id": 4242,
+                    "completion_evidence": ["x"],
+                },
+            )
     def test_fixed_target_authorities(self):
         expected = {
             "village": "e6536371eddcc7fb5cf5803568216f008011a5f1",
