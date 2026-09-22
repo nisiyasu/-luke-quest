@@ -1,0 +1,45 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-recovery-20260922T231431Z-t007-close-op",
+  "processed_at": "2026-09-22T23:19:59.653166Z",
+  "request_id": "control-recovery-20260922T231431Z-t007-close",
+  "request_sha256": "88627c5d878bf9b48ad71f6cdeeb4c9e71ad9b5e38e5afa43bacd0f11907cd7d",
+  "result": {
+    "COMPLETION_EVIDENCE": [
+      "archive_sha=540e33b2c98d06d6140c9a768abef03954d46ca8",
+      "implementation_head=a75d62a627a80797654cd02670ee3db807eff116",
+      "merge_base=540e33b2c98d06d6140c9a768abef03954d46ca8",
+      "ahead_by=2"
+    ],
+    "COMPLETION_MODE": "TASK_EVIDENCE",
+    "CREATED_AT": "2026-09-22T23:19:50.124356Z",
+    "ISSUE_STATE": "closed",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-22T23:19:57.217383Z",
+    "LEASE_EPOCH": 24,
+    "MUTATION_TYPE": "ISSUE_CLOSE",
+    "OPERATION_ID": "control-recovery-20260922T231431Z-t007-close-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-recovery-20260922T231431Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "0e0eb49a17589b54b890abab67bfa38b874cc767",
+      "commit_sha": "5359f62bb9b97b4c574bbae41534c125f4ac0ba4",
+      "path": "requests/visual-rebuild/control-recovery-20260922T231431Z-t007-close.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-recovery-20260922T231431Z-t007-close",
+    "REQUEST_SHA256": "88627c5d878bf9b48ad71f6cdeeb4c9e71ad9b5e38e5afa43bacd0f11907cd7d",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "issue-120",
+    "TASK_ID": "T007",
+    "WORK_LOG_COMMENT_ID": 5785914557
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "0e0eb49a17589b54b890abab67bfa38b874cc767",
+  "source_commit_sha": "5359f62bb9b97b4c574bbae41534c125f4ac0ba4",
+  "source_path": "requests/visual-rebuild/control-recovery-20260922T231431Z-t007-close.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
