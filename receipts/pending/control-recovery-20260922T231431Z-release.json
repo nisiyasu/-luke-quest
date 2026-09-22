@@ -1,0 +1,15 @@
+{
+  "error": "LeaseUnavailable: lease expired",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "control-recovery-20260922T231431Z-release-op",
+  "processed_at": "2026-09-22T23:25:10.598774Z",
+  "request_id": "control-recovery-20260922T231431Z-release",
+  "request_sha256": "f0ad07b26c7307e26d7366f89ffe04d2b6edcc7ad1901f04376f4d0ee8a06c7d",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "65e376445bd93eb76fdfdb4ec3495a6a8376d9ec",
+  "source_commit_sha": "4a2d715f526cc104ba4ed9b86c6c97b5ebc138f3",
+  "source_path": "requests/visual-rebuild/control-recovery-20260922T231431Z-release.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
