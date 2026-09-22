@@ -1,0 +1,45 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-recovery-20260922T231431Z-t009-close2-op",
+  "processed_at": "2026-09-22T23:24:02.051019Z",
+  "request_id": "control-recovery-20260922T231431Z-t009-close2",
+  "request_sha256": "ee7ed38d3c1b9e05ee3961e072210d5cbde4414a3cee7033dc63b794e43175c3",
+  "result": {
+    "COMPLETION_EVIDENCE": [
+      "audit_result=NOT_YET_INDEPENDENT",
+      "audit_task_completed=true",
+      "audited_head=41c157c9d7603f30bcc597069af474508915d447",
+      "finding=movement collision traversal coupled to MAPS and old scene state"
+    ],
+    "COMPLETION_MODE": "TASK_EVIDENCE",
+    "CREATED_AT": "2026-09-22T23:23:55.203802Z",
+    "ISSUE_STATE": "closed",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-22T23:24:00.441942Z",
+    "LEASE_EPOCH": 24,
+    "MUTATION_TYPE": "ISSUE_CLOSE",
+    "OPERATION_ID": "control-recovery-20260922T231431Z-t009-close2-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-recovery-20260922T231431Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "f297415ebcf698ca1ed1b0e3852fc2bd0106582a",
+      "commit_sha": "b674cd3b7144a05d392da53cae3d0da54008d496",
+      "path": "requests/visual-rebuild/control-recovery-20260922T231431Z-t009-close2.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-recovery-20260922T231431Z-t009-close2",
+    "REQUEST_SHA256": "ee7ed38d3c1b9e05ee3961e072210d5cbde4414a3cee7033dc63b794e43175c3",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "issue-122",
+    "TASK_ID": "T009",
+    "WORK_LOG_COMMENT_ID": 5785983387
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "f297415ebcf698ca1ed1b0e3852fc2bd0106582a",
+  "source_commit_sha": "b674cd3b7144a05d392da53cae3d0da54008d496",
+  "source_path": "requests/visual-rebuild/control-recovery-20260922T231431Z-t009-close2.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
