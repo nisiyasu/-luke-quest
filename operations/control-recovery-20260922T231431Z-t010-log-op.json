@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-22T23:21:34.361048Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-22T23:21:34.361067Z",
+  "LEASE_EPOCH": 24,
+  "MUTATION_TYPE": "ISSUE_COMMENT",
+  "OPERATION_ID": "control-recovery-20260922T231431Z-t010-log-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-recovery-20260922T231431Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "9fadefad94a24c205c8e6c4c2e99bba9d24c0de0",
+    "commit_sha": "ba64cf6468542c8006f59472a35ba3124b55bce2",
+    "path": "requests/visual-rebuild/control-recovery-20260922T231431Z-t010-log.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-recovery-20260922T231431Z-t010-log",
+  "REQUEST_SHA256": "104a4d38aed74c5f87643704d57df8e9f460f6c3585bcc67d8782fb86340ce50",
+  "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+  "TARGET_RESOURCE": "issue-123"
+}
