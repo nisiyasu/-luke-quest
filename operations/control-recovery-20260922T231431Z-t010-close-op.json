@@ -1,11 +1,19 @@
 {
+  "COMPLETION_EVIDENCE": [
+    "audit_result=NOT_YET_INDEPENDENT",
+    "implementation_head=a75d62a627a80797654cd02670ee3db807eff116",
+    "source=addons/runtime-smoke-hook.js",
+    "finding=diagnostics directly depend on s MAPS shell player legacy runtime"
+  ],
+  "COMPLETION_MODE": "TASK_EVIDENCE",
   "CREATED_AT": "2026-09-22T23:22:57.090565Z",
+  "ISSUE_STATE": "closed",
   "LANE_ID": "visual-rebuild",
-  "LAST_UPDATED_AT": "2026-09-22T23:22:59.525894Z",
+  "LAST_UPDATED_AT": "2026-09-22T23:23:01.911034Z",
   "LEASE_EPOCH": 24,
   "MUTATION_TYPE": "ISSUE_CLOSE",
   "OPERATION_ID": "control-recovery-20260922T231431Z-t010-close-op",
-  "OPERATION_STATE": "DISPATCHED",
+  "OPERATION_STATE": "CONFIRMED_APPLIED",
   "OWNER_RUN_ID": "control-recovery-20260922T231431Z",
   "REQUEST_CHANNEL_SOURCE": {
     "blob_sha": "028848ade09b016d6cbaa5fd8833f98a3719cfe4",
@@ -17,5 +25,7 @@
   "REQUEST_ID": "control-recovery-20260922T231431Z-t010-close",
   "REQUEST_SHA256": "5ca5565d00d6f88fe89c80d79fa29812dd9cd9237a6fb21bc55c0864b80983d6",
   "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
-  "TARGET_RESOURCE": "issue-123"
+  "TARGET_RESOURCE": "issue-123",
+  "TASK_ID": "T010",
+  "WORK_LOG_COMMENT_ID": 5785966465
 }
