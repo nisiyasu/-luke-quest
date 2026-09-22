@@ -77,11 +77,16 @@ Graphiti upstreamでgroup_idをdatabase routingへ使う経路にread/write不�
 
 ## 4. Version pin
 
-WRAPPER_VERSION: 2.2.0
+WRAPPER_VERSION: 2.3.0
 GRAPHITI_CORE: 0.30.2
 NEO4J_DRIVER: 6.3.1
 HTTPX: 0.28.1
 PYDANTIC: 2.13.5
+PYTHON: 3.12.10
+UV: 0.12.15
+OLLAMA: 0.34.2
+EMBEDDING_MODEL: nomic-embed-text:latest
+EMBEDDING_DIGEST: 0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f
 
 更新時は互換試験必須:
 - duplicate ingest
@@ -114,6 +119,13 @@ specs/001-target-image-threejs/graphiti/verify_graphiti_hydration_bundle_v1.py
 
 EVENT_REPLAY:
 specs/001-target-image-threejs/graphiti/replay_graphiti_sync_events_v1.py
+
+FULL_REQUIREMENTS_LOCK:
+specs/001-target-image-threejs/graphiti/requirements-full-lock-v1.txt
+
+環境再構築:
+uv venv <venv> --python 3.12
+uv pip install --python <venv-python> -r requirements-full-lock-v1.txt
 
 ローカルDBを失ってもGitHubだけから再構築可能であること。
 
@@ -301,12 +313,25 @@ env file必須:
 - NEO4J_PASSWORD
 
 optional:
+- OLLAMA_BASE_URL
 - EMBEDDING_URL
 - EMBEDDING_MODEL
 
 既定:
-- EMBEDDING_URL=http://127.0.0.1:11434/v1/embeddings
-- EMBEDDING_MODEL=nomic-embed-text
+- OLLAMA_BASE_URL=http://127.0.0.1:11434
+- EMBEDDING_URL=<OLLAMA_BASE_URL>/v1/embeddings
+- EMBEDDING_MODEL=nomic-embed-text:latest
+
+Seed ingest前にWrapperが:
+- Ollama version
+- embedding model name
+- embedding digest
+をbaselineと照合する。
+
+不一致時:
+- Graphiti ingestをfail closed
+- GitHub RecoveryはPASS_DEGRADED_MEMORYで継続可能
+- 明示re-baselineなしに別Embeddingで再構築しない
 
 RDC/PowerShell stdoutの文字化け結果をMemory evidenceへ採用しない。
 
@@ -326,6 +351,7 @@ Manifestで:
 を固定する。
 
 Rebuild前にVerifier PASS必須。
+Embedding rebuild前にembedding-health PASS必須。
 
 Handoff START/END markerは各1回のみ。
 

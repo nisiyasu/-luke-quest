@@ -22,8 +22,11 @@ NS = uuid.UUID("c65bc20a-5096-40de-8a1f-c508639a29c2")
 
 SUPPORTED_GRAPHITI_CORE = "0.30.2"
 SUPPORTED_NEO4J = "6.3.1"
-WRAPPER_VERSION = "2.2.0"
+WRAPPER_VERSION = "2.3.0"
 SEED_SCHEMA = "LQ_GRAPHITI_SEED_V2"
+EXPECTED_OLLAMA_VERSION = "0.34.2"
+EXPECTED_EMBEDDING_MODEL = "nomic-embed-text:latest"
+EXPECTED_EMBEDDING_DIGEST = "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -152,6 +155,47 @@ def validate_seed(data: dict) -> None:
             raise RuntimeError(f"fact {f.get('key')} invalid_at precedes valid_at")
 
 
+async def embedding_runtime_check(
+    client: httpx.AsyncClient,
+    ollama_base_url: str,
+    embedding_model: str,
+) -> dict:
+    version_response = await client.get(ollama_base_url.rstrip("/") + "/api/version")
+    version_response.raise_for_status()
+    ollama_version = version_response.json().get("version")
+
+    tags_response = await client.get(ollama_base_url.rstrip("/") + "/api/tags")
+    tags_response.raise_for_status()
+    models = tags_response.json().get("models", [])
+    selected = next((m for m in models if m.get("name") == embedding_model), None)
+    if selected is None:
+        raise RuntimeError(f"embedding model not installed: {embedding_model}")
+
+    digest = selected.get("digest")
+    failures = []
+    if ollama_version != EXPECTED_OLLAMA_VERSION:
+        failures.append(
+            f"ollama_version:{ollama_version}!={EXPECTED_OLLAMA_VERSION}"
+        )
+    if embedding_model != EXPECTED_EMBEDDING_MODEL:
+        failures.append(
+            f"embedding_model:{embedding_model}!={EXPECTED_EMBEDDING_MODEL}"
+        )
+    if digest != EXPECTED_EMBEDDING_DIGEST:
+        failures.append(
+            f"embedding_digest:{digest}!={EXPECTED_EMBEDDING_DIGEST}"
+        )
+    if failures:
+        raise RuntimeError(
+            "embedding runtime baseline mismatch: " + "; ".join(failures)
+        )
+    return {
+        "ollama_version": ollama_version,
+        "embedding_model": embedding_model,
+        "embedding_digest": digest,
+    }
+
+
 async def embed(
     client: httpx.AsyncClient,
     text: str,
@@ -222,8 +266,14 @@ async def ingest(seed_path: Path, out_path: str | None, env_file: str | None) ->
     env = load_env(env_file)
     driver = make_driver(env_file)
     embedding_client = httpx.AsyncClient(timeout=60.0)
-    embedding_url = env.get("EMBEDDING_URL", "http://127.0.0.1:11434/v1/embeddings")
-    embedding_model = env.get("EMBEDDING_MODEL", "nomic-embed-text")
+    ollama_base_url = env.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    embedding_url = env.get(
+        "EMBEDDING_URL", ollama_base_url.rstrip("/") + "/v1/embeddings"
+    )
+    embedding_model = env.get("EMBEDDING_MODEL", EXPECTED_EMBEDDING_MODEL)
+    embedding_runtime = await embedding_runtime_check(
+        embedding_client, ollama_base_url, embedding_model
+    )
 
     entity_ids = {
         e["key"]: stable_id(group_id, "entity", e["key"]) for e in data["entities"]
@@ -333,6 +383,7 @@ async def ingest(seed_path: Path, out_path: str | None, env_file: str | None) ->
             "seed_path": str(seed_path),
             "seed_sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest(),
             "versions": versions(),
+            "embedding_runtime": embedding_runtime,
             "expected": {
                 "entities": len(data["entities"]),
                 "episodes": len(data["episodes"]),
@@ -646,6 +697,21 @@ async def query_events(
         await driver.close()
 
 
+async def embedding_health(out_path: str | None, env_file: str | None) -> None:
+    env = load_env(env_file)
+    ollama_base_url = env.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    embedding_model = env.get("EMBEDDING_MODEL", EXPECTED_EMBEDDING_MODEL)
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        runtime = await embedding_runtime_check(
+            client, ollama_base_url, embedding_model
+        )
+    emit({
+        "status": "EMBEDDING_HEALTH_OK",
+        "wrapper_version": WRAPPER_VERSION,
+        "runtime": runtime,
+    }, out_path)
+
+
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -691,6 +757,9 @@ async def main() -> None:
     p_query_events.add_argument("--limit", type=int, default=20)
     p_query_events.add_argument("--out")
 
+    p_embedding_health = sub.add_parser("embedding-health")
+    p_embedding_health.add_argument("--out")
+
     args = ap.parse_args()
 
     if args.command == "ingest":
@@ -711,6 +780,8 @@ async def main() -> None:
         await query_events(
             args.term, args.group_id, args.limit, args.out, args.env_file
         )
+    elif args.command == "embedding-health":
+        await embedding_health(args.out, args.env_file)
 
 
 if __name__ == "__main__":

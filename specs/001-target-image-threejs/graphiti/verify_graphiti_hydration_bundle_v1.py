@@ -74,6 +74,28 @@ def main() -> int:
                 f"wrapper_version:{m.group(1)}!={required_pins.get('wrapper')}"
             )
 
+        runtime = manifest.get("runtime_baseline", {})
+        constant_checks = {
+            "EXPECTED_OLLAMA_VERSION": runtime.get("ollama"),
+            "EXPECTED_EMBEDDING_MODEL": runtime.get("embedding_model"),
+            "EXPECTED_EMBEDDING_DIGEST": runtime.get("embedding_digest"),
+        }
+        for constant, expected in constant_checks.items():
+            if expected is None:
+                failures.append(f"runtime_baseline_missing:{constant}")
+                continue
+            cm = re.search(
+                rf'^{constant}\s*=\s*["\']([^"\']+)["\']',
+                wrapper_text,
+                re.MULTILINE,
+            )
+            if not cm:
+                failures.append(f"wrapper_constant_missing:{constant}")
+            elif cm.group(1) != expected:
+                failures.append(
+                    f"wrapper_constant:{constant}:{cm.group(1)}!={expected}"
+                )
+
     req_name = manifest.get("requirements_lock_file")
     if req_name:
         req = (root / req_name).read_text(encoding="utf-8")
@@ -83,6 +105,16 @@ def main() -> int:
             needle = f"{pkg}=={ver}"
             if needle not in req:
                 failures.append(f"missing_pin:{needle}")
+
+    full_req_name = manifest.get("full_requirements_lock_file")
+    if full_req_name:
+        full_req = (root / full_req_name).read_text(encoding="utf-8")
+        for pkg, ver in required_pins.items():
+            if pkg == "wrapper":
+                continue
+            needle = f"{pkg}=={ver}"
+            if needle not in full_req:
+                failures.append(f"missing_full_lock_pin:{needle}")
 
     result = {
         "schema": "LQ_GRAPHITI_HYDRATION_BUNDLE_VERIFY_V1",

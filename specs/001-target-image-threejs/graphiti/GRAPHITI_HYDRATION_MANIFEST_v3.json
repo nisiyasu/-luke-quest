@@ -1,40 +1,52 @@
 {
   "schema": "LQ_GRAPHITI_HYDRATION_MANIFEST_V3",
   "group_id": "luke-quest-visual-rebuild-v1",
-  "generated_at": "2026-09-22T23:16:05.610389+09:00",
+  "generated_at": "2026-09-22T23:27:11.718066+09:00",
   "spec_branch": "spec/target-image-to-threejs-20260921",
   "memory_sync_branch": "memory/luke-visual-rebuild-graphiti",
   "memory_sync_branch_initial_commit": "9aa2f3f40a350e8cb5ac3ed39efa829fcc3dad4d",
   "version_pins": {
-    "wrapper": "2.2.0",
+    "wrapper": "2.3.0",
     "graphiti-core": "0.30.2",
     "neo4j": "6.3.1",
     "httpx": "0.28.1",
     "pydantic": "2.13.5"
   },
+  "runtime_baseline": {
+    "python": "3.12.10",
+    "uv": "0.12.15",
+    "ollama": "0.34.2",
+    "embedding_model": "nomic-embed-text:latest",
+    "embedding_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+  },
   "database_mode": "single configured Neo4j database + explicit group_id filtering",
   "wrapper_file": "chatgpt_graphiti_wrapper_v2.py",
   "requirements_lock_file": "requirements-lock-v2.txt",
+  "full_requirements_lock_file": "requirements-full-lock-v1.txt",
   "handoff_file": "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_v4_20260922.md",
   "handoff_start_marker": "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_V4_BEGIN",
   "handoff_end_marker": "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_V4_END",
   "replay_tool": "replay_graphiti_sync_events_v1.py",
   "files": {
     "LUKE_QUEST_GRAPHITI_HYDRATION_HYBRID_CONTRACT_v3.md": {
-      "sha256": "6e08359f2585226780700ab86bbc75ec3b534ac9c4204d3032571f4307d94737",
-      "size": 9757
+      "sha256": "62c8e0fd586113df501f4906f6526f8c358c3b2bb13b4fb2bf2c74270da1b66b",
+      "size": 10536
     },
     "luke_quest_visual_rebuild_seed_v2.json": {
       "sha256": "c5d97c41e1d60f2550a19bb419c0aac5e0114b297b2ecbee7e1962c8af76bb65",
       "size": 9752
     },
     "chatgpt_graphiti_wrapper_v2.py": {
-      "sha256": "2fd41f39a7ccacbf670a7b49f3dc1835c89e2ddfcf29e2ed457d472cc71d6306",
-      "size": 25537
+      "sha256": "377030b78527d69be1f9c3866f30d01b14a85e9da4c48c81d90fce89a32f0ad3",
+      "size": 28246
     },
     "requirements-lock-v2.txt": {
       "sha256": "efefbfd650b24add7d53b647562de33ad0d6ece8d4661319e8fb6cf6c18cefd0",
       "size": 66
+    },
+    "requirements-full-lock-v1.txt": {
+      "sha256": "7938e117de94a2d0b945becf8318a2500e58885e4381e565418d9a14b12bd247",
+      "size": 502
     },
     "GRAPHITI_SYNC_EVENT_SCHEMA_v2.json": {
       "sha256": "fc21dc62e0eb1995fbda4f4bf1e06da822b160a0cc13168802d9d30edbc23cfe",
@@ -45,19 +57,19 @@
       "size": 560
     },
     "verify_graphiti_hydration_bundle_v1.py": {
-      "sha256": "a870a5e0fcab51b0fb43a3a3f94e23b26c9c1f0de5ad8dca158c8f5c0dcd838a",
-      "size": 3392
+      "sha256": "2861f2a41654213331033800595a29cb8132cdb6bdd30bf5e00df01578917776",
+      "size": 4714
     },
     "replay_graphiti_sync_events_v1.py": {
       "sha256": "385de2e4e2b719aa4e597a1fbf92ad7acac8cec64ad4b34a2006cb57dadf9710",
       "size": 2714
     },
     "LUKE_QUEST_GRAPHITI_HYDRATION_HANDOFF_v4_20260922.md": {
-      "sha256": "1604a61510a2f54539d4341749282c32025a04930594b71e76eb9680bde1055f",
-      "size": 10866
+      "sha256": "d831d583e7c28dd17cd4ad47e14d18a960652b865be6dc6beef19bf58e5182ce",
+      "size": 11598
     }
   },
-  "integrity_rule": "all listed SHA256 values and declared versions must match before Graphiti rebuild",
+  "integrity_rule": "all listed SHA256 values and declared versions/runtime baselines must match before Graphiti rebuild",
   "projects_v2_read_failure": "NON_FATAL_MANAGEMENT_VIEW_GAP",
   "graphiti_unavailable_result": "PASS_DEGRADED_MEMORY",
   "disaster_rebuild_rule": "seed + all memory branch events; receipts do not exclude events"

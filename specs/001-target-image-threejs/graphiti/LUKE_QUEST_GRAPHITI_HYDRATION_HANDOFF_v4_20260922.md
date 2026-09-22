@@ -169,6 +169,8 @@ MEMORY_CONTEXT_SOURCE: GITHUB_SEED_FALLBACK
 RECOVERY_RESULT: PASS_DEGRADED_MEMORY
 
 Graphiti復旧待ちでOwnerを止めない。
+Embedding version/digest不一致もGraphiti側のDEGRADED理由であり、
+GitHub Recoveryを止める理由にはしない。
 
 # 9. Graphiti Local PoC
 
@@ -187,11 +189,29 @@ Fresh cloneから実行する場合は:
 Secret/configをGitHubへ保存しない。
 
 VERSION_PIN:
-- wrapper 2.2.0
+- wrapper 2.3.0
 - graphiti-core 0.30.2
 - neo4j 6.3.1
 - httpx 0.28.1
 - pydantic 2.13.5
+
+RUNTIME_BASELINE:
+- wrapper 2.3.0
+- Python 3.12.10
+- uv 0.12.15
+- Ollama 0.34.2
+- nomic-embed-text:latest
+- embedding digest 0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f
+
+FULL_LOCK:
+specs/001-target-image-threejs/graphiti/requirements-full-lock-v1.txt
+
+Clean vEnv rebuild:
+uv venv <venv> --python 3.12
+uv pip install --python <venv-python> -r requirements-full-lock-v1.txt
+
+Embedding health:
+C:\graphiti-poc\.venv\Scripts\python.exe C:\graphiti-poc\scripts\chatgpt_graphiti_wrapper_v2.py --env-file C:\graphiti-poc\.env.local embedding-health --out C:\Temp\lq_embedding_health.json
 
 Health:
 C:\graphiti-poc\.venv\Scripts\python.exe C:\graphiti-poc\scripts\chatgpt_graphiti_wrapper_v2.py health luke-quest-visual-rebuild-v1 --out C:\Temp\lq_graphiti_health.json
