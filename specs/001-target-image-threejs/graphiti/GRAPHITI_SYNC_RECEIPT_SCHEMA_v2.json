@@ -1,0 +1,17 @@
+{
+  "schema": "LQ_GRAPHITI_SYNC_RECEIPT_V2",
+  "branch": "memory/luke-visual-rebuild-graphiti",
+  "path": "graphiti-sync/receipts/<EVENT_ID>.json",
+  "required": [
+    "event_id",
+    "group_id",
+    "synced_at",
+    "wrapper_version",
+    "graphiti_core_version",
+    "graphiti_readback_status"
+  ],
+  "immutability": "receipt file MUST NOT be edited after fresh readback",
+  "success_rule": "event exists + Graphiti write succeeded + Graphiti readback succeeded",
+  "pending_rule": "event exists and receipt does not exist",
+  "authority": "NOT_WORK_SSOT"
+}
