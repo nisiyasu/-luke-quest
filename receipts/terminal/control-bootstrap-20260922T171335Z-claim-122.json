@@ -1,0 +1,36 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-bootstrap-20260922T171335Z-claim-122-op",
+  "processed_at": "2026-09-22T17:17:33.340878Z",
+  "request_id": "control-bootstrap-20260922T171335Z-claim-122",
+  "request_sha256": "613338a8f51c305054b9fe3e571f13ec44f337a7f2b439bafc9d71a4b2bf60c2",
+  "result": {
+    "COMMENT_ID": 5780832234,
+    "CREATED_AT": "2026-09-22T17:17:23.480663Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-22T17:17:30.660928Z",
+    "LEASE_EPOCH": 20,
+    "MUTATION_TYPE": "ISSUE_COMMENT",
+    "OPERATION_ID": "control-bootstrap-20260922T171335Z-claim-122-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-bootstrap-20260922T171335Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "090bcf84769762fefb95c6eea06db49026460250",
+      "commit_sha": "3647ec47dcf2f747da0354e0be3734c52e7db435",
+      "path": "requests/visual-rebuild/control-bootstrap-20260922T171335Z-claim-122.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-bootstrap-20260922T171335Z-claim-122",
+    "REQUEST_SHA256": "613338a8f51c305054b9fe3e571f13ec44f337a7f2b439bafc9d71a4b2bf60c2",
+    "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+    "TARGET_RESOURCE": "issue-122"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "090bcf84769762fefb95c6eea06db49026460250",
+  "source_commit_sha": "3647ec47dcf2f747da0354e0be3734c52e7db435",
+  "source_path": "requests/visual-rebuild/control-bootstrap-20260922T171335Z-claim-122.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
