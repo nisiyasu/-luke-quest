@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-22T23:43:18.338224Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-22T23:43:18.338250Z",
+  "LEASE_EPOCH": 26,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "control-t011-20260922T233515Z-evidence-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-t011-20260922T233515Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "cd910b8ce8ce30f813f30b9fd63d93192af399cf",
+    "commit_sha": "ae3ccfcd04e679a91002238af38970e3c5a89921",
+    "path": "requests/visual-rebuild/control-t011-20260922T233515Z-evidence.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-t011-20260922T233515Z-evidence",
+  "REQUEST_SHA256": "ab47cee3fde9aadcc3bab23fd2e30ad7717bd5c91da5036c9a91bc9335aa8d73",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:docs/autonomy/evidence/T011_LEGACY_SCENE_SEPARATION_v1.md"
+}
