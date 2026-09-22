@@ -46,6 +46,26 @@ class JournalGitHub:
         return self.head
 
 
+class AncestryGitHub:
+    def __init__(self):
+        self.parents = {
+            118: 103,
+            103: 101,
+            999: None,
+        }
+
+    def issue(self, number):
+        parent = self.parents.get(number)
+        return {
+            "number": number,
+            "parent_issue_url": (
+                f"https://api.github.com/repos/nisiyasu/-luke-quest/issues/{parent}"
+                if parent is not None
+                else None
+            ),
+        }
+
+
 class GatewayStaticTests(unittest.TestCase):
     def test_production_disabled_blocks_before_any_github_access(self):
         gateway = gw.Gateway(BombGitHub(), production_enabled=False)
@@ -58,6 +78,18 @@ class GatewayStaticTests(unittest.TestCase):
         self.assertEqual(gw.ALLOWED_LANES["dungeon"]["parent"], 53)
         self.assertNotIn(12, gw.ALLOWED_LANES["village"]["children"])
         self.assertEqual(gw.EVIDENCE_BRANCH, "evidence/visual-verification")
+
+    def test_visual_rebuild_allows_native_nested_descendants_only(self):
+        gateway = gw.Gateway(AncestryGitHub(), production_enabled=True)
+        gateway._assert_issue_allowed("visual-rebuild", 118)
+        gateway._assert_issue_allowed("visual-rebuild", 103)
+        with self.assertRaisesRegex(gw.RequestRejected, "outside lane allowlist"):
+            gateway._assert_issue_allowed("visual-rebuild", 999)
+        with self.assertRaisesRegex(gw.RequestRejected, "outside lane allowlist"):
+            gateway._assert_issue_allowed("village", 118)
+
+    def test_visual_rebuild_descendant_mode_is_explicit(self):
+        self.assertTrue(gw.ALLOWED_LANES["visual-rebuild"]["allow_descendants"])
 
     def test_fixed_target_authorities(self):
         expected = {
