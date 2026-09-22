@@ -34,6 +34,7 @@ ALLOWED_LANES = {
         "target_source_commit_sha": "0d225f77944eb54eed648b76f00869879f4284ff",
         "target_path": "references/target-quality/environments/VILLAGE_TARGET_OWNER_20260914.png",
         "target_blob_sha": "e6536371eddcc7fb5cf5803568216f008011a5f1",
+        "issue_close_policy": "VISUAL_ADOPTION",
     },
     "castle": {
         "parent": 52,
@@ -43,6 +44,7 @@ ALLOWED_LANES = {
         "target_source_commit_sha": "0d225f77944eb54eed648b76f00869879f4284ff",
         "target_path": "references/target-quality/environments/CASTLE_INTERIOR_TARGET_OWNER_20260914.png",
         "target_blob_sha": "573c13225471820d063043a37e3ee26fad389d63",
+        "issue_close_policy": "VISUAL_ADOPTION",
     },
     "dungeon": {
         "parent": 53,
@@ -52,6 +54,7 @@ ALLOWED_LANES = {
         "target_source_commit_sha": "0d225f77944eb54eed648b76f00869879f4284ff",
         "target_path": "references/target-quality/environments/DUNGEON_TARGET_OWNER_20260914.png",
         "target_blob_sha": "198d0f5f3da115b70218ae8180d5f8363d744959",
+        "issue_close_policy": "VISUAL_ADOPTION",
     },
     "visual-rebuild": {
         "parent": 101,
@@ -62,6 +65,7 @@ ALLOWED_LANES = {
         "target_source_commit_sha": "90635ceff9d35d69f80da350df1e6ea0610657dd",
         "target_path": "assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png",
         "target_blob_sha": "b7281e6580689a7a22cfa3b67d500950e4af7285",
+        "issue_close_policy": "TASK_OR_VISUAL",
     },
 }
 EVIDENCE_BRANCH = "evidence/visual-verification"
@@ -904,6 +908,65 @@ class Gateway:
             {"COMMENT_ID": matches[0]["id"]},
         )
 
+    def _task_completion_close_context(
+        self, req: dict, issue: int, payload: dict
+    ) -> dict:
+        cfg = self.lane_cfg(req["lane_id"])
+        if cfg.get("issue_close_policy") != "TASK_OR_VISUAL":
+            raise RequestRejected("task-evidence close is not enabled for this lane")
+        if str(payload.get("completion_mode", "")).upper() != "TASK_EVIDENCE":
+            raise RequestRejected(
+                "completion_mode TASK_EVIDENCE required when adoption_id is absent"
+            )
+
+        task_id = str(payload.get("task_id", "")).strip()
+        try:
+            work_log_comment_id = int(payload.get("work_log_comment_id", 0))
+        except (TypeError, ValueError) as exc:
+            raise RequestRejected("valid work_log_comment_id required") from exc
+        completion_evidence = payload.get("completion_evidence")
+        if not task_id or work_log_comment_id <= 0:
+            raise RequestRejected("task_id and work_log_comment_id required")
+        if (
+            not isinstance(completion_evidence, list)
+            or not completion_evidence
+            or not all(isinstance(v, str) and v.strip() for v in completion_evidence)
+        ):
+            raise RequestRejected("non-empty completion_evidence list required")
+
+        current = self.gh.issue(issue)
+        body = current.get("body") or ""
+        title = current.get("title") or ""
+        if (
+            "<!-- LQ_EXECUTION_LEAF:v1 -->" not in body
+            or "WORK_TYPE: EXECUTION_LEAF" not in body
+            or "CLAIMABLE: YES" not in body
+        ):
+            raise RequestRejected("TASK_EVIDENCE close requires execution Leaf issue")
+        if f"TASK_ID: {task_id}" not in body and not title.startswith(f"{task_id}:"):
+            raise RequestRejected("task_id does not match issue contract")
+
+        work_log = next(
+            (
+                c
+                for c in self.gh.comments(issue)
+                if int(c.get("id", -1)) == work_log_comment_id
+            ),
+            None,
+        )
+        if work_log is None:
+            raise RequestRejected("work log comment not found on target issue")
+        work_log_body = work_log.get("body") or ""
+        if task_id not in work_log_body or "WORK LOG" not in work_log_body.upper():
+            raise RequestRejected("work log comment does not prove target task execution")
+
+        return {
+            "COMPLETION_MODE": "TASK_EVIDENCE",
+            "TASK_ID": task_id,
+            "WORK_LOG_COMMENT_ID": work_log_comment_id,
+            "COMPLETION_EVIDENCE": completion_evidence,
+        }
+
     def issue_close(self, req: dict) -> dict:
         cfg = self._validate_common(req)
         payload = req.get("payload", {})
@@ -911,13 +974,25 @@ class Gateway:
         self._assert_issue_allowed(req["lane_id"], issue)
         if issue == cfg["parent"]:
             raise RequestRejected("parent issue close is outside initial gateway allowlist")
+
         adoption_id = str(payload.get("adoption_id", ""))
-        if not adoption_id:
-            raise RequestRejected("child close requires adoption_id")
-        adoption = self.adoption_record(req["lane_id"], adoption_id)
-        if adoption.get("CHILD_ISSUE") != issue or adoption.get("STATE") not in ("ADOPTED_CHILD_NOT_CLOSED", "CHILD_CLOSED_PARENT_NOT_ADVANCED", "COMPLETE"):
-            raise RequestRejected("child close requires adopted evidence for same child")
-        _, op, _ = self._start_operation(req, "ISSUE_CLOSE", f"issue-{issue}", "IDEMPOTENT_RETRY_SAFE")
+        task_context = None
+        if adoption_id:
+            adoption = self.adoption_record(req["lane_id"], adoption_id)
+            if adoption.get("CHILD_ISSUE") != issue or adoption.get("STATE") not in (
+                "ADOPTED_CHILD_NOT_CLOSED",
+                "CHILD_CLOSED_PARENT_NOT_ADVANCED",
+                "COMPLETE",
+            ):
+                raise RequestRejected(
+                    "child close requires adopted evidence for same child"
+                )
+        else:
+            task_context = self._task_completion_close_context(req, issue, payload)
+
+        _, op, _ = self._start_operation(
+            req, "ISSUE_CLOSE", f"issue-{issue}", "IDEMPOTENT_RETRY_SAFE"
+        )
         if op["OPERATION_STATE"] == CONFIRMED_APPLIED:
             return op
         current = self.gh.issue(issue)
@@ -927,14 +1002,26 @@ class Gateway:
             current = self.gh.issue(issue)
             if current.get("state") != "closed":
                 raise GatewayError("issue close readback failed")
-        def mutate(r):
-            if r.get("STATE") == "ADOPTED_CHILD_NOT_CLOSED":
-                r["STATE"] = "CHILD_CLOSED_PARENT_NOT_ADVANCED"
-                r["CHILD_CLOSED_AT"] = now_rfc3339()
-            return r
-        self._update_adoption_record(req["lane_id"], adoption_id, mutate, f"gateway: adoption child closed {adoption_id}")
-        return self._finish(req, op, CONFIRMED_APPLIED, {"ISSUE_STATE": "closed", "ADOPTION_ID": adoption_id})
 
+        extra = {"ISSUE_STATE": "closed"}
+        if adoption_id:
+            def mutate(r):
+                if r.get("STATE") == "ADOPTED_CHILD_NOT_CLOSED":
+                    r["STATE"] = "CHILD_CLOSED_PARENT_NOT_ADVANCED"
+                    r["CHILD_CLOSED_AT"] = now_rfc3339()
+                return r
+
+            self._update_adoption_record(
+                req["lane_id"],
+                adoption_id,
+                mutate,
+                f"gateway: adoption child closed {adoption_id}",
+            )
+            extra["ADOPTION_ID"] = adoption_id
+        else:
+            extra.update(task_context or {})
+
+        return self._finish(req, op, CONFIRMED_APPLIED, extra)
     def parent_progress_update(self, req: dict) -> dict:
         cfg = self._validate_common(req)
         payload = req.get("payload", {})
