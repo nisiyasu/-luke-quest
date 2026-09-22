@@ -62,10 +62,25 @@
 ## 補助
 GitHub Copilot Project Planningは、Spec Kit後の細分化補助として利用可能。ただしSpec Kit artifacts / GitHub native relationsを上書きする正本にはしない。
 
-## Current execution boundary / 今回の停止点
+## Current execution boundary / 現在の実行境界
 
-Owner指示により、この実行は **Step 22: ExtensionによるIssue Graphがtasks.md / analyze.mdと100%整合することの確認** まで進める。
+2026-09-23 Owner指示により、旧「Step 22で停止」の実行境界は解除済みとする。
+Step 23以降のAgent実装は、次の条件を満たすREADY Leafから開始してよい。
 
-- Step 23以降のAgent実装はこの実行では開始しない。
-- 旧視覚実装の削除、implementation branchでのゲームコード変更も開始しない。
-- Archive/rebuild方針は設計・Issueへ固定するが、実際の削除は実装フェーズ開始時にrollback point確認後に行う。
+- #101配下の再帰Sub-issue treeに属する実行Leafであること
+- Leaf自身がOPENで、Sub-issueを持たないこと
+- Native Issue Dependenciesのblocked_byがすべて解消していること
+- Container / Gate / Phase / Control-only Issueを実行仕事としてclaimしないこと
+- Worker claim / leaseが競合していないこと
+- G1 Whitebox構図PASS前にmodel/material/light/decorへ進まないこと
+- 複数Workerが同一implementation branchへ競合writeしないこと
+- Issue別/Worker別branch分離が未成立の場合、競合Workerはread-only調査・Evidence準備までに限定すること
+- persistent mutationはvisual-rebuild Fenced GatewayのLease / Epoch / expected HEAD / receipt契約に従うこと
+- Acceptance / Evidence成立時だけLeaf Issueをcloseすること
+
+#102〜#116はGate / Phase Containerとして扱い、Workerが直接claim・closeする実行単位にしない。
+依存関係はTask番号やPhase順を理由に追加せず、本当に完了が必要なprerequisiteだけをNative Issue Dependenciesへ登録する。
+旧WORK_GRAPH_REPAIR_GATEの一本道配線は復活させない。
+
+旧視覚実装の削除や破壊的変更は、rollback pointをfresh確認したうえで、該当READY LeafのAcceptance / Evidence契約に従って行う。
+Archive/rebuild方針はGitHub Issue / Spec Kit artifactsへ耐久化し、実装時のFresh Realityを優先する。
