@@ -1,0 +1,11 @@
+{
+  "schema": "LQ_GRAPHITI_SYNC_RECEIPT_V2",
+  "status": "SYNC_OK",
+  "event_id": "004f9a638f8aad018b5798de8a5ef7a82877de657d337915d14a4933222d24e5",
+  "group_id": "luke-quest-visual-rebuild-v1",
+  "episode_uuid": "504eb445-d848-5666-8304-5b3947c1c819",
+  "synced_at": "2026-09-22T14:57:11.297328+00:00",
+  "wrapper_version": "2.3.1",
+  "graphiti_core_version": "0.30.2",
+  "graphiti_readback_status": "PASS"
+}
