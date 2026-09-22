@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-22T18:53:45.001422Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-22T18:53:45.001440Z",
+  "LEASE_EPOCH": 22,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "worker-b-20260922T185140Z-run11-t008-inventory-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "worker-b-20260922T185140Z-run11",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "ade23fdaffe86af6c017ad394f902b845310dc58",
+    "commit_sha": "9841b9abdbfc2a62f467489baaeaf1d6c18c0778",
+    "path": "requests/visual-rebuild/worker-b-20260922T185140Z-run11-t008-inventory.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "worker-b-20260922T185140Z-run11-t008-inventory",
+  "REQUEST_SHA256": "87daf6147e4ba3f217288a3e16d7582722e8db01e1435afd0ac949247b7c45a9",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:docs/autonomy/evidence/T008_REUSE_INVENTORY_v1.md"
+}
