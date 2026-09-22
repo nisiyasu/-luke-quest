@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-22T23:38:30.948358Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-22T23:38:30.948378Z",
+  "LEASE_EPOCH": 26,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "control-t011-20260922T233515Z-clean-index-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-t011-20260922T233515Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "e2a391b2b08cd0c7ac62dc7a22949e62b3f3a8c0",
+    "commit_sha": "915a499671a1e5f4f7d8b526b0149d3635c50988",
+    "path": "requests/visual-rebuild/control-t011-20260922T233515Z-clean-index.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-t011-20260922T233515Z-clean-index",
+  "REQUEST_SHA256": "285ed433f089eb8218f6f38b70f381b6c4c0fc9dd6309bca49fbbe98cc7945e8",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:prototypes/target-image-threejs/index.html"
+}
