@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-t011-20260922T233515Z-clean-index-op",
+  "processed_at": "2026-09-22T23:38:45.131751Z",
+  "request_id": "control-t011-20260922T233515Z-clean-index",
+  "request_sha256": "285ed433f089eb8218f6f38b70f381b6c4c0fc9dd6309bca49fbbe98cc7945e8",
+  "result": {
+    "APPLIED_HEAD": "0f683e76acd2bd11aaa32e3fd81bcb7c72a9a7de",
+    "CONTENT_SHA256": "622497967e9c9c30b836df1ec800f857345f93e5a1847d4d84674238ae2f4787",
+    "CREATED_AT": "2026-09-22T23:38:30.948358Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-22T23:38:39.986138Z",
+    "LEASE_EPOCH": 26,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "control-t011-20260922T233515Z-clean-index-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-t011-20260922T233515Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "e2a391b2b08cd0c7ac62dc7a22949e62b3f3a8c0",
+      "commit_sha": "915a499671a1e5f4f7d8b526b0149d3635c50988",
+      "path": "requests/visual-rebuild/control-t011-20260922T233515Z-clean-index.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-t011-20260922T233515Z-clean-index",
+    "REQUEST_SHA256": "285ed433f089eb8218f6f38b70f381b6c4c0fc9dd6309bca49fbbe98cc7945e8",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "experiment/target-image-threejs-v1:prototypes/target-image-threejs/index.html"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "e2a391b2b08cd0c7ac62dc7a22949e62b3f3a8c0",
+  "source_commit_sha": "915a499671a1e5f4f7d8b526b0149d3635c50988",
+  "source_path": "requests/visual-rebuild/control-t011-20260922T233515Z-clean-index.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
