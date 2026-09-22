@@ -3,7 +3,7 @@
   "lane_id": "visual-rebuild",
   "ok": false,
   "operation_id": "control-t011-20260922T233554Z-lease-op",
-  "processed_at": "2026-09-22T23:37:42.724712Z",
+  "processed_at": "2026-09-22T23:37:57.282951Z",
   "request_id": "control-t011-20260922T233554Z-lease",
   "request_sha256": "3544889928d5c60298151431c17c0a5d5063c87bac92235bc965b1cf6514bc7d",
   "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
