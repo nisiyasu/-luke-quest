@@ -22,7 +22,7 @@ NS = uuid.UUID("c65bc20a-5096-40de-8a1f-c508639a29c2")
 
 SUPPORTED_GRAPHITI_CORE = "0.30.2"
 SUPPORTED_NEO4J = "6.3.1"
-WRAPPER_VERSION = "2.0.0"
+WRAPPER_VERSION = "2.1.1"
 SEED_SCHEMA = "LQ_GRAPHITI_SEED_V2"
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -464,6 +464,103 @@ async def reset_group(group_id: str, confirm: str, out_path: str | None) -> None
         await driver.close()
 
 
+
+async def sync_event(event_path: Path, out_path: str | None) -> None:
+    assert_supported_versions()
+    raw = event_path.read_text(encoding="utf-8")
+    event = json.loads(raw)
+    if event.get("schema") != "LQ_GRAPHITI_SYNC_EVENT_V1":
+        raise RuntimeError("unsupported sync event schema")
+    required = [
+        "event_id","group_id","event_kind","source_repository","source_ref",
+        "source_locator","observed_at","valid_at","content","content_sha256"
+    ]
+    missing = [k for k in required if not event.get(k)]
+    if missing:
+        raise RuntimeError(f"sync event missing fields: {missing}")
+    if sha256_text(event["content"]) != event["content_sha256"]:
+        raise RuntimeError("sync event content_sha256 mismatch")
+
+    group_id = event["group_id"]
+    driver = make_driver()
+    try:
+        episode_uuid = stable_id(group_id, "sync_event", event["event_id"])
+        created_at = parse_dt(event["observed_at"])
+        node = EpisodicNode(
+            uuid=episode_uuid,
+            name=f"{event['event_kind']}:{event['event_id']}",
+            group_id=group_id,
+            labels=["OwnerMemoryEpisode","DurableSyncEvent"],
+            created_at=created_at,
+            source=EpisodeType.text,
+            source_description=event["source_locator"],
+            content=event["content"],
+            valid_at=parse_dt(event["valid_at"]),
+            entity_edges=[],
+            episode_metadata={
+                "event_id": event["event_id"],
+                "event_kind": event["event_kind"],
+                "source_repository": event["source_repository"],
+                "source_ref": event["source_ref"],
+                "content_sha256": event["content_sha256"],
+                "observed_at": event["observed_at"],
+            },
+        )
+        await node.save(driver)
+
+        q = """
+        MATCH (e:Episodic {group_id:$group_id, uuid:$uuid})
+        RETURN e.uuid AS uuid, e.name AS name, e.content AS content,
+               e.source_description AS source_description,
+               toString(e.valid_at) AS valid_at
+        """
+        rb = await driver.execute_query(q, group_id=group_id, uuid=episode_uuid)
+        if not rb.records:
+            raise RuntimeError("sync event readback failed")
+        row = rb.records[0].data()
+        if row.get("content") != event["content"]:
+            raise RuntimeError("sync event readback content mismatch")
+
+        emit({
+            "schema":"LQ_GRAPHITI_SYNC_RECEIPT_V1",
+            "status":"SYNC_OK",
+            "event_id":event["event_id"],
+            "group_id":group_id,
+            "episode_uuid":episode_uuid,
+            "synced_at":datetime.now(timezone.utc).isoformat(),
+            "wrapper_version":WRAPPER_VERSION,
+            "graphiti_core_version":versions()["graphiti-core"],
+            "graphiti_readback_status":"PASS",
+        }, out_path)
+    finally:
+        await driver.close()
+
+
+async def events(group_id: str, limit: int, out_path: str | None) -> None:
+    assert_supported_versions()
+    driver = make_driver()
+    q = """
+    MATCH (e:Episodic {group_id:$group_id})
+    RETURN e.uuid AS uuid, e.name AS name, e.content AS content,
+           e.source_description AS source_description,
+           toString(e.created_at) AS created_at,
+           toString(e.valid_at) AS valid_at
+    ORDER BY e.valid_at DESC, e.created_at DESC
+    LIMIT $limit
+    """
+    try:
+        result = await driver.execute_query(q, group_id=group_id, limit=limit)
+        rows = [r.data() for r in result.records]
+        emit({
+            "status":"EVENTS_OK",
+            "wrapper_version":WRAPPER_VERSION,
+            "group_id":group_id,
+            "rows":rows,
+        }, out_path)
+    finally:
+        await driver.close()
+
+
 async def main() -> None:
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="command", required=True)
@@ -490,6 +587,15 @@ async def main() -> None:
     p_reset.add_argument("--confirm", required=True)
     p_reset.add_argument("--out")
 
+    p_sync = sub.add_parser("sync-event")
+    p_sync.add_argument("event")
+    p_sync.add_argument("--out")
+
+    p_events = sub.add_parser("events")
+    p_events.add_argument("group_id")
+    p_events.add_argument("--limit", type=int, default=20)
+    p_events.add_argument("--out")
+
     args = ap.parse_args()
 
     if args.command == "ingest":
@@ -502,6 +608,10 @@ async def main() -> None:
         await health(args.group_id, args.out)
     elif args.command == "reset-group":
         await reset_group(args.group_id, args.confirm, args.out)
+    elif args.command == "sync-event":
+        await sync_event(Path(args.event), args.out)
+    elif args.command == "events":
+        await events(args.group_id, args.limit, args.out)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
   "group_id": "luke-quest-visual-rebuild-v1",
   "generated_at": "2026-09-22T22:23:49.8793606+09:00",
   "version_pins": {
-    "wrapper": "2.0.0",
+    "wrapper": "2.1.1",
     "graphiti-core": "0.30.2",
     "neo4j": "6.3.1",
     "httpx": "0.28.1",
@@ -12,16 +12,16 @@
   "database_mode": "single configured Neo4j database + explicit group_id filtering",
   "files": {
     "LUKE_QUEST_GRAPHITI_HYDRATION_HYBRID_CONTRACT_v2.md": {
-      "sha256": "e7975b3bd5208f84b3d05976ccf55fd9acd139265b60ad197e8ea2bef8a07c0f",
+      "sha256": "ea982ed57a96a7e1220f5586b7dbbd27df56e7e4a43487446a7bf9a376205227",
       "size": 9733
     },
     "luke_quest_visual_rebuild_seed_v2.json": {
-      "sha256": "7102690172d67c251e8cdbff9534f83de7f9c06d9fb97d4aaddf2643de8a0154",
+      "sha256": "c5d97c41e1d60f2550a19bb419c0aac5e0114b297b2ecbee7e1962c8af76bb65",
       "size": 9752
     },
     "chatgpt_graphiti_wrapper_v2.py": {
-      "sha256": "85e3dc094c6fdfa94c89fbb165dd488f06472703bb2dc7365fb4916d44c00572",
-      "size": 17617
+      "sha256": "704e6456c01d73dac029fd2d52d841243206b16c5251954896528cfb5e157844",
+      "size": 21831
     },
     "requirements-lock-v2.txt": {
       "sha256": "efefbfd650b24add7d53b647562de33ad0d6ece8d4661319e8fb6cf6c18cefd0",

@@ -9,7 +9,7 @@
     "baseline_commit": "570cd5dc160cc33bf909d554b13fe30847bfc3f0"
   },
   "compatibility": {
-    "wrapper_version": "2.0.0",
+    "wrapper_version": "2.1.1",
     "graphiti_core": "0.30.2",
     "neo4j": "6.3.1",
     "database_mode": "single configured database + explicit group_id filtering"

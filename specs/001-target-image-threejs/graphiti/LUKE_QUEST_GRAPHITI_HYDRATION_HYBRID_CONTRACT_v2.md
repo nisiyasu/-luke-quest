@@ -92,7 +92,7 @@ database-per-groupに依存しない。
 
 ## 4. バージョン固定
 
-WRAPPER_VERSION: 2.0.0
+WRAPPER_VERSION: 2.1.1
 GRAPHITI_CORE: 0.30.2
 NEO4J_DRIVER: 6.3.1
 HTTPX: 0.28.1
