@@ -1,0 +1,295 @@
+{
+  "group_id": "luke-quest-visual-rebuild-v1",
+  "episodes": [
+    {
+      "key": "luke_handoff_20260922",
+      "name": "LUKE QUEST引っ越し・現在地",
+      "source_description": "LUKE_QUEST_SESSION_CONTEXT_HYDRATION_HANDOFF_20260922.md",
+      "valid_at": "2026-09-22T21:50:00+09:00",
+      "content": "旧視覚実装の構図不一致を受け、LUKE QUESTはSpec Kitで再構築へ移行。Parent #101、Sub-issues #102〜#116、3 Worker READY Pull、Gatewayは安全な書込み口。現在の主問題はWork Graphが過剰に直列化されREADYが枯れること。次は不要依存削除と[P]並列TaskのLeaf Issue化。"
+    },
+    {
+      "key": "owner_graphiti_hybrid_20260922",
+      "name": "Owner決定 Graphiti×Hydrationハイブリッド",
+      "source_description": "Owner decision in LUKE QUEST chat 2026-09-22",
+      "valid_at": "2026-09-22T21:59:00+09:00",
+      "content": "OwnerはLUKE QUESTの最新引っ越し方式にGraphitiをハイブリッドすることを決定。GitHubを唯一の正本として維持し、GraphitiはWhy/History/Decision lineage/変遷を保持するSidecar Memory、HydrationはFresh GitHubとGraphiti検索からSESSION_CONTEXT_STATEを生成する。"
+    }
+  ],
+  "entities": [
+    {
+      "key": "luke",
+      "name": "LUKE QUEST",
+      "summary": "Owner見本画像からiPhoneでプレイ可能な高精細3Dゲーム画面へ再構築するWork",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Work"
+      }
+    },
+    {
+      "key": "legacy_visual",
+      "name": "旧視覚実装",
+      "summary": "構図不一致が大きく、継ぎ足し改修ではなく退避対象となった旧3D画面",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "History",
+        "sequence": 1
+      }
+    },
+    {
+      "key": "rebuild_decision",
+      "name": "Spec Kit再構築決定",
+      "summary": "旧視覚sceneを延命せずWhiteboxから再構築する決定",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Decision",
+        "sequence": 2
+      }
+    },
+    {
+      "key": "spec_graph",
+      "name": "Spec Kit Work Graph",
+      "summary": "Parent #101、Sub-issues #102〜#116、Tasks/Dependencies/Projects v2で構成",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "WorkGraph",
+        "sequence": 3
+      }
+    },
+    {
+      "key": "old_linear_gate",
+      "name": "旧一本道Work Graph修復Gate",
+      "summary": "#102→#113→#114→#115→#103等へ直列化する旧修復案。現在は採用しない。",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "SupersededDecision",
+        "sequence": 4
+      }
+    },
+    {
+      "key": "parallel_redesign",
+      "name": "READY Leaf並列Work Graph再設計",
+      "summary": "本当に必要なDependencyだけ残し[P]並列TaskをLeaf Issueへ露出する現在Gate",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Current",
+        "sequence": 5
+      }
+    },
+    {
+      "key": "three_workers",
+      "name": "Worker A/B/C READY Pull Pool",
+      "summary": "OPENかつblocked_by 0かつ有効claimなしのLeaf IssueをPullする3 Worker",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Execution",
+        "sequence": 6
+      }
+    },
+    {
+      "key": "gateway",
+      "name": "visual-rebuild Gateway",
+      "summary": "Lease/fencing/receiptを担う安全な書込み口。Work選択authorityではない。",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Infrastructure"
+      }
+    },
+    {
+      "key": "github",
+      "name": "GitHub SSOT",
+      "summary": "Issue/Decision/Evidence/Authority/Task/Contractの唯一の正本",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Authority"
+      }
+    },
+    {
+      "key": "graphiti",
+      "name": "Graphiti Sidecar Memory",
+      "summary": "Why/History/Decision lineage/時間変化/出典を保持する横付けMemory。正本ではない。",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Memory"
+      }
+    },
+    {
+      "key": "hydration",
+      "name": "Session Context Hydration",
+      "summary": "Fresh GitHubとGraphiti検索結果から新ChatのHot Contextを再構成する方式",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Recovery"
+      }
+    },
+    {
+      "key": "next_leaf",
+      "name": "不要依存削除＋Leaf Issue化",
+      "summary": "現在Gate完了のための次の正式作業",
+      "labels": [
+        "ProjectMemory"
+      ],
+      "attributes": {
+        "kind": "Next",
+        "sequence": 7
+      }
+    }
+  ],
+  "facts": [
+    {
+      "key": "lq_f01",
+      "source": "legacy_visual",
+      "target": "rebuild_decision",
+      "name": "LEADS_TO",
+      "fact": "旧視覚実装の構図不一致が、継ぎ足し改修ではなくSpec Kit再構築決定につながった。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-21T00:00:00+09:00"
+    },
+    {
+      "key": "lq_f02",
+      "source": "rebuild_decision",
+      "target": "spec_graph",
+      "name": "LEADS_TO",
+      "fact": "Spec Kit再構築決定から#101〜#116と114 TasksのWork Graph構築へ進んだ。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-21T12:00:00+09:00"
+    },
+    {
+      "key": "lq_f03_old",
+      "source": "luke",
+      "target": "old_linear_gate",
+      "name": "CURRENT_IS",
+      "fact": "一時期は一本道Work Graph修復GateをCurrentとして扱った。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-22T16:00:00+09:00",
+      "invalid_at": "2026-09-22T21:30:00+09:00"
+    },
+    {
+      "key": "lq_f04",
+      "source": "old_linear_gate",
+      "target": "parallel_redesign",
+      "name": "LEADS_TO",
+      "fact": "Owner指摘により、一本道修復ではなく不要依存削除とLeaf READY化が本質解と判明した。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-22T21:30:00+09:00"
+    },
+    {
+      "key": "lq_f05",
+      "source": "luke",
+      "target": "parallel_redesign",
+      "name": "CURRENT_IS",
+      "fact": "LUKE QUEST視覚再構築の現在GateはREADY Leaf並列Work Graph再設計である。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-22T21:30:00+09:00"
+    },
+    {
+      "key": "lq_f06",
+      "source": "parallel_redesign",
+      "target": "next_leaf",
+      "name": "LEADS_TO",
+      "fact": "現在Gateでは不要Dependencyを削除し[P]並列TaskをLeaf Issueへ露出する。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-22T21:30:00+09:00"
+    },
+    {
+      "key": "lq_f07",
+      "source": "three_workers",
+      "target": "parallel_redesign",
+      "name": "ROLE_IS",
+      "fact": "3 Workerは固定scene担当ではなくREADY Leaf IssueをPullする実行Poolとして使う。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-22T21:30:00+09:00"
+    },
+    {
+      "key": "lq_f08",
+      "source": "gateway",
+      "target": "three_workers",
+      "name": "ROLE_IS",
+      "fact": "GatewayはWorkerのWork選択を決めず、Lease/fencing/receiptによる安全な書込みだけを担う。",
+      "episodes": [
+        "luke_handoff_20260922"
+      ],
+      "valid_at": "2026-09-22T21:30:00+09:00"
+    },
+    {
+      "key": "lq_f09",
+      "source": "luke",
+      "target": "github",
+      "name": "AUTHORITY_IS",
+      "fact": "LUKE QUESTのIssue/Decision/Evidence/Authority/Task/Contractの正本はGitHubである。",
+      "episodes": [
+        "owner_graphiti_hybrid_20260922"
+      ],
+      "valid_at": "2026-09-22T21:59:00+09:00"
+    },
+    {
+      "key": "lq_f10",
+      "source": "luke",
+      "target": "graphiti",
+      "name": "ROLE_IS",
+      "fact": "GraphitiはLUKEのWhy/History/Decision lineage/時間変化/出典を保持するSidecar MemoryでありAuthorityではない。",
+      "episodes": [
+        "owner_graphiti_hybrid_20260922"
+      ],
+      "valid_at": "2026-09-22T21:59:00+09:00"
+    },
+    {
+      "key": "lq_f11",
+      "source": "graphiti",
+      "target": "hydration",
+      "name": "LEADS_TO",
+      "fact": "Graphitiの因果・時系列MemoryをFresh GitHubの現在事実と合わせ、Session Context Hydrationを生成する。",
+      "episodes": [
+        "owner_graphiti_hybrid_20260922"
+      ],
+      "valid_at": "2026-09-22T21:59:00+09:00"
+    },
+    {
+      "key": "lq_f12",
+      "source": "hydration",
+      "target": "parallel_redesign",
+      "name": "RETURN_POINT",
+      "fact": "新Chat復旧後はFresh Realityを優先し、現在のWork Graph再設計Gateへ戻る。",
+      "episodes": [
+        "owner_graphiti_hybrid_20260922"
+      ],
+      "valid_at": "2026-09-22T21:59:00+09:00"
+    }
+  ]
+}
