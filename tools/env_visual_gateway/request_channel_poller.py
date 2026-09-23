@@ -143,6 +143,20 @@ def legacy_receipt_path(request_id: str) -> str:
     return "receipts/" + safe_request_id(request_id) + ".json"
 
 
+def pending_request_items(items: list[dict], terminal_ids: set[str]) -> list[dict]:
+    """Return only requests that do not already have a terminal receipt.
+
+    The poller budget must be spent on unresolved work.  Counting historical
+    terminal requests against LQ_ENV_REQUEST_MAX_PER_RUN can permanently starve
+    newer requests because request paths are processed in lexical order.
+    """
+    return [
+        item
+        for item in items
+        if pathlib.PurePosixPath(item["path"]).stem not in terminal_ids
+    ]
+
+
 def terminal_receipt_ids(gh: GitHub) -> set[str]:
     head = gh.ref(RECEIPT_BRANCH)
     tree = gh.request("GET", f"/git/trees/{head}?recursive=1")
@@ -300,10 +314,11 @@ def main() -> None:
     head = source.head_sha()
     items = source.request_files(head)
     terminal_ids = terminal_receipt_ids(target)
+    pending_items = pending_request_items(items, terminal_ids)
     blocked_lanes: set[str] = set()
     processed = 0
 
-    for item in items:
+    for item in pending_items:
         if processed >= limit:
             break
         lane = item["lane_from_path"]
@@ -346,6 +361,7 @@ def main() -> None:
             {
                 "source_head": head,
                 "request_count": len(items),
+                "pending_request_count": len(pending_items),
                 "processed": processed,
                 "blocked_lanes": sorted(blocked_lanes),
             },
