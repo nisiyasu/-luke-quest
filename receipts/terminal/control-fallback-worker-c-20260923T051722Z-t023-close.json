@@ -1,0 +1,48 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-fallback-worker-c-20260923T051722Z-t023-close-op",
+  "processed_at": "2026-09-23T05:30:23.421981Z",
+  "request_id": "control-fallback-worker-c-20260923T051722Z-t023-close",
+  "request_sha256": "885a615151f08bb410d62f7c70939a83b717f1e807d3e53232ede1aea7cbf5a3",
+  "result": {
+    "COMPLETION_EVIDENCE": [
+      "implementation_head=6b4220752ee83d9a6fdb70c7737e371df9b0ca54",
+      "prototypes/target-image-threejs/verification/visual-evidence-contract-v1.schema.json",
+      "prototypes/target-image-threejs/verification/README.md",
+      "schema_sha256=e8aba0350967d27ddcd54ae946230883d97dff3b6fd7001182f2a75b4efcf791",
+      "readme_sha256=d55a1ca327ac73b32b67e1e656d5d9c4cf5d15c81eec8f456dcb361b48ad5bcf",
+      "fresh_readback=PASS",
+      "structural_schema_validation=PASS"
+    ],
+    "COMPLETION_MODE": "TASK_EVIDENCE",
+    "CREATED_AT": "2026-09-23T05:30:12.728702Z",
+    "ISSUE_STATE": "closed",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T05:30:20.799690Z",
+    "LEASE_EPOCH": 35,
+    "MUTATION_TYPE": "ISSUE_CLOSE",
+    "OPERATION_ID": "control-fallback-worker-c-20260923T051722Z-t023-close-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-fallback-worker-c-20260923T051722Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "088e89e0a7e96333ffeb4ff7f7ee0c9673ed59a2",
+      "commit_sha": "ff2ebe6654bb2a6b52a0901e324ab101f3d71b32",
+      "path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-close.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-fallback-worker-c-20260923T051722Z-t023-close",
+    "REQUEST_SHA256": "885a615151f08bb410d62f7c70939a83b717f1e807d3e53232ede1aea7cbf5a3",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "issue-139",
+    "TASK_ID": "T023",
+    "WORK_LOG_COMMENT_ID": 5789598943
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "088e89e0a7e96333ffeb4ff7f7ee0c9673ed59a2",
+  "source_commit_sha": "ff2ebe6654bb2a6b52a0901e324ab101f3d71b32",
+  "source_path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-close.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
