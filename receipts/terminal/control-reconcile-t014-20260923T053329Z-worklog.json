@@ -1,0 +1,36 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-reconcile-t014-20260923T053329Z-worklog-op",
+  "processed_at": "2026-09-23T05:35:19.732474Z",
+  "request_id": "control-reconcile-t014-20260923T053329Z-worklog",
+  "request_sha256": "265630101644534f8664c64c956ac9b89f767889f9c6cbe2a74532316232a956",
+  "result": {
+    "COMMENT_ID": 5789656106,
+    "CREATED_AT": "2026-09-23T05:35:09.309309Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T05:35:17.168604Z",
+    "LEASE_EPOCH": 36,
+    "MUTATION_TYPE": "ISSUE_COMMENT",
+    "OPERATION_ID": "control-reconcile-t014-20260923T053329Z-worklog-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-reconcile-t014-20260923T053329Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "c71a92a9bc30bd74048b98a4e225e901c23499a1",
+      "commit_sha": "e26bcfd1018514caec271ac436896eaa01542631",
+      "path": "requests/visual-rebuild/control-reconcile-t014-20260923T053329Z-worklog.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-reconcile-t014-20260923T053329Z-worklog",
+    "REQUEST_SHA256": "265630101644534f8664c64c956ac9b89f767889f9c6cbe2a74532316232a956",
+    "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+    "TARGET_RESOURCE": "issue-128"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "c71a92a9bc30bd74048b98a4e225e901c23499a1",
+  "source_commit_sha": "e26bcfd1018514caec271ac436896eaa01542631",
+  "source_path": "requests/visual-rebuild/control-reconcile-t014-20260923T053329Z-worklog.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
