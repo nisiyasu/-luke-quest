@@ -1,0 +1,52 @@
+{
+  "ACCEPTANCE": {
+    "accepted_head": "f319ec08a886aa079241ff3124f88845ecacb0e4",
+    "evaluated_at": "2026-09-23T17:59:00Z",
+    "evaluator_id": "T021_LANDMARK_MEASUREMENT_V1",
+    "evidence_artifacts": [
+      {
+        "kind": "landmark-measurement-v1.mjs",
+        "sha256": "7c3d71542851a8b8f59380f539ee3a1449304d8bfa6b7182f38d6fe12af8df95",
+        "uri": "github://nisiyasu/-luke-quest@f319ec08a886aa079241ff3124f88845ecacb0e4/prototypes/target-image-threejs/verification/landmark-measurement-v1.mjs"
+      }
+    ],
+    "result": "PASS",
+    "runtime_config": {
+      "all_measurements_normalized": true,
+      "measurement_count": 22,
+      "output": "evidence-local/t021-applied.json",
+      "p0_count": 7,
+      "p1_count": 7,
+      "p2_count": 8,
+      "status": "LANDMARK_MEASUREMENT_PASS",
+      "viewport": {
+        "dpr": 1,
+        "height": 1672,
+        "width": 941
+      }
+    },
+    "schema": "LQ_TASK_ACCEPTANCE:v1",
+    "task_id": "T021"
+  },
+  "ACCEPTANCE_SHA256": "ef6594089e335a28d4b106e5a59c0d13842fdeed339ba6ad8a4af439815263a9",
+  "CLAIM_GENERATION": 1,
+  "CLOSE_DISPATCHED_AT": null,
+  "CREATED_AT": "2026-09-23T17:58:34.086828Z",
+  "EXACT_HEAD": "f319ec08a886aa079241ff3124f88845ecacb0e4",
+  "ISSUE": 135,
+  "LAST_UPDATED_AT": "2026-09-23T17:58:34.086830Z",
+  "OPERATION_ID": "worker-b-20260923T175900Z-t021-complete-op",
+  "OWNER_RUN_ID": "worker-b-20260923T174950Z-t021",
+  "PHASE": "PREPARED",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "79c63db1b20455ae4005948181c850bb984ef7eb",
+    "commit_sha": "502e1b30db5bc132dd01d7d4932f3a95a8244491",
+    "path": "requests/visual-rebuild/worker-b-20260923T175900Z-t021-complete.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "TASK_ID": "T021",
+  "WORKER_ID": "B",
+  "WORK_LOG_COMMENT_ID": null,
+  "schema": "LQ_TASK_COMPLETION:v1"
+}
