@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-23T05:24:24.252905Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-23T05:24:24.252928Z",
+  "LEASE_EPOCH": 35,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "control-fallback-worker-c-20260923T051722Z-t023-readme-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-fallback-worker-c-20260923T051722Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "6309f4bf3d3529200756cef547dc7b605d0e6fe5",
+    "commit_sha": "47407cf98075b08575d7b6ecdf5b8a4161716e17",
+    "path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-readme.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-fallback-worker-c-20260923T051722Z-t023-readme",
+  "REQUEST_SHA256": "0265c4fd4ce6ff88b32ff819de172b142d622de241e7969a4b9ee09a8e71fecd",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:prototypes/target-image-threejs/verification/README.md"
+}
