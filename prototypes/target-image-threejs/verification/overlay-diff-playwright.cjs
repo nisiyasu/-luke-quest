@@ -50,7 +50,8 @@ function dataUrl(filePath) {
   writeDataUrl('overlay.png', result.overlay); writeDataUrl('diff.png', result.diff);
   delete result.overlay; delete result.diff;
   const audit = { schema:'LQ_OVERLAY_DIFF_AUDIT:v1', targetPath, actualPath, ...result };
-  fs.writeFileSync(path.join(outputDir,name), JSON.stringify(audit,null,2));
+  fs.writeFileSync(path.join(outputDir,'overlay-diff-audit.json'), JSON.stringify(audit,null,2));
   await browser.close();
   console.log(JSON.stringify({ status:'OVERLAY_DIFF_PASS', ...audit }));
 })().catch((error)=>{ console.error(error); process.exit(1); });
+
