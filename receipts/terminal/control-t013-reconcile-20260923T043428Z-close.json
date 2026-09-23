@@ -1,0 +1,45 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-t013-reconcile-20260923T043428Z-close-op",
+  "processed_at": "2026-09-23T04:37:09.528223Z",
+  "request_id": "control-t013-reconcile-20260923T043428Z-close",
+  "request_sha256": "e616409ec53ccc19c0ea5e4a85f698dca7bdebaaec8e05b7b9e2cbf53effe28f",
+  "result": {
+    "COMPLETION_EVIDENCE": [
+      "applied_head=07320aa450e9f6011e2b09e19eb2058abad34689",
+      "docs/autonomy/evidence/T013_G0_REFERENCE_SET_v1.md",
+      "content_sha256=acaa80a34eeca20658df06c7d5452b072e77d643122f2123d19a49662e668f77",
+      "target_blob_sha=b7281e6580689a7a22cfa3b67d500950e4af7285"
+    ],
+    "COMPLETION_MODE": "TASK_EVIDENCE",
+    "CREATED_AT": "2026-09-23T04:37:01.894231Z",
+    "ISSUE_STATE": "closed",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T04:37:07.595516Z",
+    "LEASE_EPOCH": 31,
+    "MUTATION_TYPE": "ISSUE_CLOSE",
+    "OPERATION_ID": "control-t013-reconcile-20260923T043428Z-close-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-t013-reconcile-20260923T043428Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "d569ab4f393feb8f51aae81cded299472ad2a13b",
+      "commit_sha": "cee4dbe8fba17d6e1bd0a69ea1de33aefe7fa3d0",
+      "path": "requests/visual-rebuild/control-t013-reconcile-20260923T043428Z-close.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-t013-reconcile-20260923T043428Z-close",
+    "REQUEST_SHA256": "e616409ec53ccc19c0ea5e4a85f698dca7bdebaaec8e05b7b9e2cbf53effe28f",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "issue-127",
+    "TASK_ID": "T013",
+    "WORK_LOG_COMMENT_ID": 5789128440
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "d569ab4f393feb8f51aae81cded299472ad2a13b",
+  "source_commit_sha": "cee4dbe8fba17d6e1bd0a69ea1de33aefe7fa3d0",
+  "source_path": "requests/visual-rebuild/control-t013-reconcile-20260923T043428Z-close.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
