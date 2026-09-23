@@ -1,0 +1,81 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-a-20260923T184400Z-t024-complete-op",
+  "processed_at": "2026-09-23T18:43:32.866729Z",
+  "request_id": "worker-a-20260923T184400Z-t024-complete",
+  "request_sha256": "cd23476981c2dac86cfcd1029e075c23bf3854741f05b155b183970b7c4e4df4",
+  "result": {
+    "CLAIM_GENERATION": 1,
+    "EXACT_HEAD": "2ddebbe1a00f27f90828e747c4c4626c9b1f147d",
+    "ISSUE": 141,
+    "TASK_ID": "T024",
+    "WORK_LOG_COMMENT_ID": 5800785436,
+    "completion": {
+      "ACCEPTANCE": {
+        "accepted_head": "2ddebbe1a00f27f90828e747c4c4626c9b1f147d",
+        "evaluated_at": "2026-09-23T18:44:00Z",
+        "evaluator_id": "T024_G0_EXACT_HEAD_AUDIT_V1",
+        "evidence_artifacts": [
+          {
+            "kind": "g0-reference-set",
+            "sha256": "f7ac7cf048e3a3029bbf1cb01c6b1fcc9dc72a2d5bee6fb03e6e11626a597364",
+            "uri": "repo://nisiyasu/-luke-quest@2ddebbe1a00f27f90828e747c4c4626c9b1f147d/docs/autonomy/evidence/T013_G0_REFERENCE_SET_v1.md"
+          },
+          {
+            "kind": "visual-evidence-contract",
+            "sha256": "e8aba0350967d27ddcd54ae946230883d97dff3b6fd7001182f2a75b4efcf791",
+            "uri": "repo://nisiyasu/-luke-quest@2ddebbe1a00f27f90828e747c4c4626c9b1f147d/prototypes/target-image-threejs/verification/visual-evidence-contract-v1.schema.json"
+          },
+          {
+            "kind": "additional-verification-views",
+            "sha256": "c70c7567b7755833d9442fc89e74b26049f7a41ed1582dd1bfda53042a769610",
+            "uri": "repo://nisiyasu/-luke-quest@2ddebbe1a00f27f90828e747c4c4626c9b1f147d/prototypes/target-image-threejs/verification/additional-verification-views-v1.json"
+          }
+        ],
+        "result": "PASS",
+        "runtime_config": {
+          "blocking_finding": "Formal adopted G0 Evidence Set/Gate Record is absent from evidence/visual-verification",
+          "capture_result": "PASS width=941 height=1672 DPR=1 runtime=ready pageErrors=0",
+          "command": "Fresh exact-head readback of G0 artifacts and T023 evidence contract; canonical runtime capture 941x1672 DPR1; overlay/diff generation; evidence/visual-verification lookup",
+          "gate_verdict": "FAIL_NOT_YET_COMPLETE",
+          "overlay_diff_result": "PASS changedPixelRatio=0.9992741611540202 meanAbsoluteError=169.94190068931385",
+          "platform": "MSI C:\\luke-loop-a + GitHub exact-head readback"
+        },
+        "schema": "LQ_TASK_ACCEPTANCE:v1",
+        "task_id": "T024"
+      },
+      "ACCEPTANCE_SHA256": "854cd29bfaa4fa49bf7cc02271c9ea53d183397d7e52d6530e13c6b916172796",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_RELEASED": true,
+      "CLOSE_DISPATCHED_AT": "2026-09-23T18:43:24.301821Z",
+      "CLOSE_EVENT_ACTOR": "github-actions[bot]",
+      "CLOSE_EVENT_ID": 31700670312,
+      "CREATED_AT": "2026-09-23T18:43:17.982310Z",
+      "EXACT_HEAD": "2ddebbe1a00f27f90828e747c4c4626c9b1f147d",
+      "ISSUE": 141,
+      "LAST_UPDATED_AT": "2026-09-23T18:43:30.825236Z",
+      "OPERATION_ID": "worker-a-20260923T184400Z-t024-complete-op",
+      "OWNER_RUN_ID": "worker-a-20260923T183800Z-t024",
+      "PHASE": "COMPLETE",
+      "REQUEST_CHANNEL_SOURCE": {
+        "blob_sha": "11530d81603385f558d164c1e0e27625a0517659",
+        "commit_sha": "3c380ae14c08e709dcedaab6c9817a591bae5986",
+        "path": "requests/visual-rebuild/worker-a-20260923T184400Z-t024-complete.json",
+        "ref": "main",
+        "repository": "nisiyasu/luke-env-gateway-requests"
+      },
+      "TASK_ID": "T024",
+      "WORKER_ID": "A",
+      "WORK_LOG_COMMENT_ID": 5800785436,
+      "schema": "LQ_TASK_COMPLETION:v1"
+    },
+    "status": "TASK_COMPLETED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "11530d81603385f558d164c1e0e27625a0517659",
+  "source_commit_sha": "3c380ae14c08e709dcedaab6c9817a591bae5986",
+  "source_path": "requests/visual-rebuild/worker-a-20260923T184400Z-t024-complete.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
