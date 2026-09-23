@@ -1,0 +1,46 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-a-20260923T060300Z-t015-close-op",
+  "processed_at": "2026-09-23T06:14:08.898866Z",
+  "request_id": "worker-a-20260923T060300Z-t015-close",
+  "request_sha256": "a9f36a4327a1ccf6e4a5fdad815b601408d80be4aadf63bfb71090ffd4f8a690",
+  "result": {
+    "COMPLETION_EVIDENCE": [
+      "implementation_head=ee053be7c40555c5bef251e0c0446012ebbe5556",
+      "file=prototypes/target-image-threejs/verification/landmark-catalog-v1.json",
+      "content_sha256=f0a16769757c432bf59fff5f14cfff5d0b155948b233722d5b43ce07050d8c65",
+      "target_blob_sha=b7281e6580689a7a22cfa3b67d500950e4af7285",
+      "catalog_counts=P0:7,P1:7,P2:8,total:22"
+    ],
+    "COMPLETION_MODE": "TASK_EVIDENCE",
+    "CREATED_AT": "2026-09-23T06:13:57.742046Z",
+    "ISSUE_STATE": "closed",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T06:14:06.080569Z",
+    "LEASE_EPOCH": 42,
+    "MUTATION_TYPE": "ISSUE_CLOSE",
+    "OPERATION_ID": "worker-a-20260923T060300Z-t015-close-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "worker-a-20260923T060300Z-t015",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "bfdabd4e5e2486e870877cb98e32816747e7c026",
+      "commit_sha": "38192ccb00055534799c42916956a14707f400ec",
+      "path": "requests/visual-rebuild/worker-a-20260923T060300Z-t015-close.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "worker-a-20260923T060300Z-t015-close",
+    "REQUEST_SHA256": "a9f36a4327a1ccf6e4a5fdad815b601408d80be4aadf63bfb71090ffd4f8a690",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "issue-129",
+    "TASK_ID": "T015",
+    "WORK_LOG_COMMENT_ID": 5790018290
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "bfdabd4e5e2486e870877cb98e32816747e7c026",
+  "source_commit_sha": "38192ccb00055534799c42916956a14707f400ec",
+  "source_path": "requests/visual-rebuild/worker-a-20260923T060300Z-t015-close.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
