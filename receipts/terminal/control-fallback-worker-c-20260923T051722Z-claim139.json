@@ -1,0 +1,36 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-fallback-worker-c-20260923T051722Z-claim139-op",
+  "processed_at": "2026-09-23T05:20:01.704946Z",
+  "request_id": "control-fallback-worker-c-20260923T051722Z-claim139",
+  "request_sha256": "0fa27c64fa0304321bbd3049b8464c35ec3d513b8afc012cd8837c42bc75a580",
+  "result": {
+    "COMMENT_ID": 5789522723,
+    "CREATED_AT": "2026-09-23T05:19:51.046846Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T05:19:58.884294Z",
+    "LEASE_EPOCH": 35,
+    "MUTATION_TYPE": "ISSUE_COMMENT",
+    "OPERATION_ID": "control-fallback-worker-c-20260923T051722Z-claim139-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-fallback-worker-c-20260923T051722Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "0b08a7a6b0d7fe2c9be1f00553425bae3bb2949a",
+      "commit_sha": "70abe83044e381d7e6b3a26b7e789006387cad44",
+      "path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-claim139.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-fallback-worker-c-20260923T051722Z-claim139",
+    "REQUEST_SHA256": "0fa27c64fa0304321bbd3049b8464c35ec3d513b8afc012cd8837c42bc75a580",
+    "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+    "TARGET_RESOURCE": "issue-139"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "0b08a7a6b0d7fe2c9be1f00553425bae3bb2949a",
+  "source_commit_sha": "70abe83044e381d7e6b3a26b7e789006387cad44",
+  "source_path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-claim139.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
