@@ -51,6 +51,19 @@ LANES = {
         "target_blob_sha": "198d0f5f3da115b70218ae8180d5f8363d744959",
         "ready_mode": "load",
     },
+    "visual-rebuild": {
+        "control_branch": "control/lease-visual-rebuild",
+        "implementation_branch": "experiment/target-image-threejs-v1",
+        "children": set(range(102, 117)),
+        "allow_descendants": True,
+        "runtime_dir": "prototypes/target-image-threejs",
+        "page_path": "index.html",
+        "parent_issue": 101,
+        "target_path": "assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png",
+        "target_source_commit_sha": "90635ceff9d35d69f80da350df1e6ea0610657dd",
+        "target_blob_sha": "b7281e6580689a7a22cfa3b67d500950e4af7285",
+        "ready_mode": "load",
+    },
 }
 
 def canonical(v):
@@ -100,6 +113,32 @@ def target_identity(cfg):
         "target_blob_sha": cfg["target_blob_sha"],
     }
 
+def is_issue_descendant(issue, root, max_depth=8):
+    current = int(issue)
+    seen = set()
+    for _ in range(max_depth + 1):
+        if current == int(root):
+            return True
+        if current in seen:
+            raise RuntimeError(f"issue ancestry cycle detected at issue {current}")
+        seen.add(current)
+        data = request_json("GET", f"/issues/{current}")
+        parent_url = data.get("parent_issue_url")
+        if not parent_url:
+            return False
+        current = int(str(parent_url).rstrip("/").rsplit("/", 1)[-1])
+    raise RuntimeError(
+        f"issue ancestry exceeds max depth={max_depth} from issue {issue}"
+    )
+
+def child_allowed(cfg, child):
+    if child in cfg["children"]:
+        return True
+    return bool(
+        cfg.get("allow_descendants")
+        and is_issue_descendant(child, cfg["parent_issue"])
+    )
+
 def candidate(path):
     req = json.loads(path.read_text(encoding="utf-8"))
     lane = path.parent.name
@@ -113,7 +152,7 @@ def candidate(path):
     if path.name != str(req.get("request_id")) + ".json":
         return None, "filename"
     child = req.get("child_issue")
-    if child not in cfg["children"]:
+    if not isinstance(child, int) or not child_allowed(cfg, child):
         return None, "child"
 
     lease = json_file(cfg["control_branch"], "lease-state.json")
