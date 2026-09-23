@@ -1,0 +1,67 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-c-20260923T181600Z-t018-complete-op",
+  "processed_at": "2026-09-23T18:16:31.462113Z",
+  "request_id": "worker-c-20260923T181600Z-t018-complete",
+  "request_sha256": "c9364214315eb4b85b0a3f780690b565fcdb0cb3bd9021baee85928575a413ee",
+  "result": {
+    "CLAIM_GENERATION": 1,
+    "EXACT_HEAD": "2ddebbe1a00f27f90828e747c4c4626c9b1f147d",
+    "ISSUE": 132,
+    "TASK_ID": "T018",
+    "WORK_LOG_COMMENT_ID": 5800384122,
+    "completion": {
+      "ACCEPTANCE": {
+        "accepted_head": "2ddebbe1a00f27f90828e747c4c4626c9b1f147d",
+        "evaluated_at": "2026-09-23T18:16:00Z",
+        "evaluator_id": "T018_ADDITIONAL_VERIFICATION_VIEWS_V1",
+        "evidence_artifacts": [
+          {
+            "kind": "additional-verification-views",
+            "sha256": "aaeed6d6aaa17f5e134f451b5d78f1b2af23c47ec1b387a77137dda5f01b14a3",
+            "uri": "repo://nisiyasu/-luke-quest@2ddebbe1a00f27f90828e747c4c4626c9b1f147d/prototypes/target-image-threejs/verification/additional-verification-views-v1.json"
+          }
+        ],
+        "result": "PASS",
+        "runtime_config": {
+          "command": "validate exactly two views; symmetric +/-30 degree Y-orbits; preserved canonical target/up/fov/aspect; 941x1672 DPR1; deterministic expected camera positions",
+          "platform": "GitHub exact-head evaluator"
+        },
+        "schema": "LQ_TASK_ACCEPTANCE:v1",
+        "task_id": "T018"
+      },
+      "ACCEPTANCE_SHA256": "65077f3d552280bf25bb84927b2e4e37be5b67335f1a4c3e19442cf61583c0d2",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_RELEASED": true,
+      "CLOSE_DISPATCHED_AT": "2026-09-23T18:16:17.209083Z",
+      "CLOSE_EVENT_ACTOR": "github-actions[bot]",
+      "CLOSE_EVENT_ID": 31698967014,
+      "CREATED_AT": "2026-09-23T18:16:07.592605Z",
+      "EXACT_HEAD": "2ddebbe1a00f27f90828e747c4c4626c9b1f147d",
+      "ISSUE": 132,
+      "LAST_UPDATED_AT": "2026-09-23T18:16:28.005249Z",
+      "OPERATION_ID": "worker-c-20260923T181600Z-t018-complete-op",
+      "OWNER_RUN_ID": "worker-c-20260923T180700Z-t018",
+      "PHASE": "COMPLETE",
+      "REQUEST_CHANNEL_SOURCE": {
+        "blob_sha": "120f33b3abd59c71582019c7695f88db38d8c260",
+        "commit_sha": "706af778aae92861c16ee6fd570fe9176d9b49a9",
+        "path": "requests/visual-rebuild/worker-c-20260923T181600Z-t018-complete.json",
+        "ref": "main",
+        "repository": "nisiyasu/luke-env-gateway-requests"
+      },
+      "TASK_ID": "T018",
+      "WORKER_ID": "C",
+      "WORK_LOG_COMMENT_ID": 5800384122,
+      "schema": "LQ_TASK_COMPLETION:v1"
+    },
+    "status": "TASK_COMPLETED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "120f33b3abd59c71582019c7695f88db38d8c260",
+  "source_commit_sha": "706af778aae92861c16ee6fd570fe9176d9b49a9",
+  "source_path": "requests/visual-rebuild/worker-c-20260923T181600Z-t018-complete.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
