@@ -1,0 +1,15 @@
+{
+  "error": "StaleEpoch: owner_run_id mismatch",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-c-20260923T060806Z-claim133-comment-op",
+  "processed_at": "2026-09-23T06:11:54.911739Z",
+  "request_id": "worker-c-20260923T060806Z-claim133-comment",
+  "request_sha256": "52f1845ed360d15c501406f9716671388c3f8f556d2c42474cf8809cb342cf16",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "aa72be1ff31fb1443e12f64d9e17d39f4a06951f",
+  "source_commit_sha": "bae53aed85835e30e4e9e301f1dc7a5e19a1a480",
+  "source_path": "requests/visual-rebuild/worker-c-20260923T060806Z-claim133-comment.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
