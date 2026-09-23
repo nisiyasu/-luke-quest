@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-23T05:14:59.428643Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-23T05:14:59.428664Z",
+  "LEASE_EPOCH": 34,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "worker-a-20260923T0439Z-run10-t014-canonical-state-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "worker-a-20260923T0439Z-run10",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "86064362aff243873f7086e82c648ee8f209fcea",
+    "commit_sha": "42312773d5a04b25f5aa1fd40ecb3c3c772a2cc9",
+    "path": "requests/visual-rebuild/worker-a-20260923T0439Z-run10-t014-canonical-state.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "worker-a-20260923T0439Z-run10-t014-canonical-state",
+  "REQUEST_SHA256": "794719cbf55934d1cf5c96e9671c7e12159424f505de80b96275501baf3f0aae",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:docs/autonomy/evidence/T014_G0_CANONICAL_STATE_v1.md"
+}
