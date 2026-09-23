@@ -1,0 +1,10 @@
+{
+  "fenced_at": "2026-09-23T16:09:58.076149Z",
+  "from_generation": 1,
+  "from_owner_run_id": "livefire-a-20260923T135832Z-t016",
+  "issue": 130,
+  "reason": "NO_PROGRESS_OR_EXPIRED_CLAIM",
+  "schema": "LQ_WRITER_FENCE:v1",
+  "to_generation": 2,
+  "to_owner_run_id": "worker-c-20260923T1606Z-t016"
+}
