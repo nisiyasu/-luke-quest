@@ -359,6 +359,90 @@ class AtomicWorkerOpsTests(unittest.TestCase):
         self.assertEqual(record["WORKER_ID"], winners[0][1])
         self.assertEqual(record["CLAIM_STATUS"], "ACTIVE")
 
+    def test_different_ready_issues_keep_independent_claims(self):
+        a = self.claim(worker="A", owner="run-a", issue=130, task="T016")
+        b = self.claim(worker="B", owner="run-b", issue=133, task="T019")
+        self.assertEqual(a["status"], "CLAIM_ACQUIRED")
+        self.assertEqual(b["status"], "CLAIM_ACQUIRED")
+        ca = self.gh.json_file(CONTROL, "work-claims/issue-130.json")
+        cb = self.gh.json_file(CONTROL, "work-claims/issue-133.json")
+        self.assertEqual(ca["WORKER_ID"], "A")
+        self.assertEqual(cb["WORKER_ID"], "B")
+        self.assertEqual(ca["CLAIM_STATUS"], "ACTIVE")
+        self.assertEqual(cb["CLAIM_STATUS"], "ACTIVE")
+
+    def test_takeover_revokes_old_run_from_legacy_lease_reacquire(self):
+        self.claim(worker="A", owner="run-a")
+        self.gh.expire_claim(130)
+        takeover = self.gateway.apply(make_request(
+            "WORK_CLAIM_TAKEOVER",
+            "run-b",
+            {
+                "issue_number": 130,
+                "task_id": "T016",
+                "worker_id": "B",
+                "claim_ttl_seconds": 7200,
+                "progress_deadline_seconds": 1800,
+                "max_recovery_attempts": 3,
+            },
+            request_id="run-b-takeover-revoke",
+        ))
+        self.assertEqual(takeover["status"], "CLAIM_TAKEN_OVER")
+        revoked = self.gh.json_file(
+            CONTROL, takeover["revoked_writer_path"]
+        )
+        self.assertEqual(revoked["OWNER_RUN_ID"], "run-a")
+        self.assertEqual(revoked["CLAIM_GENERATION"], 1)
+        stale_lease = make_request(
+            "LEASE_ACQUIRE",
+            "run-a",
+            {"ttl_seconds": 180},
+            request_id="run-a-reacquire-after-takeover",
+        )
+        with self.assertRaisesRegex(gw.StaleEpoch, "permanently fenced"):
+            self.gateway.apply(stale_lease)
+
+    def test_takeover_invalidates_old_active_lease_epoch(self):
+        self.claim(worker="A", owner="run-a")
+        self.gh.lease.update({
+            "LEASE_STATUS": gw.ACTIVE,
+            "LEASE_UNTIL": "2099-01-01T00:00:00Z",
+            "OWNER_RUN_ID": "run-a",
+            "LEASE_EPOCH": 7,
+            "FENCING_TOKEN": 7,
+            "ACTIVE_OPERATION_ID": None,
+        })
+        self.gh.expire_claim(130)
+        takeover = self.gateway.apply(make_request(
+            "WORK_CLAIM_TAKEOVER",
+            "run-b",
+            {
+                "issue_number": 130,
+                "task_id": "T016",
+                "worker_id": "B",
+                "claim_ttl_seconds": 7200,
+                "progress_deadline_seconds": 1800,
+                "max_recovery_attempts": 3,
+            },
+            request_id="run-b-takeover-lease-fence",
+        ))
+        self.assertEqual(takeover["status"], "CLAIM_TAKEN_OVER")
+        lease = self.gh.json_file(CONTROL, gw.LEASE_PATH)
+        self.assertEqual(lease["LEASE_STATUS"], gw.RELEASED)
+        self.assertGreater(lease["LEASE_EPOCH"], 7)
+        stale_heartbeat = make_request(
+            "LEASE_HEARTBEAT",
+            "run-a",
+            {"ttl_seconds": 180},
+            request_id="run-a-old-heartbeat",
+        )
+        stale_heartbeat["lease_epoch"] = 7
+        stale_heartbeat["request_sha256"] = ""
+        stale_heartbeat["request_sha256"] = gw.sha256_text(
+            gw.canonical(stale_heartbeat)
+        )
+        with self.assertRaises((gw.StaleEpoch, gw.LeaseUnavailable)):
+            self.gateway.apply(stale_heartbeat)
     def test_takeover_fences_paused_old_writer(self):
         self.claim()
         old_generation = self.claim_generation()

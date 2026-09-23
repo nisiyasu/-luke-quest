@@ -484,6 +484,11 @@ class Gateway:
         branch = cfg["control_branch"]
         head = self.gh.ref(branch)
         lease = self.gh.json_file(branch, LEASE_PATH)
+        if (
+            req["lane_id"] == "visual-rebuild"
+            and self._revoked_writer(req["lane_id"], req["owner_run_id"])
+        ):
+            raise StaleEpoch("owner_run_id is permanently fenced after takeover")
         if lease.get("ACTIVE_OPERATION_ID"):
             raise ActiveOperation("cannot acquire while an operation is unresolved")
         status = lease.get("LEASE_STATUS")
@@ -768,6 +773,17 @@ class Gateway:
         if "/" in operation_id or ".." in operation_id:
             raise RequestRejected("invalid completion operation_id")
         return f"work-completions/issue-{int(issue)}/{operation_id}.json"
+
+    def _revoked_writer_path(self, owner_run_id: str) -> str:
+        owner = str(owner_run_id or "")
+        if not owner:
+            raise RequestRejected("owner_run_id required for writer fence")
+        return "revoked-writers/" + sha256_text(owner) + ".json"
+
+    def _revoked_writer(self, lane_id: str, owner_run_id: str) -> dict | None:
+        return self._read_json_optional(
+            self._control(lane_id), self._revoked_writer_path(owner_run_id)
+        )
 
     def _read_json_optional(self, branch: str, path: str) -> dict | None:
         try:
@@ -1094,14 +1110,24 @@ class Gateway:
     ) -> str:
         cfg = self.lane_cfg(req["lane_id"])
         branch = cfg["implementation_branch"]
-        head = self.gh.ref(branch)
+        expected_head = str(
+            old_record.get("EXPECTED_IMPLEMENTATION_HEAD") or ""
+        )
+        if len(expected_head) != 40:
+            raise RequestRejected(
+                "takeover requires old claim expected implementation HEAD"
+            )
+        current_head = self.gh.ref(branch)
+        if current_head != expected_head:
+            # Any later implementation commit already invalidates every
+            # pre-takeover CAS based on the stale owner's expected HEAD.
+            return current_head
         fence = {
-            "schema": "LQ_WRITER_FENCE:v1",
+            "schema": "LQ_WRITER_FENCE:v2",
             "issue": issue,
             "from_owner_run_id": old_record.get("OWNER_RUN_ID"),
             "from_generation": old_record.get("CLAIM_GENERATION"),
-            "to_owner_run_id": req["owner_run_id"],
-            "to_generation": new_generation,
+            "replacement_generation": new_generation,
             "reason": "NO_PROGRESS_OR_EXPIRED_CLAIM",
             "fenced_at": now_rfc3339(),
         }
@@ -1112,7 +1138,7 @@ class Gateway:
                     self._encode_json(fence)
             },
             f"fence stale writer issue {issue} gen {new_generation}",
-            expected_head=head,
+            expected_head=expected_head,
         )
 
     def work_claim_takeover(self, req: dict) -> dict:
@@ -1128,13 +1154,19 @@ class Gateway:
         branch = self._control(req["lane_id"])
         path = self._claim_path(issue)
         for _ in range(8):
-            control_head = self.gh.ref(branch)
             old = self.gh.json_file(branch, path)
             if not self._claim_is_stale(old):
                 raise RequestRejected(
                     f"issue {issue} claim is still live; takeover forbidden"
                 )
+            # A stale atomic Worker operation may be paused after admission.
+            # Takeover is allowed: the implementation HEAD fence below makes
+            # its pre-takeover CAS stale before ownership changes.
             lease = self.lease(req["lane_id"])
+            if lease.get("ACTIVE_OPERATION_ID"):
+                raise ActiveOperation(
+                    "formal/legacy operation must be reconciled before takeover"
+                )
             lease_expiry = parse_time(lease.get("LEASE_UNTIL"))
             if (
                 lease.get("LEASE_STATUS") == ACTIVE
@@ -1146,10 +1178,14 @@ class Gateway:
                     "takeover waits for unrelated active formal/legacy Lease "
                     f"owner={lease.get('OWNER_RUN_ID')}"
                 )
+
             old_generation = int(old.get("CLAIM_GENERATION", 0))
             attempts = int(old.get("RECOVERY_ATTEMPTS", 0)) + 1
-            effective_max = int(old.get("MAX_RECOVERY_ATTEMPTS", max_recovery))
+            effective_max = int(
+                old.get("MAX_RECOVERY_ATTEMPTS", max_recovery)
+            )
             new_generation = old_generation + 1
+
             try:
                 fence_head = self._write_takeover_fence(
                     req, issue, old, new_generation
@@ -1157,13 +1193,41 @@ class Gateway:
             except CasConflict:
                 continue
 
-            latest_head = self.gh.ref(branch)
+            control_head = self.gh.ref(branch)
             latest = self.gh.json_file(branch, path)
             if (
                 int(latest.get("CLAIM_GENERATION", -1)) != old_generation
                 or latest.get("OWNER_RUN_ID") != old.get("OWNER_RUN_ID")
             ):
                 continue
+            if latest.get("ACTIVE_OPERATION_ID") not in (
+                None,
+                old.get("ACTIVE_OPERATION_ID"),
+            ):
+                raise ActiveOperation(
+                    "different claim operation appeared during takeover"
+                )
+
+            latest_lease = self.gh.json_file(branch, LEASE_PATH)
+            if latest_lease.get("ACTIVE_OPERATION_ID"):
+                raise ActiveOperation(
+                    "lease operation appeared during takeover; reconcile first"
+                )
+            latest_lease_expiry = parse_time(
+                latest_lease.get("LEASE_UNTIL")
+            )
+            if (
+                latest_lease.get("LEASE_STATUS") == ACTIVE
+                and (
+                    latest_lease_expiry is None
+                    or latest_lease_expiry > time.time()
+                )
+                and latest_lease.get("OWNER_RUN_ID")
+                not in (None, old.get("OWNER_RUN_ID"))
+            ):
+                raise LeaseUnavailable(
+                    "unrelated active Lease appeared during takeover"
+                )
 
             now = time.time()
             if attempts > effective_max:
@@ -1213,18 +1277,57 @@ class Gateway:
                     }
                 )
                 status = "CLAIM_TAKEN_OVER"
+
+            next_lease_epoch = int(
+                latest_lease.get("LEASE_EPOCH", 0)
+            ) + 1
+            fenced_lease = dict(latest_lease)
+            fenced_lease.update(
+                {
+                    "OWNER_RUN_ID": req["owner_run_id"],
+                    "LEASE_EPOCH": next_lease_epoch,
+                    "FENCING_TOKEN": next_lease_epoch,
+                    "LEASE_STATUS": RELEASED,
+                    "LEASE_UNTIL": None,
+                    "ACTIVE_OPERATION_ID": None,
+                    "CURRENT_HEAD_SHA": fence_head,
+                    "LAST_HEARTBEAT_AT": now_rfc3339(),
+                }
+            )
+            revoked = {
+                "schema": "LQ_REVOKED_WRITER:v1",
+                "LANE_ID": req["lane_id"],
+                "ISSUE": issue,
+                "OWNER_RUN_ID": old.get("OWNER_RUN_ID"),
+                "CLAIM_GENERATION": old_generation,
+                "REPLACEMENT_GENERATION": new_generation,
+                "FENCED_IMPLEMENTATION_HEAD": fence_head,
+                "REVOKED_AT": now_rfc3339(),
+                "REASON": "NO_PROGRESS_OR_EXPIRED_CLAIM",
+            }
+            revoked_path = self._revoked_writer_path(
+                str(old.get("OWNER_RUN_ID") or "")
+            )
             try:
                 self.gh.cas_write_files(
                     branch,
-                    {path: self._encode_json(updated)},
+                    {
+                        path: self._encode_json(updated),
+                        LEASE_PATH: self._encode_json(fenced_lease),
+                        revoked_path: self._encode_json(revoked),
+                    },
                     f"work claim takeover issue {issue} gen {new_generation}",
-                    expected_head=latest_head,
+                    expected_head=control_head,
                 )
             except CasConflict:
                 continue
             committed = self.gh.json_file(branch, path)
             self._report_claim_result(issue, req, committed, status)
-            return {"status": status, "claim": committed}
+            return {
+                "status": status,
+                "claim": committed,
+                "revoked_writer_path": revoked_path,
+            }
         raise CasConflict("work claim takeover CAS retries exhausted")
 
     def _validate_work_context(
