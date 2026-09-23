@@ -1,0 +1,15 @@
+{
+  "error": "StaleEpoch: owner_run_id mismatch",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-c-20260923T061543Z-t019-claim133-op",
+  "processed_at": "2026-09-23T06:20:14.883333Z",
+  "request_id": "worker-c-20260923T061543Z-t019-claim133",
+  "request_sha256": "a4a9710f9efb3585d7b30485aa72a7d428d17266997cdfe877ebdb9341e9861a",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "77f863ac83c5b394c0c861358243c6cfa822ba91",
+  "source_commit_sha": "f96e0dab2670fe5e81fcc5d0b38fe1a28c866de4",
+  "source_path": "requests/visual-rebuild/worker-c-20260923T061543Z-t019-claim133.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
