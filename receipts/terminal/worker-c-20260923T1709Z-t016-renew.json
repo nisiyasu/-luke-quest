@@ -1,0 +1,15 @@
+{
+  "error": "StaleEpoch: claim progress deadline expired; takeover required",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-c-20260923T1709Z-t016-renew-op",
+  "processed_at": "2026-09-23T17:10:21.500587Z",
+  "request_id": "worker-c-20260923T1709Z-t016-renew",
+  "request_sha256": "5e1a59c768971d6669651bba5cdf9af9dbd0eda7b6d792aef236dc419a8a9a7a",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "8b7547b5c28b87b02a3a73d9eda2b9a4404e165e",
+  "source_commit_sha": "9202886bbb107f5fe966d4fc3dd9011cb14d0427",
+  "source_path": "requests/visual-rebuild/worker-c-20260923T1709Z-t016-renew.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
