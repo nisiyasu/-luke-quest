@@ -1,0 +1,67 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-a-20260923T174100Z-t017-complete-op",
+  "processed_at": "2026-09-23T17:39:24.062028Z",
+  "request_id": "worker-a-20260923T174100Z-t017-complete",
+  "request_sha256": "dc907ac7641a571c8fb650110fb992521b7503379089618ec51e52f94ad61988",
+  "result": {
+    "CLAIM_GENERATION": 1,
+    "EXACT_HEAD": "1978162053471b61f8f39a3dde485bbaa3f2bc78",
+    "ISSUE": 131,
+    "TASK_ID": "T017",
+    "WORK_LOG_COMMENT_ID": 5799822393,
+    "completion": {
+      "ACCEPTANCE": {
+        "accepted_head": "1978162053471b61f8f39a3dde485bbaa3f2bc78",
+        "evaluated_at": "2026-09-23T17:41:00Z",
+        "evaluator_id": "T017_CANONICAL_CAMERA_CONTRACT_V1",
+        "evidence_artifacts": [
+          {
+            "kind": "canonical-camera-contract",
+            "sha256": "32d134a7fe698de02b4b369d1192c238062667a39388c15a7eb4be3e749c27aa",
+            "uri": "repo://nisiyasu/-luke-quest@1978162053471b61f8f39a3dde485bbaa3f2bc78/prototypes/target-image-threejs/verification/canonical-camera-v1.json"
+          }
+        ],
+        "result": "PASS",
+        "runtime_config": {
+          "command": "JSON contract validation: finite numeric camera fields; viewport=941x1672; DPR=1; abs(aspect-941/1672)<1e-12; seven T016 P0 centers preserved; legacy camera correction absent",
+          "platform": "Worker A controller exact-head readback"
+        },
+        "schema": "LQ_TASK_ACCEPTANCE:v1",
+        "task_id": "T017"
+      },
+      "ACCEPTANCE_SHA256": "544e143438771e873a2db52ca6c63407d5671a1176f9106b458de8200acde014",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_RELEASED": true,
+      "CLOSE_DISPATCHED_AT": "2026-09-23T17:39:13.708054Z",
+      "CLOSE_EVENT_ACTOR": "github-actions[bot]",
+      "CLOSE_EVENT_ID": 31696649854,
+      "CREATED_AT": "2026-09-23T17:39:06.527798Z",
+      "EXACT_HEAD": "1978162053471b61f8f39a3dde485bbaa3f2bc78",
+      "ISSUE": 131,
+      "LAST_UPDATED_AT": "2026-09-23T17:39:21.529833Z",
+      "OPERATION_ID": "worker-a-20260923T174100Z-t017-complete-op",
+      "OWNER_RUN_ID": "worker-a-20260923T173600Z-t017",
+      "PHASE": "COMPLETE",
+      "REQUEST_CHANNEL_SOURCE": {
+        "blob_sha": "f4b6ff27335f7612aca43df3c528d1c6fef2e646",
+        "commit_sha": "93a1648a913f90ed65481c099015ec519b2f8c8f",
+        "path": "requests/visual-rebuild/worker-a-20260923T174100Z-t017-complete.json",
+        "ref": "main",
+        "repository": "nisiyasu/luke-env-gateway-requests"
+      },
+      "TASK_ID": "T017",
+      "WORKER_ID": "A",
+      "WORK_LOG_COMMENT_ID": 5799822393,
+      "schema": "LQ_TASK_COMPLETION:v1"
+    },
+    "status": "TASK_COMPLETED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "f4b6ff27335f7612aca43df3c528d1c6fef2e646",
+  "source_commit_sha": "93a1648a913f90ed65481c099015ec519b2f8c8f",
+  "source_path": "requests/visual-rebuild/worker-a-20260923T174100Z-t017-complete.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
