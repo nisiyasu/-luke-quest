@@ -1,0 +1,15 @@
+{
+  "error": "HeadMismatch: implementation branch HEAD mismatch expected=b9d3111e9400b809c0649213d518a473d5270448 current=1978162053471b61f8f39a3dde485bbaa3f2bc78",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-b-20260923T173900Z-t020-patchset-op",
+  "processed_at": "2026-09-23T17:40:51.908187Z",
+  "request_id": "worker-b-20260923T173900Z-t020-patchset",
+  "request_sha256": "595b622fdc02c44cc4f95c153f449286e44af150f991b767099d87ae10123a17",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "05a6c6771596e3de6f926513436e3c4f92fa2db6",
+  "source_commit_sha": "507ab8098eb67b29b300f32f8c8acda758da9711",
+  "source_path": "requests/visual-rebuild/worker-b-20260923T173900Z-t020-patchset.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
