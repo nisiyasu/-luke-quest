@@ -1,0 +1,15 @@
+{
+  "schema": "LUKE_QUEST_ADDITIONAL_VERIFICATION_VIEWS:v1",
+  "task_id": "T018",
+  "status": "FIXED",
+  "purpose": "Detect 3D depth, occlusion and parallax failures hidden by the canonical view without changing the canonical framing contract.",
+  "base_camera": {"path": "prototypes/target-image-threejs/verification/canonical-camera-v1.json", "position": [0.0,18.0,18.0], "target": [0.0,0.0,0.0], "up": [0.0,1.0,0.0], "fov_degrees": 35.0},
+  "capture_contract": {"viewport_css_px": [941,1672], "dpr": 1, "orientation": "portrait", "crop": "none", "padding": "none", "full_page": false},
+  "views": [
+    {"id": "VERIFY_LEFT_30", "description": "Left-oblique orbit view for exposing hidden depth/occlusion errors.", "transform": {"kind": "orbit_y_degrees", "degrees": -30.0, "pivot": [0.0,0.0,0.0], "preserve_radius": true, "preserve_height": true, "look_at": [0.0,0.0,0.0]}, "expected_camera_position": [-9.0,18.0,15.5884572681], "checks": ["foreground/midground/background ordering remains physically consistent", "no geometry interpenetration newly exposed by orbit", "occluded critical components reveal plausible 3D continuation"]},
+    {"id": "VERIFY_RIGHT_30", "description": "Right-oblique orbit view for exposing hidden depth/occlusion errors from the opposite side.", "transform": {"kind": "orbit_y_degrees", "degrees": 30.0, "pivot": [0.0,0.0,0.0], "preserve_radius": true, "preserve_height": true, "look_at": [0.0,0.0,0.0]}, "expected_camera_position": [9.0,18.0,15.5884572681], "checks": ["foreground/midground/background ordering remains physically consistent", "no geometry interpenetration newly exposed by orbit", "occluded critical components reveal plausible 3D continuation"]}
+  ],
+  "reproduction": ["Load canonical-camera-v1.json.", "Keep target/up/fov/aspect/near/far and 941x1672 DPR1 capture settings unchanged.", "Orbit camera position around world Y through the declared degrees about pivot [0,0,0], preserving radius and height.", "Call lookAt([0,0,0]) and updateProjectionMatrix().", "Capture each view using its id as the evidence view identifier."],
+  "acceptance_checks": ["exactly two non-canonical verification views are defined", "each view is deterministically reproducible from canonical-camera-v1.json", "left/right views are symmetric 30 degree Y-orbits", "capture remains 941x1672 at DPR=1", "canonical camera record is not modified"],
+  "source_authority": {"canonical_camera_path": "prototypes/target-image-threejs/verification/canonical-camera-v1.json", "target_path": "assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png", "target_blob_sha": "b7281e6580689a7a22cfa3b67d500950e4af7285"}
+}
