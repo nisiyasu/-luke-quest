@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-fallback-worker-c-20260923T051722Z-t023-schema-op",
+  "processed_at": "2026-09-23T05:22:58.870466Z",
+  "request_id": "control-fallback-worker-c-20260923T051722Z-t023-schema",
+  "request_sha256": "0a349d5b35134c726d8a67ed5c43849d2ea4244a0a95c894fed43ab821dd057e",
+  "result": {
+    "APPLIED_HEAD": "1d1326428c9b468fe2b6c573bfcf2fc894a15352",
+    "CONTENT_SHA256": "e8aba0350967d27ddcd54ae946230883d97dff3b6fd7001182f2a75b4efcf791",
+    "CREATED_AT": "2026-09-23T05:22:47.023014Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T05:22:54.607677Z",
+    "LEASE_EPOCH": 35,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "control-fallback-worker-c-20260923T051722Z-t023-schema-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-fallback-worker-c-20260923T051722Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "bc3ffc7b369b5248f5a0c984d32b0586a844c8ee",
+      "commit_sha": "539dd7c34defd0059afd41ece00440e7ab9f1d1c",
+      "path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-schema.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-fallback-worker-c-20260923T051722Z-t023-schema",
+    "REQUEST_SHA256": "0a349d5b35134c726d8a67ed5c43849d2ea4244a0a95c894fed43ab821dd057e",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "experiment/target-image-threejs-v1:prototypes/target-image-threejs/verification/visual-evidence-contract-v1.schema.json"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "bc3ffc7b369b5248f5a0c984d32b0586a844c8ee",
+  "source_commit_sha": "539dd7c34defd0059afd41ece00440e7ab9f1d1c",
+  "source_path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-schema.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
