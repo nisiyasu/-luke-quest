@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: work log comment does not prove target task execution",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-b-loop-20260923T0949Z-t019-close-op",
+  "processed_at": "2026-09-23T09:54:26.533408Z",
+  "request_id": "worker-b-loop-20260923T0949Z-t019-close",
+  "request_sha256": "4052a8b1ba0da8a688695b4930400afb2bac080ece660e87a397efb35944040b",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "67dd06b34c123f48799c710d7867e4ff960f9580",
+  "source_commit_sha": "c75a1ac844d1f8b37d0818bcf50abb534b05950f",
+  "source_path": "requests/visual-rebuild/worker-b-loop-20260923T0949Z-t019-close.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
