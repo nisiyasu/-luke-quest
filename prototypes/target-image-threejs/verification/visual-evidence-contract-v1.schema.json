@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luke-quest.local/schemas/visual-evidence-contract-v1.schema.json",
+  "title": "LUKE QUEST Visual Evidence Contract v1",
+  "description": "Machine-readable storage contract for Evidence Set and Gate Record records used by #101 visual rebuild gates.",
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "rfc3339": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "artifactRef": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "residualGap": {
+      "type": "object",
+      "required": [
+        "severity",
+        "component",
+        "description"
+      ],
+      "properties": {
+        "severity": {
+          "enum": [
+            "P0",
+            "P1",
+            "P2"
+          ]
+        },
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_task_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^T[0-9]{3}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidenceSet": {
+      "type": "object",
+      "required": [
+        "schema",
+        "evidence_set_id",
+        "gate_id",
+        "issue_number",
+        "task_ids",
+        "target_identity",
+        "implementation",
+        "artifacts",
+        "device_profile",
+        "viewport",
+        "verdict",
+        "residual_gaps",
+        "created_at"
+      ],
+      "properties": {
+        "schema": {
+          "const": "LUKE_QUEST_EVIDENCE_SET:v1"
+        },
+        "evidence_set_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+$"
+        },
+        "gate_id": {
+          "enum": [
+            "G0",
+            "G1",
+            "G2",
+            "G3",
+            "G4",
+            "G5",
+            "G6",
+            "G7"
+          ]
+        },
+        "issue_number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "task_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^T[0-9]{3}$"
+          }
+        },
+        "target_identity": {
+          "type": "object",
+          "required": [
+            "path",
+            "blob_sha",
+            "source_commit_sha",
+            "reference_set_version"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob_sha": {
+              "$ref": "#/$defs/sha40"
+            },
+            "source_commit_sha": {
+              "$ref": "#/$defs/sha40"
+            },
+            "reference_set_version": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "implementation": {
+          "type": "object",
+          "required": [
+            "repository",
+            "branch",
+            "head_sha"
+          ],
+          "properties": {
+            "repository": {
+              "const": "nisiyasu/-luke-quest"
+            },
+            "branch": {
+              "const": "experiment/target-image-threejs-v1"
+            },
+            "head_sha": {
+              "$ref": "#/$defs/sha40"
+            }
+          },
+          "additionalProperties": false
+        },
+        "artifacts": {
+          "type": "object",
+          "required": [
+            "target_image",
+            "actual_image",
+            "overlay_or_diff",
+            "coordinate_audit",
+            "visual_audit",
+            "evidence_settings",
+            "evaluation_contract_snapshot",
+            "evidence_set_index"
+          ],
+          "properties": {
+            "target_image": {
+              "$ref": "#/$defs/artifactRef"
+            },
+            "actual_image": {
+              "$ref": "#/$defs/artifactRef"
+            },
+            "overlay_or_diff": {
+              "$ref": "#/$defs/artifactRef"
+            },
+            "coordinate_audit": {
+              "$ref": "#/$defs/artifactRef"
+            },
+            "visual_audit": {
+              "$ref": "#/$defs/artifactRef"
+            },
+            "evidence_settings": {
+              "$ref": "#/$defs/artifactRef"
+            },
+            "evaluation_contract_snapshot": {
+              "$ref": "#/$defs/artifactRef"
+            },
+            "evidence_set_index": {
+              "$ref": "#/$defs/artifactRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "landmark_measurements": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "silhouette_metrics": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "human_visual_ratings": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "device_profile": {
+          "type": "object",
+          "required": [
+            "platform",
+            "profile_id"
+          ],
+          "properties": {
+            "platform": {
+              "type": "string",
+              "minLength": 1
+            },
+            "profile_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "viewport": {
+          "type": "object",
+          "required": [
+            "width_css_px",
+            "height_css_px",
+            "dpr",
+            "crop",
+            "padding",
+            "full_page"
+          ],
+          "properties": {
+            "width_css_px": {
+              "const": 941
+            },
+            "height_css_px": {
+              "const": 1672
+            },
+            "dpr": {
+              "const": 1
+            },
+            "crop": {
+              "const": "none"
+            },
+            "padding": {
+              "const": "none"
+            },
+            "full_page": {
+              "const": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "verdict": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "residual_gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/residualGap"
+          }
+        },
+        "created_at": {
+          "$ref": "#/$defs/rfc3339"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gateRecord": {
+      "type": "object",
+      "required": [
+        "schema",
+        "gate_record_id",
+        "gate_id",
+        "issue_number",
+        "evidence_set_uri",
+        "evidence_set_sha256",
+        "implementation_head_sha",
+        "verdict",
+        "evidence_complete",
+        "exact_head_verified",
+        "blocking_gaps",
+        "decided_at"
+      ],
+      "properties": {
+        "schema": {
+          "const": "LUKE_QUEST_GATE_RECORD:v1"
+        },
+        "gate_record_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+$"
+        },
+        "gate_id": {
+          "enum": [
+            "G0",
+            "G1",
+            "G2",
+            "G3",
+            "G4",
+            "G5",
+            "G6",
+            "G7"
+          ]
+        },
+        "issue_number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "evidence_set_uri": {
+          "type": "string",
+          "pattern": "^evidence/visual-rebuild/issue-[0-9]+/[A-Za-z0-9._-]+/$"
+        },
+        "evidence_set_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "implementation_head_sha": {
+          "$ref": "#/$defs/sha40"
+        },
+        "verdict": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "evidence_complete": {
+          "type": "boolean"
+        },
+        "exact_head_verified": {
+          "type": "boolean"
+        },
+        "blocking_gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/residualGap"
+          }
+        },
+        "decided_at": {
+          "$ref": "#/$defs/rfc3339"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "PASS"
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_complete": {
+                "const": true
+              },
+              "exact_head_verified": {
+                "const": true
+              },
+              "blocking_gaps": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "storage": {
+    "evidence_branch": "evidence/visual-verification",
+    "evidence_set_prefix": "evidence/visual-rebuild/issue-{issue_number}/{evidence_set_id}/",
+    "evidence_set_metadata": "evidence-set.json",
+    "gate_record": "gate-record.json",
+    "append_only": true,
+    "overwrite_forbidden": true
+  },
+  "gateway_required_artifacts": [
+    "target.png",
+    "actual.png",
+    "coordinate-audit.json",
+    "evidence-manifest.candidate.json",
+    "evidence-settings.json",
+    "evaluation-contract-snapshot.md",
+    "visual-audit.json",
+    "evidence-set-index.json"
+  ]
+}
