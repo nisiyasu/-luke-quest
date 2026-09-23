@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-23T04:28:56.523580Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-23T04:28:56.523601Z",
+  "LEASE_EPOCH": 30,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "worker-a-20260923T0422Z-run9-t013-reference-set-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "worker-a-20260923T0422Z-run9",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "14a7e104a351dea7a2a259f1a3f3eaea22b457d2",
+    "commit_sha": "0526a1cdec52dc5a288890aca7b7508cd7afd6f7",
+    "path": "requests/visual-rebuild/worker-a-20260923T0422Z-run9-t013-reference-set.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "worker-a-20260923T0422Z-run9-t013-reference-set",
+  "REQUEST_SHA256": "6d19d10d5d2148449a6f59f82a943c96068ec8b6f9e3ead446983a5b51ce9e9f",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:docs/autonomy/evidence/T013_G0_REFERENCE_SET_v1.md"
+}
