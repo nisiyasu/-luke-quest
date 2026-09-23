@@ -1,0 +1,15 @@
+{
+  "error": "LeaseUnavailable: active lease exists",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-b-20260923T061601Z-t019-lease-acquire-op",
+  "processed_at": "2026-09-23T06:16:47.359043Z",
+  "request_id": "worker-b-20260923T061601Z-t019-lease-acquire",
+  "request_sha256": "9052f9df37a900b9081052d61103b25dc196458f464f161faa993dc34d986905",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "a50b02a51604caa93d4239aba74140bed73ef9ac",
+  "source_commit_sha": "128a14d6f550cb43daa2fd7fe09e59829db02907",
+  "source_path": "requests/visual-rebuild/worker-b-20260923T061601Z-t019-lease-acquire.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
