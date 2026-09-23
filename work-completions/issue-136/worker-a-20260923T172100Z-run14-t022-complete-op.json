@@ -1,0 +1,47 @@
+{
+  "ACCEPTANCE": {
+    "accepted_head": "c09fdcdcaab7104605e83c966d060411f00bfe30",
+    "evaluated_at": "2026-09-23T17:19:20Z",
+    "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+    "evidence_artifacts": [
+      {
+        "kind": "test-source",
+        "sha256": "e8b9784be7b55fcea9b87b3e3dec860f3c49b7b0e4cf6d5b3c238784ebf9377b",
+        "uri": "repo://nisiyasu/-luke-quest@c09fdcdcaab7104605e83c966d060411f00bfe30/prototypes/target-image-threejs/verification/silhouette-iou-v1.test.mjs"
+      },
+      {
+        "kind": "acceptance-contract",
+        "sha256": "89e25a4a2f73d2ff484666a281f0b4b115ac7026c81409d0fc0be614fa2fbb62",
+        "uri": "repo://nisiyasu/-luke-quest@c09fdcdcaab7104605e83c966d060411f00bfe30/prototypes/target-image-threejs/verification/T022_ACCEPTANCE.md"
+      }
+    ],
+    "result": "PASS",
+    "runtime_config": {
+      "command": "node prototypes/target-image-threejs/verification/silhouette-iou-v1.test.mjs",
+      "platform": "MSI worker A"
+    },
+    "schema": "LQ_TASK_ACCEPTANCE:v1",
+    "task_id": "T022"
+  },
+  "ACCEPTANCE_SHA256": "aa79750e832557c2c5442c454d11c4ae16ded641eb970354ef08ec605e7e029a",
+  "CLAIM_GENERATION": 1,
+  "CLOSE_DISPATCHED_AT": null,
+  "CREATED_AT": "2026-09-23T17:19:49.160827Z",
+  "EXACT_HEAD": "c09fdcdcaab7104605e83c966d060411f00bfe30",
+  "ISSUE": 136,
+  "LAST_UPDATED_AT": "2026-09-23T17:19:49.160831Z",
+  "OPERATION_ID": "worker-a-20260923T172100Z-run14-t022-complete-op",
+  "OWNER_RUN_ID": "worker-a-20260923T170900Z-run14-t022",
+  "PHASE": "PREPARED",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "c65d22f60095bc3a4fc559c26858a2e3d4b649e0",
+    "commit_sha": "b18c7b3fae7ab5ea214f6d8d58c7eb65c74809a9",
+    "path": "requests/visual-rebuild/worker-a-20260923T172100Z-run14-t022-complete.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "TASK_ID": "T022",
+  "WORKER_ID": "A",
+  "WORK_LOG_COMMENT_ID": null,
+  "schema": "LQ_TASK_COMPLETION:v1"
+}
