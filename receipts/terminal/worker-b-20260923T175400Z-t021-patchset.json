@@ -1,0 +1,24 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-b-20260923T175400Z-t021-patchset-op",
+  "processed_at": "2026-09-23T17:57:06.222169Z",
+  "request_id": "worker-b-20260923T175400Z-t021-patchset",
+  "request_sha256": "08127ffd0374774ba36f18aec532421db92467e513c211258dbf9f87cc84e930",
+  "result": {
+    "APPLIED_HEAD": "f319ec08a886aa079241ff3124f88845ecacb0e4",
+    "CLAIM_GENERATION": 1,
+    "CLAIM_PHASE": "PATCHSET_APPLIED",
+    "FILE_COUNT": 1,
+    "ISSUE": 135,
+    "TASK_ID": "T021",
+    "WORKER_ID": "B",
+    "status": "PATCHSET_APPLIED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "c61549369b828139fc6c13a3fd703e627c640629",
+  "source_commit_sha": "41719d290882557fca9b878e7a7f772844769d39",
+  "source_path": "requests/visual-rebuild/worker-b-20260923T175400Z-t021-patchset.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
