@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-23T05:36:43.328801Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-23T05:36:43.328838Z",
+  "LEASE_EPOCH": 36,
+  "MUTATION_TYPE": "ISSUE_CLOSE",
+  "OPERATION_ID": "control-reconcile-t014-20260923T053329Z-close-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-reconcile-t014-20260923T053329Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "3807840af432a8f43e54c3bb7b110d7dfca0030a",
+    "commit_sha": "6b0c124a85f0a464148edf56a7fd208b079ef5d9",
+    "path": "requests/visual-rebuild/control-reconcile-t014-20260923T053329Z-close.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-reconcile-t014-20260923T053329Z-close",
+  "REQUEST_SHA256": "d3a9c4ce7d58f601768f31e9cc709d85abd6cecd2746d383d551464a79459c70",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "issue-128"
+}
