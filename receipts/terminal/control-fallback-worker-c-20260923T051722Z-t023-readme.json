@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-fallback-worker-c-20260923T051722Z-t023-readme-op",
+  "processed_at": "2026-09-23T05:24:42.886651Z",
+  "request_id": "control-fallback-worker-c-20260923T051722Z-t023-readme",
+  "request_sha256": "0265c4fd4ce6ff88b32ff819de172b142d622de241e7969a4b9ee09a8e71fecd",
+  "result": {
+    "APPLIED_HEAD": "6b4220752ee83d9a6fdb70c7737e371df9b0ca54",
+    "CONTENT_SHA256": "d55a1ca327ac73b32b67e1e656d5d9c4cf5d15c81eec8f456dcb361b48ad5bcf",
+    "CREATED_AT": "2026-09-23T05:24:24.252905Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T05:24:35.887826Z",
+    "LEASE_EPOCH": 35,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "control-fallback-worker-c-20260923T051722Z-t023-readme-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-fallback-worker-c-20260923T051722Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "6309f4bf3d3529200756cef547dc7b605d0e6fe5",
+      "commit_sha": "47407cf98075b08575d7b6ecdf5b8a4161716e17",
+      "path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-readme.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-fallback-worker-c-20260923T051722Z-t023-readme",
+    "REQUEST_SHA256": "0265c4fd4ce6ff88b32ff819de172b142d622de241e7969a4b9ee09a8e71fecd",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "experiment/target-image-threejs-v1:prototypes/target-image-threejs/verification/README.md"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "6309f4bf3d3529200756cef547dc7b605d0e6fe5",
+  "source_commit_sha": "47407cf98075b08575d7b6ecdf5b8a4161716e17",
+  "source_path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-readme.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
