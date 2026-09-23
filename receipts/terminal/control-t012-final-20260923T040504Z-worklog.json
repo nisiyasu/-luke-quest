@@ -1,0 +1,36 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-t012-final-20260923T040504Z-worklog-op",
+  "processed_at": "2026-09-23T04:06:39.407531Z",
+  "request_id": "control-t012-final-20260923T040504Z-worklog",
+  "request_sha256": "f553f5eb77fcc0ee50c7bd9fe4e6218b7a0468b9fd118b93cd03c5678a1511da",
+  "result": {
+    "COMMENT_ID": 5788839671,
+    "CREATED_AT": "2026-09-23T04:06:27.823412Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T04:06:36.464794Z",
+    "LEASE_EPOCH": 29,
+    "MUTATION_TYPE": "ISSUE_COMMENT",
+    "OPERATION_ID": "control-t012-final-20260923T040504Z-worklog-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "control-t012-final-20260923T040504Z",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "897a6223d84a6f576be79ba1e1990cb7c9b9859f",
+      "commit_sha": "180ef2e458924c38c1853abb4b57c631c72dcaea",
+      "path": "requests/visual-rebuild/control-t012-final-20260923T040504Z-worklog.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "control-t012-final-20260923T040504Z-worklog",
+    "REQUEST_SHA256": "f553f5eb77fcc0ee50c7bd9fe4e6218b7a0468b9fd118b93cd03c5678a1511da",
+    "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+    "TARGET_RESOURCE": "issue-125"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "897a6223d84a6f576be79ba1e1990cb7c9b9859f",
+  "source_commit_sha": "180ef2e458924c38c1853abb4b57c631c72dcaea",
+  "source_path": "requests/visual-rebuild/control-t012-final-20260923T040504Z-worklog.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
