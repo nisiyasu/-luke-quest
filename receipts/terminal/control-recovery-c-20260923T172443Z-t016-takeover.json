@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: issue 130 claim is still live; takeover forbidden",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "control-recovery-c-20260923T172443Z-t016-takeover-op",
+  "processed_at": "2026-09-23T17:25:41.649216Z",
+  "request_id": "control-recovery-c-20260923T172443Z-t016-takeover",
+  "request_sha256": "fd457703bd23bb3beef0b7d7b6a935a43d5485f064379cee054ed70ca67b958e",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "a1aa08bb4f48e107b220c5afcfa52b205a7bbb42",
+  "source_commit_sha": "cca4636be4b2e93e62c2229468eb2ce9b6afda72",
+  "source_path": "requests/visual-rebuild/control-recovery-c-20260923T172443Z-t016-takeover.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
