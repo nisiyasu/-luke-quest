@@ -1,0 +1,42 @@
+{
+  "ACCEPTANCE": {
+    "accepted_head": "b9d3111e9400b809c0649213d518a473d5270448",
+    "evaluated_at": "2026-09-23T17:30:00Z",
+    "evaluator_id": "T016_SPATIAL_INTENT_CONTRACT_V1",
+    "evidence_artifacts": [
+      {
+        "kind": "spatial-intent-catalog",
+        "sha256": "5ce567de8230d3f8e3ae1a3febfb22d345cae6affef6e4d445ed07ed91511483",
+        "uri": "repo://nisiyasu/-luke-quest@b9d3111e9400b809c0649213d518a473d5270448/prototypes/target-image-threejs/verification/landmark-spatial-intent-v1.json"
+      }
+    ],
+    "result": "PASS",
+    "runtime_config": {
+      "command": "exact-head JSON validation: 22 catalog ids; ROI bounds/positive area; catalog centers inside ROI; source identity/catalog preservation",
+      "platform": "MSI Worker C"
+    },
+    "schema": "LQ_TASK_ACCEPTANCE:v1",
+    "task_id": "T016"
+  },
+  "ACCEPTANCE_SHA256": "836482c16115865e6ff92e56171e622042e5cca58eba758674e66f871985a88e",
+  "CLAIM_GENERATION": 3,
+  "CLOSE_DISPATCHED_AT": null,
+  "CREATED_AT": "2026-09-23T17:30:30.503446Z",
+  "EXACT_HEAD": "b9d3111e9400b809c0649213d518a473d5270448",
+  "ISSUE": 130,
+  "LAST_UPDATED_AT": "2026-09-23T17:30:30.503451Z",
+  "OPERATION_ID": "worker-c-20260923T1730Z-t016-complete-op",
+  "OWNER_RUN_ID": "worker-c-20260923T1721Z-t016",
+  "PHASE": "PREPARED",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "9ec2d8c585ad1309ebd124efcb3604abcb1b0918",
+    "commit_sha": "d93ab14f347f34dbb3c7d0e84d6842201321f100",
+    "path": "requests/visual-rebuild/worker-c-20260923T1730Z-t016-complete.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "TASK_ID": "T016",
+  "WORKER_ID": "C",
+  "WORK_LOG_COMMENT_ID": null,
+  "schema": "LQ_TASK_COMPLETION:v1"
+}
