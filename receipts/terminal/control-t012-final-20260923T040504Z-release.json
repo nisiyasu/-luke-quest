@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "control-t012-final-20260923T040504Z-release-op",
+  "processed_at": "2026-09-23T04:08:42.619552Z",
+  "request_id": "control-t012-final-20260923T040504Z-release",
+  "request_sha256": "9cc0f659a17ac3d0f54baa1e55f6214219e3662d461dc24bb25e540e743e9d45",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-23T04:05:36.987298Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "21e8130cf19abef563165ec7c61bbdc13f554e48",
+      "CURRENT_HEAD_SHA": "21e8130cf19abef563165ec7c61bbdc13f554e48",
+      "FENCING_TOKEN": 29,
+      "GATEWAY_CUTOVER_STATUS": "VISUAL_REBUILD_CANARY_ACTIVE",
+      "GATEWAY_IMPLEMENTATION_PATH": "tools/env_visual_gateway/fenced_gateway.py",
+      "INITIALIZED_FROM_CONTRACT": "specs/001-target-image-threejs/DEVELOPMENT_PIPELINE_v1.md",
+      "LANE_ID": "visual-rebuild",
+      "LAST_GATEWAY_ACCEPTED_AT": "2026-09-23T04:07:31.603356Z",
+      "LAST_GATEWAY_COMPLETED_AT": "2026-09-23T04:07:39.768871Z",
+      "LAST_HEARTBEAT_AT": "2026-09-23T04:08:40.715350Z",
+      "LEASE_EPOCH": 29,
+      "LEASE_STATUS": "RELEASED",
+      "LEASE_UNTIL": null,
+      "OWNER_RUN_ID": "control-t012-final-20260923T040504Z",
+      "PRODUCTION_ENABLED": true,
+      "schema": "LUKE_QUEST_ENV_LANE_LEASE:v1"
+    },
+    "status": "LEASE_RELEASED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "568a062742ce766d39a3a69540b62870412804be",
+  "source_commit_sha": "9689d7f8914b64f6b8b4c2a085dc65c189f0307f",
+  "source_path": "requests/visual-rebuild/control-t012-final-20260923T040504Z-release.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
