@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-23T05:22:47.023014Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-23T05:22:47.023039Z",
+  "LEASE_EPOCH": 35,
+  "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+  "OPERATION_ID": "control-fallback-worker-c-20260923T051722Z-t023-schema-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-fallback-worker-c-20260923T051722Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "bc3ffc7b369b5248f5a0c984d32b0586a844c8ee",
+    "commit_sha": "539dd7c34defd0059afd41ece00440e7ab9f1d1c",
+    "path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-schema.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-fallback-worker-c-20260923T051722Z-t023-schema",
+  "REQUEST_SHA256": "0a349d5b35134c726d8a67ed5c43849d2ea4244a0a95c894fed43ab821dd057e",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "experiment/target-image-threejs-v1:prototypes/target-image-threejs/verification/visual-evidence-contract-v1.schema.json"
+}
