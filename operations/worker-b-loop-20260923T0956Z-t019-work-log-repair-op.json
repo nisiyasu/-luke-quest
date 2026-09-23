@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-23T09:56:44.919114Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-23T09:56:44.919143Z",
+  "LEASE_EPOCH": 54,
+  "MUTATION_TYPE": "ISSUE_COMMENT",
+  "OPERATION_ID": "worker-b-loop-20260923T0956Z-t019-work-log-repair-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "worker-b-loop-20260923T083308Z-t019",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "28c35e5376f6f1d7f1c6b69ff45a965a3c632141",
+    "commit_sha": "d9a09ddb090a689ec548347e23d97cb19bd53cef",
+    "path": "requests/visual-rebuild/worker-b-loop-20260923T0956Z-t019-work-log-repair.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "worker-b-loop-20260923T0956Z-t019-work-log-repair",
+  "REQUEST_SHA256": "d04f05bda1cf195b37ebc84077f493bf6de1646cbdff8b92cbc779a478b725cd",
+  "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+  "TARGET_RESOURCE": "issue-133"
+}
