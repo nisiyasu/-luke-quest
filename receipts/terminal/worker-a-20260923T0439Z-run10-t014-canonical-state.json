@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-a-20260923T0439Z-run10-t014-canonical-state-op",
+  "processed_at": "2026-09-23T05:15:16.757922Z",
+  "request_id": "worker-a-20260923T0439Z-run10-t014-canonical-state",
+  "request_sha256": "794719cbf55934d1cf5c96e9671c7e12159424f505de80b96275501baf3f0aae",
+  "result": {
+    "APPLIED_HEAD": "833221db72390b9f05627dc288145085676675cf",
+    "CONTENT_SHA256": "ae5a03eafa78f13bc3c7586308fd2955132bc47db93ba9389a6d4498c31cd7f7",
+    "CREATED_AT": "2026-09-23T05:14:59.428643Z",
+    "LANE_ID": "visual-rebuild",
+    "LAST_UPDATED_AT": "2026-09-23T05:15:10.655530Z",
+    "LEASE_EPOCH": 34,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "worker-a-20260923T0439Z-run10-t014-canonical-state-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "worker-a-20260923T0439Z-run10",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "86064362aff243873f7086e82c648ee8f209fcea",
+      "commit_sha": "42312773d5a04b25f5aa1fd40ecb3c3c772a2cc9",
+      "path": "requests/visual-rebuild/worker-a-20260923T0439Z-run10-t014-canonical-state.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "worker-a-20260923T0439Z-run10-t014-canonical-state",
+    "REQUEST_SHA256": "794719cbf55934d1cf5c96e9671c7e12159424f505de80b96275501baf3f0aae",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "experiment/target-image-threejs-v1:docs/autonomy/evidence/T014_G0_CANONICAL_STATE_v1.md"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "86064362aff243873f7086e82c648ee8f209fcea",
+  "source_commit_sha": "42312773d5a04b25f5aa1fd40ecb3c3c772a2cc9",
+  "source_path": "requests/visual-rebuild/worker-a-20260923T0439Z-run10-t014-canonical-state.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
