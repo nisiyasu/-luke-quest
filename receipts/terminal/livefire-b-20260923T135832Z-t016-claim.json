@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: issue 130 already has active authoritative claim",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "livefire-b-20260923T135832Z-t016-claim-op",
+  "processed_at": "2026-09-23T13:59:37.139595Z",
+  "request_id": "livefire-b-20260923T135832Z-t016-claim",
+  "request_sha256": "ec9f48cb3e1830086701f9e503441ba590dcd4347bdaab0c4eba580935fb14df",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "526cd7970c415ff4a56c18f8eac3d07bd8288431",
+  "source_commit_sha": "ec0b58a8a93183c76600d15aa3fff812ad3933b5",
+  "source_path": "requests/visual-rebuild/livefire-b-20260923T135832Z-t016-claim.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
