@@ -259,6 +259,21 @@ class GitHub:
                 return out
             page += 1
 
+    def blocked_by(self, issue: int) -> list[dict]:
+        return self.request("GET", f"/issues/{issue}/dependencies/blocked_by")
+
+    def events(self, issue: int) -> list[dict]:
+        out = []
+        page = 1
+        while True:
+            batch = self.request(
+                "GET", f"/issues/{issue}/events?per_page=100&page={page}"
+            )
+            out.extend(batch)
+            if len(batch) < 100:
+                return out
+            page += 1
+
     def find_comment(self, issue: int, marker: str) -> list[dict]:
         return [c for c in self.comments(issue) if marker in (c.get("body") or "")]
 
@@ -707,6 +722,1504 @@ class Gateway:
                 continue
         raise CasConflict("lease current-head sync CAS retries exhausted")
 
+    @staticmethod
+    def _kv(body: str, key: str) -> str | None:
+        prefix = key + "="
+        for raw in body.splitlines():
+            line = raw.strip()
+            if line.startswith(prefix):
+                return line[len(prefix):].strip()
+        return None
+
+    @staticmethod
+    def _body_field(body: str, key: str) -> str | None:
+        prefix = key + ":"
+        for raw in body.splitlines():
+            line = raw.strip()
+            if line.startswith(prefix):
+                return line[len(prefix):].strip()
+        return None
+
+    def _execution_leaf(self, lane_id: str, issue: int, task_id: str) -> dict:
+        self._assert_issue_allowed(lane_id, issue)
+        data = self.gh.issue(issue)
+        if str(data.get("state", "")).lower() != "open":
+            raise RequestRejected(f"issue {issue} is not open")
+        body = str(data.get("body") or "")
+        if "LQ_EXECUTION_LEAF:v1" not in body:
+            raise RequestRejected(f"issue {issue} is not an execution leaf")
+        if self._body_field(body, "WORK_TYPE") != "EXECUTION_LEAF":
+            raise RequestRejected(f"issue {issue} work type is not EXECUTION_LEAF")
+        if self._body_field(body, "CLAIMABLE") != "YES":
+            raise RequestRejected(f"issue {issue} is not claimable")
+        observed_task = self._body_field(body, "TASK_ID")
+        if observed_task != task_id:
+            raise RequestRejected(
+                f"task mismatch issue={issue} expected={observed_task} requested={task_id}"
+            )
+        return data
+
+    def _claim_path(self, issue: int) -> str:
+        if int(issue) <= 0:
+            raise RequestRejected("invalid claim issue")
+        return f"work-claims/issue-{int(issue)}.json"
+
+    def _completion_path(self, issue: int, operation_id: str) -> str:
+        if "/" in operation_id or ".." in operation_id:
+            raise RequestRejected("invalid completion operation_id")
+        return f"work-completions/issue-{int(issue)}/{operation_id}.json"
+
+    def _read_json_optional(self, branch: str, path: str) -> dict | None:
+        try:
+            return self.gh.json_file(branch, path)
+        except ApiError as exc:
+            if exc.status == 404:
+                return None
+            raise
+
+    @staticmethod
+    def _claim_deadline(record: dict, key: str) -> float | None:
+        try:
+            return parse_time(record.get(key))
+        except Exception:
+            return None
+
+    def _claim_is_stale(self, record: dict) -> bool:
+        now = time.time()
+        until = self._claim_deadline(record, "CLAIM_UNTIL")
+        progress = self._claim_deadline(record, "PROGRESS_DEADLINE_AT")
+        return (
+            record.get("CLAIM_STATUS") != "ACTIVE"
+            or (until is not None and until <= now)
+            or (progress is not None and progress <= now)
+        )
+
+    def _claim_record(self, lane_id: str, issue: int) -> dict | None:
+        return self._read_json_optional(
+            self._control(lane_id), self._claim_path(issue)
+        )
+
+    def _validate_claim_owner(
+        self,
+        req: dict,
+        issue: int,
+        task_id: str,
+        worker_id: str,
+        claim_generation: int,
+        *,
+        require_fresh: bool = True,
+    ) -> dict:
+        record = self._claim_record(req["lane_id"], issue)
+        if not record:
+            raise RequestRejected(f"issue {issue} has no authoritative claim")
+        checks = {
+            "ISSUE": issue,
+            "TASK_ID": task_id,
+            "WORKER_ID": worker_id,
+            "OWNER_RUN_ID": req["owner_run_id"],
+            "CLAIM_GENERATION": int(claim_generation),
+        }
+        for key, value in checks.items():
+            if record.get(key) != value:
+                raise StaleEpoch(
+                    f"claim authority mismatch {key} expected={value} actual={record.get(key)}"
+                )
+        if record.get("CLAIM_STATUS") != "ACTIVE":
+            raise StaleEpoch(
+                f"claim is not ACTIVE status={record.get('CLAIM_STATUS')}"
+            )
+        if require_fresh and self._claim_is_stale(record):
+            raise StaleEpoch("claim progress deadline expired; takeover required")
+        return record
+
+    def _report_claim_result(
+        self, issue: int, req: dict, record: dict, status: str
+    ) -> int | None:
+        marker = f"[LQ_GATEWAY_OP:{req['operation_id']}]"
+        existing = self.gh.find_comment(issue, marker)
+        if existing:
+            return int(existing[0]["id"])
+        body = "\n".join(
+            [
+                marker,
+                "LQ_WORKER_CLAIM_REPORT:v3",
+                f"STATUS={status}",
+                f"WORKER_ID={record.get('WORKER_ID')}",
+                f"OWNER_RUN_ID={record.get('OWNER_RUN_ID')}",
+                f"CLAIM_GENERATION={record.get('CLAIM_GENERATION')}",
+                f"CLAIM_UNTIL={record.get('CLAIM_UNTIL')}",
+                f"ISSUE={record.get('ISSUE')}",
+                f"TASK_ID={record.get('TASK_ID')}",
+                "CLAIM_AUTHORITY=CONTROL_BRANCH_CAS_RECORD",
+            ]
+        )
+        try:
+            self.gh.post_comment(issue, body)
+            matches = self.gh.find_comment(issue, marker)
+            return int(matches[0]["id"]) if len(matches) == 1 else None
+        except Exception:
+            return None
+
+    def _claim_common(
+        self, req: dict
+    ) -> tuple[dict, int, str, str, int, int, int]:
+        self._validate_common(req)
+        if req["lane_id"] != "visual-rebuild":
+            raise RequestRejected("atomic work claims are visual-rebuild only")
+        payload = req.get("payload", {})
+        issue = int(payload.get("issue_number"))
+        task_id = str(payload.get("task_id") or "")
+        worker_id = str(payload.get("worker_id") or "")
+        if not worker_id or not task_id:
+            raise RequestRejected("worker_id/task_id required")
+        ttl = int(payload.get("claim_ttl_seconds", 7200))
+        progress = int(payload.get("progress_deadline_seconds", 1800))
+        max_recovery = int(payload.get("max_recovery_attempts", 3))
+        if ttl < 900 or ttl > 21600:
+            raise RequestRejected("claim_ttl_seconds must be 900..21600")
+        if progress < 300 or progress > ttl:
+            raise RequestRejected(
+                "progress_deadline_seconds must be 300..claim_ttl_seconds"
+            )
+        if max_recovery < 1 or max_recovery > 8:
+            raise RequestRejected("max_recovery_attempts must be 1..8")
+        self._execution_leaf(req["lane_id"], issue, task_id)
+        blockers = [
+            int(x.get("number"))
+            for x in self.gh.blocked_by(issue)
+            if str(x.get("state", "")).lower() == "open"
+        ]
+        if blockers:
+            raise RequestRejected(
+                f"issue {issue} has open blockers: {','.join(map(str, blockers))}"
+            )
+        return payload, issue, task_id, worker_id, ttl, progress, max_recovery
+
+    def work_claim_acquire(self, req: dict) -> dict:
+        (
+            payload,
+            issue,
+            task_id,
+            worker_id,
+            ttl,
+            progress,
+            max_recovery,
+        ) = self._claim_common(req)
+        lease = self.lease(req["lane_id"])
+        lease_expiry = parse_time(lease.get("LEASE_UNTIL"))
+        if (
+            lease.get("LEASE_STATUS") == ACTIVE
+            and (lease_expiry is None or lease_expiry > time.time())
+            and lease.get("OWNER_RUN_ID") != req["owner_run_id"]
+        ):
+            raise LeaseUnavailable(
+                "authoritative Claim waits for active legacy/formal Lease "
+                f"owner={lease.get('OWNER_RUN_ID')}"
+            )
+        branch = self._control(req["lane_id"])
+        path = self._claim_path(issue)
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            current = self._read_json_optional(branch, path)
+            if current and current.get("CLAIM_STATUS") == "ACTIVE":
+                if (
+                    current.get("OWNER_RUN_ID") == req["owner_run_id"]
+                    and current.get("WORKER_ID") == worker_id
+                    and current.get("TASK_ID") == task_id
+                    and not self._claim_is_stale(current)
+                ):
+                    return {
+                        "status": "CLAIM_ALREADY_OWNED",
+                        "claim": current,
+                    }
+                if not self._claim_is_stale(current):
+                    raise RequestRejected(
+                        f"issue {issue} already has active authoritative claim"
+                    )
+                raise RequestRejected(
+                    f"issue {issue} stale claim requires WORK_CLAIM_TAKEOVER"
+                )
+            generation = int((current or {}).get("CLAIM_GENERATION", 0)) + 1
+            now = time.time()
+            impl_head = self.gh.ref(
+                self.lane_cfg(req["lane_id"])["implementation_branch"]
+            )
+            record = {
+                "schema": "LQ_WORK_CLAIM:v3",
+                "LANE_ID": req["lane_id"],
+                "ISSUE": issue,
+                "TASK_ID": task_id,
+                "WORKER_ID": worker_id,
+                "OWNER_RUN_ID": req["owner_run_id"],
+                "CLAIM_GENERATION": generation,
+                "CLAIM_STATUS": "ACTIVE",
+                "CLAIMED_AT": now_rfc3339(),
+                "CLAIM_UNTIL": datetime.fromtimestamp(
+                    now + ttl, timezone.utc
+                ).isoformat().replace("+00:00", "Z"),
+                "LAST_PROGRESS_AT": now_rfc3339(),
+                "PROGRESS_DEADLINE_AT": datetime.fromtimestamp(
+                    now + progress, timezone.utc
+                ).isoformat().replace("+00:00", "Z"),
+                "PHASE": "CLAIMED",
+                "ACTIVE_OPERATION_ID": None,
+                "EXPECTED_IMPLEMENTATION_HEAD": impl_head,
+                "NEXT_RECOVERY_ACTION": "EXECUTE_TASK",
+                "RECOVERY_ATTEMPTS": 0,
+                "MAX_RECOVERY_ATTEMPTS": max_recovery,
+            }
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {path: self._encode_json(record)},
+                    f"work claim acquire issue {issue} gen {generation}",
+                    expected_head=head,
+                )
+            except CasConflict:
+                continue
+            committed = self.gh.json_file(branch, path)
+            comment_id = self._report_claim_result(
+                issue, req, committed, "CLAIM_ACQUIRED"
+            )
+            return {
+                "status": "CLAIM_ACQUIRED",
+                "claim": committed,
+                "comment_id": comment_id,
+            }
+        raise CasConflict("work claim acquire CAS retries exhausted")
+
+    def work_claim_renew(self, req: dict) -> dict:
+        (
+            payload,
+            issue,
+            task_id,
+            worker_id,
+            ttl,
+            progress,
+            _,
+        ) = self._claim_common(req)
+        generation = int(payload.get("claim_generation", 0))
+        branch = self._control(req["lane_id"])
+        path = self._claim_path(issue)
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            record = self.gh.json_file(branch, path)
+            self._validate_claim_owner(
+                req, issue, task_id, worker_id, generation
+            )
+            phase = str(payload.get("phase") or record.get("PHASE") or "EXECUTING")
+            if phase in {"RELEASED", "ESCALATED", "COMPLETE"}:
+                raise RequestRejected("renew phase cannot be terminal")
+            now = time.time()
+            record["LAST_PROGRESS_AT"] = now_rfc3339()
+            record["PROGRESS_DEADLINE_AT"] = datetime.fromtimestamp(
+                now + progress, timezone.utc
+            ).isoformat().replace("+00:00", "Z")
+            record["CLAIM_UNTIL"] = datetime.fromtimestamp(
+                now + ttl, timezone.utc
+            ).isoformat().replace("+00:00", "Z")
+            record["PHASE"] = phase
+            record["NEXT_RECOVERY_ACTION"] = str(
+                payload.get("next_recovery_action")
+                or record.get("NEXT_RECOVERY_ACTION")
+                or "RESUME_CURRENT_PHASE"
+            )
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {path: self._encode_json(record)},
+                    f"work claim renew issue {issue} gen {generation}",
+                    expected_head=head,
+                )
+                return {
+                    "status": "CLAIM_RENEWED",
+                    "claim": self.gh.json_file(branch, path),
+                }
+            except CasConflict:
+                continue
+        raise CasConflict("work claim renew CAS retries exhausted")
+
+    def work_claim_release(self, req: dict) -> dict:
+        payload, issue, task_id, worker_id, *_ = self._claim_common(req)
+        generation = int(payload.get("claim_generation", 0))
+        branch = self._control(req["lane_id"])
+        path = self._claim_path(issue)
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            record = self.gh.json_file(branch, path)
+            if (
+                record.get("CLAIM_STATUS") == "RELEASED"
+                and record.get("OWNER_RUN_ID") == req["owner_run_id"]
+                and int(record.get("CLAIM_GENERATION", -1)) == generation
+            ):
+                return {"status": "CLAIM_ALREADY_RELEASED", "claim": record}
+            self._validate_claim_owner(
+                req, issue, task_id, worker_id, generation, require_fresh=False
+            )
+            if record.get("ACTIVE_OPERATION_ID"):
+                raise ActiveOperation(
+                    "claim release blocked while operation is active"
+                )
+            record.update(
+                {
+                    "CLAIM_STATUS": "RELEASED",
+                    "PHASE": "RELEASED",
+                    "CLAIM_UNTIL": now_rfc3339(),
+                    "LAST_PROGRESS_AT": now_rfc3339(),
+                    "NEXT_RECOVERY_ACTION": "NONE",
+                }
+            )
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {path: self._encode_json(record)},
+                    f"work claim release issue {issue} gen {generation}",
+                    expected_head=head,
+                )
+            except CasConflict:
+                continue
+            committed = self.gh.json_file(branch, path)
+            self._report_claim_result(
+                issue, req, committed, "CLAIM_RELEASED"
+            )
+            return {"status": "CLAIM_RELEASED", "claim": committed}
+        raise CasConflict("work claim release CAS retries exhausted")
+
+    def _write_takeover_fence(
+        self,
+        req: dict,
+        issue: int,
+        old_record: dict,
+        new_generation: int,
+    ) -> str:
+        cfg = self.lane_cfg(req["lane_id"])
+        branch = cfg["implementation_branch"]
+        head = self.gh.ref(branch)
+        fence = {
+            "schema": "LQ_WRITER_FENCE:v1",
+            "issue": issue,
+            "from_owner_run_id": old_record.get("OWNER_RUN_ID"),
+            "from_generation": old_record.get("CLAIM_GENERATION"),
+            "to_owner_run_id": req["owner_run_id"],
+            "to_generation": new_generation,
+            "reason": "NO_PROGRESS_OR_EXPIRED_CLAIM",
+            "fenced_at": now_rfc3339(),
+        }
+        return self.gh.cas_write_files(
+            branch,
+            {
+                "prototypes/target-image-threejs/verification/.writer-fence.json":
+                    self._encode_json(fence)
+            },
+            f"fence stale writer issue {issue} gen {new_generation}",
+            expected_head=head,
+        )
+
+    def work_claim_takeover(self, req: dict) -> dict:
+        (
+            payload,
+            issue,
+            task_id,
+            worker_id,
+            ttl,
+            progress,
+            max_recovery,
+        ) = self._claim_common(req)
+        branch = self._control(req["lane_id"])
+        path = self._claim_path(issue)
+        for _ in range(8):
+            control_head = self.gh.ref(branch)
+            old = self.gh.json_file(branch, path)
+            if not self._claim_is_stale(old):
+                raise RequestRejected(
+                    f"issue {issue} claim is still live; takeover forbidden"
+                )
+            lease = self.lease(req["lane_id"])
+            lease_expiry = parse_time(lease.get("LEASE_UNTIL"))
+            if (
+                lease.get("LEASE_STATUS") == ACTIVE
+                and (lease_expiry is None or lease_expiry > time.time())
+                and lease.get("OWNER_RUN_ID")
+                not in (None, old.get("OWNER_RUN_ID"))
+            ):
+                raise LeaseUnavailable(
+                    "takeover waits for unrelated active formal/legacy Lease "
+                    f"owner={lease.get('OWNER_RUN_ID')}"
+                )
+            old_generation = int(old.get("CLAIM_GENERATION", 0))
+            attempts = int(old.get("RECOVERY_ATTEMPTS", 0)) + 1
+            effective_max = int(old.get("MAX_RECOVERY_ATTEMPTS", max_recovery))
+            new_generation = old_generation + 1
+            try:
+                fence_head = self._write_takeover_fence(
+                    req, issue, old, new_generation
+                )
+            except CasConflict:
+                continue
+
+            latest_head = self.gh.ref(branch)
+            latest = self.gh.json_file(branch, path)
+            if (
+                int(latest.get("CLAIM_GENERATION", -1)) != old_generation
+                or latest.get("OWNER_RUN_ID") != old.get("OWNER_RUN_ID")
+            ):
+                continue
+
+            now = time.time()
+            if attempts > effective_max:
+                updated = dict(latest)
+                updated.update(
+                    {
+                        "CLAIM_GENERATION": new_generation,
+                        "CLAIM_STATUS": "ESCALATED",
+                        "PHASE": "ESCALATED",
+                        "ACTIVE_OPERATION_ID": None,
+                        "EXPECTED_IMPLEMENTATION_HEAD": fence_head,
+                        "LAST_PROGRESS_AT": now_rfc3339(),
+                        "NEXT_RECOVERY_ACTION": "OWNER_ARBITRATION",
+                        "RECOVERY_ATTEMPTS": attempts,
+                    }
+                )
+                status = "WORK_ESCALATED"
+            else:
+                updated = dict(latest)
+                updated.update(
+                    {
+                        "WORKER_ID": worker_id,
+                        "OWNER_RUN_ID": req["owner_run_id"],
+                        "TASK_ID": task_id,
+                        "CLAIM_GENERATION": new_generation,
+                        "CLAIM_STATUS": "ACTIVE",
+                        "CLAIMED_AT": now_rfc3339(),
+                        "CLAIM_UNTIL": datetime.fromtimestamp(
+                            now + ttl, timezone.utc
+                        ).isoformat().replace("+00:00", "Z"),
+                        "LAST_PROGRESS_AT": now_rfc3339(),
+                        "PROGRESS_DEADLINE_AT": datetime.fromtimestamp(
+                            now + progress, timezone.utc
+                        ).isoformat().replace("+00:00", "Z"),
+                        "PHASE": "RECOVERY_PENDING",
+                        "ACTIVE_OPERATION_ID": None,
+                        "EXPECTED_IMPLEMENTATION_HEAD": fence_head,
+                        "NEXT_RECOVERY_ACTION": str(
+                            latest.get("NEXT_RECOVERY_ACTION")
+                            or "RECONCILE_AND_RESUME"
+                        ),
+                        "RECOVERY_ATTEMPTS": attempts,
+                        "MAX_RECOVERY_ATTEMPTS": effective_max,
+                        "PREVIOUS_OWNER_RUN_ID": old.get("OWNER_RUN_ID"),
+                        "PREVIOUS_GENERATION": old_generation,
+                        "FENCE_HEAD": fence_head,
+                    }
+                )
+                status = "CLAIM_TAKEN_OVER"
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {path: self._encode_json(updated)},
+                    f"work claim takeover issue {issue} gen {new_generation}",
+                    expected_head=latest_head,
+                )
+            except CasConflict:
+                continue
+            committed = self.gh.json_file(branch, path)
+            self._report_claim_result(issue, req, committed, status)
+            return {"status": status, "claim": committed}
+        raise CasConflict("work claim takeover CAS retries exhausted")
+
+    def _validate_work_context(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        task_id: str,
+        worker_id: str,
+        claim_generation: int,
+        expected_phase: str,
+    ) -> dict:
+        ctx = req.get("work_context")
+        if not isinstance(ctx, dict):
+            raise RequestRejected("work_context required")
+        checks = {
+            "issue_number": issue,
+            "task_id": task_id,
+            "worker_id": worker_id,
+            "owner_run_id": req["owner_run_id"],
+            "claim_generation": int(claim_generation),
+            "operation_id": req["operation_id"],
+            "work_phase": expected_phase,
+        }
+        for key, value in checks.items():
+            if ctx.get(key) != value:
+                raise RequestRejected(
+                    f"work_context mismatch {key} expected={value} actual={ctx.get(key)}"
+                )
+        if not str(ctx.get("submitted_payload_reference") or ""):
+            raise RequestRejected(
+                "work_context submitted_payload_reference required"
+            )
+        if not str(ctx.get("last_progress_at") or ""):
+            raise RequestRejected("work_context last_progress_at required")
+        if not str(ctx.get("next_recovery_action") or ""):
+            raise RequestRejected(
+                "work_context next_recovery_action required"
+            )
+        expected_head = str(req.get("expected_lane_head") or "")
+        if ctx.get("expected_head") != expected_head:
+            raise RequestRejected(
+                "work_context expected_head must equal expected_lane_head"
+            )
+        return ctx
+
+    def _admit_claim_operation(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        task_id: str,
+        worker_id: str,
+        claim_generation: int,
+        phase: str,
+        next_recovery_action: str,
+        expected_head: str,
+        work_context: dict,
+    ) -> dict:
+        branch = self._control(req["lane_id"])
+        path = self._claim_path(issue)
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            record = self._validate_claim_owner(
+                req,
+                issue,
+                task_id,
+                worker_id,
+                claim_generation,
+            )
+            active = record.get("ACTIVE_OPERATION_ID")
+            if active not in (None, req["operation_id"]):
+                raise ActiveOperation(
+                    f"claim already has active operation {active}"
+                )
+            record["ACTIVE_OPERATION_ID"] = req["operation_id"]
+            record["PHASE"] = phase
+            record["EXPECTED_IMPLEMENTATION_HEAD"] = expected_head
+            record["SUBMITTED_PAYLOAD_REFERENCE"] = work_context.get(
+                "submitted_payload_reference"
+            )
+            record["SUBMITTED_PAYLOAD_SHA256"] = req.get(
+                "request_sha256"
+            )
+            record["REQUEST_CHANNEL_SOURCE"] = dict(
+                self.request_source or {}
+            )
+            record["LAST_PROGRESS_AT"] = now_rfc3339()
+            record["NEXT_RECOVERY_ACTION"] = next_recovery_action
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {path: self._encode_json(record)},
+                    f"work admit {req['operation_id']}",
+                    expected_head=head,
+                )
+                return self.gh.json_file(branch, path)
+            except CasConflict:
+                continue
+        raise CasConflict("claim operation admission CAS retries exhausted")
+
+    def _update_claim_after_operation(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        claim_generation: int,
+        phase: str,
+        next_recovery_action: str,
+        expected_head: str | None = None,
+        clear_active: bool = True,
+        extra: dict | None = None,
+    ) -> dict:
+        branch = self._control(req["lane_id"])
+        path = self._claim_path(issue)
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            record = self.gh.json_file(branch, path)
+            if (
+                record.get("OWNER_RUN_ID") != req["owner_run_id"]
+                or int(record.get("CLAIM_GENERATION", -1))
+                != int(claim_generation)
+            ):
+                raise StaleEpoch(
+                    "claim generation changed during operation"
+                )
+            if record.get("ACTIVE_OPERATION_ID") not in (
+                None,
+                req["operation_id"],
+            ):
+                raise ActiveOperation(
+                    "claim operation identity changed"
+                )
+            record["PHASE"] = phase
+            record["NEXT_RECOVERY_ACTION"] = next_recovery_action
+            record["LAST_PROGRESS_AT"] = now_rfc3339()
+            if expected_head is not None:
+                record["EXPECTED_IMPLEMENTATION_HEAD"] = expected_head
+            if clear_active:
+                record["ACTIVE_OPERATION_ID"] = None
+            if extra:
+                record.update(extra)
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {path: self._encode_json(record)},
+                    f"work phase {issue} -> {phase}",
+                    expected_head=head,
+                )
+                return self.gh.json_file(branch, path)
+            except CasConflict:
+                continue
+        raise CasConflict("claim phase CAS retries exhausted")
+
+    @staticmethod
+    def _patchset_files(payload: dict) -> dict[str, bytes]:
+        specs = payload.get("files")
+        if not isinstance(specs, list) or not 1 <= len(specs) <= 20:
+            raise RequestRejected("files must contain 1..20 entries")
+        files: dict[str, bytes] = {}
+        total = 0
+        for item in specs:
+            if not isinstance(item, dict):
+                raise RequestRejected(
+                    "each patchset file must be an object"
+                )
+            path = str(item.get("path") or "")
+            if not path.startswith(
+                "prototypes/target-image-threejs/"
+            ):
+                raise RequestRejected(
+                    f"path outside worker implementation root: {path}"
+                )
+            if (
+                "/../" in path
+                or path.endswith("/..")
+                or path.startswith(".git/")
+            ):
+                raise RequestRejected(
+                    f"invalid patchset path: {path}"
+                )
+            content = decode_content_spec(item)
+            total += len(content)
+            if total > 220 * 1024:
+                raise RequestRejected(
+                    "patchset decoded content exceeds 220 KiB"
+                )
+            if path in files:
+                raise RequestRejected(
+                    f"duplicate patchset path: {path}"
+                )
+            files[path] = content
+        return files
+
+    def _patchset_matches(
+        self, branch: str, files: dict[str, bytes]
+    ) -> bool:
+        for path, wanted in files.items():
+            try:
+                actual, _ = self.gh.content(branch, path)
+            except ApiError:
+                return False
+            if actual != wanted:
+                return False
+        return True
+
+    def implementation_patchset(self, req: dict) -> dict:
+        cfg = self._validate_common(req)
+        if req["lane_id"] != "visual-rebuild":
+            raise RequestRejected(
+                "IMPLEMENTATION_PATCHSET is visual-rebuild only"
+            )
+        expected_head = str(req.get("expected_lane_head") or "")
+        if not expected_head:
+            raise RequestRejected("expected_lane_head required")
+
+        payload = req.get("payload", {})
+        issue = int(payload.get("issue_number"))
+        task_id = str(payload.get("task_id") or "")
+        worker_id = str(payload.get("worker_id") or "")
+        generation = int(payload.get("claim_generation", 0))
+        if generation <= 0:
+            raise RequestRejected("claim_generation required")
+        ctx = self._validate_work_context(
+            req,
+            issue=issue,
+            task_id=task_id,
+            worker_id=worker_id,
+            claim_generation=generation,
+            expected_phase="PATCHSET_SUBMITTED",
+        )
+        files = self._patchset_files(payload)
+
+        claim = self._admit_claim_operation(
+            req,
+            issue=issue,
+            task_id=task_id,
+            worker_id=worker_id,
+            claim_generation=generation,
+            phase="PATCHSET_ADMITTED",
+            next_recovery_action="RECONCILE_OR_APPLY_PATCHSET",
+            expected_head=expected_head,
+            work_context=ctx,
+        )
+
+        lease = self.lease(req["lane_id"])
+        expiry = parse_time(lease.get("LEASE_UNTIL"))
+        if (
+            lease.get("LEASE_STATUS") == ACTIVE
+            and (expiry is None or expiry > time.time())
+        ):
+            raise LeaseUnavailable(
+                "patchset waits for existing formal/legacy Lease "
+                f"owner={lease.get('OWNER_RUN_ID')}"
+            )
+        if lease.get("ACTIVE_OPERATION_ID"):
+            raise ActiveOperation(
+                "patchset waits for formal/legacy active operation "
+                f"{lease.get('ACTIVE_OPERATION_ID')}"
+            )
+
+        current_head = self.gh.ref(cfg["implementation_branch"])
+        if current_head != expected_head:
+            if self._patchset_matches(
+                cfg["implementation_branch"], files
+            ):
+                self._update_claim_after_operation(
+                    req,
+                    issue=issue,
+                    claim_generation=generation,
+                    phase="PATCHSET_APPLIED",
+                    next_recovery_action="RUN_ACCEPTANCE_EVALUATOR",
+                    expected_head=current_head,
+                    extra={
+                        "LAST_APPLIED_HEAD": current_head,
+                        "RECOVERED_AFTER_UNKNOWN_RESPONSE": True,
+                    },
+                )
+                return {
+                    "status": "PATCHSET_ALREADY_APPLIED",
+                    "APPLIED_HEAD": current_head,
+                    "RECOVERED_AFTER_UNKNOWN_RESPONSE": True,
+                    "FILE_COUNT": len(files),
+                }
+            self._update_claim_after_operation(
+                req,
+                issue=issue,
+                claim_generation=generation,
+                phase="PATCHSET_STALE_HEAD",
+                next_recovery_action="REBASE_RETEST_RESUBMIT",
+                expected_head=current_head,
+            )
+            raise HeadMismatch(
+                "implementation branch HEAD mismatch "
+                f"expected={expected_head} current={current_head}"
+            )
+
+        message = str(
+            payload.get("commit_message")
+            or f"{task_id}: atomic worker patchset"
+        )
+        try:
+            applied = self.gh.cas_write_files(
+                cfg["implementation_branch"],
+                files,
+                message,
+                expected_head=expected_head,
+            )
+        except CasConflict:
+            current_head = self.gh.ref(cfg["implementation_branch"])
+            if self._patchset_matches(
+                cfg["implementation_branch"], files
+            ):
+                applied = current_head
+            else:
+                self._update_claim_after_operation(
+                    req,
+                    issue=issue,
+                    claim_generation=generation,
+                    phase="PATCHSET_STALE_HEAD",
+                    next_recovery_action="REBASE_RETEST_RESUBMIT",
+                    expected_head=current_head,
+                )
+                raise
+
+        if not self._patchset_matches(
+            cfg["implementation_branch"], files
+        ):
+            self._update_claim_after_operation(
+                req,
+                issue=issue,
+                claim_generation=generation,
+                phase="RECONCILIATION_REQUIRED",
+                next_recovery_action="RECONCILE_PATCHSET_READBACK",
+                expected_head=self.gh.ref(
+                    cfg["implementation_branch"]
+                ),
+                clear_active=False,
+            )
+            raise GatewayError("patchset readback mismatch")
+
+        committed_claim = self._update_claim_after_operation(
+            req,
+            issue=issue,
+            claim_generation=generation,
+            phase="PATCHSET_APPLIED",
+            next_recovery_action="RUN_ACCEPTANCE_EVALUATOR",
+            expected_head=applied,
+            extra={
+                "LAST_APPLIED_HEAD": applied,
+                "LAST_PATCHSET_FILE_COUNT": len(files),
+            },
+        )
+        return {
+            "status": "PATCHSET_APPLIED",
+            "APPLIED_HEAD": applied,
+            "FILE_COUNT": len(files),
+            "ISSUE": issue,
+            "TASK_ID": task_id,
+            "WORKER_ID": worker_id,
+            "CLAIM_GENERATION": generation,
+            "CLAIM_PHASE": committed_claim.get("PHASE"),
+        }
+
+    @staticmethod
+    def _valid_sha256(value: object) -> bool:
+        text = str(value or "")
+        return (
+            len(text) == 64
+            and all(ch in "0123456789abcdef" for ch in text)
+        )
+
+    def _validate_acceptance_binding(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        task_id: str,
+        exact_head: str,
+        acceptance: object,
+    ) -> dict:
+        if not isinstance(acceptance, dict):
+            raise RequestRejected("acceptance object required")
+        if acceptance.get("schema") != "LQ_TASK_ACCEPTANCE:v1":
+            raise RequestRejected("unsupported acceptance schema")
+        if acceptance.get("task_id") != task_id:
+            raise RequestRejected("acceptance task_id mismatch")
+        if acceptance.get("accepted_head") != exact_head:
+            raise RequestRejected(
+                "acceptance accepted_head must equal exact_head"
+            )
+        if str(acceptance.get("result") or "").upper() != "PASS":
+            raise RequestRejected("acceptance result PASS required")
+        evaluator = str(acceptance.get("evaluator_id") or "")
+        if not evaluator:
+            raise RequestRejected("acceptance evaluator_id required")
+        runtime = acceptance.get("runtime_config")
+        if not isinstance(runtime, dict):
+            raise RequestRejected(
+                "acceptance runtime_config object required"
+            )
+        artifacts = acceptance.get("evidence_artifacts")
+        if not isinstance(artifacts, list) or not artifacts:
+            raise RequestRejected(
+                "acceptance evidence_artifacts required"
+            )
+        kinds = set()
+        for item in artifacts:
+            if not isinstance(item, dict):
+                raise RequestRejected(
+                    "acceptance artifact must be object"
+                )
+            kind = str(item.get("kind") or "")
+            uri = str(item.get("uri") or "")
+            digest = item.get("sha256")
+            if (
+                not kind
+                or not uri
+                or not self._valid_sha256(digest)
+            ):
+                raise RequestRejected(
+                    "acceptance artifact kind/uri/sha256 required"
+                )
+            kinds.add(kind)
+
+        if evaluator == "T019_CAPTURE_CONTRACT_V1":
+            viewport = runtime.get("viewport")
+            if not isinstance(viewport, dict):
+                raise RequestRejected(
+                    "T019 runtime viewport required"
+                )
+            if (
+                int(viewport.get("width", 0)) != 941
+                or int(viewport.get("height", 0)) != 1672
+                or float(viewport.get("dpr", 0)) != 1.0
+            ):
+                raise RequestRejected(
+                    "T019 evaluator requires 941x1672 DPR1"
+                )
+            required = {"actual.png", "runtime-audit.json"}
+            if not required.issubset(kinds):
+                raise RequestRejected(
+                    "T019 acceptance missing capture artifacts"
+                )
+
+        if evaluator == "FORMAL_VISUAL_EVIDENCE_V1":
+            adoption_id = str(
+                acceptance.get("adoption_id") or ""
+            )
+            if not adoption_id:
+                raise RequestRejected(
+                    "formal visual acceptance adoption_id required"
+                )
+            adoption = self.adoption_record(
+                req["lane_id"], adoption_id
+            )
+            if adoption.get("CHILD_ISSUE") != issue:
+                raise RequestRejected(
+                    "formal visual adoption issue mismatch"
+                )
+            if adoption.get("IMPLEMENTATION_HEAD") != exact_head:
+                raise HeadMismatch(
+                    "formal visual evidence head mismatch"
+                )
+            if adoption.get("STATE") not in (
+                "ADOPTED_CHILD_NOT_CLOSED",
+                "CHILD_CLOSED_PARENT_NOT_ADVANCED",
+                "COMPLETE",
+            ):
+                raise RequestRejected(
+                    "formal visual evidence is not adopted"
+                )
+            if adoption.get("READBACK_VERIFIED") is not True:
+                raise RequestRejected(
+                    "formal visual evidence readback not verified"
+                )
+        return dict(acceptance)
+
+    def _completion_record_verify(
+        self,
+        record: dict,
+        *,
+        req: dict,
+        issue: int,
+        task_id: str,
+        worker_id: str,
+        generation: int,
+        exact_head: str,
+        acceptance_sha256: str,
+    ) -> None:
+        checks = {
+            "ISSUE": issue,
+            "TASK_ID": task_id,
+            "WORKER_ID": worker_id,
+            "OWNER_RUN_ID": req["owner_run_id"],
+            "CLAIM_GENERATION": generation,
+            "EXACT_HEAD": exact_head,
+            "ACCEPTANCE_SHA256": acceptance_sha256,
+            "OPERATION_ID": req["operation_id"],
+        }
+        for key, value in checks.items():
+            if record.get(key) != value:
+                raise RequestRejected(
+                    f"completion recovery mismatch {key}"
+                )
+
+    def _completion_update(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        record: dict,
+        phase: str,
+        extra: dict | None = None,
+    ) -> dict:
+        branch = self._control(req["lane_id"])
+        path = self._completion_path(
+            issue, req["operation_id"]
+        )
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            current = self.gh.json_file(branch, path)
+            if (
+                current.get("OPERATION_ID")
+                != req["operation_id"]
+            ):
+                raise RequestRejected(
+                    "completion operation identity changed"
+                )
+            current["PHASE"] = phase
+            current["LAST_UPDATED_AT"] = now_rfc3339()
+            if extra:
+                current.update(extra)
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {path: self._encode_json(current)},
+                    f"task completion {issue} -> {phase}",
+                    expected_head=head,
+                )
+                return self.gh.json_file(branch, path)
+            except CasConflict:
+                continue
+        raise CasConflict(
+            "completion phase CAS retries exhausted"
+        )
+
+    def _gateway_close_event_after(
+        self, issue: int, dispatched_at: str
+    ) -> dict | None:
+        threshold = parse_time(dispatched_at)
+        if threshold is not None:
+            # GitHub issue events may be second-precision while the control
+            # record carries microseconds. Allow only a tiny clock/precision
+            # tolerance; actor and operation phase still gate recovery.
+            threshold -= 2.0
+        candidates = []
+        for event in self.gh.events(issue):
+            if event.get("event") != "closed":
+                continue
+            created = parse_time(event.get("created_at"))
+            if (
+                threshold is None
+                or created is None
+                or created < threshold
+            ):
+                continue
+            actor = (
+                (event.get("actor") or {}).get("login")
+                or ""
+            )
+            if actor == "github-actions[bot]":
+                candidates.append(event)
+        if not candidates:
+            return None
+        return candidates[-1]
+
+    def _prepare_task_completion(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        task_id: str,
+        worker_id: str,
+        generation: int,
+        exact_head: str,
+        acceptance: dict,
+        acceptance_sha256: str,
+        work_context: dict,
+    ) -> dict:
+        branch = self._control(req["lane_id"])
+        claim_path = self._claim_path(issue)
+        completion_path = self._completion_path(
+            issue, req["operation_id"]
+        )
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            existing = self._read_json_optional(
+                branch, completion_path
+            )
+            if existing:
+                self._completion_record_verify(
+                    existing,
+                    req=req,
+                    issue=issue,
+                    task_id=task_id,
+                    worker_id=worker_id,
+                    generation=generation,
+                    exact_head=exact_head,
+                    acceptance_sha256=acceptance_sha256,
+                )
+                return existing
+
+            issue_data = self.gh.issue(issue)
+            if str(issue_data.get("state", "")).lower() != "open":
+                raise RequestRejected(
+                    "closed issue has no durable completion record "
+                    "for this operation"
+                )
+            claim = self._validate_claim_owner(
+                req,
+                issue,
+                task_id,
+                worker_id,
+                generation,
+            )
+            active = claim.get("ACTIVE_OPERATION_ID")
+            if active not in (None, req["operation_id"]):
+                raise ActiveOperation(
+                    f"claim already has active operation {active}"
+                )
+            current_head = self.gh.ref(
+                self.lane_cfg(req["lane_id"])[
+                    "implementation_branch"
+                ]
+            )
+            if current_head != exact_head:
+                raise HeadMismatch(
+                    "task completion exact head mismatch "
+                    f"expected={exact_head} current={current_head}"
+                )
+            claim["ACTIVE_OPERATION_ID"] = req[
+                "operation_id"
+            ]
+            claim["PHASE"] = "COMPLETING"
+            claim["LAST_PROGRESS_AT"] = now_rfc3339()
+            claim["NEXT_RECOVERY_ACTION"] = (
+                "RECONCILE_TASK_COMPLETION"
+            )
+            claim["SUBMITTED_PAYLOAD_REFERENCE"] = (
+                work_context.get(
+                    "submitted_payload_reference"
+                )
+            )
+            claim["SUBMITTED_PAYLOAD_SHA256"] = req.get(
+                "request_sha256"
+            )
+            record = {
+                "schema": "LQ_TASK_COMPLETION:v1",
+                "ISSUE": issue,
+                "TASK_ID": task_id,
+                "WORKER_ID": worker_id,
+                "OWNER_RUN_ID": req["owner_run_id"],
+                "CLAIM_GENERATION": generation,
+                "OPERATION_ID": req["operation_id"],
+                "EXACT_HEAD": exact_head,
+                "ACCEPTANCE_SHA256": acceptance_sha256,
+                "ACCEPTANCE": acceptance,
+                "PHASE": "PREPARED",
+                "CREATED_AT": now_rfc3339(),
+                "LAST_UPDATED_AT": now_rfc3339(),
+                "WORK_LOG_COMMENT_ID": None,
+                "CLOSE_DISPATCHED_AT": None,
+                "REQUEST_CHANNEL_SOURCE": dict(
+                    self.request_source or {}
+                ),
+            }
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {
+                        claim_path: self._encode_json(claim),
+                        completion_path: self._encode_json(
+                            record
+                        ),
+                    },
+                    f"prepare task completion issue {issue}",
+                    expected_head=head,
+                )
+                return self.gh.json_file(
+                    branch, completion_path
+                )
+            except CasConflict:
+                continue
+        raise CasConflict(
+            "prepare task completion CAS retries exhausted"
+        )
+
+    def _task_complete_work_log(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        task_id: str,
+        worker_id: str,
+        generation: int,
+        exact_head: str,
+        acceptance: dict,
+        summary: str,
+    ) -> int:
+        marker = f"[LQ_GATEWAY_OP:{req['operation_id']}]"
+        existing = self.gh.find_comment(issue, marker)
+        if len(existing) > 1:
+            raise GatewayError(
+                "duplicate task completion work-log marker"
+            )
+        if existing:
+            return int(existing[0]["id"])
+        lines = [
+            marker,
+            "LQ_TASK_COMPLETE:v3",
+            f"WORKER_ID={worker_id}",
+            f"OWNER_RUN_ID={req['owner_run_id']}",
+            f"CLAIM_GENERATION={generation}",
+            f"TASK_ID={task_id}",
+            f"EXACT_HEAD={exact_head}",
+            f"EVALUATOR_ID={acceptance['evaluator_id']}",
+            f"ACCEPTANCE_RESULT={acceptance['result']}",
+            f"ACCEPTANCE_SHA256={sha256_text(canonical(acceptance))}",
+        ]
+        if summary:
+            lines.extend(["SUMMARY:", summary])
+        self.gh.post_comment(issue, "\n".join(lines))
+        matches = self.gh.find_comment(issue, marker)
+        if len(matches) != 1:
+            raise GatewayError(
+                "task completion work-log result unknown"
+            )
+        return int(matches[0]["id"])
+
+    def _finish_task_completion(
+        self,
+        req: dict,
+        *,
+        issue: int,
+        generation: int,
+        completion: dict,
+    ) -> dict:
+        branch = self._control(req["lane_id"])
+        claim_path = self._claim_path(issue)
+        completion_path = self._completion_path(
+            issue, req["operation_id"]
+        )
+        for _ in range(8):
+            head = self.gh.ref(branch)
+            claim = self.gh.json_file(branch, claim_path)
+            current = self.gh.json_file(
+                branch, completion_path
+            )
+            if current.get("PHASE") == "COMPLETE":
+                return current
+            if (
+                claim.get("OWNER_RUN_ID")
+                != req["owner_run_id"]
+                or int(claim.get("CLAIM_GENERATION", -1))
+                != generation
+            ):
+                raise StaleEpoch(
+                    "claim changed before completion finalization"
+                )
+            if claim.get("ACTIVE_OPERATION_ID") not in (
+                None,
+                req["operation_id"],
+            ):
+                raise ActiveOperation(
+                    "claim operation changed before finalization"
+                )
+            claim.update(
+                {
+                    "CLAIM_STATUS": "RELEASED",
+                    "PHASE": "COMPLETE",
+                    "ACTIVE_OPERATION_ID": None,
+                    "CLAIM_UNTIL": now_rfc3339(),
+                    "LAST_PROGRESS_AT": now_rfc3339(),
+                    "NEXT_RECOVERY_ACTION": "NONE",
+                }
+            )
+            current.update(
+                {
+                    "PHASE": "COMPLETE",
+                    "LAST_UPDATED_AT": now_rfc3339(),
+                    "CLAIM_RELEASED": True,
+                }
+            )
+            try:
+                self.gh.cas_write_files(
+                    branch,
+                    {
+                        claim_path: self._encode_json(claim),
+                        completion_path: self._encode_json(
+                            current
+                        ),
+                    },
+                    f"complete issue {issue} and release claim",
+                    expected_head=head,
+                )
+                return self.gh.json_file(
+                    branch, completion_path
+                )
+            except CasConflict:
+                continue
+        raise CasConflict(
+            "task completion finalization CAS retries exhausted"
+        )
+
+    def task_complete(self, req: dict) -> dict:
+        cfg = self._validate_common(req)
+        if req["lane_id"] != "visual-rebuild":
+            raise RequestRejected(
+                "TASK_COMPLETE is visual-rebuild only"
+            )
+        payload = req.get("payload", {})
+        issue = int(payload.get("issue_number"))
+        task_id = str(payload.get("task_id") or "")
+        worker_id = str(payload.get("worker_id") or "")
+        generation = int(payload.get("claim_generation", 0))
+        exact_head = str(payload.get("exact_head") or "")
+        summary = str(payload.get("summary") or "").strip()
+        if generation <= 0:
+            raise RequestRejected("claim_generation required")
+        if len(exact_head) != 40:
+            raise RequestRejected("exact_head must be 40-char SHA")
+
+        ctx = self._validate_work_context(
+            req,
+            issue=issue,
+            task_id=task_id,
+            worker_id=worker_id,
+            claim_generation=generation,
+            expected_phase="COMPLETION_SUBMITTED",
+        )
+        if ctx.get("expected_head") != exact_head:
+            raise RequestRejected(
+                "completion work_context head mismatch"
+            )
+        acceptance = self._validate_acceptance_binding(
+            req,
+            issue=issue,
+            task_id=task_id,
+            exact_head=exact_head,
+            acceptance=payload.get("acceptance"),
+        )
+        acceptance_sha = sha256_text(
+            canonical(acceptance)
+        )
+        completion = self._prepare_task_completion(
+            req,
+            issue=issue,
+            task_id=task_id,
+            worker_id=worker_id,
+            generation=generation,
+            exact_head=exact_head,
+            acceptance=acceptance,
+            acceptance_sha256=acceptance_sha,
+            work_context=ctx,
+        )
+        self._completion_record_verify(
+            completion,
+            req=req,
+            issue=issue,
+            task_id=task_id,
+            worker_id=worker_id,
+            generation=generation,
+            exact_head=exact_head,
+            acceptance_sha256=acceptance_sha,
+        )
+
+        if completion.get("PHASE") == "COMPLETE":
+            return {
+                "status": "TASK_ALREADY_COMPLETE",
+                "completion": completion,
+            }
+
+        if completion.get("PHASE") == "PREPARED":
+            issue_data = self.gh.issue(issue)
+            if str(issue_data.get("state", "")).lower() != "open":
+                raise RequestRejected(
+                    "issue closed before authorized completion close dispatch"
+                )
+            comment_id = self._task_complete_work_log(
+                req,
+                issue=issue,
+                task_id=task_id,
+                worker_id=worker_id,
+                generation=generation,
+                exact_head=exact_head,
+                acceptance=acceptance,
+                summary=summary,
+            )
+            completion = self._completion_update(
+                req,
+                issue=issue,
+                record=completion,
+                phase="WORK_LOGGED",
+                extra={
+                    "WORK_LOG_COMMENT_ID": comment_id,
+                },
+            )
+
+        if completion.get("PHASE") == "WORK_LOGGED":
+            issue_data = self.gh.issue(issue)
+            if str(issue_data.get("state", "")).lower() != "open":
+                raise RequestRejected(
+                    "unrelated closure detected before close dispatch"
+                )
+            current_head = self.gh.ref(
+                cfg["implementation_branch"]
+            )
+            if current_head != exact_head:
+                raise HeadMismatch(
+                    "accepted revision is no longer current "
+                    f"expected={exact_head} current={current_head}"
+                )
+            completion = self._completion_update(
+                req,
+                issue=issue,
+                record=completion,
+                phase="CLOSE_DISPATCHED",
+                extra={
+                    "CLOSE_DISPATCHED_AT": now_rfc3339(),
+                },
+            )
+
+        if completion.get("PHASE") == "CLOSE_DISPATCHED":
+            issue_data = self.gh.issue(issue)
+            if str(issue_data.get("state", "")).lower() != "closed":
+                current_head = self.gh.ref(
+                    cfg["implementation_branch"]
+                )
+                if current_head != exact_head:
+                    raise HeadMismatch(
+                        "accepted revision changed before issue close"
+                    )
+                self.gh.close_issue(issue)
+                issue_data = self.gh.issue(issue)
+            if str(issue_data.get("state", "")).lower() != "closed":
+                raise GatewayError(
+                    f"issue {issue} close readback failed"
+                )
+            close_event = self._gateway_close_event_after(
+                issue,
+                str(completion.get("CLOSE_DISPATCHED_AT") or ""),
+            )
+            if close_event is None:
+                raise GatewayError(
+                    "closed issue lacks matching gateway close event; "
+                    "manual/unrelated close cannot satisfy recovery"
+                )
+            completion = self._completion_update(
+                req,
+                issue=issue,
+                record=completion,
+                phase="ISSUE_CLOSED",
+                extra={
+                    "CLOSE_EVENT_ID": close_event.get("id"),
+                    "CLOSE_EVENT_ACTOR": (
+                        close_event.get("actor") or {}
+                    ).get("login"),
+                },
+            )
+
+        if completion.get("PHASE") == "ISSUE_CLOSED":
+            completion = self._finish_task_completion(
+                req,
+                issue=issue,
+                generation=generation,
+                completion=completion,
+            )
+
+        if completion.get("PHASE") != "COMPLETE":
+            raise GatewayError(
+                f"task completion nonterminal phase={completion.get('PHASE')}"
+            )
+        return {
+            "status": "TASK_COMPLETED",
+            "ISSUE": issue,
+            "TASK_ID": task_id,
+            "EXACT_HEAD": exact_head,
+            "CLAIM_GENERATION": generation,
+            "WORK_LOG_COMMENT_ID": completion.get(
+                "WORK_LOG_COMMENT_ID"
+            ),
+            "completion": completion,
+        }
+
     def implementation_file_update(self, req: dict) -> dict:
         cfg = self._validate_common(req)
         expected_head = req.get("expected_lane_head")
@@ -836,6 +2349,10 @@ class Gateway:
         issue = int(req.get("payload", {}).get("issue_number"))
         self._assert_issue_allowed(req["lane_id"], issue)
         body = str(req.get("payload", {}).get("body", ""))
+        if "LQ_WORKER_CLAIM:v1" in body or "LQ_WORKER_CLAIM:v2" in body:
+            raise RequestRejected(
+                "worker claim comments must use WORK_CLAIM_ACQUIRE"
+            )
         marker = f"[LQ_GATEWAY_OP:{req['operation_id']}]"
 
         _, op, _ = self._start_operation(
@@ -977,6 +2494,13 @@ class Gateway:
 
         adoption_id = str(payload.get("adoption_id", ""))
         task_context = None
+        if req["lane_id"] == "visual-rebuild" and not adoption_id:
+            claim = self._claim_record(req["lane_id"], issue)
+            if claim and claim.get("CLAIM_STATUS") == "ACTIVE":
+                raise RequestRejected(
+                    "active authoritative work claim requires TASK_COMPLETE; "
+                    "legacy ISSUE_CLOSE cannot close this Leaf"
+                )
         if adoption_id:
             adoption = self.adoption_record(req["lane_id"], adoption_id)
             if adoption.get("CHILD_ISSUE") != issue or adoption.get("STATE") not in (
@@ -1621,6 +3145,18 @@ class Gateway:
         op = req["operation_type"]
         if op == "LEASE_ACQUIRE":
             return self.acquire(req)
+        if op == "WORK_CLAIM_ACQUIRE":
+            return self.work_claim_acquire(req)
+        if op == "WORK_CLAIM_RENEW":
+            return self.work_claim_renew(req)
+        if op == "WORK_CLAIM_RELEASE":
+            return self.work_claim_release(req)
+        if op == "WORK_CLAIM_TAKEOVER":
+            return self.work_claim_takeover(req)
+        if op == "IMPLEMENTATION_PATCHSET":
+            return self.implementation_patchset(req)
+        if op == "TASK_COMPLETE":
+            return self.task_complete(req)
         handlers = {
             "LEASE_HEARTBEAT": self.heartbeat,
             "LEASE_RELEASE": self.release,
