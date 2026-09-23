@@ -1,0 +1,55 @@
+{
+  "ACCEPTANCE": {
+    "accepted_head": "a8542ee022152c842b5100d65f9ae76b30d4997a",
+    "evaluated_at": "2026-09-23T17:51:00Z",
+    "evaluator_id": "T020_OVERLAY_DIFF_RUNTIME_V1",
+    "evidence_artifacts": [
+      {
+        "kind": "overlay-diff-playwright.cjs",
+        "sha256": "f37d4e933fbca7e0efbf0a247e13e2754e9d8a997d3f3e08a51c88c55873bfba",
+        "uri": "github://nisiyasu/-luke-quest@a8542ee022152c842b5100d65f9ae76b30d4997a/prototypes/target-image-threejs/verification/overlay-diff-playwright.cjs"
+      }
+    ],
+    "result": "PASS",
+    "runtime_config": {
+      "capture_status": "CAPTURE_PASS",
+      "changed_pixels": 1572210,
+      "mean_absolute_error": 169.94190068931385,
+      "outputs": [
+        "overlay.png",
+        "diff.png",
+        "overlay-diff-audit.json"
+      ],
+      "overlay_diff_status": "OVERLAY_DIFF_PASS",
+      "total_pixels": 1573352,
+      "viewport": {
+        "dpr": 1,
+        "height": 1672,
+        "width": 941
+      }
+    },
+    "schema": "LQ_TASK_ACCEPTANCE:v1",
+    "task_id": "T020"
+  },
+  "ACCEPTANCE_SHA256": "7211dabedc25102f0808caee227fa1d31c6987058696ba039162719db9393811",
+  "CLAIM_GENERATION": 1,
+  "CLOSE_DISPATCHED_AT": null,
+  "CREATED_AT": "2026-09-23T17:48:27.138437Z",
+  "EXACT_HEAD": "a8542ee022152c842b5100d65f9ae76b30d4997a",
+  "ISSUE": 134,
+  "LAST_UPDATED_AT": "2026-09-23T17:48:27.138440Z",
+  "OPERATION_ID": "worker-b-20260923T175100Z-t020-complete-op",
+  "OWNER_RUN_ID": "worker-b-20260923T173400Z-t020",
+  "PHASE": "PREPARED",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "9e0f6ff83b9881d47cca749bbe259768815d682c",
+    "commit_sha": "f09cb580ebb669e57b7ef1b2ef9aef37ed11eb7b",
+    "path": "requests/visual-rebuild/worker-b-20260923T175100Z-t020-complete.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "TASK_ID": "T020",
+  "WORKER_ID": "B",
+  "WORK_LOG_COMMENT_ID": null,
+  "schema": "LQ_TASK_COMPLETION:v1"
+}
