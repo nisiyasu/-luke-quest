@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-23T05:28:54.331173Z",
+  "LANE_ID": "visual-rebuild",
+  "LAST_UPDATED_AT": "2026-09-23T05:28:54.331198Z",
+  "LEASE_EPOCH": 35,
+  "MUTATION_TYPE": "ISSUE_COMMENT",
+  "OPERATION_ID": "control-fallback-worker-c-20260923T051722Z-t023-worklog-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "control-fallback-worker-c-20260923T051722Z",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "a9c921df0a9cb043067b9d5b67362ce84cdaeb00",
+    "commit_sha": "59e95beff9c9d059936f0765c065f5ab91c601d9",
+    "path": "requests/visual-rebuild/control-fallback-worker-c-20260923T051722Z-t023-worklog.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "control-fallback-worker-c-20260923T051722Z-t023-worklog",
+  "REQUEST_SHA256": "258a298835e2fc9e461efc9e7a38f910dc215e017aa167d2f9aca73c4ed81266",
+  "RETRY_CLASS": "RESULT_CONFIRMATION_REQUIRED",
+  "TARGET_RESOURCE": "issue-139"
+}
