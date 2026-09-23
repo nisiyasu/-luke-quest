@@ -1,0 +1,39 @@
+{
+  "lane_id": "field",
+  "ok": true,
+  "operation_id": "op-autonomous-m02p01-acquire-20260923T042006Z-v1",
+  "processed_at": "2026-09-23T04:21:20.001045Z",
+  "request_id": "autonomous-m02p01-acquire-20260923T042006Z-v1",
+  "request_sha256": "cc3298804da460928d8db66ab66a5234581576978b68137c2f3f51ced02eabe7",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-23T04:21:17.352091Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "01b1ff506f10d3d32cfe0823a5ab1293376e9f50",
+      "CURRENT_HEAD_SHA": "01b1ff506f10d3d32cfe0823a5ab1293376e9f50",
+      "FENCING_TOKEN": 29,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_CANONICAL_FIELD_GATEWAY_ACTIVE",
+      "IMPLEMENTATION_BRANCH": "prototype/modern-3d",
+      "LANE_ID": "field",
+      "LAST_GATEWAY_ACCEPTED_AT": "2026-09-22T18:23:24.536201Z",
+      "LAST_GATEWAY_COMPLETED_AT": "2026-09-22T18:23:32.620264Z",
+      "LAST_HEARTBEAT_AT": "2026-09-23T04:21:17.352130Z",
+      "LEASE_EPOCH": 29,
+      "LEASE_STATUS": "ACTIVE",
+      "LEASE_UNTIL": "2026-09-23T04:31:17.352118Z",
+      "OWNER_RUN_ID": "scheduled-luke-build-20260923T042006Z",
+      "PARENT_ISSUE": 12,
+      "PRODUCTION_ENABLED": true,
+      "PROGRAM_ID": "LQ-MODERN-3D-VISUAL-PROTOTYPE-20260911-V2",
+      "ROUTER_COMMENT_ID": 5646492352,
+      "schema": "LUKE_QUEST_CANONICAL_FIELD_LEASE:v1"
+    },
+    "status": "LEASE_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "ae76c8666d2795d5284883d631fb868ffd2f9d84",
+  "source_commit_sha": "30ff5203805551279bb890f3e83df4e719afb597",
+  "source_path": "field-requests/autonomous-m02p01-acquire-20260923T042006Z-v1.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
