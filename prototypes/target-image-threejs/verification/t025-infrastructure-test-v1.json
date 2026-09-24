@@ -1,0 +1,15 @@
+{
+  "schema": "LQ_INFRASTRUCTURE_TEST_EVIDENCE:v1",
+  "task_id": "T025",
+  "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+  "result": "PASS",
+  "runtime": "Three.js 0.180.0 minimal scene",
+  "entrypoint": "prototypes/target-image-threejs/index.html",
+  "viewport": [941, 1672],
+  "device_pixel_ratio": 1,
+  "test_url": "http://127.0.0.1:8141/index.html",
+  "test_command": "Chrome headless --window-size=941,1672 --screenshot against local HTTP server",
+  "observed": {"canvas_rendered": true, "scene_object_count": 1, "runtime_marker": "three-minimal-scene-ready"},
+  "local_capture_sha256": "e1ad13642d7080e63167a10cdce6bd117c28c56d3186605c2303b0ec648f0932",
+  "notes": "Minimal Three.js candidate runtime loaded from pinned jsDelivr three@0.180.0 import map and rendered a BoxGeometry scene without reusing legacy scene composition."
+}
