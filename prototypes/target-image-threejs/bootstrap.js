@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
 export const LQ_TARGET_IMAGE_RUNTIME = Object.freeze({
   program: "#101", taskBoundary: "T031", implementationRoot: "prototypes/target-image-threejs/",
@@ -64,6 +66,78 @@ t029Loader.load(T029_KTX2_URL, (texture) => {
   document.documentElement.dataset.lqT029Ktx2 = "failed";
   document.documentElement.dataset.lqT029Error = String(error);
 });
+
+// T030 technical-spike probe only: compare Meshopt vs Draco decode/load time on the same BrainStem model.
+const T030_VARIANTS = {
+  meshopt: {
+    gltf: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/BrainStem/glTF-Meshopt-EXT/BrainStem.gltf",
+    bin: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/BrainStem/glTF-Meshopt-EXT/BrainStem.bin"
+  },
+  draco: {
+    gltf: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/BrainStem/glTF-Draco/BrainStem.gltf",
+    bin: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/BrainStem/glTF-Draco/BrainStem0.bin"
+  }
+};
+const t030Median = (values) => {
+  const sorted = [...values].sort((a,b) => a-b);
+  return sorted[Math.floor(sorted.length / 2)];
+};
+const t030DataUri = (buffer) => {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return "data:application/octet-stream;base64," + btoa(binary);
+};
+const t030FetchVariant = async ({gltf, bin}) => {
+  const [gltfResponse, binResponse] = await Promise.all([fetch(gltf), fetch(bin)]);
+  if (!gltfResponse.ok || !binResponse.ok) throw new Error("T030 fixture fetch failed");
+  const [doc, binary] = await Promise.all([gltfResponse.json(), binResponse.arrayBuffer()]);
+  const uri = t030DataUri(binary);
+  for (const buffer of doc.buffers || []) buffer.uri = uri;
+  return JSON.stringify(doc);
+};
+const t030Parse = (loader, json) => new Promise((resolve, reject) => {
+  const started = performance.now();
+  loader.parse(json, "", () => resolve(performance.now() - started), reject);
+});
+window.__LQ_T030__ = { ready: false, model: "BrainStem", iterations: 3 };
+(async () => {
+  const draco = new DRACOLoader().setDecoderPath("https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/libs/draco/gltf/");
+  try {
+    const [meshoptJson, dracoJson] = await Promise.all([
+      t030FetchVariant(T030_VARIANTS.meshopt),
+      t030FetchVariant(T030_VARIANTS.draco)
+    ]);
+    const meshoptLoader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+    const dracoLoader = new GLTFLoader().setDRACOLoader(draco);
+    await t030Parse(meshoptLoader, meshoptJson);
+    await t030Parse(dracoLoader, dracoJson);
+    const meshoptMs = [];
+    const dracoMs = [];
+    for (let i = 0; i < 3; i++) {
+      meshoptMs.push(await t030Parse(meshoptLoader, meshoptJson));
+      dracoMs.push(await t030Parse(dracoLoader, dracoJson));
+    }
+    const meshoptMedianMs = t030Median(meshoptMs);
+    const dracoMedianMs = t030Median(dracoMs);
+    window.__LQ_T030__ = {
+      ready: true, model: "BrainStem", iterations: 3,
+      meshoptMs, dracoMs, meshoptMedianMs, dracoMedianMs,
+      faster: meshoptMedianMs <= dracoMedianMs ? "meshopt" : "draco",
+      ratioMeshoptToDraco: meshoptMedianMs / dracoMedianMs,
+      runtimeErrors: 0
+    };
+    document.documentElement.dataset.lqT030Compare = "pass";
+  } catch (error) {
+    window.__LQ_T030__ = { ready: false, model: "BrainStem", error: String(error) };
+    document.documentElement.dataset.lqT030Compare = "failed";
+    document.documentElement.dataset.lqT030Error = String(error);
+  } finally {
+    draco.dispose();
+  }
+})();
 
 // T031 technical-spike probes only: not production model/material/light/decor authority.
 const t031Scene = new THREE.Scene();

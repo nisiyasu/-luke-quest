@@ -1,0 +1,41 @@
+{
+  "schema": "LQ_INFRASTRUCTURE_TEST_EVIDENCE:v1",
+  "task_id": "T030",
+  "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+  "result": "PASS",
+  "runtime": "Three.js 0.180.0 GLTFLoader + MeshoptDecoder + DRACOLoader",
+  "entrypoint": "prototypes/target-image-threejs/index.html",
+  "viewport": [
+    941,
+    1672
+  ],
+  "device_pixel_ratio": 1,
+  "comparison_model": "Khronos glTF-Sample-Assets BrainStem",
+  "method": "network-prefetch excluded; decoder warm-up excluded; 3 alternating parse/decode samples per codec; compare medians",
+  "observed": {
+    "probe": {
+      "ready": true,
+      "model": "BrainStem",
+      "iterations": 3,
+      "meshoptMs": [
+        10.800000071525574,
+        8.800000071525574,
+        10
+      ],
+      "dracoMs": [
+        42.199999928474426,
+        45.199999928474426,
+        41.799999952316284
+      ],
+      "meshoptMedianMs": 10,
+      "dracoMedianMs": 42.199999928474426,
+      "faster": "meshopt",
+      "ratioMeshoptToDraco": 0.2369668250461893,
+      "runtimeErrors": 0
+    },
+    "width": 941,
+    "height": 1672,
+    "dpr": 1
+  },
+  "runtime_errors": []
+}
