@@ -1,0 +1,13 @@
+{
+  "schema": "LQ_INFRASTRUCTURE_TEST_EVIDENCE:v1",
+  "task_id": "T031",
+  "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+  "result": "PASS",
+  "runtime": "Three.js 0.180.0 technical-spike probe",
+  "entrypoint": "prototypes/target-image-threejs/index.html",
+  "test_url": "http://127.0.0.1:4173/prototypes/target-image-threejs/index.html",
+  "test_command": "Microsoft Edge headless DOM readback after deterministic Three.js runtime probe",
+  "observed": {"pbr":true,"shadow":true,"instancing":true,"instance_count":3,"lod":true,"lod_levels":2,"runtime_errors":0},
+  "safety": "Technical-spike-only isolated scene; no production model/material/light/decor authority and no legacy scene reuse.",
+  "notes": "MeshStandardMaterial, directional cast shadow + shadowMap, InstancedMesh, and two-level LOD were constructed and runtime-readback verified."
+}
