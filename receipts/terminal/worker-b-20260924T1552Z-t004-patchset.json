@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: path outside worker implementation root: specs/001-target-image-threejs/DEVELOPMENT_PIPELINE_v1.md",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-b-20260924T1552Z-t004-patchset-op",
+  "processed_at": "2026-09-24T15:52:06.982829Z",
+  "request_id": "worker-b-20260924T1552Z-t004-patchset",
+  "request_sha256": "d8c47a6916a106763b18cff4ca24c9fe3c43039e06986ada60205308d595c028",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "b94205ef816749ef3adbc5cdbd3ca4fc74189341",
+  "source_commit_sha": "8478d120da2bb83b9f3b0d740dee22f14f1fd49f",
+  "source_path": "requests/visual-rebuild/worker-b-20260924T1552Z-t004-patchset.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
