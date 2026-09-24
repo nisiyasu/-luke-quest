@@ -1,5 +1,5 @@
 {
-  "ACTIVE_OPERATION_ID": null,
+  "ACTIVE_OPERATION_ID": "worker-c-20260924T131600Z-t025-patchset-op",
   "CLAIMED_AT": "2026-09-24T13:10:36.836690Z",
   "CLAIM_GENERATION": 1,
   "CLAIM_STATUS": "ACTIVE",
@@ -7,13 +7,22 @@
   "EXPECTED_IMPLEMENTATION_HEAD": "2ddebbe1a00f27f90828e747c4c4626c9b1f147d",
   "ISSUE": 153,
   "LANE_ID": "visual-rebuild",
-  "LAST_PROGRESS_AT": "2026-09-24T13:10:36.836727Z",
+  "LAST_PROGRESS_AT": "2026-09-24T13:17:15.744851Z",
   "MAX_RECOVERY_ATTEMPTS": 3,
-  "NEXT_RECOVERY_ACTION": "EXECUTE_TASK",
+  "NEXT_RECOVERY_ACTION": "RECONCILE_OR_APPLY_PATCHSET",
   "OWNER_RUN_ID": "worker-c-20260924T130900Z-t025",
-  "PHASE": "CLAIMED",
+  "PHASE": "PATCHSET_ADMITTED",
   "PROGRESS_DEADLINE_AT": "2026-09-24T13:40:36.600633Z",
   "RECOVERY_ATTEMPTS": 0,
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "aa7bc7a167fdec24d2bf4b41a9f148cb413fb0ed",
+    "commit_sha": "3de90aefb82e5e671761383f9da9101c71b05ad1",
+    "path": "requests/visual-rebuild/worker-c-20260924T131600Z-t025-patchset.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "SUBMITTED_PAYLOAD_REFERENCE": "inbox/visual-rebuild/worker-c-20260924T131600Z-t025-patchset.json",
+  "SUBMITTED_PAYLOAD_SHA256": "936efd5a8da0d0a54c136a76b9d28ce82a2f40c065d75fed56fdbbf9d0362311",
   "TASK_ID": "T025",
   "WORKER_ID": "C",
   "schema": "LQ_WORK_CLAIM:v3"
