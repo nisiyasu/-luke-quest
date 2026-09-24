@@ -1,0 +1,38 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-c-20260924T160038Z-t032-claim-op",
+  "processed_at": "2026-09-24T16:01:20.950851Z",
+  "request_id": "worker-c-20260924T160038Z-t032-claim",
+  "request_sha256": "b28c91d7e892a765ffb06bcf6a993fdadcad7b5df662ad4f5f3645b03541b5f3",
+  "result": {
+    "claim": {
+      "ACTIVE_OPERATION_ID": null,
+      "CLAIMED_AT": "2026-09-24T16:01:17.662192Z",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_STATUS": "ACTIVE",
+      "CLAIM_UNTIL": "2026-09-24T18:01:17.448777Z",
+      "EXPECTED_IMPLEMENTATION_HEAD": "f5bcaf2815b516ec3335f6c5c6e3b5b1d917101a",
+      "ISSUE": 160,
+      "LANE_ID": "visual-rebuild",
+      "LAST_PROGRESS_AT": "2026-09-24T16:01:17.662227Z",
+      "MAX_RECOVERY_ATTEMPTS": 3,
+      "NEXT_RECOVERY_ACTION": "EXECUTE_TASK",
+      "OWNER_RUN_ID": "worker-c-20260924T160038Z-t032",
+      "PHASE": "CLAIMED",
+      "PROGRESS_DEADLINE_AT": "2026-09-24T16:31:17.448777Z",
+      "RECOVERY_ATTEMPTS": 0,
+      "TASK_ID": "T032",
+      "WORKER_ID": "C",
+      "schema": "LQ_WORK_CLAIM:v3"
+    },
+    "comment_id": 5817624713,
+    "status": "CLAIM_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "16314abe04c4b7242459696c8009e8b21085e2fd",
+  "source_commit_sha": "5770a7e53ce01e4d192c7cddc2961ed9bb708544",
+  "source_path": "requests/visual-rebuild/worker-c-20260924T160038Z-t032-claim.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
