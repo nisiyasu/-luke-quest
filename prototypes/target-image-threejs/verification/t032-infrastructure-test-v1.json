@@ -1,0 +1,90 @@
+{
+  "schema": "LQ_INFRASTRUCTURE_TEST_EVIDENCE:v1",
+  "task_id": "T032",
+  "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+  "result": "PASS",
+  "runtime": "Three.js 0.180.0 WebGLRenderer",
+  "entrypoint": "prototypes/target-image-threejs/index.html",
+  "viewport": [
+    941,
+    1672
+  ],
+  "device_pixel_ratio": 1,
+  "method": "switch low/medium/high presets; verify exact drawing-buffer scaling; synthetic slow/fast frame thresholds exercise dynamic resolution selection",
+  "observed": {
+    "probe": {
+      "ready": true,
+      "presets": {
+        "low": {
+          "resolutionScale": 0.5,
+          "shadows": false
+        },
+        "medium": {
+          "resolutionScale": 0.75,
+          "shadows": true
+        },
+        "high": {
+          "resolutionScale": 1,
+          "shadows": true
+        }
+      },
+      "observed": [
+        {
+          "name": "low",
+          "resolutionScale": 0.5,
+          "effectiveDpr": 0.5,
+          "shadows": false,
+          "drawingBuffer": [
+            470,
+            836
+          ]
+        },
+        {
+          "name": "medium",
+          "resolutionScale": 0.75,
+          "effectiveDpr": 0.75,
+          "shadows": true,
+          "drawingBuffer": [
+            705,
+            1254
+          ]
+        },
+        {
+          "name": "high",
+          "resolutionScale": 1,
+          "effectiveDpr": 1,
+          "shadows": true,
+          "drawingBuffer": [
+            941,
+            1672
+          ]
+        }
+      ],
+      "slowFrame": {
+        "name": "low",
+        "resolutionScale": 0.5,
+        "effectiveDpr": 0.5,
+        "shadows": false,
+        "drawingBuffer": [
+          470,
+          836
+        ]
+      },
+      "fastFrame": {
+        "name": "high",
+        "resolutionScale": 1,
+        "effectiveDpr": 1,
+        "shadows": true,
+        "drawingBuffer": [
+          941,
+          1672
+        ]
+      },
+      "runtimeErrors": 0
+    },
+    "width": 941,
+    "height": 1672,
+    "dpr": 1
+  },
+  "runtime_errors": []
+}

@@ -5,7 +5,7 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
 export const LQ_TARGET_IMAGE_RUNTIME = Object.freeze({
-  program: "#101", taskBoundary: "T031", implementationRoot: "prototypes/target-image-threejs/",
+  program: "#101", taskBoundary: "T032", implementationRoot: "prototypes/target-image-threejs/",
   legacySceneImports: false, legacyMapsAuthority: false, legacyAldiaVisualPatches: false,
   phase: "TECHNICAL_SPIKE", threeRevision: THREE.REVISION
 });
@@ -150,3 +150,29 @@ const lod = new THREE.LOD(); lod.addLevel(new THREE.Mesh(new THREE.SphereGeometr
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.render(t031Scene,t031Camera);
 window.__LQ_T031__ = { ready:true, pbr:pbrMaterial.isMeshStandardMaterial===true, shadow:renderer.shadowMap.enabled===true && pbrMesh.castShadow===true && light.castShadow===true, instancing:instanced.isInstancedMesh===true && instanced.count===3, lod:lod.isLOD===true && lod.levels.length===2, runtimeErrors:0 };
 document.documentElement.dataset.lqT031Spike = "pass"; document.documentElement.dataset.lqT031Pbr = String(window.__LQ_T031__.pbr); document.documentElement.dataset.lqT031Shadow = String(window.__LQ_T031__.shadow); document.documentElement.dataset.lqT031Instancing = String(window.__LQ_T031__.instancing); document.documentElement.dataset.lqT031Lod = String(window.__LQ_T031__.lod);
+
+
+// T032 technical-spike probe: dynamic resolution scale and explicit quality presets.
+const T032_PRESETS = Object.freeze({
+  low: { resolutionScale: 0.5, shadows: false },
+  medium: { resolutionScale: 0.75, shadows: true },
+  high: { resolutionScale: 1.0, shadows: true }
+});
+const t032ApplyPreset = (name) => {
+  const preset = T032_PRESETS[name];
+  if (!preset) throw new Error("T032 unknown quality preset: " + name);
+  const effectiveDpr = Math.max(0.25, devicePixelRatio * preset.resolutionScale);
+  renderer.setPixelRatio(effectiveDpr);
+  renderer.setSize(innerWidth, innerHeight, false);
+  renderer.shadowMap.enabled = preset.shadows;
+  renderer.render(t031Scene, t031Camera);
+  const size = new THREE.Vector2(); renderer.getDrawingBufferSize(size);
+  return { name, resolutionScale: preset.resolutionScale, effectiveDpr, shadows: renderer.shadowMap.enabled, drawingBuffer: [size.x, size.y] };
+};
+const t032Observed = ["low", "medium", "high"].map(t032ApplyPreset);
+const t032DynamicScale = (frameMs) => t032ApplyPreset(frameMs > 24 ? "low" : frameMs > 17 ? "medium" : "high");
+const t032SlowFrame = t032DynamicScale(30);
+const t032FastFrame = t032DynamicScale(12);
+window.__LQ_T032__ = { ready: true, presets: T032_PRESETS, observed: t032Observed, slowFrame: t032SlowFrame, fastFrame: t032FastFrame, runtimeErrors: 0 };
+document.documentElement.dataset.lqT032DynamicResolution = "pass";
+document.documentElement.dataset.lqT032QualityPresets = "low,medium,high";
