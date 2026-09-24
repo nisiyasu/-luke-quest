@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-24T21:32:50.186939Z",
+  "LANE_ID": "field",
+  "LAST_UPDATED_AT": "2026-09-24T21:32:50.186972Z",
+  "LEASE_EPOCH": 64,
+  "MUTATION_TYPE": "ROUTER_UPDATE",
+  "OPERATION_ID": "router-m03p01-advance-20260925T0637JST-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "CHAT-EVIDENCE-REPAIR-20260925",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "9097413d124d5cbd61886bf4de18a9b9c3a77436",
+    "commit_sha": "ba029cf74148acd344dd599fb9f548fda697a1dc",
+    "path": "field-requests/router-m03p01-advance-20260925T0637JST.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "router-m03p01-advance-20260925T0637JST",
+  "REQUEST_SHA256": "fccc907b0032431a78f76fb96fadeeafe5511896948723c8abf044bbc9c700ce",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "issue-12-comment-5646492352"
+}
