@@ -24,6 +24,7 @@ TARGET_SOURCE_COMMIT = "90635ceff9d35d69f80da350df1e6ea0610657dd"
 TARGET_PATH = "assets/reference/owner_2026-09-11_ps1_visual_target/TARGET_PS1_FINAL.png"
 TARGET_BLOB_SHA = "b7281e6580689a7a22cfa3b67d500950e4af7285"
 PACKET_RANGE = set(range(26, 51))
+EVIDENCE_WORKFLOW_ALLOWLIST = {"m02-p01-visible-evidence.yml"}
 
 base.ALLOWED_LANES[LANE_ID] = {
     "parent": PARENT_ISSUE,
@@ -301,6 +302,51 @@ class CanonicalFieldGateway(base.Gateway):
             },
         )
 
+    def evidence_workflow_dispatch(self, req: dict) -> dict:
+        self._validate_common(req)
+        payload = req.get("payload", {})
+        workflow = str(payload.get("workflow") or "")
+        if workflow not in EVIDENCE_WORKFLOW_ALLOWLIST:
+            raise base.RequestRejected("evidence workflow not allowlisted")
+
+        _, router = self.router_state()
+        expected_packet = int(payload.get("expected_current_packet_issue") or 0)
+        if expected_packet != router["_CURRENT_PACKET_NUMBER"]:
+            raise base.RequestRejected("evidence dispatch current packet mismatch")
+
+        expected_head = str(req.get("expected_lane_head") or "")
+        actual_head = self.gh.ref(IMPLEMENTATION_BRANCH)
+        if not expected_head or expected_head != actual_head:
+            raise base.HeadMismatch("evidence dispatch requires exact implementation HEAD")
+
+        _, op, _ = self._start_operation(
+            req,
+            "EVIDENCE_WORKFLOW_DISPATCH",
+            f"workflow:{workflow}@{actual_head}",
+            "IDEMPOTENT_RETRY_SAFE",
+        )
+        if op["OPERATION_STATE"] == base.CONFIRMED_APPLIED:
+            return op
+
+        op = self._mark_dispatched(req, op)
+        self.gh.request(
+            "POST",
+            f"/actions/workflows/{workflow}/dispatches",
+            {"ref": IMPLEMENTATION_BRANCH, "inputs": {"expected_head": actual_head}},
+            ok=(204,),
+        )
+        return self._finish(
+            req,
+            op,
+            base.CONFIRMED_APPLIED,
+            {
+                "WORKFLOW": workflow,
+                "DISPATCH_REF": IMPLEMENTATION_BRANCH,
+                "EXPECTED_HEAD": actual_head,
+                "CURRENT_PACKET_ISSUE": expected_packet,
+            },
+        )
+
     def apply(self, req: dict) -> dict:
         if not self.production_enabled:
             raise base.RequestRejected("production mutation disabled")
@@ -324,6 +370,7 @@ class CanonicalFieldGateway(base.Gateway):
             "ROUTER_ASSERT": self.router_assert,
             "CURRENT_PACKET_STATE": self.current_packet_state,
             "ROUTER_UPDATE": self.router_update,
+            "EVIDENCE_WORKFLOW_DISPATCH": self.evidence_workflow_dispatch,
         }
         try:
             return handlers[op](req)
