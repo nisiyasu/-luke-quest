@@ -1,0 +1,31 @@
+{
+  "schema": "LQ_INFRASTRUCTURE_TEST_EVIDENCE:v1",
+  "task_id": "T029",
+  "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+  "result": "PASS",
+  "runtime": "Three.js 0.180.0 + KTX2Loader/Basis",
+  "entrypoint": "prototypes/target-image-threejs/index.html",
+  "viewport": [
+    941,
+    1672
+  ],
+  "device_pixel_ratio": 1,
+  "fixture": "mrdoob/three.js@r180 examples/textures/ktx2/2d_etc1s.ktx2",
+  "observed": {
+    "probe": {
+      "ready": true,
+      "format": "KTX2",
+      "loader": "KTX2Loader",
+      "basisTranscoded": true,
+      "compressedTexture": true,
+      "width": 40,
+      "height": 40,
+      "fixture": "three-r180/2d_etc1s.ktx2",
+      "runtimeErrors": 0
+    },
+    "width": 941,
+    "height": 1672,
+    "dpr": 1
+  },
+  "runtime_errors": []
+}

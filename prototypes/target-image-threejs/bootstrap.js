@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js";
 
 export const LQ_TARGET_IMAGE_RUNTIME = Object.freeze({
   program: "#101", taskBoundary: "T031", implementationRoot: "prototypes/target-image-threejs/",
@@ -30,6 +31,38 @@ new GLTFLoader().load(T028_GLB_DATA_URI, (gltf) => {
 }, undefined, (error) => {
   window.__LQ_T028__ = { ready: false, format: "GLB", error: String(error) };
   document.documentElement.dataset.lqT028Glb = "failed";
+});
+
+// T029 technical-spike probe only: verifies KTX2/Basis transcoding on the candidate runtime.
+const T029_KTX2_URL = "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/textures/ktx2/2d_etc1s.ktx2";
+const T029_BASIS_PATH = "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/libs/basis/";
+window.__LQ_T029__ = { ready: false, format: "KTX2", basisTranscoded: false };
+const t029Loader = new KTX2Loader().setTranscoderPath(T029_BASIS_PATH).detectSupport(renderer);
+t029Loader.load(T029_KTX2_URL, (texture) => {
+  const probe = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: texture }));
+  probe.position.set(1.25, 0, 0); scene.add(probe); renderer.render(scene, camera);
+  const image = texture.image || {};
+  window.__LQ_T029__ = {
+    ready: true,
+    format: "KTX2",
+    loader: "KTX2Loader",
+    basisTranscoded: texture.isCompressedTexture === true,
+    compressedTexture: texture.isCompressedTexture === true,
+    width: image.width ?? null,
+    height: image.height ?? null,
+    fixture: "three-r180/2d_etc1s.ktx2",
+    runtimeErrors: 0
+  };
+  document.documentElement.dataset.lqT029Ktx2 = "loaded";
+  document.documentElement.dataset.lqT029Basis = String(window.__LQ_T029__.basisTranscoded);
+  document.documentElement.dataset.lqT029Width = String(window.__LQ_T029__.width);
+  document.documentElement.dataset.lqT029Height = String(window.__LQ_T029__.height);
+  document.documentElement.dataset.lqT029Viewport = innerWidth + "x" + innerHeight;
+  document.documentElement.dataset.lqT029Dpr = String(devicePixelRatio);
+}, undefined, (error) => {
+  window.__LQ_T029__ = { ready: false, format: "KTX2", basisTranscoded: false, error: String(error) };
+  document.documentElement.dataset.lqT029Ktx2 = "failed";
+  document.documentElement.dataset.lqT029Error = String(error);
 });
 
 // T031 technical-spike probes only: not production model/material/light/decor authority.
