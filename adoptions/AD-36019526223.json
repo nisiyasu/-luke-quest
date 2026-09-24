@@ -1,0 +1,20 @@
+{
+  "ADOPTION_ID": "AD-36019526223",
+  "CHILD_ISSUE": 99,
+  "DURABLE_EVIDENCE_SET_SHA256": null,
+  "DURABLE_URI": null,
+  "EVALUATION_CONTRACT_SHA256": "isolated-test-contract-v1",
+  "EVIDENCE_ID": "EV-36019526223",
+  "IMPLEMENTATION_HEAD": "42d0df02a5e4ecf9f7145520aa5e45dfb8bd876c",
+  "LANE_ID": "dungeon",
+  "LEASE_EPOCH": 21,
+  "OWNER_RUN_ID": "gateway-v1-e2e-A-36019526223",
+  "READBACK_VERIFIED": false,
+  "RESERVED_AT": "2026-09-24T15:22:05.665631Z",
+  "STATE": "IDENTIFIERS_RESERVED",
+  "TARGET_IDENTITY": {
+    "target_blob_sha": "198d0f5f3da115b70218ae8180d5f8363d744959",
+    "target_source_commit_sha": "0d225f77944eb54eed648b76f00869879f4284ff"
+  },
+  "schema": "LUKE_QUEST_ENV_EVIDENCE_ADOPTION:v1"
+}
