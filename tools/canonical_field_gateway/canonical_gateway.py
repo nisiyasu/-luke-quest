@@ -7,6 +7,7 @@ import os
 import pathlib
 import re
 import sys
+import time
 
 HERE = pathlib.Path(__file__).resolve().parent
 ENV_GATEWAY_DIR = HERE.parent / "env_visual_gateway"
@@ -377,7 +378,7 @@ class CanonicalFieldGateway(base.Gateway):
             expiry = base.parse_time(lane_lease.get("LEASE_UNTIL"))
             if (
                 expiry is not None
-                and expiry <= __import__("time").time()
+                and expiry <= time.time()
                 and active_op
                 and active_op.get("OPERATION_STATE") == base.DISPATCHED
                 and active_op.get("MUTATION_TYPE") == "EVIDENCE_WORKFLOW_DISPATCH"
