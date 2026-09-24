@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-24T21:15:24.013473Z",
+  "LANE_ID": "field",
+  "LAST_UPDATED_AT": "2026-09-24T21:15:24.013495Z",
+  "LEASE_EPOCH": 63,
+  "MUTATION_TYPE": "EVIDENCE_WORKFLOW_DISPATCH",
+  "OPERATION_ID": "manual-evidence-dispatch-20260925T0617JST-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "CHAT-EVIDENCE-REPAIR-20260925",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "8b6431b70f7a7e80fdb75e707eb31060d8469504",
+    "commit_sha": "5bb24367e83249d39b8032ef399802cef9af08b3",
+    "path": "field-requests/manual-evidence-dispatch-20260925T0617JST.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "manual-evidence-dispatch-20260925T0617JST",
+  "REQUEST_SHA256": "7aa2c62994533616a30a3998a7e67159bb0d87ad3b62d7e24260629945218511",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "workflow:m02-p01-visible-evidence.yml@5fd6688514b4aa5705cd18279f91916bff7f2264"
+}
