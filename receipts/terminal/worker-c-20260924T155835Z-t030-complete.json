@@ -1,0 +1,78 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-c-20260924T155835Z-t030-complete-op",
+  "processed_at": "2026-09-24T15:59:37.787313Z",
+  "request_id": "worker-c-20260924T155835Z-t030-complete",
+  "request_sha256": "4e32636be40c5ed1c661ba13d2cbda3b7e12ba173b848f54ce7fccf76c8f6a45",
+  "result": {
+    "CLAIM_GENERATION": 1,
+    "EXACT_HEAD": "f5bcaf2815b516ec3335f6c5c6e3b5b1d917101a",
+    "ISSUE": 158,
+    "TASK_ID": "T030",
+    "WORK_LOG_COMMENT_ID": 5817592410,
+    "completion": {
+      "ACCEPTANCE": {
+        "accepted_head": "f5bcaf2815b516ec3335f6c5c6e3b5b1d917101a",
+        "evaluated_at": "2026-09-24T15:58:35Z",
+        "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+        "evidence_artifacts": [
+          {
+            "kind": "infrastructure-test",
+            "sha256": "d8d0a91f8f5b8d81798eb09e9c8bc5ac39390343557010680e1b7229c79ab37e",
+            "uri": "repo://nisiyasu/-luke-quest@f5bcaf2815b516ec3335f6c5c6e3b5b1d917101a/prototypes/target-image-threejs/verification/t030-infrastructure-test-v1.json"
+          }
+        ],
+        "result": "PASS",
+        "runtime_config": {
+          "command": "Python Playwright BrainStem Meshopt/Draco warm-decoder 3-sample comparison",
+          "device_pixel_ratio": 1,
+          "exact_head_observation": {
+            "draco_median_ms": 46.200000047683716,
+            "meshopt_median_ms": 10.600000023841858,
+            "ratio_meshopt_to_draco": 0.22943722971648134,
+            "runtime_errors": 0
+          },
+          "platform": "MSI Chrome headless exact-head evaluator",
+          "viewport": [
+            941,
+            1672
+          ]
+        },
+        "schema": "LQ_TASK_ACCEPTANCE:v1",
+        "task_id": "T030"
+      },
+      "ACCEPTANCE_SHA256": "78497537c7f031b5fb7e6d5d2680aebce5abb46f3ab3ad6c86e2780f3a6c1078",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_RELEASED": true,
+      "CLOSE_DISPATCHED_AT": "2026-09-24T15:59:26.012298Z",
+      "CLOSE_MARKER": "<!-- LQ_TASK_COMPLETE_CLOSE:worker-c-20260924T155835Z-t030-complete-op:78497537c7f031b5fb7e6d5d2680aebce5abb46f3ab3ad6c86e2780f3a6c1078 -->",
+      "CLOSE_MARKER_VERIFIED": true,
+      "CREATED_AT": "2026-09-24T15:59:17.535399Z",
+      "EXACT_HEAD": "f5bcaf2815b516ec3335f6c5c6e3b5b1d917101a",
+      "ISSUE": 158,
+      "LAST_UPDATED_AT": "2026-09-24T15:59:35.085828Z",
+      "OPERATION_ID": "worker-c-20260924T155835Z-t030-complete-op",
+      "OWNER_RUN_ID": "worker-c-20260924T155104Z-t030",
+      "PHASE": "COMPLETE",
+      "REQUEST_CHANNEL_SOURCE": {
+        "blob_sha": "e0254950522c39590f05a95ccb89983902a950e3",
+        "commit_sha": "3afbf6294023dfeae04f1307f9da2321bb20b75a",
+        "path": "requests/visual-rebuild/worker-c-20260924T155835Z-t030-complete.json",
+        "ref": "main",
+        "repository": "nisiyasu/luke-env-gateway-requests"
+      },
+      "TASK_ID": "T030",
+      "WORKER_ID": "C",
+      "WORK_LOG_COMMENT_ID": 5817592410,
+      "schema": "LQ_TASK_COMPLETION:v1"
+    },
+    "status": "TASK_COMPLETED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "e0254950522c39590f05a95ccb89983902a950e3",
+  "source_commit_sha": "3afbf6294023dfeae04f1307f9da2321bb20b75a",
+  "source_path": "requests/visual-rebuild/worker-c-20260924T155835Z-t030-complete.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
