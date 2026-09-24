@@ -1,0 +1,37 @@
+{
+  "lane_id": "field",
+  "ok": true,
+  "operation_id": "buildloop-m02p01-evidence-retrigger-20260924T1824Z-v2-op",
+  "processed_at": "2026-09-24T18:24:58.289541Z",
+  "request_id": "buildloop-m02p01-evidence-retrigger-20260924T1824Z-v2",
+  "request_sha256": "8689823d89808e9849645011581a32298573e7232b39cd0e830dd8cc602b30b6",
+  "result": {
+    "APPLIED_HEAD": "ebe052a8ae3fd1140fcb34390f3a255ef9af8beb",
+    "CONTENT_SHA256": "38293c15572fed5a361bcecb10668d383190420d49f2dc67e0eaa34fdee1d8d0",
+    "CREATED_AT": "2026-09-24T18:24:42.744375Z",
+    "LANE_ID": "field",
+    "LAST_UPDATED_AT": "2026-09-24T18:24:52.618431Z",
+    "LEASE_EPOCH": 62,
+    "MUTATION_TYPE": "IMPLEMENTATION_FILE_UPDATE",
+    "OPERATION_ID": "buildloop-m02p01-evidence-retrigger-20260924T1824Z-v2-op",
+    "OPERATION_STATE": "CONFIRMED_APPLIED",
+    "OWNER_RUN_ID": "LUKE-QUEST-BUILD-LOOP-20260924T182113Z-v1",
+    "REQUEST_CHANNEL_SOURCE": {
+      "blob_sha": "0c36d3428ecea9540c56d162b39510b21aff2316",
+      "commit_sha": "e05627000c5f15e6f327ea84b1d5a27abf10c5e0",
+      "path": "field-requests/buildloop-m02p01-evidence-retrigger-20260924T1824Z-v2.json",
+      "ref": "main",
+      "repository": "nisiyasu/luke-env-gateway-requests"
+    },
+    "REQUEST_ID": "buildloop-m02p01-evidence-retrigger-20260924T1824Z-v2",
+    "REQUEST_SHA256": "8689823d89808e9849645011581a32298573e7232b39cd0e830dd8cc602b30b6",
+    "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+    "TARGET_RESOURCE": "prototype/modern-3d:prototypes/modern-3d/M00_TRIGGER.txt"
+  },
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "0c36d3428ecea9540c56d162b39510b21aff2316",
+  "source_commit_sha": "e05627000c5f15e6f327ea84b1d5a27abf10c5e0",
+  "source_path": "field-requests/buildloop-m02p01-evidence-retrigger-20260924T1824Z-v2.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
