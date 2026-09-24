@@ -1,0 +1,67 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-c-20260924T1512Z-t031-complete-op",
+  "processed_at": "2026-09-24T15:12:52.375330Z",
+  "request_id": "worker-c-20260924T1512Z-t031-complete",
+  "request_sha256": "e11eee87f843af4e1755f1ab9de0181857091f98222c72a9bc609ec387320ede",
+  "result": {
+    "CLAIM_GENERATION": 1,
+    "EXACT_HEAD": "c9cdc0616452acf97541814c31543a1d32f572d7",
+    "ISSUE": 159,
+    "TASK_ID": "T031",
+    "WORK_LOG_COMMENT_ID": 5816822887,
+    "completion": {
+      "ACCEPTANCE": {
+        "accepted_head": "c9cdc0616452acf97541814c31543a1d32f572d7",
+        "evaluated_at": "2026-09-24T15:12:00Z",
+        "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+        "evidence_artifacts": [
+          {
+            "kind": "infrastructure-test",
+            "sha256": "4ed80954134d4d20dd700325a5f2912dcd7cc75539fd5e611f1b21e99411b09f",
+            "uri": "repo://nisiyasu/-luke-quest@c9cdc0616452acf97541814c31543a1d32f572d7/prototypes/target-image-threejs/verification/t031-infrastructure-test-v1.json"
+          }
+        ],
+        "result": "PASS",
+        "runtime_config": {
+          "command": "python http.server 4173 + Microsoft Edge headless DOM readback",
+          "platform": "MSI Microsoft Edge exact-head evaluator"
+        },
+        "schema": "LQ_TASK_ACCEPTANCE:v1",
+        "task_id": "T031"
+      },
+      "ACCEPTANCE_SHA256": "a4b72e2d19c54ff0ec2a5a63313a0ef03df233a45e8053b2e041f9caf75164c6",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_RELEASED": true,
+      "CLOSE_DISPATCHED_AT": "2026-09-24T15:12:41.006789Z",
+      "CLOSE_EVENT_ACTOR": "github-actions[bot]",
+      "CLOSE_EVENT_ID": 31767727232,
+      "CREATED_AT": "2026-09-24T15:12:32.946078Z",
+      "EXACT_HEAD": "c9cdc0616452acf97541814c31543a1d32f572d7",
+      "ISSUE": 159,
+      "LAST_UPDATED_AT": "2026-09-24T15:12:49.582604Z",
+      "OPERATION_ID": "worker-c-20260924T1512Z-t031-complete-op",
+      "OWNER_RUN_ID": "worker-c-20260924T1503Z-t031",
+      "PHASE": "COMPLETE",
+      "REQUEST_CHANNEL_SOURCE": {
+        "blob_sha": "491e5d93a97321c8c90b9001bb0a097d036ada04",
+        "commit_sha": "43eb71b1533030f73e9584200be1cb167c635738",
+        "path": "requests/visual-rebuild/worker-c-20260924T1512Z-t031-complete.json",
+        "ref": "main",
+        "repository": "nisiyasu/luke-env-gateway-requests"
+      },
+      "TASK_ID": "T031",
+      "WORKER_ID": "C",
+      "WORK_LOG_COMMENT_ID": 5816822887,
+      "schema": "LQ_TASK_COMPLETION:v1"
+    },
+    "status": "TASK_COMPLETED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "491e5d93a97321c8c90b9001bb0a097d036ada04",
+  "source_commit_sha": "43eb71b1533030f73e9584200be1cb167c635738",
+  "source_path": "requests/visual-rebuild/worker-c-20260924T1512Z-t031-complete.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
