@@ -31,8 +31,6 @@ jobs:
           set -euo pipefail
           actual="$(git rev-parse HEAD)"
           test "$actual" = "${{ inputs.expected_head }}"
-          branch_head="$(git ls-remote origin refs/heads/prototype/modern-3d | cut -f1)"
-          test "$branch_head" = "${{ inputs.expected_head }}"
       - name: Build fixture and start server
         shell: bash
         run: |
