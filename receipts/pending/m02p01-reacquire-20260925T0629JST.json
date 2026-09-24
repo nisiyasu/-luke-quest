@@ -1,0 +1,15 @@
+{
+  "error": "ActiveOperation: cannot acquire while an operation is unresolved",
+  "lane_id": "field",
+  "ok": false,
+  "operation_id": "m02p01-reacquire-20260925T0629JST-op",
+  "processed_at": "2026-09-24T21:28:27.337676Z",
+  "request_id": "m02p01-reacquire-20260925T0629JST",
+  "request_sha256": "019cdd0bd1da358fae1086c47d06d14b03119f58b8f0a38edb78bbd207325f27",
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "414e84eaeaca0822dc561e2e424a8b77e1e56e97",
+  "source_commit_sha": "3febc58ec229625826360e35e5fb0d0e773fbdf4",
+  "source_path": "field-requests/m02p01-reacquire-20260925T0629JST.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
