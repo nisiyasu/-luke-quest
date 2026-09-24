@@ -122,7 +122,8 @@ close時は先にGateway経由のevidence/work-log commentを保存し、その
 `evidence_comment_operation_id`
 をpayloadへ指定する。
 
-### ROUTER_UPDATE
+### EVIDENCE_WORKFLOW_DISPATCH
+Current Packetの証拠検証に必要な専用allowlisted workflowだけを明示起動する。\n\n必須:\n- `expected_lane_head`: mutation直前の `prototype/modern-3d` exact HEAD\n- payload `workflow`: Gateway固定allowlist内のみ\n- payload `expected_current_packet_issue`: fresh routerのCurrent Packetと一致\n\nGatewayはdispatch直前にfresh implementation HEADとCurrent Packetを再検証し、workflowへexact HEADを入力する。任意workflow名、任意ref、stale HEADは拒否する。\n\n### ROUTER_UPDATE
 更新可能なのはParent #12 comment `5646492352` だけ。
 
 payload必須:
