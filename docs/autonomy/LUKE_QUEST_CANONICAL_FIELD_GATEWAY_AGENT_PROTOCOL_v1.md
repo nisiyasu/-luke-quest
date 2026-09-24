@@ -122,8 +122,7 @@ close時は先にGateway経由のevidence/work-log commentを保存し、その
 `evidence_comment_operation_id`
 をpayloadへ指定する。
 
-### EVIDENCE_WORKFLOW_DISPATCH
-Current Packetの証拠検証に必要な専用allowlisted workflowだけを明示起動する。\n\n必須:\n- `expected_lane_head`: mutation直前の `prototype/modern-3d` exact HEAD\n- payload `workflow`: Gateway固定allowlist内のみ\n- payload `expected_current_packet_issue`: fresh routerのCurrent Packetと一致\n\nGatewayはdispatch直前にfresh Current Packetを再検証し、`expected_lane_head` が実在するimmutable commitであることを確認してworkflowへexact HEADを入力する。branchが後続の安全なcommitへ進んでいても、その証拠対象commit自体が実在する限り撮影可能とする。任意workflow名、任意ref、不存在commitは拒否する。\n\n### ROUTER_UPDATE
+### EVIDENCE_WORKFLOW_DISPATCH\n`DISABLED / 無効`。実測でGatewayのGitHub Actions tokenはworkflow dispatchに対して `403 Resource not accessible by integration` となる。これはCredential Boundaryであり、Current Packetの停止理由にしてはならない。証拠workflowはimplementation commitの既存push triggerで取得し、必要ならRDC/local runtime captureで補完する。Agentはこのoperationを通常経路として再試行しない。\n\n### ROUTER_UPDATE
 更新可能なのはParent #12 comment `5646492352` だけ。
 
 payload必須:
