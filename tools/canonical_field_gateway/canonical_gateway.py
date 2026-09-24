@@ -368,6 +368,12 @@ class CanonicalFieldGateway(base.Gateway):
         op = req["operation_type"]
         if op == "LEASE_ACQUIRE":
             return self.acquire(req)
+        if op == "EVIDENCE_WORKFLOW_DISPATCH":
+            raise base.RequestRejected(
+                "EVIDENCE_WORKFLOW_DISPATCH disabled: GitHub Actions token cannot dispatch workflows; "
+                "the allowlisted evidence workflow is push-triggered by implementation commits and "
+                "RDC/local runtime capture is the canonical fallback."
+            )
 
         handlers = {
             "LEASE_HEARTBEAT": self.heartbeat,
@@ -377,7 +383,6 @@ class CanonicalFieldGateway(base.Gateway):
             "ROUTER_ASSERT": self.router_assert,
             "CURRENT_PACKET_STATE": self.current_packet_state,
             "ROUTER_UPDATE": self.router_update,
-            "EVIDENCE_WORKFLOW_DISPATCH": self.evidence_workflow_dispatch,
         }
         try:
             return handlers[op](req)
