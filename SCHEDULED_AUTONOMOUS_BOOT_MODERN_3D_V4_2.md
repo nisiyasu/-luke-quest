@@ -387,6 +387,10 @@ Do not waste time with:
 
 Elapsed wall-clock time alone is not a success metric, but voluntary early termination while executable stage work remains is a defect.
 
+## 8.1 OWNER DIRECTIVE: DO NOT RETURN EARLY
+
+This program must run to the furthest safe executable completion in the current run. Do not return to the Owner merely because one edit, one commit, one request, one test, one screenshot, one review, or one repair completed. After every material action, review the result, repair defects, and immediately continue with the next safe executable action. Use Remote Desktop Commander / RDC when local execution, browser/runtime evidence, terminal work, or local verification materially advances the current packet. A queued or in-progress asynchronous job is not a reason to return while other safe work can be executed or while that job can be polled to its terminal result. Normal reporting is permitted only after GATE C confirms a valid stop condition under this boot contract. "A little progress then report" is execution degradation and must self-repair into continued execution.
+
 ## 9. FINAL RESPONSE LOCK
 
 `FINAL_RESPONSE_LOCK = ON`
