@@ -1,0 +1,21 @@
+{
+  "CREATED_AT": "2026-09-24T21:31:51.608074Z",
+  "LANE_ID": "field",
+  "LAST_UPDATED_AT": "2026-09-24T21:31:51.608096Z",
+  "LEASE_EPOCH": 64,
+  "MUTATION_TYPE": "CURRENT_PACKET_STATE",
+  "OPERATION_ID": "m02p01-close2-20260925T0635JST-op",
+  "OPERATION_STATE": "PREPARED",
+  "OWNER_RUN_ID": "CHAT-EVIDENCE-REPAIR-20260925",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "0d87c7197add62e04b34ba50f689ba31235cfd59",
+    "commit_sha": "1ee5e3a0faf4e3e0ad818afd4281ac7aaecd7502",
+    "path": "field-requests/m02p01-close2-20260925T0635JST.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "REQUEST_ID": "m02p01-close2-20260925T0635JST",
+  "REQUEST_SHA256": "ce1244ed69e46f03e291639fc9df720b708c7b4361f609bd6953ee7ad47ef2e5",
+  "RETRY_CLASS": "IDEMPOTENT_RETRY_SAFE",
+  "TARGET_RESOURCE": "issue-28:closed"
+}
