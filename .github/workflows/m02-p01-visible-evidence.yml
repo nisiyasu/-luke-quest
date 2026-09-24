@@ -1,6 +1,12 @@
 name: M02 P01 Visible Runtime Evidence
 
 on:
+  workflow_dispatch:
+    inputs:
+      expected_head:
+        description: "Exact prototype/modern-3d HEAD to verify"
+        required: true
+        type: string
   push:
     branches: ["prototype/modern-3d"]
     paths:
@@ -16,6 +22,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_head || github.sha }}
+      - name: Verify exact requested HEAD
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "${{ inputs.expected_head }}"
+          branch_head="$(git ls-remote origin refs/heads/prototype/modern-3d | cut -f1)"
+          test "$branch_head" = "${{ inputs.expected_head }}"
       - name: Build fixture and start server
         shell: bash
         run: |
