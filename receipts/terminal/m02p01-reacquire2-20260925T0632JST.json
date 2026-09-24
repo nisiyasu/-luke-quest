@@ -1,0 +1,39 @@
+{
+  "lane_id": "field",
+  "ok": true,
+  "operation_id": "m02p01-reacquire2-20260925T0632JST-op",
+  "processed_at": "2026-09-24T21:29:57.149537Z",
+  "request_id": "m02p01-reacquire2-20260925T0632JST",
+  "request_sha256": "2119248e81b0ec1c2275ec01146585281ab17072760a6f0c6523c23ba9bcf38a",
+  "result": {
+    "lease": {
+      "ACQUIRED_AT": "2026-09-24T21:29:54.999265Z",
+      "ACTIVE_OPERATION_ID": null,
+      "BASE_HEAD_SHA": "5fd6688514b4aa5705cd18279f91916bff7f2264",
+      "CURRENT_HEAD_SHA": "5fd6688514b4aa5705cd18279f91916bff7f2264",
+      "FENCING_TOKEN": 64,
+      "GATEWAY_CUTOVER_STATUS": "FENCED_CANONICAL_FIELD_GATEWAY_ACTIVE",
+      "IMPLEMENTATION_BRANCH": "prototype/modern-3d",
+      "LANE_ID": "field",
+      "LAST_GATEWAY_ACCEPTED_AT": "2026-09-24T21:15:24.013501Z",
+      "LAST_GATEWAY_COMPLETED_AT": "2026-09-24T18:24:52.618450Z",
+      "LAST_HEARTBEAT_AT": "2026-09-24T21:29:54.999303Z",
+      "LEASE_EPOCH": 64,
+      "LEASE_STATUS": "ACTIVE",
+      "LEASE_UNTIL": "2026-09-24T21:39:54.999290Z",
+      "OWNER_RUN_ID": "CHAT-EVIDENCE-REPAIR-20260925",
+      "PARENT_ISSUE": 12,
+      "PRODUCTION_ENABLED": true,
+      "PROGRAM_ID": "LQ-MODERN-3D-VISUAL-PROTOTYPE-20260911-V2",
+      "ROUTER_COMMENT_ID": 5646492352,
+      "schema": "LUKE_QUEST_CANONICAL_FIELD_LEASE:v1"
+    },
+    "status": "LEASE_ACQUIRED"
+  },
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "1a4c117e6ba74631a303c2c24622c8dca9a8bfb9",
+  "source_commit_sha": "c0334ebf29268e2de671536a5764c0035dad4e65",
+  "source_path": "field-requests/m02p01-reacquire2-20260925T0632JST.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
