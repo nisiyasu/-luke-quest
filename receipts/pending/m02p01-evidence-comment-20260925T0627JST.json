@@ -1,0 +1,15 @@
+{
+  "error": "LeaseUnavailable: lease expired",
+  "lane_id": "field",
+  "ok": false,
+  "operation_id": "m02p01-evidence-comment-20260925T0627JST-op",
+  "processed_at": "2026-09-24T21:27:22.241271Z",
+  "request_id": "m02p01-evidence-comment-20260925T0627JST",
+  "request_sha256": "f54f8ae7591880c00aee39f30d3991a37527fea7e80a32ef58f2cf71f0073be7",
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "95983992bfa35d9d0cfe15bd506af5a61e04db8b",
+  "source_commit_sha": "9af8908fd31e343f8d5bee1f275a2e13912acd24",
+  "source_path": "field-requests/m02p01-evidence-comment-20260925T0627JST.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": false
+}
