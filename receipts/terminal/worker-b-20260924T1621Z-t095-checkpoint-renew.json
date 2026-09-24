@@ -1,0 +1,37 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-b-20260924T1621Z-t095-checkpoint-renew-op",
+  "processed_at": "2026-09-24T16:20:10.743635Z",
+  "request_id": "worker-b-20260924T1621Z-t095-checkpoint-renew",
+  "request_sha256": "df78af93544b764557a77a93430f3efe7c498b8e215e5426bf9649049c44b5e9",
+  "result": {
+    "claim": {
+      "ACTIVE_OPERATION_ID": null,
+      "CLAIMED_AT": "2026-09-24T15:54:51.568001Z",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_STATUS": "ACTIVE",
+      "CLAIM_UNTIL": "2026-09-24T18:20:08.559377Z",
+      "EXPECTED_IMPLEMENTATION_HEAD": "6ce965c96a09d965d9c7c65302b27340b127d0b6",
+      "ISSUE": 223,
+      "LANE_ID": "visual-rebuild",
+      "LAST_PROGRESS_AT": "2026-09-24T16:20:08.559380Z",
+      "MAX_RECOVERY_ATTEMPTS": 3,
+      "NEXT_RECOVERY_ACTION": "OWNER_GATE_CONTROL_PLANE_ANOMALY: Request finalizer rejects WORK_SUPPLY_RECONCILE as operation_type not allowlisted; Native tree already has 114 unique T001-T114 leaves, missing=[]; deploy finalizer allowlist then FULL reconcile and complete T095",
+      "OWNER_RUN_ID": "worker-b-20260924T1557Z-t095",
+      "PHASE": "RECOVERY_PENDING",
+      "PROGRESS_DEADLINE_AT": "2026-09-24T16:50:08.559377Z",
+      "RECOVERY_ATTEMPTS": 0,
+      "TASK_ID": "T095",
+      "WORKER_ID": "B",
+      "schema": "LQ_WORK_CLAIM:v3"
+    },
+    "status": "CLAIM_RENEWED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "98edaf6653e884656379c702fa9f403cb7da0c8a",
+  "source_commit_sha": "ae6669764e57cd728de9313eadda089f80fd6a4a",
+  "source_path": "requests/visual-rebuild/worker-b-20260924T1621Z-t095-checkpoint-renew.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
