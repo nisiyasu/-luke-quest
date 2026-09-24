@@ -1,0 +1,14 @@
+{
+  "schema": "LQ_INFRASTRUCTURE_TEST_EVIDENCE:v1",
+  "task_id": "T028",
+  "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+  "result": "PASS",
+  "runtime": "Three.js 0.180.0 + GLTFLoader",
+  "entrypoint": "prototypes/target-image-threejs/index.html",
+  "viewport": [941,1672],
+  "device_pixel_ratio": 1,
+  "test_url": "http://127.0.0.1:4173/prototypes/target-image-threejs/index.html",
+  "test_command": "Playwright Chromium 941x1672 runtime GLB loader assertion",
+  "observed": {"glb_loaded":true,"format":"GLB","loader":"GLTFLoader","root_node":"T028_GLB_ROOT","scene_children":1,"runtime_errors":0},
+  "notes": "Deterministic embedded GLB 2.0 fixture loaded through Three.js GLTFLoader without legacy scene reuse."
+}
