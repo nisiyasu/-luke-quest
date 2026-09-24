@@ -366,6 +366,39 @@ class CanonicalFieldGateway(base.Gateway):
             raise base.RequestRejected("canonical field cutover disabled")
 
         op = req["operation_type"]
+        if op == "LEASE_ACQUIRE" and lane_lease.get("ACTIVE_OPERATION_ID"):
+            active_id = str(lane_lease.get("ACTIVE_OPERATION_ID") or "")
+            try:
+                active_op = self.gh.json_file(CONTROL_BRANCH, self._op_path(active_id))
+            except base.ApiError as exc:
+                if exc.status != 404:
+                    raise
+                active_op = None
+            expiry = base.parse_time(lane_lease.get("LEASE_UNTIL"))
+            if (
+                expiry is not None
+                and expiry <= __import__("time").time()
+                and active_op
+                and active_op.get("OPERATION_STATE") == base.DISPATCHED
+                and active_op.get("MUTATION_TYPE") == "EVIDENCE_WORKFLOW_DISPATCH"
+            ):
+                head = self.gh.ref(CONTROL_BRANCH)
+                active_op["OPERATION_STATE"] = base.CONFIRMED_NOT_APPLIED
+                active_op["LAST_UPDATED_AT"] = base.now_rfc3339()
+                active_op["RECOVERY_REASON"] = "workflow dispatch credential boundary; no target mutation applied"
+                lane_lease["ACTIVE_OPERATION_ID"] = None
+                lane_lease["LEASE_STATUS"] = base.RELEASED
+                lane_lease["LEASE_UNTIL"] = None
+                self.gh.cas_write_files(
+                    CONTROL_BRANCH,
+                    {
+                        self._op_path(active_id): self._encode_json(active_op),
+                        base.LEASE_PATH: self._encode_json(lane_lease),
+                    },
+                    f"gateway: reconcile unsupported dispatch {active_id}",
+                    expected_head=head,
+                )
+                lane_lease = self.lease(LANE_ID)
         if op == "LEASE_ACQUIRE":
             return self.acquire(req)
         if op == "EVIDENCE_WORKFLOW_DISPATCH":
