@@ -1,0 +1,15 @@
+{
+  "error": "StaleEpoch: STALE_LEASE_EPOCH",
+  "lane_id": "field",
+  "ok": false,
+  "operation_id": "m02p01-evidence-comment-20260925T0627JST-op",
+  "processed_at": "2026-09-24T21:30:47.853545Z",
+  "request_id": "m02p01-evidence-comment-20260925T0627JST",
+  "request_sha256": "f54f8ae7591880c00aee39f30d3991a37527fea7e80a32ef58f2cf71f0073be7",
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "95983992bfa35d9d0cfe15bd506af5a61e04db8b",
+  "source_commit_sha": "ea688425aebc742a36ee0fbfc0bfae80fff2c671",
+  "source_path": "field-requests/m02p01-evidence-comment-20260925T0627JST.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
