@@ -1,0 +1,72 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-c-20260924T154911Z-t029-complete-op",
+  "processed_at": "2026-09-24T15:50:06.000840Z",
+  "request_id": "worker-c-20260924T154911Z-t029-complete",
+  "request_sha256": "cac0e116f59408122c1d250aa9de32a999fe11fa158562b7fb348038acc26263",
+  "result": {
+    "CLAIM_GENERATION": 1,
+    "EXACT_HEAD": "6ce965c96a09d965d9c7c65302b27340b127d0b6",
+    "ISSUE": 157,
+    "TASK_ID": "T029",
+    "WORK_LOG_COMMENT_ID": 5817441073,
+    "completion": {
+      "ACCEPTANCE": {
+        "accepted_head": "6ce965c96a09d965d9c7c65302b27340b127d0b6",
+        "evaluated_at": "2026-09-24T15:49:11Z",
+        "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+        "evidence_artifacts": [
+          {
+            "kind": "infrastructure-test",
+            "sha256": "44980dca940e0026ae6aa9e0c7d419eac10496f9b37df24d8ebf055a26ec8e2d",
+            "uri": "repo://nisiyasu/-luke-quest@6ce965c96a09d965d9c7c65302b27340b127d0b6/prototypes/target-image-threejs/verification/t029-infrastructure-test-v1.json"
+          }
+        ],
+        "result": "PASS",
+        "runtime_config": {
+          "command": "python http.server 4173 + Python Playwright Chrome KTX2/Basis runtime readback",
+          "device_pixel_ratio": 1,
+          "platform": "MSI Chrome headless exact-head evaluator",
+          "viewport": [
+            941,
+            1672
+          ]
+        },
+        "schema": "LQ_TASK_ACCEPTANCE:v1",
+        "task_id": "T029"
+      },
+      "ACCEPTANCE_SHA256": "40b3affc8d12a7fdbe9ea62bb68ceefed98b4f297bb61d413efb09c2c83c0016",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_RELEASED": true,
+      "CLOSE_DISPATCHED_AT": "2026-09-24T15:49:57.591753Z",
+      "CLOSE_MARKER": "<!-- LQ_TASK_COMPLETE_CLOSE:worker-c-20260924T154911Z-t029-complete-op:40b3affc8d12a7fdbe9ea62bb68ceefed98b4f297bb61d413efb09c2c83c0016 -->",
+      "CLOSE_MARKER_VERIFIED": true,
+      "CREATED_AT": "2026-09-24T15:49:51.998436Z",
+      "EXACT_HEAD": "6ce965c96a09d965d9c7c65302b27340b127d0b6",
+      "ISSUE": 157,
+      "LAST_UPDATED_AT": "2026-09-24T15:50:04.054127Z",
+      "OPERATION_ID": "worker-c-20260924T154911Z-t029-complete-op",
+      "OWNER_RUN_ID": "worker-c-20260924T1528Z-t029",
+      "PHASE": "COMPLETE",
+      "REQUEST_CHANNEL_SOURCE": {
+        "blob_sha": "74c3ebc8236751ad6ab73380ae25cc0bb7cc25b0",
+        "commit_sha": "553bc1f85826a0adba0ccd055ea1f63cde2d8dc7",
+        "path": "requests/visual-rebuild/worker-c-20260924T154911Z-t029-complete.json",
+        "ref": "main",
+        "repository": "nisiyasu/luke-env-gateway-requests"
+      },
+      "TASK_ID": "T029",
+      "WORKER_ID": "C",
+      "WORK_LOG_COMMENT_ID": 5817441073,
+      "schema": "LQ_TASK_COMPLETION:v1"
+    },
+    "status": "TASK_COMPLETED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "74c3ebc8236751ad6ab73380ae25cc0bb7cc25b0",
+  "source_commit_sha": "553bc1f85826a0adba0ccd055ea1f63cde2d8dc7",
+  "source_path": "requests/visual-rebuild/worker-c-20260924T154911Z-t029-complete.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
