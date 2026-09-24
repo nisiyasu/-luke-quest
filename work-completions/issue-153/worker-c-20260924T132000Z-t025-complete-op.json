@@ -1,0 +1,47 @@
+{
+  "ACCEPTANCE": {
+    "accepted_head": "330a5b3e08237d6ce425b7e55273d23f05730bdb",
+    "evaluated_at": "2026-09-24T13:20:00Z",
+    "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+    "evidence_artifacts": [
+      {
+        "kind": "infrastructure-test",
+        "sha256": "7b5d31de2fb3a2982fc7f488068478407fb34c8277faa07d9ad8c1f1a8908565",
+        "uri": "repo://nisiyasu/-luke-quest@330a5b3e08237d6ce425b7e55273d23f05730bdb/prototypes/target-image-threejs/verification/t025-infrastructure-test-v1.json"
+      }
+    ],
+    "result": "PASS",
+    "runtime_config": {
+      "command": "python http.server 8142 + Chrome headless 941x1672 screenshot",
+      "dpr": 1,
+      "platform": "MSI Chrome headless exact-head evaluator",
+      "viewport_css_px": [
+        941,
+        1672
+      ]
+    },
+    "schema": "LQ_TASK_ACCEPTANCE:v1",
+    "task_id": "T025"
+  },
+  "ACCEPTANCE_SHA256": "28a9b5a6d6b899bd08d8fe08df1cd5959083cba413f8b52532cb6cb6caa73997",
+  "CLAIM_GENERATION": 1,
+  "CLOSE_DISPATCHED_AT": null,
+  "CREATED_AT": "2026-09-24T13:20:13.564620Z",
+  "EXACT_HEAD": "330a5b3e08237d6ce425b7e55273d23f05730bdb",
+  "ISSUE": 153,
+  "LAST_UPDATED_AT": "2026-09-24T13:20:13.564623Z",
+  "OPERATION_ID": "worker-c-20260924T132000Z-t025-complete-op",
+  "OWNER_RUN_ID": "worker-c-20260924T130900Z-t025",
+  "PHASE": "PREPARED",
+  "REQUEST_CHANNEL_SOURCE": {
+    "blob_sha": "71bad62678173ddd67aa2a133f9223ffb764cdf2",
+    "commit_sha": "f52272bbff53e128441abf2c378aa37e3a0294d7",
+    "path": "requests/visual-rebuild/worker-c-20260924T132000Z-t025-complete.json",
+    "ref": "main",
+    "repository": "nisiyasu/luke-env-gateway-requests"
+  },
+  "TASK_ID": "T025",
+  "WORKER_ID": "C",
+  "WORK_LOG_COMMENT_ID": null,
+  "schema": "LQ_TASK_COMPLETION:v1"
+}
