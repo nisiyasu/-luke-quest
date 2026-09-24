@@ -1,0 +1,15 @@
+{
+  "error": "RequestRejected: required gateway evidence comment marker not found",
+  "lane_id": "field",
+  "ok": false,
+  "operation_id": "m02p01-close-20260925T0627JST-op",
+  "processed_at": "2026-09-24T21:27:17.464477Z",
+  "request_id": "m02p01-close-20260925T0627JST",
+  "request_sha256": "bcfd8bffe47acdfa213c379f200336463b8aa35ac5e6b5b132f2cf898d54c9f6",
+  "schema": "LUKE_QUEST_CANONICAL_FIELD_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "dc87a9376a65a1bf5bd190117c3fc1a47bc9bcc3",
+  "source_commit_sha": "9af8908fd31e343f8d5bee1f275a2e13912acd24",
+  "source_path": "field-requests/m02p01-close-20260925T0627JST.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
