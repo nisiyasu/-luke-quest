@@ -316,13 +316,19 @@ class CanonicalFieldGateway(base.Gateway):
 
         expected_head = str(req.get("expected_lane_head") or "")
         actual_head = self.gh.ref(IMPLEMENTATION_BRANCH)
-        if not expected_head or expected_head != actual_head:
-            raise base.HeadMismatch("evidence dispatch requires exact implementation HEAD")
+        if not expected_head:
+            raise base.HeadMismatch("evidence dispatch requires expected implementation HEAD")
+        try:
+            self.gh.commit(expected_head)
+        except base.ApiError as exc:
+            if exc.status == 404:
+                raise base.HeadMismatch("evidence dispatch expected HEAD does not exist") from exc
+            raise
 
         _, op, _ = self._start_operation(
             req,
             "EVIDENCE_WORKFLOW_DISPATCH",
-            f"workflow:{workflow}@{actual_head}",
+            f"workflow:{workflow}@{expected_head}",
             "IDEMPOTENT_RETRY_SAFE",
         )
         if op["OPERATION_STATE"] == base.CONFIRMED_APPLIED:
@@ -332,7 +338,7 @@ class CanonicalFieldGateway(base.Gateway):
         self.gh.request(
             "POST",
             f"/actions/workflows/{workflow}/dispatches",
-            {"ref": IMPLEMENTATION_BRANCH, "inputs": {"expected_head": actual_head}},
+            {"ref": IMPLEMENTATION_BRANCH, "inputs": {"expected_head": expected_head}},
             ok=(204,),
         )
         return self._finish(
@@ -342,7 +348,8 @@ class CanonicalFieldGateway(base.Gateway):
             {
                 "WORKFLOW": workflow,
                 "DISPATCH_REF": IMPLEMENTATION_BRANCH,
-                "EXPECTED_HEAD": actual_head,
+                "EXPECTED_HEAD": expected_head,
+                "OBSERVED_BRANCH_HEAD_AT_DISPATCH": actual_head,
                 "CURRENT_PACKET_ISSUE": expected_packet,
             },
         )
