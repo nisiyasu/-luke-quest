@@ -27,12 +27,15 @@ class FakeGitHub:
             CONTROL: "c" * 40,
         }
         self.files = {}
-        self.comments_by_issue = {130: [], 133: []}
-        self.issue_state = {130: "open", 133: "open", 104: "open", 101: "open"}
-        self.parents = {130: 104, 133: 104, 104: 101, 101: None}
+        self.comments_by_issue = {130: [], 133: [], 141: []}
+        self.issue_state = {
+            130: "open", 133: "open", 141: "open", 104: "open", 101: "open"
+        }
+        self.parents = {130: 104, 133: 104, 141: 104, 104: 101, 101: None}
         self.next_comment_id = 1
         self.next_event_id = 1
-        self.events_by_issue = {130: [], 133: []}
+        self.events_by_issue = {130: [], 133: [], 141: []}
+        self.issue_close_markers = {}
         self.lease = {
             "PRODUCTION_ENABLED": True,
             "LEASE_STATUS": gw.RELEASED,
@@ -93,6 +96,16 @@ class FakeGitHub:
                     "WORK_TYPE: EXECUTION_LEAF\n"
                     "CLAIMABLE: YES\n"
                 )
+            if number == 141:
+                title = "T024: G0 exact-head evidence gate"
+                body = (
+                    "<!-- LQ_EXECUTION_LEAF:v1 -->\n"
+                    "PARENT_PROGRAM: #101\n"
+                    "TASK_ID: T024\n"
+                    "WORK_TYPE: EXECUTION_LEAF\n"
+                    "CLAIMABLE: YES\n"
+                )
+            body += self.issue_close_markers.get(number, "")
             parent = self.parents.get(number)
             return {
                 "number": number,
@@ -138,6 +151,16 @@ class FakeGitHub:
             })
             self.next_event_id += 1
             return self.issue(issue)
+
+    def close_issue_with_marker(self, issue, marker):
+        with self.lock:
+            self.issue_close_markers[issue] = (
+                self.issue_close_markers.get(issue, "")
+                + "\n\n"
+                + marker
+                + "\n"
+            )
+        return self.close_issue(issue, actor="github-actions[bot]")
 
     def cas_write_files(self, branch, files, message, expected_head=None, retries=8):
         if (
@@ -558,6 +581,28 @@ class AtomicWorkerOpsTests(unittest.TestCase):
         ):
             self.gateway.apply(req)
 
+    def test_same_bot_unrelated_close_after_dispatch_is_not_adopted(self):
+        self.claim()
+        req = self.complete_request(request_id="same-bot-unrelated-close")
+        original_update = self.gateway._completion_update
+        injected = {"done": False}
+
+        def inject_same_bot_close(*args, **kwargs):
+            result = original_update(*args, **kwargs)
+            if (
+                kwargs.get("phase") == "CLOSE_DISPATCHED"
+                and not injected["done"]
+            ):
+                injected["done"] = True
+                self.gh.close_issue(130, actor="github-actions[bot]")
+            return result
+
+        self.gateway._completion_update = inject_same_bot_close
+        with self.assertRaisesRegex(
+            gw.RequestRejected, "operation marker"
+        ):
+            self.gateway.apply(req)
+
     def test_stale_h1_acceptance_cannot_complete_h2(self):
         self.claim()
         h1 = self.gh.ref(IMPL)
@@ -591,6 +636,25 @@ class AtomicWorkerOpsTests(unittest.TestCase):
         )
         result = self.gateway.apply(req)
         self.assertEqual(result["status"], "TASK_COMPLETED")
+
+    def test_t019_rejects_caller_selected_infrastructure_evaluator(self):
+        self.claim(
+            worker="B", owner="run-b", issue=133, task="T019"
+        )
+        head = self.gh.ref(IMPL)
+        bypass = acceptance("T019", head, "INFRASTRUCTURE_TEST_V1")
+        req = self.complete_request(
+            issue=133,
+            task="T019",
+            owner="run-b",
+            worker="B",
+            acceptance_override=bypass,
+            request_id="t019-wrong-evaluator",
+        )
+        with self.assertRaisesRegex(
+            gw.RequestRejected, "evaluator mismatch"
+        ):
+            self.gateway.apply(req)
 
     def test_t019_capture_contract_rejects_wrong_viewport(self):
         self.claim(
@@ -628,14 +692,39 @@ class AtomicWorkerOpsTests(unittest.TestCase):
         ):
             self.gateway.apply(req)
 
+    def test_t024_rejects_caller_selected_infrastructure_evaluator(self):
+        self.claim(
+            worker="C", owner="run-c", issue=141, task="T024"
+        )
+        head = self.gh.ref(IMPL)
+        bypass = acceptance("T024", head, "INFRASTRUCTURE_TEST_V1")
+        req = self.complete_request(
+            issue=141,
+            task="T024",
+            owner="run-c",
+            worker="C",
+            acceptance_override=bypass,
+            request_id="t024-wrong-evaluator",
+        )
+        with self.assertRaisesRegex(
+            gw.RequestRejected, "evaluator mismatch"
+        ):
+            self.gateway.apply(req)
+
     def test_formal_visual_acceptance_requires_adopted_matching_head(self):
-        self.claim()
+        self.claim(
+            worker="C", owner="run-c", issue=141, task="T024"
+        )
         head = self.gh.ref(IMPL)
         acc = acceptance(
-            "T016", head, "FORMAL_VISUAL_EVIDENCE_V1"
+            "T024", head, "FORMAL_VISUAL_EVIDENCE_V1"
         )
         acc["adoption_id"] = "adopt-1"
         req = self.complete_request(
+            issue=141,
+            task="T024",
+            owner="run-c",
+            worker="C",
             acceptance_override=acc,
             request_id="formal-missing",
         )
@@ -644,7 +733,7 @@ class AtomicWorkerOpsTests(unittest.TestCase):
 
         adoption = {
             "ADOPTION_ID": "adopt-1",
-            "CHILD_ISSUE": 130,
+            "CHILD_ISSUE": 141,
             "IMPLEMENTATION_HEAD": "f" * 40,
             "STATE": "ADOPTED_CHILD_NOT_CLOSED",
             "READBACK_VERIFIED": True,
@@ -653,6 +742,10 @@ class AtomicWorkerOpsTests(unittest.TestCase):
             json.dumps(adoption).encode("utf-8")
         )
         req2 = self.complete_request(
+            issue=141,
+            task="T024",
+            owner="run-c",
+            worker="C",
             acceptance_override=acc,
             request_id="formal-wrong-head",
         )

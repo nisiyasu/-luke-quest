@@ -73,6 +73,41 @@ LEASE_PATH = "lease-state.json"
 CANONICAL_VIEWPORT = [941, 1672]
 UNRESOLVED = {PREPARED, DISPATCHED, RESULT_UNKNOWN, RECONCILIATION_REQUIRED}
 
+CURRENT_TASK_EVALUATORS = {
+    **{f"T{i:03d}": "INFRASTRUCTURE_TEST_V1" for i in range(13, 19)},
+    "T019": "T019_CAPTURE_CONTRACT_V1",
+    **{f"T{i:03d}": "INFRASTRUCTURE_TEST_V1" for i in range(20, 24)},
+    "T024": "FORMAL_VISUAL_EVIDENCE_V1",
+}
+
+
+def _work_supply_module():
+    try:
+        from . import work_supply
+        return work_supply
+    except ImportError:
+        pass
+    import sys
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import work_supply
+    return work_supply
+
+
+def control_task_evaluator(task_id: str) -> str | None:
+    """Evaluator fixed by control code: the literal table above, then the
+    spec-pinned work-graph manifest.  An unreadable manifest fails closed."""
+    if task_id in CURRENT_TASK_EVALUATORS:
+        return CURRENT_TASK_EVALUATORS[task_id]
+    try:
+        return _work_supply_module().task_evaluators().get(task_id)
+    except (OSError, ValueError, KeyError) as exc:
+        raise RequestRejected(
+            f"work graph manifest unreadable: {type(exc).__name__}: {exc}"
+        ) from exc
+
 
 class GatewayError(RuntimeError):
     pass
@@ -260,7 +295,49 @@ class GitHub:
             page += 1
 
     def blocked_by(self, issue: int) -> list[dict]:
-        return self.request("GET", f"/issues/{issue}/dependencies/blocked_by")
+        return self.request(
+            "GET", f"/issues/{issue}/dependencies/blocked_by?per_page=100"
+        )
+
+    def list_issues(self, since: str | None = None) -> list[dict]:
+        out = []
+        page = 1
+        extra = "&since=" + urllib.parse.quote(since) if since else ""
+        while True:
+            batch = self.request(
+                "GET",
+                f"/issues?state=all&per_page=100&page={page}{extra}",
+            )
+            out.extend(batch)
+            if len(batch) < 100:
+                return out
+            page += 1
+
+    def create_issue(self, title: str, body: str) -> dict:
+        return self.request(
+            "POST", "/issues", {"title": title, "body": body}, ok=(201,)
+        )
+
+    def update_issue_body(self, issue: int, body: str) -> dict:
+        return self.request(
+            "PATCH", f"/issues/{issue}", {"body": body}, ok=(200,)
+        )
+
+    def add_sub_issue(self, parent: int, child_id: int) -> dict:
+        return self.request(
+            "POST",
+            f"/issues/{parent}/sub_issues",
+            {"sub_issue_id": int(child_id)},
+            ok=(200, 201),
+        )
+
+    def add_blocked_by(self, issue: int, blocker_id: int) -> dict:
+        return self.request(
+            "POST",
+            f"/issues/{issue}/dependencies/blocked_by",
+            {"issue_id": int(blocker_id)},
+            ok=(200, 201),
+        )
 
     def events(self, issue: int) -> list[dict]:
         out = []
@@ -284,8 +361,21 @@ class GitHub:
         return self.request("PATCH", f"/issues/comments/{comment_id}", {"body": body}, ok=(200,))
 
     def close_issue(self, issue: int) -> dict:
-        return self.request("PATCH", f"/issues/{issue}", {"state": "closed"}, ok=(200,))
+        return self.request(
+            "PATCH", f"/issues/{issue}", {"state": "closed"}, ok=(200,)
+        )
 
+    def close_issue_with_marker(self, issue: int, marker: str) -> dict:
+        current = self.issue(issue)
+        body = str(current.get("body") or "")
+        if marker not in body:
+            body = body.rstrip() + "\n\n" + marker + "\n"
+        return self.request(
+            "PATCH",
+            f"/issues/{issue}",
+            {"state": "closed", "body": body},
+            ok=(200,),
+        )
 
 class Gateway:
     def __init__(self, gh: GitHub, *, production_enabled: bool, request_source: dict | None = None):
@@ -921,6 +1011,7 @@ class Gateway:
             progress,
             max_recovery,
         ) = self._claim_common(req)
+        self._assert_worker_capability(issue, task_id, payload)
         lease = self.lease(req["lane_id"])
         lease_expiry = parse_time(lease.get("LEASE_UNTIL"))
         if (
@@ -1151,6 +1242,7 @@ class Gateway:
             progress,
             max_recovery,
         ) = self._claim_common(req)
+        self._assert_worker_capability(issue, task_id, payload)
         branch = self._control(req["lane_id"])
         path = self._claim_path(issue)
         for _ in range(8):
@@ -1590,6 +1682,39 @@ class Gateway:
             )
 
         current_head = self.gh.ref(cfg["implementation_branch"])
+        recovery_of = str(payload.get("recovery_of_operation_id") or "")
+        recovery_hash = str(payload.get("recovery_of_request_sha256") or "")
+        if bool(recovery_of) != bool(recovery_hash):
+            raise RequestRejected(
+                "recovery_of_operation_id and recovery_of_request_sha256 "
+                "must be supplied together"
+            )
+        if recovery_of and self._patchset_matches(
+            cfg["implementation_branch"], files
+        ):
+            committed_claim = self._update_claim_after_operation(
+                req,
+                issue=issue,
+                claim_generation=generation,
+                phase="PATCHSET_APPLIED",
+                next_recovery_action="RUN_ACCEPTANCE_EVALUATOR",
+                expected_head=current_head,
+                extra={
+                    "LAST_APPLIED_HEAD": current_head,
+                    "LAST_PATCHSET_FILE_COUNT": len(files),
+                    "RECOVERED_FROM_OPERATION_ID": recovery_of,
+                    "RECOVERED_FROM_REQUEST_SHA256": recovery_hash,
+                    "RECOVERED_WITHOUT_DUPLICATE_COMMIT": True,
+                },
+            )
+            return {
+                "status": "PATCHSET_RECOVERED",
+                "APPLIED_HEAD": current_head,
+                "RECOVERED_WITHOUT_DUPLICATE_COMMIT": True,
+                "RECOVERED_FROM_OPERATION_ID": recovery_of,
+                "FILE_COUNT": len(files),
+                "CLAIM_PHASE": committed_claim.get("PHASE"),
+            }
         if current_head != expected_head:
             if self._patchset_matches(
                 cfg["implementation_branch"], files
@@ -1692,6 +1817,80 @@ class Gateway:
             "CLAIM_PHASE": committed_claim.get("PHASE"),
         }
 
+    def _required_task_evaluator(self, issue: int, task_id: str) -> str:
+        issue_data = self.gh.issue(issue)
+        body = str(issue_data.get("body") or "")
+        declared = self._body_field(body, "ACCEPTANCE_EVALUATOR")
+        required = control_task_evaluator(task_id)
+        if required:
+            # Control code is the authority; an Issue body cannot downgrade
+            # a formal evaluator.
+            if declared and declared != required:
+                raise RequestRejected(
+                    "acceptance evaluator declaration drift "
+                    f"task={task_id} control={required} issue={declared}"
+                )
+            return required
+        raise RequestRejected(
+            f"task {task_id} has no control-defined acceptance evaluator"
+        )
+
+    def _assert_worker_capability(
+        self, issue: int, task_id: str, payload: dict
+    ) -> None:
+        body = str(self.gh.issue(issue).get("body") or "")
+        declared_by_issue = self._body_field(body, "REQUIRED_CAPABILITY")
+        try:
+            required = _work_supply_module().task_capabilities().get(task_id)
+        except (OSError, ValueError, KeyError) as exc:
+            raise RequestRejected(
+                f"work graph manifest unreadable: {type(exc).__name__}: {exc}"
+            ) from exc
+        if not required:
+            raise RequestRejected(
+                f"task {task_id} has no control-defined capability"
+            )
+        if declared_by_issue and declared_by_issue != required:
+            raise RequestRejected(
+                "required capability declaration drift "
+                f"task={task_id} control={required} issue={declared_by_issue}"
+            )
+        if required == "STANDARD":
+            return
+        declared = payload.get("worker_capabilities") or []
+        if not isinstance(declared, list) or required not in declared:
+            raise RequestRejected(
+                f"issue {issue} requires capability {required}; "
+                f"worker declared {declared}"
+            )
+
+    def work_supply_reconcile(self, req: dict) -> dict:
+        if req["lane_id"] != "visual-rebuild":
+            raise RequestRejected("WORK_SUPPLY_RECONCILE is visual-rebuild only")
+        payload = req.get("payload") or {}
+        mode = str(payload.get("mode") or "FULL").upper()
+        if mode not in {"FULL", "MISSING_ONLY"}:
+            raise RequestRejected(f"unsupported work supply mode {mode}")
+        work_supply = _work_supply_module()
+        max_create = int(payload.get("max_create", 20))
+        if max_create < 1 or max_create > 40:
+            raise RequestRejected("max_create must be 1..40")
+        report = work_supply.WorkSupply(
+            self.gh, run_id=req["operation_id"]
+        ).reconcile(
+            apply=True,
+            missing_only=mode == "MISSING_ONLY",
+            max_create=max_create,
+        )
+        if report["status"] == "SPEC_DRIFT":
+            raise RequestRejected(
+                "work supply SPEC_DRIFT: " + str(report.get("error"))
+            )
+        if report["status"] == "SUPPLY_IN_FLIGHT":
+            # Terminal-ok so the lane is not blocked; the caller re-requests.
+            return {"status": "WORK_SUPPLY_IN_FLIGHT", "report": report}
+        return {"status": "WORK_SUPPLY_RECONCILED", "report": report}
+
     @staticmethod
     def _valid_sha256(value: object) -> bool:
         text = str(value or "")
@@ -1724,6 +1923,12 @@ class Gateway:
         evaluator = str(acceptance.get("evaluator_id") or "")
         if not evaluator:
             raise RequestRejected("acceptance evaluator_id required")
+        required_evaluator = self._required_task_evaluator(issue, task_id)
+        if evaluator != required_evaluator:
+            raise RequestRejected(
+                "acceptance evaluator mismatch "
+                f"task={task_id} required={required_evaluator} actual={evaluator}"
+            )
         runtime = acceptance.get("runtime_config")
         if not isinstance(runtime, dict):
             raise RequestRejected(
@@ -2251,6 +2456,13 @@ class Gateway:
                     "accepted revision is no longer current "
                     f"expected={exact_head} current={current_head}"
                 )
+            close_marker = (
+                "<!-- LQ_TASK_COMPLETE_CLOSE:"
+                + req["operation_id"]
+                + ":"
+                + acceptance_sha
+                + " -->"
+            )
             completion = self._completion_update(
                 req,
                 issue=issue,
@@ -2258,10 +2470,16 @@ class Gateway:
                 phase="CLOSE_DISPATCHED",
                 extra={
                     "CLOSE_DISPATCHED_AT": now_rfc3339(),
+                    "CLOSE_MARKER": close_marker,
                 },
             )
 
         if completion.get("PHASE") == "CLOSE_DISPATCHED":
+            close_marker = str(completion.get("CLOSE_MARKER") or "")
+            if not close_marker:
+                raise GatewayError(
+                    "completion close marker missing from durable operation"
+                )
             issue_data = self.gh.issue(issue)
             if str(issue_data.get("state", "")).lower() != "closed":
                 current_head = self.gh.ref(
@@ -2271,20 +2489,16 @@ class Gateway:
                     raise HeadMismatch(
                         "accepted revision changed before issue close"
                     )
-                self.gh.close_issue(issue)
+                self.gh.close_issue_with_marker(issue, close_marker)
                 issue_data = self.gh.issue(issue)
             if str(issue_data.get("state", "")).lower() != "closed":
                 raise GatewayError(
                     f"issue {issue} close readback failed"
                 )
-            close_event = self._gateway_close_event_after(
-                issue,
-                str(completion.get("CLOSE_DISPATCHED_AT") or ""),
-            )
-            if close_event is None:
-                raise GatewayError(
-                    "closed issue lacks matching gateway close event; "
-                    "manual/unrelated close cannot satisfy recovery"
+            if close_marker not in str(issue_data.get("body") or ""):
+                raise RequestRejected(
+                    "closed issue lacks this TASK_COMPLETE operation marker; "
+                    "unrelated closure cannot satisfy recovery"
                 )
             completion = self._completion_update(
                 req,
@@ -2292,10 +2506,7 @@ class Gateway:
                 record=completion,
                 phase="ISSUE_CLOSED",
                 extra={
-                    "CLOSE_EVENT_ID": close_event.get("id"),
-                    "CLOSE_EVENT_ACTOR": (
-                        close_event.get("actor") or {}
-                    ).get("login"),
+                    "CLOSE_MARKER_VERIFIED": True,
                 },
             )
 
@@ -3260,6 +3471,8 @@ class Gateway:
             return self.implementation_patchset(req)
         if op == "TASK_COMPLETE":
             return self.task_complete(req)
+        if op == "WORK_SUPPLY_RECONCILE":
+            return self.work_supply_reconcile(req)
         handlers = {
             "LEASE_HEARTBEAT": self.heartbeat,
             "LEASE_RELEASE": self.release,

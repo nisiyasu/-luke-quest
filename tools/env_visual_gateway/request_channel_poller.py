@@ -368,6 +368,47 @@ def main() -> None:
             ensure_ascii=False,
         )
     )
+    auto_reconcile_work_supply(target)
+
+
+def auto_reconcile_work_supply(target: GitHub) -> dict | None:
+    """Materialize missing #101 execution leaves on every poll.
+
+    Work supply must not depend on a Worker noticing READY=0.  MISSING_ONLY
+    costs one issue scan plus tasks.md when nothing is missing.
+    """
+    if os.environ.get("LQ_WORK_SUPPLY_AUTORECONCILE", "true") != "true":
+        return None
+    try:
+        import work_supply
+
+        lease = target.json_file("control/lease-visual-rebuild", "lease-state.json")
+        if lease.get("PRODUCTION_ENABLED") is not True:
+            return None
+        report = work_supply.WorkSupply(
+            target, run_id="poller-" + now_rfc3339()
+        ).reconcile(
+            apply=True,
+            missing_only=True,
+            max_create=int(os.environ.get("LQ_WORK_SUPPLY_MAX_CREATE", "12")),
+        )
+        summary = {
+            key: report.get(key)
+            for key in (
+                "schema", "status", "program_state", "missing_before",
+                "missing_after", "deferred", "created", "recovered", "activated",
+                "dependencies_added", "in_flight", "anomalies",
+            )
+        }
+        print(json.dumps({"work_supply": summary}, ensure_ascii=False))
+        return report
+    except Exception as exc:  # never break request processing
+        print(json.dumps(
+            {"work_supply": {"status": "ERROR",
+                             "error": f"{type(exc).__name__}: {exc}"}},
+            ensure_ascii=False,
+        ))
+        return None
 
 
 if __name__ == "__main__":

@@ -74,9 +74,12 @@ def main() -> int:
                 last_head = head
         time.sleep(max(1, args.interval_seconds))
 
+    # A wait timeout is NOT a run endpoint: the request is still NONTERMINAL.
     print(json.dumps(
         {"status": "TIMEOUT", "request_id": args.request_id,
-         "timeout_seconds": args.timeout_seconds},
+         "timeout_seconds": args.timeout_seconds,
+         "terminal": False,
+         "next_action": "CONTINUE_WAITING_SAME_REQUEST_ID"},
         ensure_ascii=False,
     ))
     return 2

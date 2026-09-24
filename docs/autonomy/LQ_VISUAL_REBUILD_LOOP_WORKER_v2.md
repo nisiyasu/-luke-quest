@@ -43,6 +43,49 @@ Agent exit is never Completion by itself.
 12. An OPEN Native blocker means not READY.
 13. Pending Draft / Request / Receipt is NONTERMINAL.
 14. Natural-language completion is not evidence.
+15. A Worker never disables its own schedule. READY == 0 is a state to classify, not a stop reason.
+16. Every tasks.md task has exactly one execution Leaf; missing Leafs are a control-plane repair (WORK_SUPPLY_RECONCILE), never "no work".
+17. A Leaf with CLAIMABLE other than YES (e.g. PENDING_DEPENDENCIES) is not READY.
+18. A Leaf whose REQUIRED_CAPABILITY is not STANDARD is claimed only by a run that declares that capability.
+
+## Work Supply (tasks.md -> execution Leafs)
+
+Task authority: tasks.md at the SPEC_COMMIT pinned by #101
+(88694c2812c18938c8d72db3c5933b3efba2e428).
+Graph authority: tools/env_visual_gateway/visual_rebuild_work_graph.json on main
+(container, semantic blocked_by with rationale, evaluator, capability per task).
+
+The Gateway operation WORK_SUPPLY_RECONCILE (payload {"mode":"FULL"}) and the poller's
+automatic MISSING_ONLY pass make GitHub match that graph:
+- one LQ_EXECUTION_LEAF:v1 Issue per task under its container, created idempotently
+  (control-branch reservation work-supply/tasks/<TASK>.json + unique supply marker)
+- Leafs are born CLAIMABLE: PENDING_DEPENDENCIES and become YES only after every
+  declared Native blocked_by edge reads back
+- only declared semantic edges; nothing deleted, closed, or unlinked
+- the terminal Receipt carries a LQ_WORK_SUPPLY_REPORT:v1 with `frontier`
+  (open Leafs, claimable, capability, open blocker tasks) and `program_state`
+- tasks.md changing without a manifest update is SPEC_DRIFT (fail closed, Owner gate)
+
+Leafs closed NOT_PLANNED / DUPLICATE (e.g. retry duplicates #137-#145) are neither work
+nor completion evidence.
+
+## READY == 0 classification (never self-disable)
+
+Evaluate in order; tools/env_visual_gateway/loop_worker_controller.py
+`decide_next_action` is the executable form.
+
+1. Own unconsumed Request not terminal -> WAIT_FOR_RECEIPT (same run)
+2. Own terminal Receipt -> ADVANCE (ok) or REPAIR (rejected) (same run)
+3. Own ACTIVE Claim -> continue it under the Claim Record's OWNER_RUN_ID
+   (renew near deadline; takeover when expired)
+4. Any stale ACTIVE Claim this Worker is capable of -> WORK_CLAIM_TAKEOVER
+5. Supply unobserved, missing Leafs, or partial -> WORK_SUPPLY_RECONCILE (FULL), wait for Receipt
+6. READY Leaf -> WORK_CLAIM_ACQUIRE (rank pick)
+7. Other Workers hold live Claims -> WAIT_FOR_UPSTREAM_IN_PROGRESS (end run, stay enabled)
+8. Only capability-gated Leafs unblocked -> OWNER_GATE_CAPABILITY (end run, stay enabled)
+9. ESCALATED Claim blocks -> OWNER_GATE_ESCALATED
+10. Still nothing after a fresh reconcile -> OWNER_GATE_CONTROL_PLANE_ANOMALY with the frontier
+11. Every task has a closed Leaf -> PROGRAM_TASKS_COMPLETE_OWNER_FINAL_GATE (#101 close is Owner's)
 
 ## Fresh recovery at every run
 
@@ -142,6 +185,12 @@ After Draft creation:
 - terminal Receipt ok=true: advance
 - terminal Receipt ok=false: repair / reconcile
 - wait timeout: durable Work remains unfinished; never report success
+
+There is no fixed wait bound. Keep polling the same request_id (about every 10-15 s,
+wait_for_terminal_receipt.py may be re-invoked after its TIMEOUT) until a terminal
+Receipt appears or only the checkpoint reserve (~4 min) of the run budget remains.
+Normal latency is ~1-2 min (finalizer -> direct poller dispatch); the scheduled poller
+cron is NOT a reliable fallback (GitHub delays it by hours), so an early exit strands work.
 
 Use the terminal Receipt as the operation result.
 Do not submit the same logical operation under a new id merely because a Receipt is delayed.
@@ -268,8 +317,10 @@ DEFINE GATE
 -> confirm Claim is RELEASED / completion COMPLETE
 -> only then move to another READY Leaf
 
-One run may acquire at most one new Leaf.
-It may perform unlimited repair iterations on that same Leaf within practical execution limits.
+A Worker owns at most one ACTIVE Claim at a time.
+It may perform unlimited repair iterations on that Leaf within practical execution limits.
+After the owned Leaf reaches COMPLETE / RELEASED, the same run selects the next READY Leaf
+when at least ~15 minutes of budget remain.
 
 Do not stop merely because:
 - code was written
@@ -290,8 +341,11 @@ Return to Owner only when:
 - material authority or scope change is required
 - security / external side-effect / cost approval is required
 - Acceptance contract itself remains ambiguous after reasonable investigation
-- required capability is unavailable
-- there is no executable or recoverable Work
+- the only unblocked Leafs require a capability this Worker lacks (OWNER_GATE_CAPABILITY)
+- SPEC_DRIFT or OWNER_GATE_CONTROL_PLANE_ANOMALY after a fresh WORK_SUPPLY_RECONCILE
+- every task Leaf is closed (Owner final gate for #101)
+
+READY == 0 alone is never an Owner gate and never a reason to disable the schedule.
 
 Ordinary implementation failures, visual mismatch, capture errors, tests, stale HEAD, delayed Receipt, and recoverable crashes are not Owner gates.
 
