@@ -1,0 +1,67 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-b-20260924T1555Z-t004-complete-op",
+  "processed_at": "2026-09-24T15:53:30.379730Z",
+  "request_id": "worker-b-20260924T1555Z-t004-complete",
+  "request_sha256": "871a299007169ffa666a3e27018f29cdd9a929fb4abdb1ee8cce95576232a760",
+  "result": {
+    "CLAIM_GENERATION": 1,
+    "EXACT_HEAD": "6ce965c96a09d965d9c7c65302b27340b127d0b6",
+    "ISSUE": 152,
+    "TASK_ID": "T004",
+    "WORK_LOG_COMMENT_ID": 5817492773,
+    "completion": {
+      "ACCEPTANCE": {
+        "accepted_head": "6ce965c96a09d965d9c7c65302b27340b127d0b6",
+        "evaluated_at": "2026-09-24T15:55:00Z",
+        "evaluator_id": "INFRASTRUCTURE_TEST_V1",
+        "evidence_artifacts": [
+          {
+            "kind": "planning-authority",
+            "sha256": "971cdbc9f19c6e63d3c7859e0a53d5cf0df1d950de95f3ca204c7f267c00136c",
+            "uri": "repo://nisiyasu/-luke-quest@88694c2812c18938c8d72db3c5933b3efba2e428/specs/001-target-image-threejs/DEVELOPMENT_PIPELINE_v1.md"
+          }
+        ],
+        "result": "PASS",
+        "runtime_config": {
+          "command": "GitHub fetch_file at pinned SPEC_COMMIT + git cat-file SHA256 verification",
+          "platform": "GitHub authority + MSI read-only verification"
+        },
+        "schema": "LQ_TASK_ACCEPTANCE:v1",
+        "task_id": "T004"
+      },
+      "ACCEPTANCE_SHA256": "a8a62ea56fc6e470084946641cb85cb535855d195d21db8c0697909987dca080",
+      "CLAIM_GENERATION": 1,
+      "CLAIM_RELEASED": true,
+      "CLOSE_DISPATCHED_AT": "2026-09-24T15:53:17.564445Z",
+      "CLOSE_MARKER": "<!-- LQ_TASK_COMPLETE_CLOSE:worker-b-20260924T1555Z-t004-complete-op:a8a62ea56fc6e470084946641cb85cb535855d195d21db8c0697909987dca080 -->",
+      "CLOSE_MARKER_VERIFIED": true,
+      "CREATED_AT": "2026-09-24T15:53:10.147042Z",
+      "EXACT_HEAD": "6ce965c96a09d965d9c7c65302b27340b127d0b6",
+      "ISSUE": 152,
+      "LAST_UPDATED_AT": "2026-09-24T15:53:27.540683Z",
+      "OPERATION_ID": "worker-b-20260924T1555Z-t004-complete-op",
+      "OWNER_RUN_ID": "worker-b-20260924T1549Z-t004",
+      "PHASE": "COMPLETE",
+      "REQUEST_CHANNEL_SOURCE": {
+        "blob_sha": "97ffd8ca3229ff76e2cb41c0a41a75eb8195ea19",
+        "commit_sha": "fddfc1710b40d7e945617408ce27da33690ac18a",
+        "path": "requests/visual-rebuild/worker-b-20260924T1555Z-t004-complete.json",
+        "ref": "main",
+        "repository": "nisiyasu/luke-env-gateway-requests"
+      },
+      "TASK_ID": "T004",
+      "WORKER_ID": "B",
+      "WORK_LOG_COMMENT_ID": 5817492773,
+      "schema": "LQ_TASK_COMPLETION:v1"
+    },
+    "status": "TASK_COMPLETED"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "97ffd8ca3229ff76e2cb41c0a41a75eb8195ea19",
+  "source_commit_sha": "fddfc1710b40d7e945617408ce27da33690ac18a",
+  "source_path": "requests/visual-rebuild/worker-b-20260924T1555Z-t004-complete.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
