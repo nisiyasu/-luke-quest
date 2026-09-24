@@ -1,0 +1,15 @@
+{
+  "error": "ApiError: GitHub API 404: {\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/repos/contents#get-repository-content\",\"status\":\"404\"}",
+  "lane_id": "visual-rebuild",
+  "ok": false,
+  "operation_id": "worker-c-20260924T155104Z-t030-claim-op",
+  "processed_at": "2026-09-24T15:51:45.199759Z",
+  "request_id": "worker-c-20260924T155104Z-t030-claim",
+  "request_sha256": "8d017ceb39d6efe0a0040afe9491ad64ad5fa72fb27bbb848ffc0480b256954f",
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "a4d42fbfc043ce349eb707eead47554e764f244a",
+  "source_commit_sha": "68c89e8ec7b7478e460df7879c088fd671ee5677",
+  "source_path": "requests/visual-rebuild/worker-c-20260924T155104Z-t030-claim.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
