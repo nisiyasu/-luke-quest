@@ -1,0 +1,41 @@
+{
+  "lane_id": "visual-rebuild",
+  "ok": true,
+  "operation_id": "worker-c-20260926T0506JST-t003-takeover-r2",
+  "processed_at": "2026-09-25T20:08:05.050944Z",
+  "request_id": "worker-c-20260926T0506JST-t003-takeover-r2",
+  "request_sha256": "67076f02a53257a7eeb457829128e65cfd299e6e0ae7576a2799d71ae9a910e2",
+  "result": {
+    "claim": {
+      "ACTIVE_OPERATION_ID": null,
+      "CLAIMED_AT": "2026-09-25T20:08:01.611472Z",
+      "CLAIM_GENERATION": 2,
+      "CLAIM_STATUS": "ACTIVE",
+      "CLAIM_UNTIL": "2026-09-25T22:08:01.611462Z",
+      "EXPECTED_IMPLEMENTATION_HEAD": "7325610213b5ee1863ba9b2c986fe919a22b00f2",
+      "FENCE_HEAD": "7325610213b5ee1863ba9b2c986fe919a22b00f2",
+      "ISSUE": 151,
+      "LANE_ID": "visual-rebuild",
+      "LAST_PROGRESS_AT": "2026-09-25T20:08:01.611501Z",
+      "MAX_RECOVERY_ATTEMPTS": 3,
+      "NEXT_RECOVERY_ACTION": "EXECUTE_TASK",
+      "OWNER_RUN_ID": "worker-c-20260924T220449Z-t003",
+      "PHASE": "RECOVERY_PENDING",
+      "PREVIOUS_GENERATION": 1,
+      "PREVIOUS_OWNER_RUN_ID": "worker-a-20260924T162200Z-t003",
+      "PROGRESS_DEADLINE_AT": "2026-09-25T20:38:01.611462Z",
+      "RECOVERY_ATTEMPTS": 1,
+      "TASK_ID": "T003",
+      "WORKER_ID": "C",
+      "schema": "LQ_WORK_CLAIM:v3"
+    },
+    "revoked_writer_path": "revoked-writers/03219ed83a6321d73f23188d6d1c94b83675295e5e677513b0385a35b0f9113c.json",
+    "status": "CLAIM_TAKEN_OVER"
+  },
+  "schema": "LUKE_QUEST_ENV_GATEWAY_RECEIPT:v1",
+  "source_blob_sha": "4193dcd4c08c415290e63fee8f140287f26435fc",
+  "source_commit_sha": "4d174aefc2dc29c6cc4eed8f9d9714dfbf612796",
+  "source_path": "requests/visual-rebuild/worker-c-20260926T0506JST-t003-takeover-r2.json",
+  "source_repository": "nisiyasu/luke-env-gateway-requests",
+  "terminal": true
+}
