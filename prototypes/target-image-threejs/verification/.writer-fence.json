@@ -1,9 +1,9 @@
 {
-  "fenced_at": "2026-09-25T23:09:31.257962Z",
-  "from_generation": 3,
-  "from_owner_run_id": "worker-c-20260925T220351Z-t003",
+  "fenced_at": "2026-09-26T01:07:33.347661Z",
+  "from_generation": 4,
+  "from_owner_run_id": "worker-c-20260925T230832Z-t003",
   "issue": 151,
   "reason": "NO_PROGRESS_OR_EXPIRED_CLAIM",
-  "replacement_generation": 4,
+  "replacement_generation": 5,
   "schema": "LQ_WRITER_FENCE:v2"
 }
